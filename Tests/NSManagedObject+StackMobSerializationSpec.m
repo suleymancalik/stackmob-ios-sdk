@@ -283,7 +283,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             describe(@"properties", ^{
                 __block NSDictionary *dictionary = nil;
                 beforeEach(^{
-                    dictionary = [iMadeYouACookie sm_dictionarySerialization];
+                    dictionary = [[iMadeYouACookie sm_dictionarySerialization] objectForKey:@"SerializedDict"];
                 });
                 it(@"returns a dictionary of the object's properties as field names", ^{
                     [[dictionary should] haveValue:@"I MADE YOU A COOKIE, BUT I EATED IT" forKey:@"caption"];
@@ -304,7 +304,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             describe(@"relationships", ^{
                 __block NSDictionary *dictionary = nil;
                 beforeEach(^{
-                    dictionary = [iMadeYouACookie sm_dictionarySerialization];
+                    dictionary = [[iMadeYouACookie sm_dictionarySerialization] objectForKey:@"SerializedDict"];
                 });
                 /*
                 it(@"includes nil relationships", ^{
@@ -334,8 +334,9 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
         
         describe(@"-sm_relationshipHeader", ^{
             it(@"should return the appropriate header string for nested relationships", ^{
-                NSArray *relationships = [[iMadeYouACookie sm_relationshipHeader] componentsSeparatedByString:@"&"];
-                [[relationships should] containObjects:@"tags=tag", @"photo=photo", @"owner=user", @"photo.photographer=user", @"owner.lolcats=lolcat", nil];
+                NSDictionary *serializedDict = [iMadeYouACookie sm_dictionarySerialization];
+                NSArray *relationships = [[serializedDict objectForKey:@"X-StackMob-Relations"] componentsSeparatedByString:@"&"];
+                [[relationships should] containObjects:@"tags=tag", @"photo=photo", @"photo.photographer=user", @"photo.photographer.lolcats=lolcat", nil];
             });
         });
     });

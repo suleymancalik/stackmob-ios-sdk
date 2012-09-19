@@ -63,31 +63,4 @@
     return [matchingProperties anyObject];
 }
 
-- (NSArray *)sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:(NSMutableSet *)processedEntities keyPath:(NSString *)path
-{
-    if (processedEntities == nil) {
-        processedEntities = [NSMutableSet set];
-    }
-    [processedEntities addObject:self];
-    
-    NSMutableArray *headerValues = [NSMutableArray array];
-    
-    [[self relationshipsByName] enumerateKeysAndObjectsUsingBlock:^(id relationshipName, id relationship, BOOL *stop) {
-        NSMutableString *relationshipKeyPath = [NSMutableString string];
-        if (path && [path length] > 0) {
-            [relationshipKeyPath appendFormat:@"%@.", path];
-        }
-        [relationshipKeyPath appendString:[self sm_fieldNameForProperty:relationship]];
-        
-        [headerValues addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] sm_schema]]];
-        
-        NSEntityDescription *destination = [relationship destinationEntity];
-        if (NO == [processedEntities containsObject:destination]) {
-            [headerValues addObjectsFromArray:[destination sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:processedEntities keyPath:relationshipKeyPath]];
-        }
-    }];
-    
-    return headerValues;
-}
-
 @end

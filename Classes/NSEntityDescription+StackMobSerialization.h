@@ -56,14 +56,4 @@
  */
 - (NSPropertyDescription *)sm_propertyForField:(NSString *)fieldName;
 
-/**
- A recursive method to traverse an `NSEntityDescription`'s properties and create a relationship header needed by StackMob when POSTing objects which contain nested relationship objects.
- 
- @param processedEntities A set of the entities that have already been processed.
- @param path The current path in the traversal tree, which allows us to add headers like person.superpower.interest=interest.
- 
- @return An `NSArray` containing each piece of the relationship header, which is then joined by & to form an `NSString` and added to the request headers.
- */
-- (NSArray *)sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:(NSMutableSet *)processedEntities keyPath:(NSString *)path;
-
 @end

@@ -58,11 +58,4 @@
  */
 - (NSDictionary *)sm_dictionarySerialization;
 
-/**
- Triggers the `sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:withKeyPath:` method in <NSEntityDescription(StackMobSerialization)>.
- 
- @return A string of all relationship header components joined by &.
- */
-- (NSString *)sm_relationshipHeader;
-
 @end
