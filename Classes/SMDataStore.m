@@ -65,7 +65,13 @@
             failureBlock(error, theObject, schema);
         }
     } else {
-        NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"POST" path:schema parameters:theObject];
+        NSString *theSchema = schema;
+        if ([schema rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]].location == NSNotFound) {
+            // lowercase the schema for StackMob
+            theSchema = [theSchema lowercaseString];
+        }
+        
+        NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"POST" path:theSchema parameters:theObject];
         [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
             [request setValue:headerValue forHTTPHeaderField:headerField]; 
         }];
@@ -101,7 +107,7 @@
             failureBlock(error, updatedFields, schema);
         }
     } else {
-        NSString *path = [schema stringByAppendingPathComponent:theObjectId];
+        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:theObjectId];
         
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"PUT" path:path parameters:updatedFields]; 
         [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
@@ -150,7 +156,7 @@
             failureBlock(error, theObjectId, schema);
         }
     } else {
-        NSString *path = [schema stringByAppendingPathComponent:theObjectId];
+        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:theObjectId];
 
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"DELETE" path:path parameters:nil];
         [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {

@@ -71,7 +71,7 @@ static SMClient *defaultClient = nil;
         self.appAPIVersion = appAPIVersion;
         self.apiHost = apiHost;
         self.publicKey = publicKey;
-        self.userSchema = userSchema;
+        self.userSchema = [userSchema lowercaseString];
         self.userIdName = userIdName;
         self.passwordFieldName = passwordFieldName;
         
@@ -120,6 +120,13 @@ static SMClient *defaultClient = nil;
     }
     
     return self.coreDataStore;
+}
+
+- (void)setUserSchema:(NSString *)userSchema
+{
+    if (_SM_userSchema != userSchema) {
+        _SM_userSchema = [userSchema lowercaseString];
+    }
 }
 
 - (void)loginWithUsername:(NSString *)username

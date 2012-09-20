@@ -39,7 +39,7 @@
 {
     self = [super init];
     if (self) {
-        _schemaName = schema;
+        _schemaName = [schema lowercaseString];
         _requestParameters = [NSMutableDictionary dictionaryWithCapacity:1];
         _requestHeaders = [NSMutableDictionary dictionaryWithCapacity:1];
     }

@@ -41,8 +41,6 @@ NSString *const SerializedDictKey = @"SerializedDict";
              withContext:(NSManagedObjectContext *)context 
                    error:(NSError *__autoreleasing *)error;
 
-//- (BOOL)relationshipsPresentInSerializedDict:(NSDictionary *)sm_dict object:(id)anObject;
-
 - (NSDictionary *)sm_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context;
 
 @end
@@ -634,25 +632,6 @@ You should implement this method conservatively, and expect that unknown request
 - (NSString *)remoteKeyForEntityName:(NSString *)entityName {
     return [[entityName lowercaseString] stringByAppendingString:@"_id"];
 }
-
-/*
- Returns whether relationship references are present in the StackMob dictionary representation of a Core Data NSManagedObject.
-- (BOOL)relationshipsPresentInSerializedDict:(NSDictionary *)sm_dict object:(id)anObject
-{
-    NSEntityDescription *objectEntityDescription = [anObject entity];
-    if ([[objectEntityDescription relationshipsByName] count] > 0) {
-        
-        // check if the relationships are non-nil and we should add headers
-        __block NSArray *sm_dictAllKeys = [sm_dict allKeys];
-        for (NSString *relationshipName in [[objectEntityDescription relationshipsByName] allKeys]) {
-            if ([sm_dictAllKeys indexOfObject:relationshipName] != NSNotFound) {
-                return YES;
-            }
-        }
-    }
-    return NO;
-}
- */
 
 /*
  Returns a dictionary that has extra fields from StackMob that aren't present as attributes or relationships in the Core Data representation stripped out.  Examples may be StackMob added createddate or lastmoddate.

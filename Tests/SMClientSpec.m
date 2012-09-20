@@ -192,6 +192,14 @@ describe(@"complex configuration", ^{
                 [[[client userSchema] should] equal:@"player"];
             });
         });
+        context(@"when I change the user object name to include uppercase letters", ^{
+            beforeEach(^{
+                [client setUserSchema:@"Player"];
+            });
+            it(@"should now equal player", ^{
+                [[[client userSchema] should] equal:@"player"];
+            });
+        });
     });
     
     describe(@"userIdName", ^{

@@ -132,7 +132,7 @@
             failureBlock(error, theObjectId, schema);
         }
     } else {
-        NSString *path = [schema stringByAppendingPathComponent:theObjectId];
+        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:theObjectId];
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"GET" path:path parameters:parameters];
         [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
             [request setValue:headerValue forHTTPHeaderField:headerField]; 

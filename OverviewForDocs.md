@@ -28,7 +28,7 @@ The goal of the iOS SDK is to provide the best experience possible for developin
 
 The biggest difference between the new and the current SDKs is our use of Core Data as a foundation for the new SDK. We believe Core Data is a better approach for integrating StackMob’s REST based API into an iOS application.
 
-We've also separated our Push Notification API into a separate SDK. For more information, see the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/index.html).
+We've also separated our Push Notification API into a separate SDK. For more information, see the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/SMPushClient.html).
 
 ### Why base the new SDK on Core Data? 
 Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and datastore API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full data store API.
@@ -129,6 +129,10 @@ SMClient provides all the necessary methods for user authentication.
 The default schema to use for authentication is **user**, with **username** and **password** fields. 
 
 If you plan on using a different user object schema or different field names, check out the **User Authentication** section of the [SMClient Class Reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html).
+
+### Push Notifications
+
+Push Notification support has been moved into a separate SDK.  Check out the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/SMPushClient.html) to get started with push.
 
 <a name="coding_practices">&nbsp;</a>
 ## StackMob <--> Core Data Coding Practices
