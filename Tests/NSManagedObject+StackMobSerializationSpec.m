@@ -287,7 +287,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
                 });
                 it(@"returns a dictionary of the object's properties as field names", ^{
                     [[dictionary should] haveValue:@"I MADE YOU A COOKIE, BUT I EATED IT" forKey:@"caption"];
-                    [[dictionary should] haveValue:now forKey:@"captionedat"];
+                    [[dictionary should] haveValue:now forKey:@"captioned_at"];
                 });
                 /*
                 it(@"includes nil properties", ^{

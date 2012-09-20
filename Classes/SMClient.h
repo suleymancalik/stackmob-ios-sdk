@@ -50,6 +50,15 @@
  
  **Important:** The default schema to use for authentication is **user**, with **username** and **password** fields. If you plan on using a different user object schema or different field names, check out the **User Authentication** section below.
  
+ <br/>
+ 
+ ### Default Client ###
+ 
+ The class method <defaultClient> gives you a shared instance of your configured `SMClient` instance. 
+ 
+ It is always set to the first `SMClient` instance that is initialized, and can be set to a different instance with the <setDefaultClient:> method.
+ 
+ 
  ## Core Data Integration ##
  
  In order to use the Core Data integration, you must initialize an `SMClient` as well as a `NSManagedObjectModel`, then pass the `NSManagedObjectModel` instance to the `SMClient` instance method <coreDataStoreWithManagedObjectModel:> which returns an instance of <SMCoreDataStore>.  You can then retrieve an instance of `NSManagedObjectContext`:

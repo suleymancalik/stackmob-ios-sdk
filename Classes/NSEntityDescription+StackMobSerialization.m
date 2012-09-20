@@ -42,25 +42,50 @@
 
 - (NSString *)sm_fieldNameForProperty:(NSPropertyDescription *)property 
 {
-    return [[property name] lowercaseString];
+    NSCharacterSet *uppercaseSet = [NSCharacterSet uppercaseLetterCharacterSet];
+    NSMutableString *stringToReturn = [[property name] mutableCopy];
+    
+    NSRange range = [stringToReturn rangeOfCharacterFromSet:uppercaseSet];
+    if (range.location == 0) {
+        [NSException raise:SMExceptionIncompatibleObject format:@"Property %@ cannot start with an uppercase letter.  Acceptable formats are camelCase or lowercase letters with optional underscores", [property name]];
+    }
+    while (range.location != NSNotFound) {
+        
+        unichar letter = [stringToReturn characterAtIndex:range.location] + 32;
+        [stringToReturn replaceCharactersInRange:range withString:[NSString stringWithFormat:@"_%C", letter]];
+        range = [stringToReturn rangeOfCharacterFromSet:uppercaseSet];
+    }
+    
+    return stringToReturn;
 }
 
 - (NSPropertyDescription *)sm_propertyForField:(NSString *)fieldName
 {
-    NSMutableSet *matchingProperties = [NSMutableSet set];
-    [[self propertiesByName] enumerateKeysAndObjectsUsingBlock:^(id propertyName, id property, BOOL *stop) {
-        if ([fieldName isEqualToString:[self sm_fieldNameForProperty:property]]) {
-            [matchingProperties addObject:property];
-        }
-    }];
+    // Look for matching names with all lowercase or underscores first
+    NSPropertyDescription *propertyToReturn = [[self propertiesByName] objectForKey:fieldName];
+    if (propertyToReturn) {
+        return propertyToReturn;
+    }
     
-    if ([matchingProperties count] > 1) {
-        [NSException raise:SMExceptionIncompatibleObject format:@"Multiple matching properties found for field \"%@\":%@", fieldName, matchingProperties];
+    // Then look for camelCase equivalents
+    NSCharacterSet *underscoreSet = [NSCharacterSet characterSetWithCharactersInString:@"_"];
+    NSMutableString *convertedFieldName = [fieldName mutableCopy];
+    
+    NSRange range = [convertedFieldName rangeOfCharacterFromSet:underscoreSet];
+    while (range.location != NSNotFound) {
+        
+        unichar letter = [convertedFieldName characterAtIndex:(range.location + 1)] - 32;
+        [convertedFieldName replaceCharactersInRange:NSMakeRange(range.location, 2) withString:[NSString stringWithFormat:@"%C", letter]];
+        range = [convertedFieldName rangeOfCharacterFromSet:underscoreSet];
     }
-    else if ([matchingProperties count] == 0) {
-        return nil;
+    
+    propertyToReturn = [[self propertiesByName] objectForKey:convertedFieldName];
+    if (propertyToReturn) {
+        return propertyToReturn;
     }
-    return [matchingProperties anyObject];
+    
+    // No matching properties
+    return nil;
 }
 
 @end

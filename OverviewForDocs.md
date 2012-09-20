@@ -26,17 +26,19 @@ The goal of the iOS SDK is to provide the best experience possible for developin
 
 ### How is the new iOS SDK different from the older version? 
 
-The biggest difference between the new and the current SDKs is our use of Core Data as a foundation for the new SDK. We believe Core Data is a better approach for integrating StackMob’s REST based API into an iOS application.
+The biggest difference between the new and the current SDKs is our use of Core Data as a foundation for the new SDK. We believe Core Data is a powerful approach for integrating StackMob’s REST based API into an iOS application.
+
+That being said, we understand that Core Data is not suitable for every application, which is why we still expose the complete REST based API for making create, read, update and delete calls and performing queries on your database.
 
 We've also separated our Push Notification API into a separate SDK. For more information, see the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/SMPushClient.html).
 
 ### Why base the new SDK on Core Data? 
-Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and datastore API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full data store API.
+Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and datastore API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full data store API as well.
 
 ### Already know Core Data?
 Then you already know how to use StackMob!
 
-All you need to do to get started with StackMob is initialize an instance of SMClient and use a configured managed object context by following the instructions in <a href="#getting_started">Initialize an SMClient</a>.
+All you need to do to get started with StackMob is initialize an instance of SMClient and grab the configured managed object context by following the instructions in <a href="#getting_started">Initialize an SMClient</a>.
 
 ### What's supported with our Core Data integration?
 
@@ -114,11 +116,7 @@ Use this instance of NSManagedObjectContext throughout your application. Other t
 
 #### Lower Level Datastore API
 
-If you want to make direct REST-based calls to the datastore, grab an instance of SMDataStore like this:
-
-	SMDataStore *dataStore = [client dataStore];
-	
-Check out [SMDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html) for all available methods.
+If you want to make direct REST-based calls to the datastore, check out the [SMDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html) class.
 
 <br/>
 
@@ -130,6 +128,8 @@ The default schema to use for authentication is **user**, with **username** and 
 
 If you plan on using a different user object schema or different field names, check out the **User Authentication** section of the [SMClient Class Reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html).
 
+<br/>
+
 ### Push Notifications
 
 Push Notification support has been moved into a separate SDK.  Check out the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/SMPushClient.html) to get started with push.
@@ -137,7 +137,7 @@ Push Notification support has been moved into a separate SDK.  Check out the [iO
 <a name="coding_practices">&nbsp;</a>
 ## StackMob <--> Core Data Coding Practices
 
-There are a few coding practices to adhere to as well as general things to know when using StackMob with Core Data.  This allows StackMob to seamlessly translate to and from the language that Core Data speaks.
+There are a few coding practices to adhere to as well as general things to keep in mind when using StackMob with Core Data.  This allows StackMob to seamlessly translate to and from the language that Core Data speaks.
 
 First, a table of how Core Data, StackMob and regular databases map to each other:
 <table cellpadding="8px" width="600px">
@@ -163,13 +163,18 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 	</tr>
 </table>
 
+**General Information:**
+
+1. **Entity Names:** Core Data entities are encouraged to start with a capital letter and will translate to all lowercase on StackMob. Example: **Superpower** entity on Core Data translates to **superpower** schema on StackMob.
+2. **Property Names:** Core Data attribute and relationship names are encouraged to be in camelCase, but can also be in StackMob form, with keywords separated by underscores. Acceptable formats are therefore **yearBorn**, **year_born**, or **yearborn**. All camelCased names will be converted to and from their equivalent form on StackMob, i.e. the property yearBorn will appear as year\_born on StackMob.
+3. **StackMob Schema Primary Keys:** All StackMob schemas have a primary key field that is always schemaName\_id, unless the schema is a user object, in which case it defaults to username but can be changed manually.
+
+<br/>
+
 **Coding Practices for successful app development:**
 
-1. **Lowercase Entities:** Core Data entities are encouraged to start with a capital letter and will translate to all lowercase on StackMob. Example: **Superpower** entity on Core Data translates to **superpower** schema on StackMob.
-2. **Lowercase Properties:** Core Data attribute and relationship names must be all lowercase and can include underscores (for now). RIGHT: **year_born**, WRONG: **yearBorn**.
-3. **Schema Primary Keys:** All StackMob schemas have a primary key field that is always schemaName_id, unless the schema is a user object, in which case it defaults to username but can be changed manually.
-4. **Entity Primary Keys:** Following #3, each Core Data entity must include an attribute of type string that maps to the primary key field on StackMob. If it is not schemaName_id, you must adopt the [SMModel](http://stackmob.github.com/stackmob-ios-sdk/Protocols/SMModel.html) protocol. In order to adopt the protocol you will make an NSManagedObject subclass of the entity. This is good to do in general as it automatically provides getters and setters. Example, entity **Soda** should have attribute **soda_id**.
-5. **Assign IDs:** When inserting new objects into your managed object context, you must assign an id value to the attribute which maps to the StackMob primary key field BEFORE you make save the context. 
+1. **Entity Primary Keys:** Following #3 above, each Core Data entity must include an attribute of type string that maps to the primary key field on StackMob. If it is not _schemaName_Id or _schemaName_\_id, you must adopt the [SMModel](http://stackmob.github.com/stackmob-ios-sdk/Protocols/SMModel.html) protocol. In order to adopt the protocol you will make an NSManagedObject subclass of the entity. This is good to do in general as it automatically provides getters and setters. As an example: entity **Soda** should have attribute **sodaId** or **soda_id**, whereas your **User** entity might adopt the `SMModel` protocol and return @"username".
+2. **Assign IDs:** When inserting new objects into your managed object context, you must assign an id value to the attribute which maps to the StackMob primary key field BEFORE you make save the context. 
 90% of the time you can get away with assigning ids like this:
 		
 		// assuming your instance is called newManagedObject
@@ -179,8 +184,8 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 		
 	The other 10% of the time is when you want to assign your own ids that aren't unique strings based on a UUID algorithm. A great example of this is user objects, where you would probably assign the user's name to the primary key field. 
 		
-6. **NSManagedObject Subclasses:** Creating an NSManagedObject subclass for each of your entities is highly recommended for convenience. You can add an init method to each subclass and include the ID assignment line from above - then you don't have to remember to do it each time you create a new object!
-7. **Asynchronous Save Calls:** Core Data performs synchronous calls to its Persistent Store. To get the effect of asynchronous save: calls on your managed object context, allowing you to continue working on the main thread, you can use NSManagedObjectContext's performBlock: method like this:
+3. **NSManagedObject Subclasses:** Creating an NSManagedObject subclass for each of your entities is highly recommended for convenience. You can add an init method to each subclass and include the ID assignment line from above - then you don't have to remember to do it each time you create a new object!
+4. **Asynchronous Save Calls:** Core Data performs synchronous calls to its Persistent Store. To get the effect of asynchronous save: calls on your managed object context, allowing you to continue working on the main thread, you can use NSManagedObjectContext's performBlock: method like this:
 
 		// assuming your context is called self.managedObjectContext
 		[self.managedObjectContext performBlock:^{

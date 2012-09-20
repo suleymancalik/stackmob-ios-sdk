@@ -27,9 +27,13 @@ describe(@"NSEntityDescription_StackMobSerializationSpec", ^{
         [mapEntity setName:@"Map"];
         [mapEntity setManagedObjectClassName:@"Map"];
         
-        NSAttributeDescription *mapId = [[NSAttributeDescription alloc] init];
-        [mapId setName:@"map_id"];
-        [mapId setAttributeType:NSStringAttributeType];
+        NSAttributeDescription *map_id = [[NSAttributeDescription alloc] init];
+        [map_id setName:@"map_id"];
+        [map_id setAttributeType:NSStringAttributeType];
+        
+        NSAttributeDescription *mapid = [[NSAttributeDescription alloc] init];
+        [mapid setName:@"mapid"];
+        [mapid setAttributeType:NSStringAttributeType];
         
         NSAttributeDescription *name = [[NSAttributeDescription alloc] init];
         [name setName:@"name"];
@@ -39,15 +43,15 @@ describe(@"NSEntityDescription_StackMobSerializationSpec", ^{
         [url setName:@"URL"];
         [url setAttributeType:NSStringAttributeType];
         
+        NSAttributeDescription *camelCase = [[NSAttributeDescription alloc] init];
+        [camelCase setName:@"camelCase"];
+        [camelCase setAttributeType:NSStringAttributeType];
+        
         NSAttributeDescription *poorlyNamed = [[NSAttributeDescription alloc] init];
-        [poorlyNamed setName:@"poorlyNamed"];
+        [poorlyNamed setName:@"PoorlyNamed"];
         [poorlyNamed setAttributeType:NSStringAttributeType];
         
-        NSAttributeDescription *alsoPoorlyNamed = [[NSAttributeDescription alloc] init];
-        [alsoPoorlyNamed setName:@"PoorlyNamed"];
-        [alsoPoorlyNamed setAttributeType:NSStringAttributeType];
-        
-        [mapEntity setProperties:[NSArray arrayWithObjects:mapId, name, url, poorlyNamed, alsoPoorlyNamed, nil]];
+        [mapEntity setProperties:[NSArray arrayWithObjects:map_id, mapid, name, url, camelCase, poorlyNamed, nil]];
     });
     
     describe(@"-sm_schema", ^{
@@ -57,24 +61,36 @@ describe(@"NSEntityDescription_StackMobSerializationSpec", ^{
     });
     
     describe(@"-sm_fieldNameForProperty:", ^{
-        it(@"retuns the lower case version of the property name", ^{
-            NSPropertyDescription *urlProperty = [[mapEntity propertiesByName] objectForKey:@"URL"];
-            [[[mapEntity sm_fieldNameForProperty:urlProperty] should] equal:@"url"];
+        it(@"Returns StackMob equivalent format for camelCase properties", ^{
+            NSPropertyDescription *camelCaseProperty = [[mapEntity propertiesByName] objectForKey:@"camelCase"];
+            [[[mapEntity sm_fieldNameForProperty:camelCaseProperty] should] equal:@"camel_case"];
+        });
+        it(@"Throws an exception for properties beginning with a capital letter", ^{
+            __block NSPropertyDescription *capitalLetterProperty = [[mapEntity propertiesByName] objectForKey:@"poorlyNamed"];
+            [[theBlock(^{
+                [mapEntity sm_fieldNameForProperty:capitalLetterProperty];
+            }) should] raiseWithName:SMExceptionIncompatibleObject];
+        });
+        it(@"Returns StackMob equivalent format for all lowercase properties", ^{
+            NSPropertyDescription *lowercaseProperty = [[mapEntity propertiesByName] objectForKey:@"name"];
+            [[[mapEntity sm_fieldNameForProperty:lowercaseProperty] should] equal:@"name"];
+        });
+        it(@"Returns StackMob equivalent format for lowercase with underscore properties", ^{
+            NSPropertyDescription *lowercase_property = [[mapEntity propertiesByName] objectForKey:@"map_id"];
+            [[[mapEntity sm_fieldNameForProperty:lowercase_property] should] equal:@"map_id"];
         });
     });
     
     describe(@"-sm_propertyForField:", ^{
-        context(@"when only single property matches", ^{
-            it(@"returns the property", ^{
-                NSPropertyDescription *urlProperty = [[mapEntity propertiesByName] objectForKey:@"URL"];
-                [[[mapEntity sm_propertyForField:@"url"] should] equal:urlProperty];
+        context(@"Converting from fields to properties returns the correct property names", ^{
+            it(@"returns map_id given map_id when map_id is a property", ^{
+                [[[mapEntity sm_propertyForField:@"map_id"] should] equal:[[mapEntity propertiesByName] objectForKey:@"map_id"]];
             });
-        });
-        context(@"when multiple properties might match", ^{
-            it(@"should raise", ^{
-                [[theBlock(^{
-                    [mapEntity sm_propertyForField:@"poorlynamed"];
-                }) should] raiseWithName:SMExceptionIncompatibleObject];
+            it(@"returns camelCase given camel_case when camelCase is a property", ^{
+                [[[mapEntity sm_propertyForField:@"camel_case"] should] equal:[[mapEntity propertiesByName] objectForKey:@"camelCase"]];
+            });
+            it(@"returns mapid given mapid when mapid is a property", ^{
+                [[[mapEntity sm_propertyForField:@"mapid"] should] equal:[[mapEntity propertiesByName] objectForKey:@"mapid"]];
             });
         });
         context(@"when no properties match", ^{

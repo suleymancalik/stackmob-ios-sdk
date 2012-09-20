@@ -30,13 +30,27 @@
 @class SMCustomCodeRequest;
 
 /**
- `SMDataStore` exposes an interface for performing CRUD operations on known StackMob objects and for executing a <SMQuery>.
+ `SMDataStore` exposes an interface for performing CRUD operations on known StackMob objects and for executing an <SMQuery>.
  
  As a direct interface to StackMob, `SMDataStore` uses StackMob's terminology:
  
  * Operations are performed against a specific _schema_ (usually also the name of a model class or of an entity in a managed object model).
  * Objects sent via the API are expressed as a dictionary of _fields_.
  * The schema name string provided to any of the methods in this class is NOT case-sensitive. It will be converted and stored on StackMob as a lowercase string but returned in success/failure blocks in the same form it was received.
+ 
+ **Accessing the data store**
+ 
+ Using your `SMClient` defaultClient:
+ 
+    [[[SMClient defaultClient] dataStore] createObject...];
+ 
+ Creating an instance of `SMDataStore`:
+ 
+    // Assuming you have an initialized SMClient call client
+    SMDataStore *dataStore = [[self client] dataStore];
+    
+    [dataStore createObject...];
+ 
  */
 @interface SMDataStore : NSObject
 
