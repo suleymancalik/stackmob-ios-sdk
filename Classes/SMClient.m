@@ -25,6 +25,7 @@
 #define FB_TOKEN_KEY @"fb_at"
 #define TW_TOKEN_KEY @"tw_tk"
 #define TW_SECRET_KEY @"tw_ts"
+#define UUID_CHAR_NUM 36
 
 static SMClient *defaultClient = nil;
 
@@ -73,6 +74,18 @@ static SMClient *defaultClient = nil;
         self.userSchema = userSchema;
         self.userIdName = userIdName;
         self.passwordFieldName = passwordFieldName;
+        
+        // Throw an exception if apiVersion is nil or incorrectly formatted
+        NSCharacterSet* notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+        
+        if (self.appAPIVersion == nil || [self.appAPIVersion rangeOfCharacterFromSet:notDigits].location != NSNotFound) {
+            [NSException raise:@"SMClientInitializationException" format:@"Incorrect API Version provided.  API Version must be an integer and cannot be nil.  Pass @\"0\" for Development and @\"1\" or greater for Production, depending on which version of your application you are developing for."];
+        }
+        
+        // Throw an excpetion if publicKey is nil or incorrectly formatted
+        if (self.publicKey == nil || [self.publicKey length] != UUID_CHAR_NUM) {
+            [NSException raise:@"SMClientInitializationException" format:@"Incorrect Public Key format provided.  Please check your public key to make sure you are passing the correct one, and that you are not passing nil."];
+        }
         
         self.session = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion apiHost:apiHost publicKey:publicKey userSchema:userSchema];
         self.coreDataStore = nil;

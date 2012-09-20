@@ -33,7 +33,7 @@ describe(@"SMRelationshipHeaders", ^{
            mom = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]; 
         }
         
-        SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"1234"];
+        SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         SMCoreDataStore *cds = [client coreDataStoreWithManagedObjectModel:mom];
         moc = [cds managedObjectContext];
     });

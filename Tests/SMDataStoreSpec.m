@@ -23,12 +23,12 @@ describe(@"Creating a data store instance", ^{
     __block SMDataStore *dataStore = nil;
     __block SMClient *client = nil;
     beforeEach(^{
-        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"public key"];
+        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         dataStore = [[SMDataStore alloc] initWithAPIVersion:@"0" session:[client session]];
     });
     it(@"should get its oauth credentials from the provided oauthClient variable", ^{
         [dataStore.session.regularOAuthClient shouldNotBeNil];
-        [[dataStore.session.regularOAuthClient.publicKey should] equal:@"public key"];
+        [[dataStore.session.regularOAuthClient.publicKey should] equal:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         [[dataStore.session.regularOAuthClient.baseURL should] equal:[NSURL URLWithString:@"http://api.stackmob.com"]];
         [[[dataStore.session.regularOAuthClient defaultValueForHeader:@"Accept"] should] equal:@"application/vnd.stackmob+json; version=0"];
     });
@@ -40,7 +40,7 @@ describe(@"Creating a data store instance", ^{
 describe(@"CRUD", ^{
     __block SMDataStore *dataStore = nil;
     beforeEach(^{
-        SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"public"];
+        SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         dataStore = [[SMDataStore alloc] initWithAPIVersion:@"0" session:client.session];
         dataStore.session.regularOAuthClient = [SMOAuth2Client nullMock];
     });
@@ -330,7 +330,7 @@ describe(@"perform custom code request", ^{
         __block SMClient *client = nil;
         __block SMDataStore *dataStore = nil;
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"public key"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
             dataStore = [[SMDataStore alloc] initWithAPIVersion:@"0" session:[client session]];
             request = [[SMCustomCodeRequest alloc] initPostRequestWithMethod:@"method" body:@"body"]; 
         });
