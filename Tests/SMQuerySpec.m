@@ -28,9 +28,12 @@ beforeEach(^{
     query = [[SMQuery alloc] initWithSchema:TEST_SCHEMA];
 });
 
-describe(@"-initWithEntity", ^{
+describe(@"-initWithSchema", ^{
     it(@"builds a query with the given entity name as its schema", ^{
         [[[query schemaName] should] equal:TEST_SCHEMA];
+    });
+    it(@"should return nil for entity", ^{
+        [[query entity] shouldBeNil];
     });
 });
 

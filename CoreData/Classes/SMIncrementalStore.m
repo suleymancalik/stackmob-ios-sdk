@@ -354,6 +354,7 @@ You should implement this method conservatively, and expect that unknown request
 
 - (id)fetchObjectIDs:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
     DLog();
+    
     NSArray *objects = [self fetchObjects:fetchRequest withContext:context error:error];
     return [objects map:^(id item) {
         return [item objectID];
