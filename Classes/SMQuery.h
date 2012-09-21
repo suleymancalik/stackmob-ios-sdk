@@ -45,6 +45,13 @@
  */
 @property (readonly) NSString *schemaName;
 
+/*
+ entity is the Entity Description of the Core Data Entity provided when initialized using <initWithEntity:>.
+
+ @return `nil` if <initWithSchema:> was used for initialization, otherwise the Entity Description.
+ */
+@property (readonly) NSEntityDescription *entity;
+
 #pragma mark - Creating queries
 ///-------------------------------
 /// @name Initialize

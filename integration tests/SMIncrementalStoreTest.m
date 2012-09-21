@@ -639,13 +639,23 @@ describe(@"with fixtures", ^{
 
 describe(@"Testing CRUD on an entity with camelCase property names", ^{
     __block NSManagedObjectContext *moc = nil;
+    __block NSManagedObject *camelCaseObject = nil;
     beforeEach(^{
         moc = [SMCoreDataIntegrationTestHelpers moc];
-        NSManagedObject *camelCaseObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
+        camelCaseObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
         [camelCaseObject setValue:@"new" forKey:@"name"];
         [camelCaseObject setValue:@"1234" forKey:@"server_id"];
         [camelCaseObject setValue:[NSNumber numberWithInt:1900] forKey:@"yearBorn"];
         [camelCaseObject setValue:[camelCaseObject sm_assignObjectId] forKey:[camelCaseObject sm_primaryKeyField]];
+    });
+    afterEach(^{
+        [moc deleteObject:camelCaseObject];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
     });
     it(@"Will save without error after creation", ^{
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -655,15 +665,81 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
             }
         }];
     });
-    pending(@"Will save without error after update", ^{
+    it(@"Will successfully read with a predicate", ^{
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
                 DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
             }
         }];
+        NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"yearBorn == 1900"];
+        [fetchRequest setPredicate:predicate];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+        }];
     });
-    pending(@"Will save without error after deletion", ^{
+    it(@"Will successfully read with a sort descriptor", ^{
+        NSManagedObject *anotherRandom = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
+        [anotherRandom setValue:@"another" forKey:@"name"];
+        [anotherRandom setValue:@"1234" forKey:@"server_id"];
+        [anotherRandom setValue:[NSNumber numberWithInt:2012] forKey:@"yearBorn"];
+        [anotherRandom setValue:[anotherRandom sm_assignObjectId] forKey:[anotherRandom sm_primaryKeyField]];
+        
+        NSManagedObject *yetAnotherRandom = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
+        [yetAnotherRandom setValue:@"yetAnother" forKey:@"name"];
+        [yetAnotherRandom setValue:@"1234" forKey:@"server_id"];
+        [yetAnotherRandom setValue:[NSNumber numberWithInt:1800] forKey:@"yearBorn"];
+        [yetAnotherRandom setValue:[yetAnotherRandom sm_assignObjectId] forKey:[yetAnotherRandom sm_primaryKeyField]];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        [fetchRequest setSortDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"yearBorn" ascending:YES]]];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(3)];
+            [[[[results objectAtIndex:0] valueForKey:@"yearBorn"] should] equal:theValue(1800)];
+            [[[[results objectAtIndex:1] valueForKey:@"yearBorn"] should] equal:theValue(1900)];
+            [[[[results objectAtIndex:2] valueForKey:@"yearBorn"] should] equal:theValue(2012)];
+        }];
+        
+        
+        
+        [moc deleteObject:anotherRandom];
+        [moc deleteObject:yetAnotherRandom];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        
+    });
+    it(@"Will save without error after update", ^{
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        [camelCaseObject setValue:[NSNumber numberWithInt:2000] forKey:@"yearBorn"];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
                 DLog(@"Error userInfo is %@", [error userInfo]);

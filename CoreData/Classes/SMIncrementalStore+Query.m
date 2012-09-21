@@ -15,9 +15,19 @@
  */
 
 #import "SMIncrementalStore+Query.h"
+#import "NSEntityDescription+StackMobSerialization.h"
 #import "SMError.h"
 
 @implementation SMIncrementalStore (Query)
+
+NSString* convertToSMFieldName (NSString* keyPath, NSEntityDescription* entity)
+{
+    NSPropertyDescription *property = [[entity propertiesByName] objectForKey:keyPath];
+    if (!property) {
+        [NSException raise:SMExceptionIncompatibleObject format:@"Property not found for predicate field %@ in entity %@", keyPath, entity];
+    }
+    return [entity sm_fieldNameForProperty:property];
+}
 
 void setErrorWithReason(NSString *reason, NSError * __autoreleasing *error) {
     NSDictionary *userInfo = [NSDictionary dictionaryWithObject:reason forKey:@"reason"];
@@ -79,7 +89,13 @@ void buildQueryForComparisonPredicate(SMQuery *__autoreleasing *query, NSCompari
         return;
     }
     
-    NSString *lhs = comparisonPredicate.leftExpression.keyPath;
+    // Convert leftExpression keyPath to SM equivalent field name if needed
+    NSString *lhs = nil;
+    if ([comparisonPredicate.leftExpression.keyPath rangeOfCharacterFromSet:[NSCharacterSet uppercaseLetterCharacterSet]].location != NSNotFound) {
+        lhs = convertToSMFieldName(comparisonPredicate.leftExpression.keyPath, [*query entity]);
+    } else {
+        lhs = comparisonPredicate.leftExpression.keyPath;
+    }
     id rhs = comparisonPredicate.rightExpression.constantValue;
     
     switch (comparisonPredicate.predicateOperatorType) {
@@ -157,7 +173,13 @@ void buildQueryForPredicate(SMQuery *__autoreleasing *query, NSPredicate *predic
     // Ordering
     
     [fetchRequest.sortDescriptors enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        [query orderByField:[obj key] ascending:[obj ascending]];
+        NSString *fieldName = nil;
+        if ([[obj key] rangeOfCharacterFromSet:[NSCharacterSet uppercaseLetterCharacterSet]].location != NSNotFound) {
+            fieldName = convertToSMFieldName([obj key], fetchRequest.entity);
+        } else {
+            fieldName = [obj key];
+        }
+        [query orderByField:fieldName ascending:[obj ascending]];
     }];
     
     return query;
