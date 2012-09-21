@@ -635,7 +635,42 @@ describe(@"with fixtures", ^{
         });
         
     });
-    
+});
+
+describe(@"Testing CRUD on an entity with camelCase property names", ^{
+    __block NSManagedObjectContext *moc = nil;
+    beforeEach(^{
+        moc = [SMCoreDataIntegrationTestHelpers moc];
+        NSManagedObject *camelCaseObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
+        [camelCaseObject setValue:@"new" forKey:@"name"];
+        [camelCaseObject setValue:@"1234" forKey:@"server_id"];
+        [camelCaseObject setValue:[NSNumber numberWithInt:1900] forKey:@"yearBorn"];
+        [camelCaseObject setValue:[camelCaseObject sm_assignObjectId] forKey:[camelCaseObject sm_primaryKeyField]];
+    });
+    it(@"Will save without error after creation", ^{
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    pending(@"Will save without error after update", ^{
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    pending(@"Will save without error after deletion", ^{
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
 });
 
 SPEC_END

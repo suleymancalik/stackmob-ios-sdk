@@ -343,4 +343,86 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
     
 });
 
+describe(@"-primaryKeyFieldName", ^{
+    __block NSEntityDescription *theEntity = nil;
+    __block NSManagedObject *theObject = nil;
+    context(@"With an entity that has a StackMob-like primaryKeyFieldName", ^{
+        beforeEach(^{
+            theEntity = [[NSEntityDescription alloc] init];
+            [theEntity setName:@"Entity"];
+            [theEntity setManagedObjectClassName:@"Entity"];
+            
+            NSAttributeDescription *entity_id = [[NSAttributeDescription alloc] init];
+            [entity_id setName:@"entity_id"];
+            [entity_id setAttributeType:NSStringAttributeType];
+            
+            NSAttributeDescription *name = [[NSAttributeDescription alloc] init];
+            [name setName:@"name"];
+            [name setAttributeType:NSStringAttributeType];
+            
+            [theEntity setProperties:[NSArray arrayWithObjects:entity_id, name, nil]];
+            
+            //construct the managed object model
+            NSManagedObjectModel *objectModel = [[NSManagedObjectModel alloc] init];
+            
+            [objectModel setEntities:[NSArray arrayWithObjects:theEntity, nil]];
+            
+            theObject = [[NSManagedObject alloc] initWithEntity:theEntity insertIntoManagedObjectContext:nil];
+        });
+        it(@"Should return entity_id for primaryKeyFieldName", ^{
+            [[[theObject sm_primaryKeyField] should] equal:@"entity_id"];
+        });
+    });
+    context(@"With an entity that has a CoreData-like primaryKeyFieldName", ^{
+        beforeEach(^{
+            theEntity = [[NSEntityDescription alloc] init];
+            [theEntity setName:@"Entity"];
+            [theEntity setManagedObjectClassName:@"Entity"];
+            
+            NSAttributeDescription *entityId = [[NSAttributeDescription alloc] init];
+            [entityId setName:@"entityId"];
+            [entityId setAttributeType:NSStringAttributeType];
+            
+            NSAttributeDescription *name = [[NSAttributeDescription alloc] init];
+            [name setName:@"name"];
+            [name setAttributeType:NSStringAttributeType];
+            
+            [theEntity setProperties:[NSArray arrayWithObjects:entityId, name, nil]];
+            
+            //construct the managed object model
+            NSManagedObjectModel *objectModel = [[NSManagedObjectModel alloc] init];
+            
+            [objectModel setEntities:[NSArray arrayWithObjects:theEntity, nil]];
+            
+            theObject = [[NSManagedObject alloc] initWithEntity:theEntity insertIntoManagedObjectContext:nil];
+
+        });
+        it(@"Should return entityId for primaryKeyFieldName", ^{
+            [[[theObject sm_primaryKeyField] should] equal:@"entityId"];
+        });
+    });
+    context(@"With an entity that adopts the SMModel protocol", ^{
+        __block StackMobSerializationSpecUser *user = nil;
+        beforeEach(^{
+            NSEntityDescription *userEntity = [[NSEntityDescription alloc] init];
+            [userEntity setName:@"User"];
+            [userEntity setManagedObjectClassName:@"StackMobSerializationSpecUser"];
+            
+            NSAttributeDescription *username = [[NSAttributeDescription alloc] init];
+            [username setName:@"username"];
+            [username setAttributeType:NSStringAttributeType];
+            [username setOptional:NO];
+            
+            [userEntity setProperties:[NSArray arrayWithObjects:username, nil]];
+            
+            user = [[StackMobSerializationSpecUser alloc] initWithEntity:userEntity insertIntoManagedObjectContext:nil];
+        });
+        it(@"Should return entityId for primaryKeyFieldName", ^{
+            [[[user sm_primaryKeyField] should] equal:@"username"];
+        });
+    });
+    
+});
+
+
 SPEC_END

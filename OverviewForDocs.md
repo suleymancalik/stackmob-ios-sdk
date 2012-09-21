@@ -166,15 +166,15 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 **General Information:**
 
 1. **Entity Names:** Core Data entities are encouraged to start with a capital letter and will translate to all lowercase on StackMob. Example: **Superpower** entity on Core Data translates to **superpower** schema on StackMob.
-2. **Property Names:** Core Data attribute and relationship names are encouraged to be in camelCase, but can also be in StackMob form, with keywords separated by underscores. Acceptable formats are therefore **yearBorn**, **year_born**, or **yearborn**. All camelCased names will be converted to and from their equivalent form on StackMob, i.e. the property yearBorn will appear as year\_born on StackMob.
-3. **StackMob Schema Primary Keys:** All StackMob schemas have a primary key field that is always schemaName\_id, unless the schema is a user object, in which case it defaults to username but can be changed manually.
+2. **Property Names:** Core Data attribute and relationship names are encouraged to be in camelCase, but can also be in StackMob form, all lowercase with optional underscores. Acceptable formats are therefore **yearBorn**, **year_born**, or **yearborn**. All camelCased names will be converted to and from their equivalent form on StackMob, i.e. the property yearBorn will appear as year\_born on StackMob.
+3. **StackMob Schema Primary Keys:** All StackMob schemas have a primary key field that is always schemaName\_id, unless the schema is a user object, in which case it defaults to "username" but can be changed manually.
 
 <br/>
 
 **Coding Practices for successful app development:**
 
-1. **Entity Primary Keys:** Following #3 above, each Core Data entity must include an attribute of type string that maps to the primary key field on StackMob. If it is not _schemaName_Id or _schemaName_\_id, you must adopt the [SMModel](http://stackmob.github.com/stackmob-ios-sdk/Protocols/SMModel.html) protocol. In order to adopt the protocol you will make an NSManagedObject subclass of the entity. This is good to do in general as it automatically provides getters and setters. As an example: entity **Soda** should have attribute **sodaId** or **soda_id**, whereas your **User** entity might adopt the `SMModel` protocol and return @"username".
-2. **Assign IDs:** When inserting new objects into your managed object context, you must assign an id value to the attribute which maps to the StackMob primary key field BEFORE you make save the context. 
+1. **Entity Primary Keys:** Following #3 above, each Core Data entity must include an attribute of type string that maps to the primary key field on StackMob. If it is not _schemaName_Id or _schemaName_\_id, you must adopt the [SMModel](http://stackmob.github.com/stackmob-ios-sdk/Protocols/SMModel.html) protocol. The protocol should be adopted the NSManagedObject subclass of the entity. For example: entity **Soda** should have attribute **sodaId** or **soda_id**, whereas your **User** entity might adopt the `SMModel` protocol and return **@"username"**. 
+2. **Assign IDs:** When inserting new objects into your managed object context, you must assign an id value to the attribute which maps to the StackMob primary key field BEFORE you make save the context.
 90% of the time you can get away with assigning ids like this:
 		
 		// assuming your instance is called newManagedObject

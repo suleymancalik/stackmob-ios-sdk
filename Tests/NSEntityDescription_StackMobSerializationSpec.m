@@ -101,4 +101,49 @@ describe(@"NSEntityDescription_StackMobSerializationSpec", ^{
     });
 });
 
+describe(@"-primaryKeyFieldName", ^{
+    __block NSEntityDescription *theEntity = nil;
+    context(@"With an entity that has a StackMob-like primaryKeyFieldName", ^{
+        beforeEach(^{
+            theEntity = [[NSEntityDescription alloc] init];
+            [theEntity setName:@"Entity"];
+            [theEntity setManagedObjectClassName:@"Entity"];
+            
+            NSAttributeDescription *entity_id = [[NSAttributeDescription alloc] init];
+            [entity_id setName:@"entity_id"];
+            [entity_id setAttributeType:NSStringAttributeType];
+            
+            NSAttributeDescription *name = [[NSAttributeDescription alloc] init];
+            [name setName:@"name"];
+            [name setAttributeType:NSStringAttributeType];
+            
+            [theEntity setProperties:[NSArray arrayWithObjects:entity_id, name, nil]];
+        });
+        it(@"Should return entity_id for primaryKeyFieldName", ^{
+            [[[theEntity sm_primaryKeyField] should] equal:@"entity_id"];
+        });
+    });
+    context(@"With an entity that has a CoreData-like primaryKeyFieldName", ^{
+        beforeEach(^{
+            theEntity = [[NSEntityDescription alloc] init];
+            [theEntity setName:@"Entity"];
+            [theEntity setManagedObjectClassName:@"Entity"];
+            
+            NSAttributeDescription *entityId = [[NSAttributeDescription alloc] init];
+            [entityId setName:@"entityId"];
+            [entityId setAttributeType:NSStringAttributeType];
+            
+            NSAttributeDescription *name = [[NSAttributeDescription alloc] init];
+            [name setName:@"name"];
+            [name setAttributeType:NSStringAttributeType];
+            
+            [theEntity setProperties:[NSArray arrayWithObjects:entityId, name, nil]];
+        });
+        it(@"Should return entityId for primaryKeyFieldName", ^{
+            [[[theEntity sm_primaryKeyField] should] equal:@"entityId"];
+        });
+        
+    });
+});
+
 SPEC_END

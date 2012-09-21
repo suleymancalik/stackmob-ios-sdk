@@ -50,14 +50,30 @@
 
 - (NSString *)sm_primaryKeyField
 {
-    NSString *objectIdField = [[self sm_schema] stringByAppendingFormat:@"_id"];
+    NSString *objectIdField = nil;
+    
+    // Search for SMModel protocol
     if ([self conformsToProtocol:@protocol(SMModel)]) {
         objectIdField = [(id <SMModel>)[self class] primaryKeyFieldName];
-        if (NO == [objectIdField isEqualToString:[objectIdField lowercaseString]]) {
-            [NSException raise:SMExceptionIncompatibleObject format:@"%@ returned an invalid primary key field name (%@). Field names must be lower case.", [self description], objectIdField];
-        }
+        return objectIdField;
     }
-    return objectIdField;
+    
+    
+    // Search for schemanameId
+    objectIdField = [[self sm_schema] stringByAppendingFormat:@"Id"];
+    if ([[[self entity] propertiesByName] objectForKey:objectIdField] != nil) {
+        return objectIdField;
+    }
+    
+    // Search for schemaname_id
+    objectIdField = [[self sm_schema] stringByAppendingFormat:@"_id"];
+    if ([[[self entity] propertiesByName] objectForKey:objectIdField] != nil) {
+        return objectIdField;
+    }
+    
+    // Raise an exception and return nil
+    [NSException raise:SMExceptionIncompatibleObject format:@"No Primary Key Field found for entity %@ which matches the following format: <lowercase_entity_name>Id or <lowercase_entity_name>_id.  If you adopt the SMModel protocol, you may return either of those formats or any lowercase string with optional underscores that matches the primary key field on StackMob.", [[self entity] name]];
+    return nil;
 }
 
 - (NSDictionary *)sm_dictionarySerialization

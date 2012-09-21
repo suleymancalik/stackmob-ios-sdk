@@ -340,10 +340,10 @@ You should implement this method conservatively, and expect that unknown request
         //NSManagedObjectID *oid = [self cacheInsert:item forEntity:fetchRequest.entity inContext:context];
         
         
-        NSString *primaryKeyField = [fetchRequest.entity sm_primaryKeyField];
+        NSString *primaryKeyField = [fetchRequest.entity sm_fieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity sm_primaryKeyField]]];
         id remoteID = [item objectForKey:primaryKeyField];
         if (!remoteID) {
-            [NSException raise:SMExceptionIncompatibleObject format:@"No key for remote name"];
+            [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
         }
         NSManagedObjectID *oid = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
         return [context objectWithID:oid];
@@ -465,7 +465,7 @@ You should implement this method conservatively, and expect that unknown request
         return nil;
     }
     
-    id relationshipContents = [objDict valueForKey:[relationship name]];
+    id relationshipContents = [objDict valueForKey:[objEntity sm_fieldNameForProperty:relationship]];
     
     if ([relationship isToMany]) {
         if (relationshipContents) {
@@ -646,18 +646,18 @@ You should implement this method conservatively, and expect that unknown request
         if ([property isKindOfClass:[NSAttributeDescription class]]) {
             NSAttributeDescription *attributeDescription = (NSAttributeDescription *)property;
             if (attributeDescription.attributeType != NSUndefinedAttributeType) {
-                id value = [theObject valueForKey:(NSString *)propertyName];
+                id value = [theObject valueForKey:[entityDescription sm_fieldNameForProperty:attributeDescription]];
                 if (value != nil) {
                     [serializedDictionary setObject:value forKey:propertyName];
                 }
             }
         }
         else if ([property isKindOfClass:[NSRelationshipDescription class]]) {
-            NSRelationshipDescription *relationship = (NSRelationshipDescription *)property;
+            NSRelationshipDescription *relationshipDescription = (NSRelationshipDescription *)property;
             // get the relationship contents for the property
-            id relationshipContents = [theObject valueForKey:propertyName];
+            id relationshipContents = [theObject valueForKey:[entityDescription sm_fieldNameForProperty:relationshipDescription]];
             if (relationshipContents) {
-                if (![relationship isToMany]) {
+                if (![relationshipDescription isToMany]) {
                     NSEntityDescription *entityDescriptionForRelationship = [NSEntityDescription entityForName:[[property destinationEntity] name] inManagedObjectContext:context];
                     if ([relationshipContents isKindOfClass:[NSString class]]) {
                         NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:entityDescriptionForRelationship referenceObject:relationshipContents];
