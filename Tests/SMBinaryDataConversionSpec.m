@@ -43,3 +43,4 @@ describe(@"SMBinaryDataConversion init", ^{
 });
 
 SPEC_END
+

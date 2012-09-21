@@ -1,6 +1,6 @@
 # Welcome to the docs for the StackMob iOS SDK!
 
-### Current Version: 1.0.0beta.3
+### Current Version: 1.0.0beta.4
 
 ### Jump To:
 <a href="#overview">Overview</a>

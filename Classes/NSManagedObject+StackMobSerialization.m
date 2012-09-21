@@ -105,7 +105,7 @@
     NSEntityDescription *selfEntity = [self entity];
     
     NSMutableDictionary *objectDictionary = [NSMutableDictionary dictionary];
-    [selfEntity.propertiesByName enumerateKeysAndObjectsUsingBlock:^(id propertyName, id property, BOOL *stop) {
+    [selfEntity.propertiesByName enumerateKeysAndObjectsUsingBlock:^(id propertyName, id property, BOOL *stopPropEnum) {
         if ([property isKindOfClass:[NSAttributeDescription class]]) {
             NSAttributeDescription *attributeDescription = (NSAttributeDescription *)property;
             if (attributeDescription.attributeType != NSUndefinedAttributeType) {
@@ -127,7 +127,7 @@
             if ([relationship isToMany]) {
                 if ([relationshipContents count] > 0) {
                     NSMutableArray *relatedObjectDictionaries = [NSMutableArray array];
-                    [(NSSet *)relationshipContents enumerateObjectsUsingBlock:^(id child, BOOL *stop) {
+                    [(NSSet *)relationshipContents enumerateObjectsUsingBlock:^(id child, BOOL *stopRelEnum) {
                         NSString *childObjectId = [child sm_objectId];
                         if (childObjectId == nil) {
                             [NSException raise:SMExceptionIncompatibleObject format:@"Trying to serialize an object with a to-many relationship whose value references an object with a nil value for it's primary key field.  Please make sure you assign object ids with sm_assignObjectId before attaching to relationships.  The object in question is %@", [child description]];

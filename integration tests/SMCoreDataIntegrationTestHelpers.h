@@ -45,3 +45,4 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 + (void)MOCWillSave:(NSNotification *)notification;
 
 @end
+

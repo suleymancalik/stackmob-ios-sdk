@@ -141,7 +141,7 @@ describe(@"ordering", ^{
     
     describe(@"when the intent is to sort by one field", ^{
         it(@"-orderByField", ^{
-            NSString *expectedOrderByHeader = [NSString stringWithFormat:@"field1:asc", field1];
+            NSString *expectedOrderByHeader = [NSString stringWithFormat:@"%@:asc", field1];
             [query orderByField:field1 ascending:YES];
             [[[[query requestHeaders] objectForKey:orderByHeader] should] equal:expectedOrderByHeader];
         });    

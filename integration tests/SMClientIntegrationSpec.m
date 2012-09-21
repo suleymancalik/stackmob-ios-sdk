@@ -197,7 +197,7 @@ describe(@"basic auth", ^{
             
             [[theValue(resetDone) should] beYes];
             
-            __block BOOL loginFailure;
+            loginFailure = NO;
             syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
                 [defaultClient loginWithUsername:@"bob" password:@"1234" onSuccess:^(NSDictionary *userObject) {
                     loginFailure = NO;

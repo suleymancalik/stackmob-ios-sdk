@@ -168,9 +168,9 @@
         [self refreshAndRetry:request onSuccess:onSuccess onFailure:onFailure];
     } 
     else {
-        SMFullResponseFailureBlock retryBlock = ^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
+        SMFullResponseFailureBlock retryBlock = ^(NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
             if ([response statusCode] == SMErrorUnauthorized && options.tryRefreshToken) {
-                [self refreshAndRetry:request onSuccess:onSuccess onFailure:onFailure];
+                [self refreshAndRetry:originalRequest onSuccess:onSuccess onFailure:onFailure];
             } else if ([response statusCode] == SMErrorServiceUnavailable && options.numberOfRetries > 0) {
                 NSString *retryAfter = [[response allHeaderFields] valueForKey:@"Retry-After"];
                 if (retryAfter) {
@@ -179,16 +179,16 @@
                     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
                     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
                         if (options.retryBlock) {
-                            options.retryBlock(request, response, error, JSON, options, onSuccess, onFailure);
+                            options.retryBlock(originalRequest, response, error, JSON, options, onSuccess, onFailure);
                         } else {
-                            [self queueRequest:[self.session signRequest:request] options:options onSuccess:onSuccess onFailure:onFailure];
+                            [self queueRequest:[self.session signRequest:originalRequest] options:options onSuccess:onSuccess onFailure:onFailure];
                         }
                     });
                 } else {
-                    onFailure(request, response, error, JSON);
+                    onFailure(originalRequest, response, error, JSON);
                 }
             } else {
-                onFailure(request, response, error, JSON);
+                onFailure(originalRequest, response, error, JSON);
             }
             
         };

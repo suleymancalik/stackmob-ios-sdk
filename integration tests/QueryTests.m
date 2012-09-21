@@ -55,7 +55,7 @@ describe(@"with a prepopulated database of people", ^{
                 NSLog(@"Error: %@", error);
             });
         });
-    })
+    });
     
     describe(@"where clauses", ^{
         beforeEach(^{

@@ -326,18 +326,18 @@ describe(@"performing counts", ^{
 
 describe(@"perform custom code request", ^{
     context(@"given a custom code request", ^{
-        __block SMCustomCodeRequest *request = nil;
+        __block SMCustomCodeRequest *customCodeRequest = nil;
         __block SMClient *client = nil;
         __block SMDataStore *dataStore = nil;
         beforeEach(^{
             client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
             dataStore = [[SMDataStore alloc] initWithAPIVersion:@"0" session:[client session]];
-            request = [[SMCustomCodeRequest alloc] initPostRequestWithMethod:@"method" body:@"body"]; 
+            customCodeRequest = [[SMCustomCodeRequest alloc] initPostRequestWithMethod:@"method" body:@"body"];
         });
         it(@"should perform the request", ^{
             [[dataStore.session.regularOAuthClient should] receive:@selector(customCodeRequest:options:)];
             [[dataStore should] receive:@selector(queueRequest:options:onSuccess:onFailure:)];
-            [dataStore performCustomCodeRequest:request onSuccess:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+            [dataStore performCustomCodeRequest:customCodeRequest onSuccess:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
                 
             } onFailure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
                 

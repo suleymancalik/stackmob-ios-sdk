@@ -191,10 +191,10 @@
 {
     NSMutableURLRequest *request = [self requestFromQuery:query options:options];
     
-    SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+    SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *successRequest, NSHTTPURLResponse *response, id JSON) {
         successBlock((NSArray *)JSON);
     };
-    SMFullResponseFailureBlock urlFailureBlock = ^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
+    SMFullResponseFailureBlock urlFailureBlock = ^(NSURLRequest *failedRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
         NSLog(@"Query failed with error: %@, response: %@, JSON: %@", error, response, JSON);
         failureBlock(error);
     };   
@@ -213,7 +213,7 @@
     countQuery.requestHeaders = [query.requestHeaders copy];
     [countQuery fromIndex:0 toIndex:0];
     NSMutableURLRequest *request = [self requestFromQuery:countQuery options:options];  
-    SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+    SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *successRequest, NSHTTPURLResponse *response, id JSON) {
         NSString *rangeHeader = [response.allHeaderFields valueForKey:@"Content-Range"];
         //No range header means we've got all the results right here (1 or 0)
         int count = [self countFromRangeHeader:rangeHeader results:JSON];

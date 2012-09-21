@@ -20,7 +20,7 @@
 
 @implementation SMIncrementalStore (Query)
 
-NSString* convertToSMFieldName (NSString* keyPath, NSEntityDescription* entity)
+NSString* convertPredicateExpressionToStackMobFieldName (NSString* keyPath, NSEntityDescription* entity)
 {
     NSPropertyDescription *property = [[entity propertiesByName] objectForKey:keyPath];
     if (!property) {
@@ -29,10 +29,12 @@ NSString* convertToSMFieldName (NSString* keyPath, NSEntityDescription* entity)
     return [entity sm_fieldNameForProperty:property];
 }
 
-void setErrorWithReason(NSString *reason, NSError * __autoreleasing *error) {
+void setErrorWithReason(NSString *reason, NSError *__autoreleasing *error) {
     NSDictionary *userInfo = [NSDictionary dictionaryWithObject:reason forKey:@"reason"];
-    *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:userInfo];
-    *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+    if (error) {
+        *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:userInfo];
+        *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+    }
 }
 
 void buildBetweenQuery(SMQuery *__autoreleasing *query, id lhs, id rhs, NSError *__autoreleasing *error) {
@@ -73,7 +75,7 @@ void buildQueryForCompoundPredicate(SMQuery *__autoreleasing *query, NSCompoundP
         return;
     }
     
-    for (int i = 0; i < [[compoundPredicate subpredicates] count]; i++) {
+    for (unsigned int i = 0; i < [[compoundPredicate subpredicates] count]; i++) {
         NSPredicate *subpredicate = [[compoundPredicate subpredicates] objectAtIndex:i];
         buildQueryForPredicate(query, subpredicate, error);
     } 
@@ -92,7 +94,7 @@ void buildQueryForComparisonPredicate(SMQuery *__autoreleasing *query, NSCompari
     // Convert leftExpression keyPath to SM equivalent field name if needed
     NSString *lhs = nil;
     if ([comparisonPredicate.leftExpression.keyPath rangeOfCharacterFromSet:[NSCharacterSet uppercaseLetterCharacterSet]].location != NSNotFound) {
-        lhs = convertToSMFieldName(comparisonPredicate.leftExpression.keyPath, [*query entity]);
+        lhs = convertPredicateExpressionToStackMobFieldName(comparisonPredicate.leftExpression.keyPath, [*query entity]);
     } else {
         lhs = comparisonPredicate.leftExpression.keyPath;
     }
@@ -175,7 +177,7 @@ void buildQueryForPredicate(SMQuery *__autoreleasing *query, NSPredicate *predic
     [fetchRequest.sortDescriptors enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSString *fieldName = nil;
         if ([[obj key] rangeOfCharacterFromSet:[NSCharacterSet uppercaseLetterCharacterSet]].location != NSNotFound) {
-            fieldName = convertToSMFieldName([obj key], fetchRequest.entity);
+            fieldName = convertPredicateExpressionToStackMobFieldName([obj key], fetchRequest.entity);
         } else {
             fieldName = [obj key];
         }

@@ -568,7 +568,7 @@ You should implement this method conservatively, and expect that unknown request
         [self cachePurge:objectID];
     }
     __block NSMutableDictionary *mutableValues = [NSMutableDictionary dictionary];;
-    [entityDescription.propertiesByName enumerateKeysAndObjectsUsingBlock:^(id propertyName, id property, BOOL *stop) {
+    [entityDescription.propertiesByName enumerateKeysAndObjectsUsingBlock:^(id propertyName, id property, BOOL *stopPropEnum) {
         if ([property isKindOfClass:[NSAttributeDescription class]]) {
             NSAttributeDescription *attributeDescription = (NSAttributeDescription *)property;
             if (attributeDescription.attributeType != NSUndefinedAttributeType) {
@@ -584,7 +584,7 @@ You should implement this method conservatively, and expect that unknown request
             if (relationshipContents) {
                 if ([relationship isToMany]) {
                     NSMutableArray *relationshipIds = [NSMutableArray array];
-                    [(NSSet *)relationshipContents enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+                    [(NSSet *)relationshipContents enumerateObjectsUsingBlock:^(id obj, BOOL *stopRelEnum) {
                         
                         // if obj is string (reference to id), cast to NSManagedObjectId
                         if ([obj isKindOfClass:[NSString class]]) {
