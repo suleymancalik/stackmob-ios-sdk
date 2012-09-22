@@ -649,7 +649,13 @@ You should implement this method conservatively, and expect that unknown request
             if (attributeDescription.attributeType != NSUndefinedAttributeType) {
                 id value = [theObject valueForKey:[entityDescription sm_fieldNameForProperty:attributeDescription]];
                 if (value != nil) {
-                    [serializedDictionary setObject:value forKey:propertyName];
+                    if (attributeDescription.attributeType == NSDateAttributeType) {
+                        NSDate *convertedDate = [NSDate dateWithTimeIntervalSince1970:[value doubleValue]];
+                        //NSDate *convertedDate = [NSDate dateWithString:value];
+                        [serializedDictionary setObject:convertedDate forKey:propertyName];
+                    } else {
+                        [serializedDictionary setObject:value forKey:propertyName];
+                    }
                 }
             }
         }

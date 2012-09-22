@@ -29,6 +29,7 @@
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="randomId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="server_id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="yearBorn" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
     </entity>
     <entity name="Superpower" representedClassName="Superpower" syncable="YES">
@@ -39,11 +40,11 @@
         <relationship name="person" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Person" inverseName="superpower" inverseEntity="Person" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Random" positionX="160" positionY="192" width="128" height="105"/>
         <element name="Favorite" positionX="160" positionY="192" width="128" height="90"/>
         <element name="Interest" positionX="160" positionY="192" width="128" height="105"/>
         <element name="Oauth2test" positionX="160" positionY="192" width="128" height="75"/>
         <element name="Person" positionX="160" positionY="192" width="128" height="165"/>
+        <element name="Random" positionX="160" positionY="192" width="128" height="105"/>
         <element name="Superpower" positionX="511" positionY="216" width="128" height="120"/>
     </elements>
 </model>

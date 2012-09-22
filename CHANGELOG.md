@@ -1,5 +1,17 @@
 <h2>StackMob iOS SDK Change Log</h2>
 
+<h3>v1.0.0 - Sep 24, 2012</h3>
+
+**Features**
+* Support for iOS preferred camelCase Core Data property names.
+* Support non case-sensitive schema names in datastore API.
+* Support Core Data Date attribute type.
+* API version and public key provided to SMClient during initialization must be correct format and non-nil.
+
+**Fixes**
+* Edits to dictionary serialization algorithm for improved performance.
+* NewValueForRelationship incremental store method correctly returns empty array for to-many with no objects.
+
 <h3>v1.0.0beta.3 - Aug 24, 2012</h3>
 
 **Fixes** 

@@ -170,7 +170,7 @@
 		DEF7CEF7160BB51200635733 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
 		DEF7CEF8160BB53A00635733 /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
 		DEF7CEF9160BB53E00635733 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
-		DEF7D634160CF90900755EDD /* SMIncrementalStoreFetchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A615CB5EA200E491C4 /* SMIncrementalStoreFetchTest.m */; };
+		DEF7D67A160D4BC200755EDD /* SMIncrementalStoreFetchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A615CB5EA200E491C4 /* SMIncrementalStoreFetchTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1073,7 +1073,7 @@
 				DE13865015DC8DC400610EE1 /* SMCoreDataStoreTest.m in Sources */,
 				DECE28C715E709C50092AFDD /* SMIncrementalStoreTest.m in Sources */,
 				DECE28C915E709CB0092AFDD /* SMBinDataConvertCDIntegrationSpec.m in Sources */,
-				DEF7D634160CF90900755EDD /* SMIncrementalStoreFetchTest.m in Sources */,
+				DEF7D67A160D4BC200755EDD /* SMIncrementalStoreFetchTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

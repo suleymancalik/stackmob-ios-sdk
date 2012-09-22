@@ -109,11 +109,19 @@
         if ([property isKindOfClass:[NSAttributeDescription class]]) {
             NSAttributeDescription *attributeDescription = (NSAttributeDescription *)property;
             if (attributeDescription.attributeType != NSUndefinedAttributeType) {
-                id value = [self valueForKey:(NSString *)propertyName];
-                // do not support [NSNull null] values yet
-                // if (value == nil) { value = [NSNull null]; }
-                if (value != nil) {
-                    [objectDictionary setObject:value forKey:[selfEntity sm_fieldNameForProperty:property]];
+                if (attributeDescription.attributeType == NSDateAttributeType) {
+                    NSDate *dateValue = [self valueForKey:(NSString *)propertyName];
+                    if (dateValue != nil) {
+                        double convertedDate = [dateValue timeIntervalSince1970];
+                        [objectDictionary setObject:[NSNumber numberWithInt:convertedDate] forKey:[selfEntity sm_fieldNameForProperty:property]];
+                    }
+                } else {
+                    id value = [self valueForKey:(NSString *)propertyName];
+                    // do not support [NSNull null] values yet
+                    // if (value == nil) { value = [NSNull null]; }
+                    if (value != nil) {
+                        [objectDictionary setObject:value forKey:[selfEntity sm_fieldNameForProperty:property]];
+                    }
                 }
             }
         }
