@@ -51,15 +51,6 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
                 
                 map = [[NSManagedObject alloc] initWithEntity:mapEntity insertIntoManagedObjectContext:nil];
             });
-            context(@"when the object has an id", ^{
-                beforeEach(^{
-                    [map setValue:@"1234" forKey:@"map_id"]; 
-                });
-                it(@"returns the existing object id", ^{
-                    [[[map sm_assignObjectId] should] equal:@"1234"];
-                    [[[map valueForKey:@"map_id"] should] equal:@"1234"];
-                });
-            });
             context(@"when the object does not have an id", ^{
                 it(@"creates a new object id", ^{
                     [[map sm_assignObjectId] shouldNotBeNil];
@@ -97,14 +88,6 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
                 [userEntity setProperties:[NSArray arrayWithObjects:username, nil]];
                 
                 user = [[StackMobSerializationSpecUser alloc] initWithEntity:userEntity insertIntoManagedObjectContext:nil];
-            });
-            context(@"when the object has an id", ^{
-                beforeEach(^{
-                    [user setValue:@"me" forKey:@"username"];
-                });
-                it(@"returns the existing object id", ^{
-                    [[[user sm_assignObjectId] should] equal:@"me"];
-                }); 
             });
             context(@"when the object does not have an id", ^{
                 it(@"creates a new object id", ^{

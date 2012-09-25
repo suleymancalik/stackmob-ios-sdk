@@ -106,7 +106,7 @@ You should implement this method conservatively, and expect that unknown request
             result = [self handleFetchRequest:request withContext:context error:error];
             break;
         default:
-            NSAssert(false, @"Unknown request type.");
+            [NSException raise:SMExceptionIncompatibleObject format:@"Unknown request type."];
             break;
     }
     
@@ -306,13 +306,13 @@ You should implement this method conservatively, and expect that unknown request
             return [self fetchObjectIDs:fetchRequest withContext:context error:error];
             break;
         case NSDictionaryResultType:
-            NSAssert(false, @"Unimplemented result type requested."); 
+            [NSException raise:SMExceptionIncompatibleObject format:@"Unimplemented result type requested."];
             break;
         case NSCountResultType:
-            NSAssert(false, @"Unimplemented result type requested."); 
+            [NSException raise:SMExceptionIncompatibleObject format:@"Unimplemented result type requested."];
             break;
         default:
-            NSAssert(false, @"Unknown result type requested."); 
+            [NSException raise:SMExceptionIncompatibleObject format:@"Unknown result type requested."];
             break;
     }
     return nil;
@@ -405,9 +405,10 @@ You should implement this method conservatively, and expect that unknown request
         } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
             DLog(@"Could not read the object with objectId %@ and error userInfo %@", theObjectId, [theError userInfo]);
             success = NO;
-            if (nil != error) {
+            if (NULL != error) {
                 // TO DO provide sm specific error
                 *error = [[NSError alloc] initWithDomain:[theError domain] code:[theError code] userInfo:[theError userInfo]];
+                *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
             }
             syncReturn(semaphore);
         }];
@@ -454,9 +455,11 @@ You should implement this method conservatively, and expect that unknown request
         } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
             DLog(@"Could not read the object with objectId %@ and error userInfo %@", theObjectId, [theError userInfo]);
             success = NO;
-            if (nil != error) {
+            if (NULL != error) {
                 // TO DO provide sm specific error
                 *error = [[NSError alloc] initWithDomain:[theError domain] code:[theError code] userInfo:[theError userInfo]];
+                *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+                
             }
             syncReturn(semaphore);
         }];
@@ -470,7 +473,9 @@ You should implement this method conservatively, and expect that unknown request
     
     if ([relationship isToMany]) {
         if (relationshipContents) {
-            NSAssert([relationshipContents isKindOfClass:[NSArray class]], @"Relationship contents should be an array for a to-many relationship");
+            if (![relationshipContents isKindOfClass:[NSArray class]]) {
+                [NSException raise:SMExceptionIncompatibleObject format:@"Relationship contents should be an array for a to-many relationship. The relationship passed has contents that are of class type %@. Confirm that this relationship was meant to be to-many.", [relationshipContents class]];
+            }
             NSMutableArray *arrayToReturn = [NSMutableArray array];
             [(NSSet *)relationshipContents enumerateObjectsUsingBlock:^(id stringIdReference, BOOL *stop) {
                 NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:stringIdReference];
@@ -482,7 +487,9 @@ You should implement this method conservatively, and expect that unknown request
         }
     } else {
         if (relationshipContents) {
-            NSAssert([relationshipContents isKindOfClass:[NSString class]], @"Relationship contents should be a string for a to-one relationship");
+            if (![relationshipContents isKindOfClass:[NSString class]]) {
+                [NSException raise:SMExceptionIncompatibleObject format:@"Relationship contents should be a string for a to-one relationship. The relationship passed has contents that are of class type %@. Confirm that this relationship was meant to be to-one.", [relationshipContents class]];
+            }
             NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:relationshipContents];
             return relationshipObjectID;
         } else {

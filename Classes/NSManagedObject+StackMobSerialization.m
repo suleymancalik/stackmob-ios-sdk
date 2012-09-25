@@ -38,13 +38,11 @@
 
 - (NSString *)sm_assignObjectId
 {    
-    id objectId = [self sm_objectId];
-    if (objectId == nil || objectId == [NSNull null]) {
-        CFUUIDRef uuid = CFUUIDCreate(CFAllocatorGetDefault());
-        objectId = (__bridge_transfer NSString *)CFUUIDCreateString(CFAllocatorGetDefault(), uuid);
-        [self setValue:objectId forKey:[self sm_primaryKeyField]];
-        CFRelease(uuid);
-    }
+    id objectId = nil;
+    CFUUIDRef uuid = CFUUIDCreate(CFAllocatorGetDefault());
+    objectId = (__bridge_transfer NSString *)CFUUIDCreateString(CFAllocatorGetDefault(), uuid);
+    [self setValue:objectId forKey:[self sm_primaryKeyField]];
+    CFRelease(uuid);
     return objectId;
 }
 
@@ -138,6 +136,7 @@
                     [(NSSet *)relationshipContents enumerateObjectsUsingBlock:^(id child, BOOL *stopRelEnum) {
                         NSString *childObjectId = [child sm_objectId];
                         if (childObjectId == nil) {
+                            *stopRelEnum = YES;
                             [NSException raise:SMExceptionIncompatibleObject format:@"Trying to serialize an object with a to-many relationship whose value references an object with a nil value for it's primary key field.  Please make sure you assign object ids with sm_assignObjectId before attaching to relationships.  The object in question is %@", [child description]];
                         }
                         [relatedObjectDictionaries addObject:[child sm_objectId]];

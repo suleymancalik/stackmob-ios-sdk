@@ -15,6 +15,7 @@
 				DEDDE22915DD95D90055FAFF /* Copy Pods */,
 				DEDDE22815DD95C40055FAFF /* Copy Headers */,
 				DEDDE22715DD95440055FAFF /* Merge libs */,
+				DE3B0D61161134BF00854F88 /* Strip */,
 				DEDDE28615DD9F0F0055FAFF /* Copy Files To Build Dir */,
 				DEDDE2C215DDAFB30055FAFF /* Zip It Up */,
 			);
@@ -923,6 +924,20 @@
 			shellScript = "# Run the unit tests in this test bundle.\n#\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
 			showEnvVarsInLog = 0;
 		};
+		DE3B0D61161134BF00854F88 /* Strip */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = Strip;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "strip -S \"${PROJECT_DIR}/build/${SDK_VERSION}/StackMob-v${SDK_VERSION}/libstackmob-v${SDK_VERSION}.a\"";
+		};
 		DEDDE22715DD95440055FAFF /* Merge libs */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1156,6 +1171,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = NO;
+				DEPLOYMENT_POSTPROCESSING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -1189,6 +1205,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -1213,6 +1230,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1C66BB747CC543ECA80B6D69 /* Pods.xcconfig */;
 			buildSettings = {
+				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/stackmob_ios_sdk.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
@@ -1221,10 +1239,13 @@
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = debugging;
 			};
 			name = Debug;
 		};
@@ -1232,7 +1253,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1C66BB747CC543ECA80B6D69 /* Pods.xcconfig */;
 			buildSettings = {
+				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp/stackmob_ios_sdk.dst;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
@@ -1240,10 +1263,13 @@
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = debugging;
 			};
 			name = Release;
 		};
@@ -1340,16 +1366,22 @@
 		DEDDE21F15DD94DC0055FAFF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEPLOYMENT_POSTPROCESSING = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDK_VERSION = 1.0.0beta.4;
+				STRIP_INSTALLED_PRODUCT = YES;
 			};
 			name = Debug;
 		};
 		DEDDE22015DD94DC0055FAFF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEPLOYMENT_POSTPROCESSING = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDK_VERSION = 1.0.0beta.4;
+				STRIP_INSTALLED_PRODUCT = YES;
 			};
 			name = Release;
 		};
