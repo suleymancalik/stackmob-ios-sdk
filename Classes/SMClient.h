@@ -205,7 +205,7 @@
  */
 - (id)initWithAPIVersion:(NSString *)appAPIVersion publicKey:(NSString *)publicKey;
 
-#pragma mark datastore
+#pragma mark data store
 ///-------------------------------
 /// @name Retrieving a Data Store
 ///-------------------------------
@@ -391,7 +391,7 @@
 /**
  Reset a user's password securely.
  
- This would be hooked up to a password reset form. Changing a password via the regular datastore APIs 
+ This would be hooked up to a password reset form. Changing a password via the regular data store API 
  will result in an error. This API requires the user to be logged in as well as to supply their old password.
  
  @param oldPassword The user's current password.

@@ -35,7 +35,7 @@ We've also separated our Push Notification API into a separate SDK. For more inf
 
 <br/>
 ### Why base the new SDK on Core Data? 
-Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and datastore API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full data store API as well.
+Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and data store API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full data store API as well.
 
 <br/>
 ### Already know Core Data?
@@ -87,7 +87,7 @@ If you haven't found your public key yet, check out **Manage App Info** under th
 There are two ways to persist data to StackMob:
 
 * Core Data
-* Lower Level Datastore API
+* Lower Level Data Store API
 
 <br/>
 
@@ -119,9 +119,9 @@ Use this instance of NSManagedObjectContext throughout your application. Other t
 
 <br/>
 
-#### Lower Level Datastore API
+#### Lower Level Data Store API
 
-If you want to make direct REST-based calls to the datastore, check out the [SMDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html) class.
+If you want to make direct REST-based calls to the data store, check out the [SMDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html) class.
 
 <br/>
 

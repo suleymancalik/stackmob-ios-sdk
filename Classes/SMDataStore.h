@@ -79,7 +79,7 @@
 
 
 /** 
- Create a new object in your StackMob datastore.
+ Create a new object in your StackMob data store.
  
  @param theObject A dictionary describing the object to create on StackMob. Keys should map to valid StackMob fields. Values should be JSON serializable objects.
  @param schema The StackMob schema in which to create this new object.
@@ -92,7 +92,7 @@
            onFailure:(SMDataStoreFailureBlock)failureBlock;
 
 /** 
- Create a new object in your StackMob datastore.
+ Create a new object in your StackMob data store.
  
  @param theObject A dictionary describing the object to create on StackMob. Keys should map to valid StackMob fields. Values should be JSON serializable objects.
  @param schema The StackMob schema in which to create this new object.
@@ -107,7 +107,7 @@
            onFailure:(SMDataStoreFailureBlock)failureBlock;
 
 /** 
- Read an existing object from your StackMob datastore.
+ Read an existing object from your StackMob data store.
  
  @param theObjectId The object id (the value of the primary key field) for the object to read.
  @param schema The StackMob schema containing this object.
@@ -120,7 +120,7 @@
                onFailure:(SMDataStoreObjectIdFailureBlock)failureBlock;
 
 /** 
- Read an existing object from your StackMob datastore (with request options).
+ Read an existing object from your StackMob data store (with request options).
  
  @param theObjectId The object id (the value of the primary key field) for the object to read.
  @param schema The StackMob schema containing this object.
@@ -135,7 +135,7 @@
                onFailure:(SMDataStoreObjectIdFailureBlock)failureBlock;
 
 /** 
- Update an existing object in your StackMob datastore.
+ Update an existing object in your StackMob data store.
  
  @param theObjectId The object id (the value of the primary key field) for the object to update.
  @param schema The StackMob schema containing this object.
@@ -150,7 +150,7 @@
                  onFailure:(SMDataStoreFailureBlock)failureBlock;
 
 /** 
- Update an existing object in your StackMob datastore (with request options).
+ Update an existing object in your StackMob data store (with request options).
  
  @param theObjectId The object id (the value of the primary key field) for the object to update.
  @param schema The StackMob schema containing this object.
@@ -203,7 +203,7 @@
                         onFailure:(SMDataStoreFailureBlock)failureBlock;
 
 /** 
- Delete an existing object from your StackMob datastore.
+ Delete an existing object from your StackMob data store.
  
  @param theObjectId The object id (the value of the primary key field) for the object to delete.
  @param schema The StackMob schema containing this object.
@@ -216,7 +216,7 @@
              onFailure:(SMDataStoreObjectIdFailureBlock)failureBlock;
 
 /** 
- Delete an existing object from your StackMob datastore (with request options).
+ Delete an existing object from your StackMob data store (with request options).
  
  @param theObjectId The object id (the value of the primary key field) for the object to delete.
  @param schema The StackMob schema containing this object.
@@ -238,7 +238,7 @@
 
 
 /** 
- Execute a query against your StackMob datastore.
+ Execute a query against your StackMob data store.
   
  @param query An `SMQuery` object describing the query to perform.
  @param successBlock A block to invoke after the query succeeds. Passed an array of object dictionaries returned from StackMob (if any).
@@ -247,7 +247,7 @@
 - (void)performQuery:(SMQuery *)query onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /** 
- Execute a query against your StackMob datastore (with request options).
+ Execute a query against your StackMob data store (with request options).
   
  @param query An `SMQuery` object describing the query to perform.
  @param options An options object contains headers and other configuration for this request.
@@ -257,7 +257,7 @@
 - (void)performQuery:(SMQuery *)query options:(SMRequestOptions *)options onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /** 
- Count the results that would be returned by a query against your StackMob datastore.
+ Count the results that would be returned by a query against your StackMob data store.
   
  @param query An `SMQuery` object describing the query to perform.
  @param successBlock A block to invoke when the count is complete.  Passed the number of objects returned that would by the query.
@@ -266,7 +266,7 @@
 - (void)performCount:(SMQuery *)query onSuccess:(SMCountSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /** 
- Count the results that would be returned by a query against your StackMob datastore (with request options).
+ Count the results that would be returned by a query against your StackMob data store (with request options).
   
  @param query An `SMQuery` object describing the query to perform.
  @param options An options object contains headers and other configuration for this request.
