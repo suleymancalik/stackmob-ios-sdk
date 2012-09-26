@@ -99,7 +99,7 @@
 /**
  Expand relationships by `depth` levels.
  
- For example, if `depth` is 1, include any direct child objects nested inside the query results. The option is currently only honored for login calls, datastore reads, and queries.
+ For example, if `depth` is 1, include any direct child objects nested inside the query results. The option is currently only honored for login calls, data store reads, and queries.
  
  @param depth The depth to expand to, maximum 3.
  */
@@ -114,7 +114,7 @@
 /**
  Return a subset of the schema's fields.
  
- See [the docs](https://stackmob.com/devcenter/docs/Datastore-API#a-selecting_fields_to_return) for details on the format. The option is currently only honored for login calls, datastore reads, and queries
+ See [the docs](https://stackmob.com/devcenter/docs/Datastore-API#a-selecting_fields_to_return) for details on the format. The option is currently only honored for login calls, data store reads, and queries
  
  @param fields An array containing the names of the fields to return.
  */

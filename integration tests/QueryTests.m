@@ -43,7 +43,7 @@ describe(@"with a prepopulated database of people", ^{
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixtureNames];
     });
     
-    describe(@"-query", ^{
+    describe(@"-query with initWithSchema", ^{
         beforeEach(^{
             query = [[SMQuery alloc] initWithSchema:@"people"];
         });

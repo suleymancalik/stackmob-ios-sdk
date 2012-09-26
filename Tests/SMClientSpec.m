@@ -35,7 +35,7 @@ describe(@"+defaultClient", ^{
         context(@"creating a new client instance", ^{
             __block SMClient *client = nil;
             beforeEach(^{
-                client = [[SMClient alloc] initWithAPIVersion:@"1" publicKey:@"public"];
+                client = [[SMClient alloc] initWithAPIVersion:@"1" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
             });
             it(@"should set the default client", ^{
                 [[[SMClient defaultClient] should] equal:client];
@@ -51,7 +51,7 @@ describe(@"+defaultClient", ^{
         context(@"setting the default client", ^{
             __block SMClient *client = nil;
             beforeEach(^{
-                client = [[SMClient alloc] initWithAPIVersion:@"1" publicKey:@"public"];
+                client = [[SMClient alloc] initWithAPIVersion:@"1" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
                 [SMClient setDefaultClient:client];
             });
             it(@"should update the default client", ^{
@@ -61,7 +61,7 @@ describe(@"+defaultClient", ^{
         context(@"creating a new client instance", ^{
             __block SMClient *client = nil;
             beforeEach(^{
-                client = [[SMClient alloc] initWithAPIVersion:@"1" publicKey:@"public"];
+                client = [[SMClient alloc] initWithAPIVersion:@"1" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
             });
             it(@"should not change the default client", ^{
                 [[[SMClient defaultClient] should] equal:originalDefaultClient];
@@ -73,9 +73,9 @@ describe(@"+defaultClient", ^{
 describe(@"simple configuration", ^{
     __block SMClient *client = nil;
     __block NSString *appAPIVersion = @"0";
-    __block NSString *publicKey = nil;
+    __block NSString *publicKey = @"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
     beforeEach(^{
-        publicKey = @"public";
+        publicKey = @"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
         client = [[SMClient alloc] initWithAPIVersion:appAPIVersion publicKey:publicKey];
     });
     
@@ -152,7 +152,7 @@ describe(@"complex configuration", ^{
 
     
     beforeEach(^{
-        publicKey = @"public";
+        publicKey = @"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
         UDIDSalt = @"foo";
         apiHost = @"bar";
         userSchema = @"qux";
@@ -192,6 +192,14 @@ describe(@"complex configuration", ^{
                 [[[client userSchema] should] equal:@"player"];
             });
         });
+        context(@"when I change the user object name to include uppercase letters", ^{
+            beforeEach(^{
+                [client setUserSchema:@"Player"];
+            });
+            it(@"should now equal player", ^{
+                [[[client userSchema] should] equal:@"player"];
+            });
+        });
     });
     
     describe(@"userIdName", ^{
@@ -225,7 +233,7 @@ describe(@"-dataStore", ^{
     __block NSString *publicKey = nil;
     __block NSString *APIVersion = @"0";
     beforeEach(^{
-        publicKey = @"public";
+        publicKey = @"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
         client = [[SMClient alloc] initWithAPIVersion:APIVersion publicKey:publicKey];
         dataStore = [client dataStore];
     });
@@ -244,7 +252,7 @@ describe(@"-dataStore", ^{
 describe(@"login with SM username and password", ^{
     __block SMClient *client = nil;
     beforeEach(^{
-        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"foo"];
+        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         client.session.tokenClient = [AFHTTPClient nullMock];
     });
     
@@ -256,7 +264,7 @@ describe(@"login with SM username and password", ^{
     
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"foo" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
         });
         it(@"should pick up the user schema, user id, and password field", ^{
             NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"matt", @"doggyname", @"1234", @"doggysecret", @"mac", @"token_type", @"hmac-sha-1", @"mac_algorithm", nil];
@@ -300,7 +308,7 @@ describe(@"login with SM username and password", ^{
 describe(@"login with SM username, temporary password, and new password", ^{
     __block SMClient *client = nil;
     beforeEach(^{
-        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"foo"];
+        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         client.session.tokenClient = [AFHTTPClient nullMock];
     });
     
@@ -312,7 +320,7 @@ describe(@"login with SM username, temporary password, and new password", ^{
     
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"foo" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
         });
         it(@"should pick up the user schema, user id, and password field", ^{
             NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"matt", @"doggyname", @"1234", @"doggysecret", @"12345", @"new_password", @"mac", @"token_type", @"hmac-sha-1", @"mac_algorithm", nil];
@@ -371,7 +379,7 @@ describe(@"login with SM username, temporary password, and new password", ^{
 describe(@"loggedInUser", ^{
     __block SMClient *client = nil;
     beforeEach(^{
-        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"foo"];
+        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         client.session.regularOAuthClient = [SMOAuth2Client nullMock];
     });
     
@@ -381,7 +389,7 @@ describe(@"loggedInUser", ^{
     });   
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"foo" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
         });
         it(@"should pick up the user schema", ^{
             [[[client.session.regularOAuthClient should] receive] requestWithMethod:@"GET" path:@"dog/loggedInUser" parameters:nil];
@@ -393,7 +401,7 @@ describe(@"loggedInUser", ^{
 describe(@"refreshLogin", ^{
     __block SMClient *client = nil;
     beforeEach(^{
-        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"foo"];
+        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         client.session.tokenClient = [AFHTTPClient nullMock];
     });
     
@@ -405,7 +413,7 @@ describe(@"refreshLogin", ^{
     
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"foo" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
         });
         it(@"should pick up the user schema, user id, and password field", ^{
             NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"matt", @"doggyname", @"1234", @"doggysecret", @"mac", @"token_type", @"hmac-sha-1", @"mac_algorithm", nil];
@@ -453,7 +461,7 @@ describe(@"logout", ^{
     
     __block SMClient *client = nil;
     beforeEach(^{
-        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"foo"];
+        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         client.session.regularOAuthClient = [SMOAuth2Client nullMock];
     });
     
@@ -463,7 +471,7 @@ describe(@"logout", ^{
     });   
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"foo" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
         });
         it(@"should pick up the user schema", ^{
             [[[client.session.regularOAuthClient should] receive] requestWithMethod:@"GET" path:@"dog/logout" parameters:nil];
@@ -478,7 +486,7 @@ describe(@"logout", ^{
 describe(@"forgot password", ^{
     __block SMClient *client = nil;
     beforeEach(^{
-        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"foo"];
+        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         client.session.regularOAuthClient = [SMOAuth2Client nullMock];
     });
     
@@ -490,7 +498,7 @@ describe(@"forgot password", ^{
     
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"foo" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
         });
         it(@"should pick up the user schema", ^{
             NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"matt", @"doggyname", nil];
@@ -520,7 +528,7 @@ describe(@"reset password", ^{
     
     __block SMClient *client = nil;
     beforeEach(^{
-        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"foo"];
+        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         client.session.secureOAuthClient = [SMOAuth2Client nullMock];
     });
     
@@ -534,7 +542,7 @@ describe(@"reset password", ^{
     
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"foo" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userIdName:@"doggyname" passwordFieldName:@"doggysecret"];
         });
         it(@"should pick up the user schema", ^{
             NSDictionary *old = [NSDictionary dictionaryWithObject:@"foo" forKey:@"password"];
@@ -582,7 +590,7 @@ describe(@"reset password", ^{
 describe(@"loginWithFacebook", ^{
     __block SMClient *client = nil;
     beforeEach(^{
-        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"foo"];
+        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         client.session.tokenClient = [AFHTTPClient nullMock];
     });
     

@@ -157,6 +157,93 @@ describe(@"CRUD", ^{
             [[theValue(deleteSucceeded) should] beYes];
         });
     });
+    context(@"CRUD with non-lowercase schema name", ^{
+        __block NSDictionary *newBook = nil;
+        __block NSString *newBookTitle = nil;
+        __block NSDictionary *book = nil;
+        __block NSString *returnedSchema = nil;
+        __block NSString *objectId;
+        beforeEach(^{
+            newBookTitle = [NSString stringWithFormat:@"Twilight part %ld", random() % 10000];
+            returnedSchema = nil;
+            newBook = nil;
+        });
+        it(@"Should create given non-lowercase schema name", ^{
+            book = [NSDictionary dictionaryWithObjectsAndKeys:
+                    newBookTitle, @"title",
+                    @"Rabid Fan", @"author",
+                    nil];
+            [[dataStore.session.regularOAuthClient operationQueue] shouldNotBeNil];
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [dataStore createObject:book inSchema:@"Book" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                    newBook = theObject;
+                    returnedSchema = schema;
+                    objectId = [theObject objectForKey:@"book_id"];
+                    NSLog(@"Created %@", theObject);
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                    NSLog(@"Failed to create a new %@: %@", schema, theError);
+                    newBook = nil;
+                    syncReturn(semaphore);
+                }];
+            });
+            [newBook shouldNotBeNil];
+            [[returnedSchema should] equal:@"Book"];
+        });
+        it(@"Should read given non-lowercase schema name", ^{
+            [[dataStore.session.regularOAuthClient operationQueue] shouldNotBeNil];
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [dataStore readObjectWithId:objectId inSchema:@"Book" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                    newBook = theObject;
+                    returnedSchema = schema;
+                    NSLog(@"Read %@", theObject);
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                    NSLog(@"Failed to read %@: %@", theObjectId, theError);
+                    newBook = nil;
+                    syncReturn(semaphore);
+                }];
+            });
+            [newBook shouldNotBeNil];
+            [[returnedSchema should] equal:@"Book"];
+        });
+        it(@"Should update given non-lowercase schema name", ^{
+            book = [NSDictionary dictionaryWithObjectsAndKeys:
+                    newBookTitle, @"title",
+                    @"Rabid Fan Not", @"author",
+                    nil];
+            [[dataStore.session.regularOAuthClient operationQueue] shouldNotBeNil];
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [dataStore updateObjectWithId:objectId inSchema:@"Book" update:book onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                    newBook = theObject;
+                    returnedSchema = schema;
+                    NSLog(@"Updated %@", theObject);
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                    NSLog(@"Failed to update %@: %@", schema, theError);
+                    newBook = nil;
+                    syncReturn(semaphore);
+                }];
+            });
+            [newBook shouldNotBeNil];
+            [[returnedSchema should] equal:@"Book"];
+        });
+        it(@"Should delete given non-lowercase schema name", ^{
+            [[dataStore.session.regularOAuthClient operationQueue] shouldNotBeNil];
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [dataStore deleteObjectId:objectId inSchema:@"Book" onSuccess:^(NSString *theObjectId, NSString *schema) {
+                    returnedSchema = schema;
+                    NSLog(@"Deleted %@", theObjectId);
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                    NSLog(@"Failed to delete %@: %@", schema, theError);
+                    syncReturn(semaphore);
+                }];
+            });
+            [[returnedSchema should] equal:@"Book"];
+        });
+
+    });
 });
 
 SPEC_END

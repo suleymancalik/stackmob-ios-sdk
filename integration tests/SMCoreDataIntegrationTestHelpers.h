@@ -21,7 +21,6 @@
 typedef void (^SynchronousFetchBlock)(NSArray *results, NSError *error);
 typedef void (^SynchronousErrorBlock)(NSError *error);
 
-
 @interface SMCoreDataIntegrationTestHelpers : NSObject
 
 @property (readonly, strong, nonatomic) NSManagedObjectModel *stackMobMOM;
@@ -45,3 +44,4 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 + (void)MOCWillSave:(NSNotification *)notification;
 
 @end
+

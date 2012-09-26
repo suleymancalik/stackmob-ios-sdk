@@ -45,11 +45,11 @@
 - (NSString *)sm_assignObjectId;
 
 /**
- Returns the primary key field for the entity used to uniquely define the object on StackMob.
+ Returns the primary key field name for this entity whose value will map to the primary key field on StackMob.
  
- If the `NSManagedObject` subclass for this entity conforms to the <SMModel> protocol, the return string from the overridden `primaryKeyFieldName` method is returned. Otherwise lowercaseEntityName_id (i.e. person_id for entity Person) is used.
+ If the `NSManagedObject` subclass for this entity conforms to the <SMModel> protocol, the return string from the overridden <primaryKeyFieldName> method is returned. Otherwise lowercaseEntityNameId or lowercaseEntityName_id is returned, if found.
  
- @note If the `NSManagedObject` subclass for this entity does not conforms to the `SMModel` protocol, and lowercaseEntityName_id is not one of the entity's attributes, a `SMExceptionIncompatibleObject` exception is thrown.
+ @note If the `NSManagedObject` subclass for this entity does not conforms to the 'SMModel' protocol, and lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity's attributes, a `SMExceptionIncompatibleObject` exception is thrown.
  */
 - (NSString *)sm_primaryKeyField;
 
@@ -57,12 +57,5 @@
  Converts an `NSManagedObject` into an equivalent dictionary form for StackMob to process.
  */
 - (NSDictionary *)sm_dictionarySerialization;
-
-/**
- Triggers the `sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:withKeyPath:` method in <NSEntityDescription(StackMobSerialization)>.
- 
- @return A string of all relationship header components joined by &.
- */
-- (NSString *)sm_relationshipHeader;
 
 @end

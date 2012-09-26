@@ -30,11 +30,27 @@
 @class SMCustomCodeRequest;
 
 /**
- `SMDataStore` exposes an interface for performing CRUD operations on known StackMob objects and for executing a <SMQuery>.
+ `SMDataStore` exposes an interface for performing CRUD operations on known StackMob objects and for executing an <SMQuery>.
  
  As a direct interface to StackMob, `SMDataStore` uses StackMob's terminology:
- - Operations are performed against a specific _schema_ (usually also the name of a model class or of an entity in a managed object model).
- - Objects sent via the API are expressed as a dictionary of _fields_.
+ 
+ * Operations are performed against a specific _schema_ (usually also the name of a model class or of an entity in a managed object model).
+ * Objects sent via the API are expressed as a dictionary of _fields_.
+ * The schema name string provided to any of the methods in this class is NOT case-sensitive. It will be converted and stored on StackMob as a lowercase string but returned in success/failure blocks in the same form it was received.
+ 
+ **Accessing the data store**
+ 
+ Using your `SMClient` defaultClient:
+ 
+    [[[SMClient defaultClient] dataStore] createObject...];
+ 
+ Creating an instance of `SMDataStore`:
+ 
+    // Assuming you have an initialized SMClient call client
+    SMDataStore *dataStore = [[self client] dataStore];
+    
+    [dataStore createObject...];
+ 
  */
 @interface SMDataStore : NSObject
 
@@ -63,7 +79,7 @@
 
 
 /** 
- Create a new object in your StackMob datastore.
+ Create a new object in your StackMob data store.
  
  @param theObject A dictionary describing the object to create on StackMob. Keys should map to valid StackMob fields. Values should be JSON serializable objects.
  @param schema The StackMob schema in which to create this new object.
@@ -76,7 +92,7 @@
            onFailure:(SMDataStoreFailureBlock)failureBlock;
 
 /** 
- Create a new object in your StackMob datastore.
+ Create a new object in your StackMob data store.
  
  @param theObject A dictionary describing the object to create on StackMob. Keys should map to valid StackMob fields. Values should be JSON serializable objects.
  @param schema The StackMob schema in which to create this new object.
@@ -91,7 +107,7 @@
            onFailure:(SMDataStoreFailureBlock)failureBlock;
 
 /** 
- Read an existing object from your StackMob datastore.
+ Read an existing object from your StackMob data store.
  
  @param theObjectId The object id (the value of the primary key field) for the object to read.
  @param schema The StackMob schema containing this object.
@@ -104,7 +120,7 @@
                onFailure:(SMDataStoreObjectIdFailureBlock)failureBlock;
 
 /** 
- Read an existing object from your StackMob datastore (with request options).
+ Read an existing object from your StackMob data store (with request options).
  
  @param theObjectId The object id (the value of the primary key field) for the object to read.
  @param schema The StackMob schema containing this object.
@@ -119,7 +135,7 @@
                onFailure:(SMDataStoreObjectIdFailureBlock)failureBlock;
 
 /** 
- Update an existing object in your StackMob datastore.
+ Update an existing object in your StackMob data store.
  
  @param theObjectId The object id (the value of the primary key field) for the object to update.
  @param schema The StackMob schema containing this object.
@@ -134,7 +150,7 @@
                  onFailure:(SMDataStoreFailureBlock)failureBlock;
 
 /** 
- Update an existing object in your StackMob datastore (with request options).
+ Update an existing object in your StackMob data store (with request options).
  
  @param theObjectId The object id (the value of the primary key field) for the object to update.
  @param schema The StackMob schema containing this object.
@@ -187,7 +203,7 @@
                         onFailure:(SMDataStoreFailureBlock)failureBlock;
 
 /** 
- Delete an existing object from your StackMob datastore.
+ Delete an existing object from your StackMob data store.
  
  @param theObjectId The object id (the value of the primary key field) for the object to delete.
  @param schema The StackMob schema containing this object.
@@ -200,7 +216,7 @@
              onFailure:(SMDataStoreObjectIdFailureBlock)failureBlock;
 
 /** 
- Delete an existing object from your StackMob datastore (with request options).
+ Delete an existing object from your StackMob data store (with request options).
  
  @param theObjectId The object id (the value of the primary key field) for the object to delete.
  @param schema The StackMob schema containing this object.
@@ -222,7 +238,7 @@
 
 
 /** 
- Execute a query against your StackMob datastore.
+ Execute a query against your StackMob data store.
   
  @param query An `SMQuery` object describing the query to perform.
  @param successBlock A block to invoke after the query succeeds. Passed an array of object dictionaries returned from StackMob (if any).
@@ -231,7 +247,7 @@
 - (void)performQuery:(SMQuery *)query onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /** 
- Execute a query against your StackMob datastore (with request options).
+ Execute a query against your StackMob data store (with request options).
   
  @param query An `SMQuery` object describing the query to perform.
  @param options An options object contains headers and other configuration for this request.
@@ -241,7 +257,7 @@
 - (void)performQuery:(SMQuery *)query options:(SMRequestOptions *)options onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /** 
- Count the results that would be returned by a query against your StackMob datastore.
+ Count the results that would be returned by a query against your StackMob data store.
   
  @param query An `SMQuery` object describing the query to perform.
  @param successBlock A block to invoke when the count is complete.  Passed the number of objects returned that would by the query.
@@ -250,7 +266,7 @@
 - (void)performCount:(SMQuery *)query onSuccess:(SMCountSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /** 
- Count the results that would be returned by a query against your StackMob datastore (with request options).
+ Count the results that would be returned by a query against your StackMob data store (with request options).
   
  @param query An `SMQuery` object describing the query to perform.
  @param options An options object contains headers and other configuration for this request.

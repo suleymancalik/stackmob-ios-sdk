@@ -5,7 +5,7 @@ StackMob iOS SDK
 
 ## [Full Reference Docs](http://stackmob.github.com/stackmob-ios-sdk/index.html)
 
-</br>
+<br/>
 
 # Getting started
 
@@ -49,19 +49,17 @@ Open the new workspace and we can start developing using the StackMob library
 # Development
 
 ## Debugging
+<br/>
 
-<p>There are many log statements embedded throughout the iOS SDK to help with debugging.  The syntax is DLog(), defined in StackMob.h.</p>
-<p>To turn this feature on, do the following:</p> 
+<p>The iOS SDK gives developers access to two global variables that will enable additional logging statements when using the Core Data integration:</p>
 
-1. If you installed with Cocoapods, go to the build settings tab for the Pods project in your workspace.  Instructions coming soon if you imported the Static Library.
-2. Search for the **Preprocessor Macros** build setting.
-3. Add **SMDEBUG=1** to Debug.
-4. Build and run under the Debug configuration to get log statements from the SDK.
-5. To turn off, change the setting to SMDEBUG=0, or just remove it. 
+* **SM_CORE_DATA_DEBUG** - In your AppDelegate's `application:DidFinishLaunchingWithOptions:` method, include the line `SM_CORE_DATA_DEBUG = YES;` to turn on log statements from `SMIncrementalStore`. This will provide information about the data store calls to StackMob happening behind the scenes during Core Data saves and fetches. The default is `NO`.
+* **SM_MAX_LOG_LENGTH** - Used to control how many characters are printed when logging objects. The default is **10,000**, which is plenty, so you will almost never have to set this.  The only time you will see the string representation of an object truncated is when you have an Attribute of type String that maps to a field of type Binary on StackMob, because you are sending a string containing the binary of the image, etc. String representations of objects that have been truncated end with \<MAX\_LOG\_LENGTH\_REACHED\>.   
+
 
 ## Testing
 
-</br>
+<br/>
 <p>In order to test you must download the full source code: `git clone git@github.com:stackmob/stackmob-ios-sdk.git`.</p>
 
 
@@ -104,7 +102,7 @@ Unit tests do not make network requests against StackMob. The project includes a
 6. Test the "integration tests" scheme.
 
 #### Optional: Test Custom Code Methods
-</br>
+<br/>
 By default, custom code tests are turned off.  This is because they require you to have specific custom code methods uploaded for your application. To test custom code, do the following:
 
 1. Clone the custom code example repository: `$ git clone git@github.com:stackmob/stackmob-customcode-example.git`.

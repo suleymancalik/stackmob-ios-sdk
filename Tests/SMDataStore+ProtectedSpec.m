@@ -21,7 +21,7 @@
 SPEC_BEGIN(SMDataStore_CompletionBlocksSpec)
 __block SMDataStore *dataStore = nil;
 beforeEach(^{
-    SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"public"];
+    SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
     dataStore = [[SMDataStore alloc] initWithAPIVersion:@"0" session:[client session]]; 
 });
 

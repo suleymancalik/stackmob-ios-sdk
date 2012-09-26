@@ -28,9 +28,12 @@ beforeEach(^{
     query = [[SMQuery alloc] initWithSchema:TEST_SCHEMA];
 });
 
-describe(@"-initWithEntity", ^{
+describe(@"-initWithSchema", ^{
     it(@"builds a query with the given entity name as its schema", ^{
         [[[query schemaName] should] equal:TEST_SCHEMA];
+    });
+    it(@"should return nil for entity", ^{
+        [[query entity] shouldBeNil];
     });
 });
 
@@ -138,7 +141,7 @@ describe(@"ordering", ^{
     
     describe(@"when the intent is to sort by one field", ^{
         it(@"-orderByField", ^{
-            NSString *expectedOrderByHeader = [NSString stringWithFormat:@"field1:asc", field1];
+            NSString *expectedOrderByHeader = [NSString stringWithFormat:@"%@:asc", field1];
             [query orderByField:field1 ascending:YES];
             [[[[query requestHeaders] objectForKey:orderByHeader] should] equal:expectedOrderByHeader];
         });    

@@ -65,7 +65,13 @@
             failureBlock(error, theObject, schema);
         }
     } else {
-        NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"POST" path:schema parameters:theObject];
+        NSString *theSchema = schema;
+        if ([schema rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]].location == NSNotFound) {
+            // lowercase the schema for StackMob
+            theSchema = [theSchema lowercaseString];
+        }
+        
+        NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"POST" path:theSchema parameters:theObject];
         [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
             [request setValue:headerValue forHTTPHeaderField:headerField]; 
         }];
@@ -101,7 +107,7 @@
             failureBlock(error, updatedFields, schema);
         }
     } else {
-        NSString *path = [schema stringByAppendingPathComponent:theObjectId];
+        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:theObjectId];
         
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"PUT" path:path parameters:updatedFields]; 
         [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
@@ -150,7 +156,7 @@
             failureBlock(error, theObjectId, schema);
         }
     } else {
-        NSString *path = [schema stringByAppendingPathComponent:theObjectId];
+        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:theObjectId];
 
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"DELETE" path:path parameters:nil];
         [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
@@ -185,10 +191,10 @@
 {
     NSMutableURLRequest *request = [self requestFromQuery:query options:options];
     
-    SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+    SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *successRequest, NSHTTPURLResponse *response, id JSON) {
         successBlock((NSArray *)JSON);
     };
-    SMFullResponseFailureBlock urlFailureBlock = ^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
+    SMFullResponseFailureBlock urlFailureBlock = ^(NSURLRequest *failedRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
         NSLog(@"Query failed with error: %@, response: %@, JSON: %@", error, response, JSON);
         failureBlock(error);
     };   
@@ -207,7 +213,7 @@
     countQuery.requestHeaders = [query.requestHeaders copy];
     [countQuery fromIndex:0 toIndex:0];
     NSMutableURLRequest *request = [self requestFromQuery:countQuery options:options];  
-    SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+    SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *successRequest, NSHTTPURLResponse *response, id JSON) {
         NSString *rangeHeader = [response.allHeaderFields valueForKey:@"Content-Range"];
         //No range header means we've got all the results right here (1 or 0)
         int count = [self countFromRangeHeader:rangeHeader results:JSON];

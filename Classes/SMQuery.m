@@ -28,18 +28,27 @@
 @synthesize requestParameters = _requestParameters;
 @synthesize requestHeaders = _requestHeaders;
 @synthesize schemaName = _schemaName;
+@synthesize entity = _entity;
 
 - (id)initWithEntity:(NSEntityDescription *)entity
 {
+    
     NSString *schemaName = [[entity name] lowercaseString];
-    return [self initWithSchema:schemaName];
+    return [self initWithSchema:schemaName entity:entity];
+    
 }
 
 - (id)initWithSchema:(NSString *)schema
 {
+    return [self initWithSchema:schema entity:nil];
+}
+
+- (id)initWithSchema:(NSString *)schema entity:(NSEntityDescription *)entity
+{
     self = [super init];
     if (self) {
-        _schemaName = schema;
+        _entity = entity;
+        _schemaName = [schema lowercaseString];
         _requestParameters = [NSMutableDictionary dictionaryWithCapacity:1];
         _requestHeaders = [NSMutableDictionary dictionaryWithCapacity:1];
     }

@@ -19,7 +19,7 @@
 #import <CoreLocation/CoreLocation.h>
 
 /**
- `SMQuery` exposes an interface for defining a query against StackMob's datastore API.
+ `SMQuery` exposes an interface for defining a query against StackMob's data store API.
  
  `SMQuery` uses StackMob's terminology:
  - Queries are performed against a specific _schema_ (usually also the name of a model class or of an entity in a managed object model)
@@ -44,6 +44,13 @@
  schemaName is the name of the StackMob schema against which this query will be executed.
  */
 @property (readonly) NSString *schemaName;
+
+/*
+ entity is the Entity Description of the Core Data Entity provided when initialized using <initWithEntity:>.
+
+ @return `nil` if <initWithSchema:> was used for initialization, otherwise the Entity Description.
+ */
+@property (readonly) NSEntityDescription *entity;
 
 #pragma mark - Creating queries
 ///-------------------------------

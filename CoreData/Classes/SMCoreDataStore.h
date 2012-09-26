@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SMDataStore.h"
+
 @class SMIncrementalStore;
 
 /**

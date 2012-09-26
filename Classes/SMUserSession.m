@@ -123,7 +123,7 @@
             statusCode = SMErrorTemporaryPasswordResetRequired;
             domain = SMErrorDomain;
         }
-        failureBlock([NSError errorWithDomain:domain code:response.statusCode userInfo:JSON]);
+        failureBlock([NSError errorWithDomain:domain code:statusCode userInfo:JSON]);
     };
     AFJSONRequestOperation * op = [SMJSONRequestOperation JSONRequestOperationWithRequest:request success:successHandler failure:failureHandler];
     [self.tokenClient enqueueHTTPRequestOperation:op];

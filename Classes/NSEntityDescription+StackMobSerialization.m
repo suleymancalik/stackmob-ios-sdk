@@ -27,67 +27,80 @@
 
 - (NSString *)sm_primaryKeyField
 {
-    NSString *objectIdField = [[self sm_schema] stringByAppendingFormat:@"_id"];
+    NSString *objectIdField = nil;
+    
+    // Search for SMModel protocol
     id aClass = NSClassFromString([self name]);
     if (aClass != nil) {
         if ([aClass conformsToProtocol:@protocol(SMModel)]) {
             objectIdField = [(id <SMModel>)aClass primaryKeyFieldName];
-            if (NO == [objectIdField isEqualToString:[objectIdField lowercaseString]]) {
-                [NSException raise:SMExceptionIncompatibleObject format:@"%@ returned an invalid primary key field name (%@). Field names must be lower case.", [self description], objectIdField];
-            }
+            return objectIdField;
         }
     }
-    return objectIdField;
+    
+    // Search for schemanameId
+    objectIdField = [[self sm_schema] stringByAppendingFormat:@"Id"];
+    if ([[self propertiesByName] objectForKey:objectIdField] != nil) {
+        return objectIdField;
+    }
+    
+    // Search for schemaname_id
+    objectIdField = [[self sm_schema] stringByAppendingFormat:@"_id"];
+    if ([[self propertiesByName] objectForKey:objectIdField] != nil) {
+        return objectIdField;
+    }
+    
+    // Raise an exception and return nil
+    [NSException raise:SMExceptionIncompatibleObject format:@"No Primary Key Field found for entity %@ which matches the following format: <lowercase_entity_name>Id or <lowercase_entity_name>_id.  If you adopt the SMModel protocol, you may return either of those formats or any lowercase string with optional underscores that matches the primary key field on StackMob.", [self name]];
+    return nil;
 }
 
 - (NSString *)sm_fieldNameForProperty:(NSPropertyDescription *)property 
 {
-    return [[property name] lowercaseString];
+    NSCharacterSet *uppercaseSet = [NSCharacterSet uppercaseLetterCharacterSet];
+    NSMutableString *stringToReturn = [[property name] mutableCopy];
+    
+    NSRange range = [stringToReturn rangeOfCharacterFromSet:uppercaseSet];
+    if (range.location == 0) {
+        [NSException raise:SMExceptionIncompatibleObject format:@"Property %@ cannot start with an uppercase letter.  Acceptable formats are camelCase or lowercase letters with optional underscores", [property name]];
+    }
+    while (range.location != NSNotFound) {
+        
+        unichar letter = [stringToReturn characterAtIndex:range.location] + 32;
+        [stringToReturn replaceCharactersInRange:range withString:[NSString stringWithFormat:@"_%C", letter]];
+        range = [stringToReturn rangeOfCharacterFromSet:uppercaseSet];
+    }
+    
+    return stringToReturn;
 }
 
 - (NSPropertyDescription *)sm_propertyForField:(NSString *)fieldName
 {
-    NSMutableSet *matchingProperties = [NSMutableSet set];
-    [[self propertiesByName] enumerateKeysAndObjectsUsingBlock:^(id propertyName, id property, BOOL *stop) {
-        if ([fieldName isEqualToString:[self sm_fieldNameForProperty:property]]) {
-            [matchingProperties addObject:property];
-        }
-    }];
-    
-    if ([matchingProperties count] > 1) {
-        [NSException raise:SMExceptionIncompatibleObject format:@"Multiple matching properties found for field \"%@\":%@", fieldName, matchingProperties];
+    // Look for matching names with all lowercase or underscores first
+    NSPropertyDescription *propertyToReturn = [[self propertiesByName] objectForKey:fieldName];
+    if (propertyToReturn) {
+        return propertyToReturn;
     }
-    else if ([matchingProperties count] == 0) {
-        return nil;
-    }
-    return [matchingProperties anyObject];
-}
-
-- (NSArray *)sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:(NSMutableSet *)processedEntities keyPath:(NSString *)path
-{
-    if (processedEntities == nil) {
-        processedEntities = [NSMutableSet set];
-    }
-    [processedEntities addObject:self];
     
-    NSMutableArray *headerValues = [NSMutableArray array];
+    // Then look for camelCase equivalents
+    NSCharacterSet *underscoreSet = [NSCharacterSet characterSetWithCharactersInString:@"_"];
+    NSMutableString *convertedFieldName = [fieldName mutableCopy];
     
-    [[self relationshipsByName] enumerateKeysAndObjectsUsingBlock:^(id relationshipName, id relationship, BOOL *stop) {
-        NSMutableString *relationshipKeyPath = [NSMutableString string];
-        if (path && [path length] > 0) {
-            [relationshipKeyPath appendFormat:@"%@.", path];
-        }
-        [relationshipKeyPath appendString:[self sm_fieldNameForProperty:relationship]];
+    NSRange range = [convertedFieldName rangeOfCharacterFromSet:underscoreSet];
+    while (range.location != NSNotFound) {
         
-        [headerValues addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] sm_schema]]];
-        
-        NSEntityDescription *destination = [relationship destinationEntity];
-        if (NO == [processedEntities containsObject:destination]) {
-            [headerValues addObjectsFromArray:[destination sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:processedEntities keyPath:relationshipKeyPath]];
-        }
-    }];
+        unichar letter = [convertedFieldName characterAtIndex:(range.location + 1)] - 32;
+        [convertedFieldName replaceCharactersInRange:NSMakeRange(range.location, 2) withString:[NSString stringWithFormat:@"%C", letter]];
+        range = [convertedFieldName rangeOfCharacterFromSet:underscoreSet];
+    }
     
-    return headerValues;
+    propertyToReturn = [[self propertiesByName] objectForKey:convertedFieldName];
+    if (propertyToReturn) {
+        return propertyToReturn;
+    }
+    
+    // No matching properties
+    return nil;
 }
 
 @end

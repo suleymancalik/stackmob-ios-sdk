@@ -27,7 +27,7 @@ describe(@"SMCoreDataStore", ^{
         __block SMCoreDataStore *coreDataStore = nil;
         beforeEach(^{
             mom = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]];
-            client = [[SMClient alloc] initWithAPIVersion:@"1" publicKey:@"publicKey"];
+            client = [[SMClient alloc] initWithAPIVersion:@"1" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         });
         it(@"the client should return an initialized SMCoreDataStore instance", ^{
             [coreDataStore shouldBeNil];
@@ -43,7 +43,7 @@ describe(@"SMCoreDataStore", ^{
         __block SMCoreDataStore *coreDataStore = nil;
         beforeEach(^{
             mom = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]];
-            client = [[SMClient alloc] initWithAPIVersion:@"1" publicKey:@"publicKey"];
+            client = [[SMClient alloc] initWithAPIVersion:@"1" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
             coreDataStore = [client coreDataStoreWithManagedObjectModel:mom];
         });
         describe(@"SMCoreDataStore init", ^{

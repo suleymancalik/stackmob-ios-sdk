@@ -20,6 +20,9 @@
 extern NSString *const SMIncrementalStoreType;
 extern NSString *const SM_DataStoreKey;
 
+extern BOOL SM_CORE_DATA_DEBUG;
+extern unsigned int SM_MAX_LOG_LENGTH;
+
 /**
  `SMIncrementalStore` is the foundation used to integrate StackMob into Core Data.
  

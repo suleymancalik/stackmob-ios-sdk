@@ -21,7 +21,6 @@
 @interface SMCoreDataStore ()
 
 @property(nonatomic, readwrite, strong)NSManagedObjectModel *managedObjectModel;
-    
 
 @end
 
@@ -46,7 +45,7 @@
     if (_persistentStoreCoordinator == nil) {
         [NSPersistentStoreCoordinator registerStoreClass:[SMIncrementalStore class] forStoreType:SMIncrementalStoreType];
         _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
-        NSError *error;
+        NSError *error = nil;
         [_persistentStoreCoordinator addPersistentStoreWithType:SMIncrementalStoreType
                                    configuration:nil 
                                              URL:nil
@@ -71,3 +70,4 @@
 }
 
 @end
+

@@ -24,7 +24,7 @@ describe(@"Creating a SMOAuth2ClientSpec instance", ^{
     __block NSString *appAPIVersion = @"1";
     __block NSString *apiHost = @"host";
     __block NSString *scheme = @"https";
-    __block NSString *publicKey = @"foo";
+    __block NSString *publicKey = @"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
     beforeEach(^{
         client = [[SMOAuth2Client alloc] initWithAPIVersion:appAPIVersion scheme:scheme apiHost:apiHost publicKey:publicKey];
     });
@@ -45,7 +45,7 @@ describe(@"Generating a mac key", ^{
     __block NSString *appAPIVersion = @"1";
     __block NSString *apiHost = @"host";
     __block NSString *scheme = @"https";
-    __block NSString *publicKey = @"foo";
+    __block NSString *publicKey = @"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
     beforeEach(^{
         client = [[SMOAuth2Client alloc] initWithAPIVersion:appAPIVersion scheme:scheme apiHost:apiHost publicKey:publicKey];
         client.accessToken = @"accessToken";
@@ -69,7 +69,7 @@ describe(@"Generating a request", ^{
     __block NSString *appAPIVersion = @"1";
     __block NSString *apiHost = @"host";
     __block NSString *scheme = @"https";
-    __block NSString *publicKey = @"foo";
+    __block NSString *publicKey = @"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
     beforeEach(^{
         client = [[SMOAuth2Client alloc] initWithAPIVersion:appAPIVersion scheme:scheme apiHost:apiHost publicKey:publicKey];
         client.accessToken = @"accessToken";
@@ -124,7 +124,7 @@ describe(@"-customCodeRequest:options", ^{
         __block SMClient *client = nil;
         __block SMDataStore *dataStore = nil;
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"public key"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
             dataStore = [[SMDataStore alloc] initWithAPIVersion:@"0" session:[client session]];
             request = [[SMCustomCodeRequest alloc] initPostRequestWithMethod:@"method" body:@"body"]; 
         });

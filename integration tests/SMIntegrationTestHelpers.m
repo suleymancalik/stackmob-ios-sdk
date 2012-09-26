@@ -64,8 +64,8 @@ void synchronousQuery(SMDataStore *sm, SMQuery *query, SynchronousQueryBlock blo
 + (void)destroyAllForFixturesNamed:(NSArray *)fixtureNames {
     SMDataStore *sm = [SMIntegrationTestHelpers dataStore];
     
-    [fixtureNames enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NSString *fixtureName = (NSString *)obj;
+    [fixtureNames enumerateObjectsUsingBlock:^(id name, NSUInteger fixtureIdx, BOOL *stopFixEnum) {
+        NSString *fixtureName = (NSString *)name;
         SMQuery *query = [[SMQuery alloc] initWithSchema:fixtureName];
         __block NSArray *smObjects;
         

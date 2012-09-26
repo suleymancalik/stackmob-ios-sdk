@@ -23,6 +23,8 @@
 #define SM_TEST_API_BASEURL @"http://api.stackmob.com"
 #define TEST_CUSTOM_CODE 0
 
+#define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
+
 @interface SMIntegrationTestHelpers : NSObject
 
 + (SMClient *)defaultClient;

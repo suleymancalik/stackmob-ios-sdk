@@ -28,11 +28,11 @@
 - (NSString *)sm_schema;
 
 /**
- Returns the primary key field for the entity used to uniquely define the object on StackMob.
+ Returns the primary key field name for this entity whose value will map to the primary key field on StackMob.
  
- If the `NSManagedObject` subclass for this entity conforms to the <SMModel> protocol, the return string from the overridden <primaryKeyFieldName> method is returned. Otherwise lowercaseEntityName_id is used.
+ If the `NSManagedObject` subclass for this entity conforms to the <SMModel> protocol, the return string from the overridden <primaryKeyFieldName> method is returned. Otherwise lowercaseEntityNameId or lowercaseEntityName_id is returned, if found.
  
- @note If the `NSManagedObject` subclass for this entity does not conforms to the 'SMModel' protocol, and lowercaseEntityName_id (i.e. person_id for entity Person) is not one of the entity's attributes, a `SMExceptionIncompatibleObject` exception is thrown.
+ @note If the `NSManagedObject` subclass for this entity does not conforms to the 'SMModel' protocol, and lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity's attributes, a `SMExceptionIncompatibleObject` exception is thrown.
  */
 - (NSString *)sm_primaryKeyField;
 
@@ -55,15 +55,5 @@
  @return An `NSPropertyDescription` for the equivalent Core Data attribute or relationship, if one exists. 
  */
 - (NSPropertyDescription *)sm_propertyForField:(NSString *)fieldName;
-
-/**
- A recursive method to traverse an `NSEntityDescription`'s properties and create a relationship header needed by StackMob when POSTing objects which contain nested relationship objects.
- 
- @param processedEntities A set of the entities that have already been processed.
- @param path The current path in the traversal tree, which allows us to add headers like person.superpower.interest=interest.
- 
- @return An `NSArray` containing each piece of the relationship header, which is then joined by & to form an `NSString` and added to the request headers.
- */
-- (NSArray *)sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:(NSMutableSet *)processedEntities keyPath:(NSString *)path;
 
 @end

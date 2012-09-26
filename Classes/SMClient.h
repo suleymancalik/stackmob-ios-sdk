@@ -50,11 +50,20 @@
  
  **Important:** The default schema to use for authentication is **user**, with **username** and **password** fields. If you plan on using a different user object schema or different field names, check out the **User Authentication** section below.
  
+ <br/>
+ 
+ ### Default Client ###
+ 
+ The class method <defaultClient> gives you a shared instance of your configured `SMClient` instance. 
+ 
+ It is always set to the first `SMClient` instance that is initialized, and can be set to a different instance with the <setDefaultClient:> method.
+ 
+ 
  ## Core Data Integration ##
  
  In order to use the Core Data integration, you must initialize an `SMClient` as well as a `NSManagedObjectModel`, then pass the `NSManagedObjectModel` instance to the `SMClient` instance method <coreDataStoreWithManagedObjectModel:> which returns an instance of <SMCoreDataStore>.  You can then retrieve an instance of `NSManagedObjectContext`:
  
-    SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"12345"];
+    SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
     SMCoreDataStore *coreDataStore = [client coreDataStoreWithManagedObjectModel:self.managedObjectModel];
     self.managedObjectContext = [coreDataStore managedObjectContext];
  
@@ -196,7 +205,7 @@
  */
 - (id)initWithAPIVersion:(NSString *)appAPIVersion publicKey:(NSString *)publicKey;
 
-#pragma mark datastore
+#pragma mark data store
 ///-------------------------------
 /// @name Retrieving a Data Store
 ///-------------------------------
@@ -382,7 +391,7 @@
 /**
  Reset a user's password securely.
  
- This would be hooked up to a password reset form. Changing a password via the regular datastore APIs 
+ This would be hooked up to a password reset form. Changing a password via the regular data store API 
  will result in an error. This API requires the user to be logged in as well as to supply their old password.
  
  @param oldPassword The user's current password.
