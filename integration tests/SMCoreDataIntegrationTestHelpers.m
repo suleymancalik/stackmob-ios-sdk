@@ -118,7 +118,6 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     [moc performBlockAndWait:^{
         NSError *__autoreleasing anError = nil;
         NSManagedObject *toUpdate = [moc objectWithID:objectID];
-        DLog(@"going to update obj: %@", toUpdate);
         [toUpdate setValue:[NSNumber numberWithInt:20] forKey:@"armor_class"];      
         BOOL success = [moc save:&anError];
         if (!success) {
@@ -133,7 +132,6 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     [moc performBlockAndWait:^{
         NSError *__autoreleasing anError = nil;
         NSManagedObject *toDelete = [moc objectWithID:objectID];
-        DLog(@"going to delete obj: %@", toDelete);
         [moc deleteObject:toDelete];
         BOOL success = [moc save:&anError];
         if (!success) {
@@ -162,17 +160,17 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 
 + (void)MOCDidChange:(NSNotification *)notification
 {
-    DLog(@"MOCDidChange user info is %@", [notification userInfo]);
+    //DLog(@"MOCDidChange user info is %@", [notification userInfo]);
 }
 
 + (void)MOCWillSave:(NSNotification *)notification
 {
-    DLog(@"MOCWillSave user info is %@", [notification userInfo]);
+    //DLog(@"MOCWillSave user info is %@", [notification userInfo]);
 }
 
 + (void)MOCDidSave:(NSNotification *)notification
 {
-    DLog(@"MOCDidSave user info is %@", [notification userInfo]);
+    //DLog(@"MOCDidSave user info is %@", [notification userInfo]);
 }
 
 - (NSManagedObjectModel *)stackMobMOM {

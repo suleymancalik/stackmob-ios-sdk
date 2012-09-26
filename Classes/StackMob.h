@@ -14,15 +14,6 @@
  * limitations under the License.
  */
 
-#ifdef SMDEBUG
-#   define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
-#else
-#   define DLog(...)
-#endif
-
-// ALog always displays output regardless of the SMDEBUG setting
-#define ALog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
-
 #import "SMClient.h"
 
 #import "SMDataStore.h"
@@ -46,4 +37,5 @@
 #import "SMResponseBlocks.h"
 
 #import "SMBinaryDataConversion.h"
+
 

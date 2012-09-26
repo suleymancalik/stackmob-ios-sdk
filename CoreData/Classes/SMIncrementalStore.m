@@ -21,11 +21,19 @@
 #import "SMIncrementalStore.h"
 #import "StackMob.h"
 
+#define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
 NSString *const SMIncrementalStoreType = @"SMIncrementalStore";
 NSString *const SM_DataStoreKey = @"SM_DataStoreKey";
 NSString *const StackMobRelationsKey = @"X-StackMob-Relations";
 NSString *const SerializedDictKey = @"SerializedDict";
+
+BOOL SM_CORE_DATA_DEBUG = NO;
+unsigned int SM_MAX_LOG_LENGTH = 10000;
+
+NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
+    return [[NSString stringWithFormat:@"%@", objectToCheck] length] > SM_MAX_LOG_LENGTH ? [[[NSString stringWithFormat:@"%@", objectToCheck] substringToIndex:SM_MAX_LOG_LENGTH] stringByAppendingString:@" <MAX_LOG_LENGTH_REACHED>"] : objectToCheck;
+}
 
 @interface SMIncrementalStore () {
     NSMutableDictionary *cache;
@@ -73,7 +81,7 @@ If the metadata is generated automatically, the store identifier will set to a g
  
 */
 - (BOOL)loadMetadata:(NSError *__autoreleasing *)error {
-    DLog();
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
     NSString* uuid = [[NSProcessInfo processInfo] globallyUniqueString];
     [self setMetadata:[NSDictionary dictionaryWithObjectsAndKeys:
                        SMIncrementalStoreType, NSStoreTypeKey, 
@@ -96,7 +104,7 @@ You should implement this method conservatively, and expect that unknown request
 - (id)executeRequest:(NSPersistentStoreRequest *)request 
          withContext:(NSManagedObjectContext *)context 
                error:(NSError *__autoreleasing *)error {
-    DLog();
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
     id result = nil;
     switch (request.requestType) {
         case NSSaveRequestType:
@@ -144,7 +152,7 @@ You should implement this method conservatively, and expect that unknown request
 - (id)handleSaveRequest:(NSPersistentStoreRequest *)request 
             withContext:(NSManagedObjectContext *)context 
                   error:(NSError *__autoreleasing *)error {
-    DLog();
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
     NSSaveChangesRequest *saveRequest = [[NSSaveChangesRequest alloc] initWithInsertedObjects:[context insertedObjects] updatedObjects:[context updatedObjects] deletedObjects:[context deletedObjects] lockedObjects:nil];
     
     NSSet *insertedObjects = [saveRequest insertedObjects];
@@ -173,14 +181,14 @@ You should implement this method conservatively, and expect that unknown request
 }
 
 - (BOOL)handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
-    DLog();
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
     __block BOOL success = NO;
-    DLog(@"objects to be inserted are %@", insertedObjects);
+    if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be inserted are %@", truncateOutputIfExceedsMaxLogLength(insertedObjects))}
     [insertedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             NSDictionary *serializedObjDict = [obj sm_dictionarySerialization];
             NSString *schemaName = [obj sm_schema];
-            DLog(@"serialized object is %@", serializedObjDict);
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)) }
             // add relationship headers if needed
             NSMutableDictionary *headerDict = [NSMutableDictionary dictionary];
             if ([serializedObjDict objectForKey:StackMobRelationsKey]) {
@@ -188,14 +196,14 @@ You should implement this method conservatively, and expect that unknown request
             }
             
             [self.smDataStore createObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:[SMRequestOptions optionsWithHeaders:headerDict] onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                DLog(@"SMIncrementalStore inserted object with id %@ on schema %@", theObject, schema);
+                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schema); }
                 success = YES;
                 // TO-DO OFFLINE-SUPPORT
                 //[self cacheInsert:theObject forEntity:[obj entity] inContext:context];
                 syncReturn(semaphore);
             } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                DLog(@"SMIncrementalStore failed to insert object with id %@ on schema %@", theObject, schema);
-                DLog(@"the error userInfo is %@", [theError userInfo]);
+                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to insert object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
+                if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
                 success = NO;
                 *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
                 syncReturn(semaphore);
@@ -208,41 +216,41 @@ You should implement this method conservatively, and expect that unknown request
 }
 
 - (BOOL)handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
-    DLog();
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
     __block BOOL success = NO;
-    DLog(@"objects to be updated are %@", updatedObjects);
+    if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be updated are %@", truncateOutputIfExceedsMaxLogLength(updatedObjects)); }
     [updatedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             
             NSDictionary *serializedObjDict = [obj sm_dictionarySerialization];
             NSString *schemaName = [obj sm_schema];
-            DLog(@"serialized object is %@", serializedObjDict);
+            if (SM_CORE_DATA_DEBUG) { DLog(@"serialized object is %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)); }
             // if there are relationships present in the update, send as a POST
             if ([serializedObjDict objectForKey:StackMobRelationsKey]) {
                 NSDictionary *headerDict = [NSDictionary dictionaryWithObject:[serializedObjDict objectForKey:StackMobRelationsKey] forKey:StackMobRelationsKey];
                 [self.smDataStore createObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:[SMRequestOptions optionsWithHeaders:headerDict] onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                    DLog(@"SMIncrementalStore inserted object with id %@ on schema %@", theObject, schema);
+                    if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
                     success = YES;
                     // TO-DO OFFLINE-SUPPORT
                     //[self cacheInsert:theObject forEntity:[obj entity] inContext:context];
                     syncReturn(semaphore);
                 } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                    DLog(@"SMIncrementalStore failed to insert object with id %@ on schema %@", theObject, schema);
-                    DLog(@"the error userInfo is %@", [theError userInfo]);
+                    if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to insert object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
+                    if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
                     success = NO;
                     *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
                     syncReturn(semaphore);
                 }];
             } else {
                 [self.smDataStore updateObjectWithId:[obj sm_objectId] inSchema:schemaName update:[serializedObjDict objectForKey:SerializedDictKey] onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                    DLog(@"SMIncrementalStore updated object with id %@ on schema %@", theObject, schema);
+                    if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore updated object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
                     success = YES;
                     // TO-DO OFFLINE-SUPPORT
                     //[self cacheInsert:theObject forEntity:[obj entity] inContext:context];
                     syncReturn(semaphore);
                 } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                    DLog(@"SMIncrementalStore failed to update object with id %@ on schema %@", theObject, schema);
-                    DLog(@"the error userInfo is %@", [theError userInfo]);
+                    if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to update object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
+                    if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
                     success = NO;
                     *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
                     syncReturn(semaphore);
@@ -257,20 +265,20 @@ You should implement this method conservatively, and expect that unknown request
 }
 
 - (BOOL)handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
-    DLog();
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
     __block BOOL success = NO;
-    DLog(@"objects to be deleted are %@", deletedObjects);
+        if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be deleted are %@", truncateOutputIfExceedsMaxLogLength(deletedObjects)); }
     [deletedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {        
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             NSString *schemaName = [obj sm_schema];
             NSString *uuid = [obj sm_objectId];
             [self.smDataStore deleteObjectId:uuid inSchema:schemaName onSuccess:^(NSString *theObjectId, NSString *schema) {
-                DLog(@"SMIncrementalStore deleted object with id %@ on schema %@", theObjectId, schema);
+                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore deleted object with id %@ on schema %@", theObjectId, schema); }
                 success = YES;
                 syncReturn(semaphore);
             } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
-                DLog(@"SMIncrementalStore failed to delete object with id %@ on schema %@", theObjectId, schema);
-                DLog(@"the error userInfo is %@", [theError userInfo]);
+                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to delete object with id %@ on schema %@", theObjectId, schema); }
+                    if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
                 success = NO;
                 *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
                 syncReturn(semaphore);
@@ -296,7 +304,7 @@ You should implement this method conservatively, and expect that unknown request
 - (id)handleFetchRequest:(NSPersistentStoreRequest *)request 
              withContext:(NSManagedObjectContext *)context 
                    error:(NSError * __autoreleasing *)error {
-    DLog();
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
     NSFetchRequest *fetchRequest = (NSFetchRequest *)request;
     switch (fetchRequest.resultType) {
         case NSManagedObjectResultType:
@@ -321,7 +329,7 @@ You should implement this method conservatively, and expect that unknown request
 // Returns NSArray<NSManagedObject>
 
 - (id)fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
-    DLog();
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
     SMQuery *query = [SMIncrementalStore queryForFetchRequest:fetchRequest error:error];
 
     if (query == nil) {
@@ -353,7 +361,7 @@ You should implement this method conservatively, and expect that unknown request
 // Returns NSArray<NSManagedObjectID>
 
 - (id)fetchObjectIDs:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
-    DLog();
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
     
     NSArray *objects = [self fetchObjects:fetchRequest withContext:context error:error];
     return [objects map:^(id item) {
@@ -384,7 +392,7 @@ You should implement this method conservatively, and expect that unknown request
                                          withContext:(NSManagedObjectContext *)context 
                                                error:(NSError *__autoreleasing *)error {
     
-    DLog(@"new values for object with id %@", [context objectWithID:objectID]);
+    if (SM_CORE_DATA_DEBUG) { DLog(@"new values for object with id %@", [context objectWithID:objectID]); }
     // TO DO OFFLINE SUPPORT
     // NSDictionary *objectFields = [cache objectForKey:objectID];
     // Make a GET call to SM and return the properties for the entity
@@ -403,7 +411,7 @@ You should implement this method conservatively, and expect that unknown request
             success = YES;
             syncReturn(semaphore);
         } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
-            DLog(@"Could not read the object with objectId %@ and error userInfo %@", theObjectId, [theError userInfo]);
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Could not read the object with objectId %@ and error userInfo %@", theObjectId, [theError userInfo]); }
             success = NO;
             if (NULL != error) {
                 // TO DO provide sm specific error
@@ -438,7 +446,7 @@ You should implement this method conservatively, and expect that unknown request
               forObjectWithID:(NSManagedObjectID *)objectID 
                   withContext:(NSManagedObjectContext *)context 
                         error:(NSError *__autoreleasing *)error {
-    DLog(@"new value for relationship %@ for object with id %@", relationship, objectID);
+    if (SM_CORE_DATA_DEBUG) { DLog(@"new value for relationship %@ for object with id %@", relationship, objectID); }
     
     __block NSManagedObject *theObj = [context objectWithID:objectID];
     __block NSEntityDescription *objEntity = [theObj entity];
@@ -453,7 +461,7 @@ You should implement this method conservatively, and expect that unknown request
             success = YES;
             syncReturn(semaphore);
         } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
-            DLog(@"Could not read the object with objectId %@ and error userInfo %@", theObjectId, [theError userInfo]);
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Could not read the object with objectId %@ and error userInfo %@", theObjectId, [theError userInfo]); }
             success = NO;
             if (NULL != error) {
                 // TO DO provide sm specific error
@@ -531,14 +539,14 @@ You should implement this method conservatively, and expect that unknown request
  */
 - (NSArray *)obtainPermanentIDsForObjects:(NSArray *)array 
                                     error:(NSError *__autoreleasing *)error {
-    DLog(@"obtain permanent ids for objects: %@", array);
+    if (SM_CORE_DATA_DEBUG) { DLog(@"obtain permanent ids for objects: %@", truncateOutputIfExceedsMaxLogLength(array)); }
     // check if array is null, return empty array if so
     if (array == nil) {
         return [NSArray array];
     }
     
     if (*error) { 
-        DLog(@"error with obtaining perm ids is %@", *error);
+        if (SM_CORE_DATA_DEBUG) { DLog(@"error with obtaining perm ids is %@", *error); }
         *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
     }
     
@@ -549,7 +557,7 @@ You should implement this method conservatively, and expect that unknown request
         } 
         
         NSManagedObjectID *returnId = [self newObjectIDForEntity:[item entity] referenceObject:itemId];
-        DLog(@"Permanent ID assigned is %@", returnId);
+        if (SM_CORE_DATA_DEBUG) { DLog(@"Permanent ID assigned is %@", returnId); }
         
         return returnId;
     }];
@@ -560,7 +568,7 @@ You should implement this method conservatively, and expect that unknown request
  To be used for offline support.  This method takes a dictionary object from a StackMob response and places it in a dictionary cache, where the key is the returned NSManagedObjectID.  All primary key and relationship fields have their string ID representations casted to instances of NSManagedObjectID so Core Data can reference the corresponding objects.
  */
 - (NSManagedObjectID *)cacheInsert:(NSDictionary *)values forEntity:(NSEntityDescription *)entityDescription inContext:(NSManagedObjectContext *)context {
-    DLog();
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
     
     // TO-DO: GET THE PRIMARY FIELD KEY VS REMOTE KEY
     

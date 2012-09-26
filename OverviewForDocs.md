@@ -1,6 +1,6 @@
 # Welcome to the docs for the StackMob iOS SDK!
 
-### Current Version: 1.0.0beta.4
+### Current Version: 1.0.0
 
 ### Jump To:
 <a href="#overview">Overview</a>
@@ -24,6 +24,7 @@
 
 The goal of the iOS SDK is to provide the best experience possible for developing an application that uses StackMob as a cloud backend.  
 
+<br/>
 ### How is the new iOS SDK different from the older version? 
 
 The biggest difference between the new and the current SDKs is our use of Core Data as a foundation for the new SDK. We believe Core Data is a powerful approach for integrating StackMob’s REST based API into an iOS application.
@@ -32,23 +33,27 @@ That being said, we understand that Core Data is not suitable for every applicat
 
 We've also separated our Push Notification API into a separate SDK. For more information, see the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/SMPushClient.html).
 
+<br/>
 ### Why base the new SDK on Core Data? 
 Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and datastore API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full data store API as well.
 
+<br/>
 ### Already know Core Data?
 Then you already know how to use StackMob!
 
 All you need to do to get started with StackMob is initialize an instance of SMClient and grab the configured managed object context by following the instructions in <a href="#getting_started">Initialize an SMClient</a>.
 
+<br/>
 ### What's supported with our Core Data integration?
 
 Check out the [StackMob <--> Core Data Support Specifications](http://stackmob.github.com/stackmob-ios-sdk/CoreDataSupportSpecs.html).
 
+<br/>
 ### Reporting issues or feature requests  
 
 You can file issues through the [GitHub issue tracker](https://github.com/stackmob/stackmob-ios-sdk/issues).
 
-
+<br/>
 ### Still have questions about the new iOS SDK? 
 
 Email us at [support@stackmob.com](mailto:support@stackmob.com).
@@ -133,6 +138,15 @@ If you plan on using a different user object schema or different field names, ch
 ### Push Notifications
 
 Push Notification support has been moved into a separate SDK.  Check out the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/SMPushClient.html) to get started with push.
+
+<br/>
+### Debugging
+
+The iOS SDK gives developers access to two global variables that will enable additional logging statements when using the Core Data integration:
+
+* **SM_CORE_DATA_DEBUG** - In your AppDelegate's `application:DidFinishLaunchingWithOptions:` method, include the line `SM_CORE_DATA_DEBUG = YES;` to turn on log statements from `SMIncrementalStore`. This will provide information about the data store calls to StackMob happening behind the scenes during Core Data saves and fetches. The default is `NO`.
+* **SM_MAX_LOG_LENGTH** - Used to control how many characters are printed when logging objects. The default is **10,000**, which is plenty, so you will almost never have to set this.  The only time you will see the string representation of an object truncated is when you have an Attribute of type String that maps to a field of type Binary on StackMob, because you are sending a string containing the binary of the image, etc. String representations of objects that have been truncated end with \<MAX\_LOG\_LENGTH\_REACHED\>.   
+
 
 <a name="coding_practices">&nbsp;</a>
 ## StackMob <--> Core Data Coding Practices

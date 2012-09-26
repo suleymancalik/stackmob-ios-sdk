@@ -21,7 +21,6 @@
 @interface SMCoreDataStore ()
 
 @property(nonatomic, readwrite, strong)NSManagedObjectModel *managedObjectModel;
-    
 
 @end
 
@@ -71,3 +70,4 @@
 }
 
 @end
+
