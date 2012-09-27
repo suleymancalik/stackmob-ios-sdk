@@ -31,7 +31,7 @@ The biggest difference between the new and the current SDKs is our use of Core D
 
 That being said, we understand that Core Data is not suitable for every application, which is why we still expose the complete REST based API for making create, read, update and delete calls and performing queries on your database.
 
-We've also separated our Push Notification API into a separate SDK. For more information, see the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/SMPushClient.html).
+We've also separated our Push Notification API into a separate SDK. For more information, see the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/Classes/SMPushClient.html).
 
 <br/>
 ### Why base the new SDK on Core Data? 
@@ -137,7 +137,7 @@ If you plan on using a different user object schema or different field names, ch
 
 ### Push Notifications
 
-Push Notification support has been moved into a separate SDK.  Check out the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/SMPushClient.html) to get started with push.
+Push Notification support has been moved into a separate SDK.  Check out the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/Classes/SMPushClient.html) to get started with push.
 
 <br/>
 ### Debugging
