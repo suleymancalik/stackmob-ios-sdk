@@ -46,7 +46,7 @@
  
  For API-VERSION, pass @"0" for Development, @"1" or higher for the corresponding version in Production.
  
- If you haven't found your public key yet, check out **Manage App Info** under the **App Settings** sidebar on the [Platform page](https://stackmob.com/platform).
+ If you haven't found your public key yet, check out **Manage App Info** under the **App Settings** sidebar on the [Dashboard page](https://dashboard.stackmob.com).
  
  **Important:** The default schema to use for authentication is **user**, with **username** and **password** fields. If you plan on using a different user object schema or different field names, check out the **User Authentication** section below.
  
@@ -98,7 +98,7 @@
  
  * Alternatively, you can set all the properties at once using <initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:>.
  
- **Important:** Don't forget to check the **Create as a User Object** box when <a href="https://www.stackmob.com/platform/api/schemas/create" target="_blank">creating a new schema</a> for user objects. 
+ **Important:** Don't forget to check the **Create as a User Object** box when <a href="https://developer.stackmob.com/api/schemas/create" target="_blank">creating a new schema</a> for user objects. 
  
  
  ## Facebook Authentication ##

@@ -61,7 +61,7 @@ Email us at [support@stackmob.com](mailto:support@stackmob.com).
 <a name="getting_started">&nbsp;</a>
 ## Getting Started
 
-If you don't already have the StackMob SDK imported into your application, [get started with StackMob](https://stackmob.com/platform/start).
+If you don't already have the StackMob SDK imported into your application, [get started with StackMob](https://developer.stackmob.com/start).
 
 **The fundamental class for StackMob is SMClient**.  From an instance of this class you have access to a configured managed object context and persistent store coordinator as well as a REST-based data store. Check out the [class reference for SMClient](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html) for more information.  Let's see how to initialize our `SMClient`:
 
@@ -78,7 +78,7 @@ Create a variable of class `SMClient`, most likely in your AppDelegate file wher
 
 For API-VERSION, pass @"0" for Development, @"1" or higher for the corresponding version in Production.
 
-If you haven't found your public key yet, check out **Manage App Info** under the **App Settings** sidebar on the [Platform page](https://stackmob.com/platform).
+If you haven't found your public key yet, check out **Manage App Info** under the **App Settings** sidebar on the [Dashboard page](https://dashboard.stackmob.com).
 
 <br/>
 	
@@ -224,16 +224,19 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 
 <a name="tutorials">&nbsp;</a>
 ## Tutorials
-* [Starter App](https://stackmob.com/devcenter/docs/StackMob-iOS-Starter-App)
-* [Create an Object](https://stackmob.com/devcenter/docs/StackMob-iOS-Create-Tutorial)
-* [Read an Object](https://stackmob.com/devcenter/docs/StackMob-iOS-Read-Tutorial)
-* [Read to a Tableview](https://stackmob.com/devcenter/docs/StackMob-iOS-Read-TableView-Tutorial)
-* [Update an Object](https://stackmob.com/devcenter/docs/StackMob-iOS-Update-Tutorial)
-* [Delete an Object](https://stackmob.com/devcenter/docs/StackMob-iOS-Delete-Tutorial)
-* [Create a User Object](https://stackmob.com/devcenter/docs/StackMob-iOS-User-Object-Tutorial)
-* [User Authentication](https://stackmob.com/devcenter/docs/StackMob-iOS-User-Authentication-Tutorial)
-* [One To One Relationships](https://stackmob.com/devcenter/docs/StackMob-iOS-One-To-One-Relationship-Tutorial)
-* [One To Many Relationships](https://stackmob.com/devcenter/docs/StackMob-iOS-One-To-Many-Relationship-Tutorial)
+* [Starter App](https://developer.stackmob.com/tutorials/ios/Starter-App)
+* [Create an Object](https://developer.stackmob.com/tutorials/ios/Create-an-Object)
+* [Read an Object](https://developer.stackmob.com/tutorials/ios/Read-an-Object)
+* [Read to a Table View](https://developer.stackmob.com/tutorials/ios/Read-into-Table-View)
+* [Update an Object](https://developer.stackmob.com/tutorials/ios/Update-an-Object)
+* [Delete an Object](https://developer.stackmob.com/tutorials/ios/Delete-an-Object)
+* [Basic Queries](https://developer.stackmob.com/tutorials/ios/Basic-Queries)
+* [Advanced Queries](https://developer.stackmob.com/tutorials/ios/Advanced-Queries)
+* [Create a User Object](https://developer.stackmob.com/tutorials/ios/Create-a-User-Object)
+* [User Authentication](https://developer.stackmob.com/tutorials/ios/User-Authentication)
+* [One to One Relationships](https://developer.stackmob.com/tutorials/ios/One-to-One-Relationships)
+* [One to Many Relationships](https://developer.stackmob.com/tutorials/ios/One-to-Many-Relationships)
+* [Lower Level CRUD API](https://developer.stackmob.com/tutorials/ios/Lower-Level-CRUD-API)
 
 ... More coming soon!
 
