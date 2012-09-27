@@ -36,7 +36,7 @@
 						
 						<h1>Welcome to the docs for the StackMob iOS SDK!</h1>
 
-<h3>Current Version: 1.0.0beta.3</h3>
+<h3>Current Version: 1.0.0</h3>
 
 <h3>Jump To:</h3>
 
@@ -62,29 +62,49 @@
 
 <p>The goal of the iOS SDK is to provide the best experience possible for developing an application that uses StackMob as a cloud backend.</p>
 
+<br/>
+
+
 <h3>How is the new iOS SDK different from the older version?</h3>
 
-<p>The biggest difference between the new and the current SDKs is our use of Core Data as a foundation for the new SDK. We believe Core Data is a better approach for integrating StackMob’s REST based API into an iOS application.</p>
+<p>The biggest difference between the new and the current SDKs is our use of Core Data as a foundation for the new SDK. We believe Core Data is a powerful approach for integrating StackMob’s REST based API into an iOS application.</p>
 
-<p>We&rsquo;ve also separated our Push Notification API into a separate SDK. For more information, see the <a href="http://stackmob.github.com/stackmob-ios-push-sdk/index.html">iOS Push SDK Reference</a>.</p>
+<p>That being said, we understand that Core Data is not suitable for every application, which is why we still expose the complete REST based API for making create, read, update and delete calls and performing queries on your database.</p>
+
+<p>We&rsquo;ve also separated our Push Notification API into a separate SDK. For more information, see the <a href="http://stackmob.github.com/stackmob-ios-push-sdk/SMPushClient.html">iOS Push SDK Reference</a>.</p>
+
+<br/>
+
 
 <h3>Why base the new SDK on Core Data?</h3>
 
-<p>Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and datastore API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full data store API.</p>
+<p>Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and data store API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full data store API as well.</p>
+
+<br/>
+
 
 <h3>Already know Core Data?</h3>
 
 <p>Then you already know how to use StackMob!</p>
 
-<p>All you need to do to get started with StackMob is initialize an instance of SMClient and use a configured managed object context by following the instructions in <a href="#getting_started">Initialize an SMClient</a>.</p>
+<p>All you need to do to get started with StackMob is initialize an instance of SMClient and grab the configured managed object context by following the instructions in <a href="#getting_started">Initialize an SMClient</a>.</p>
+
+<br/>
+
 
 <h3>What&rsquo;s supported with our Core Data integration?</h3>
 
 <p>Check out the <a href="http://stackmob.github.com/stackmob-ios-sdk/CoreDataSupportSpecs.html">StackMob &lt;&mdash;> Core Data Support Specifications</a>.</p>
 
+<br/>
+
+
 <h3>Reporting issues or feature requests</h3>
 
 <p>You can file issues through the <a href="https://github.com/stackmob/stackmob-ios-sdk/issues">GitHub issue tracker</a>.</p>
+
+<br/>
+
 
 <h3>Still have questions about the new iOS SDK?</h3>
 
@@ -94,7 +114,7 @@
 
 <h2>Getting Started</h2>
 
-<p>If you don&rsquo;t already have the StackMob SDK imported into your application, <a href="https://stackmob.com/platform/start">get started with StackMob</a>.</p>
+<p>If you don&rsquo;t already have the StackMob SDK imported into your application, <a href="https://developer.stackmob.com/start">get started with StackMob</a>.</p>
 
 <p><strong>The fundamental class for StackMob is SMClient</strong>.  From an instance of this class you have access to a configured managed object context and persistent store coordinator as well as a REST-based data store. Check out the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html">class reference for SMClient</a> for more information.  Let&rsquo;s see how to initialize our <code>SMClient</code>:</p>
 
@@ -113,7 +133,7 @@ client = [[SMClient alloc] initWithAPIVersion:@"API-VERSION" publicKey:@"PUBLIC-
 
 <p>For API-VERSION, pass @&ldquo;0&rdquo; for Development, @&ldquo;1&rdquo; or higher for the corresponding version in Production.</p>
 
-<p>If you haven&rsquo;t found your public key yet, check out <strong>Manage App Info</strong> under the <strong>App Settings</strong> sidebar on the <a href="https://stackmob.com/platform">Platform page</a>.</p>
+<p>If you haven&rsquo;t found your public key yet, check out <strong>Manage App Info</strong> under the <strong>App Settings</strong> sidebar on the <a href="https://dashboard.stackmob.com">Dashboard page</a>.</p>
 
 <br/>
 
@@ -124,7 +144,7 @@ client = [[SMClient alloc] initWithAPIVersion:@"API-VERSION" publicKey:@"PUBLIC-
 
 <ul>
 <li>Core Data</li>
-<li>Lower Level Datastore API</li>
+<li>Lower Level Data Store API</li>
 </ul>
 
 
@@ -163,14 +183,9 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <br/>
 
 
-<h4>Lower Level Datastore API</h4>
+<h4>Lower Level Data Store API</h4>
 
-<p>If you want to make direct REST-based calls to the datastore, grab an instance of SMDataStore like this:</p>
-
-<pre><code>SMDataStore *dataStore = [client dataStore];
-</code></pre>
-
-<p>Check out <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html">SMDataStore</a> for all available methods.</p>
+<p>If you want to make direct REST-based calls to the data store, check out the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html">SMDataStore</a> class.</p>
 
 <br/>
 
@@ -183,11 +198,31 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 
 <p>If you plan on using a different user object schema or different field names, check out the <strong>User Authentication</strong> section of the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html">SMClient Class Reference</a>.</p>
 
+<br/>
+
+
+<h3>Push Notifications</h3>
+
+<p>Push Notification support has been moved into a separate SDK.  Check out the <a href="http://stackmob.github.com/stackmob-ios-push-sdk/SMPushClient.html">iOS Push SDK Reference</a> to get started with push.</p>
+
+<br/>
+
+
+<h3>Debugging</h3>
+
+<p>The iOS SDK gives developers access to two global variables that will enable additional logging statements when using the Core Data integration:</p>
+
+<ul>
+<li><strong>SM_CORE_DATA_DEBUG</strong> &ndash; In your AppDelegate&rsquo;s <code>application:DidFinishLaunchingWithOptions:</code> method, include the line <code>SM_CORE_DATA_DEBUG = YES;</code> to turn on log statements from <code>SMIncrementalStore</code>. This will provide information about the data store calls to StackMob happening behind the scenes during Core Data saves and fetches. The default is <code>NO</code>.</li>
+<li><strong>SM_MAX_LOG_LENGTH</strong> &ndash; Used to control how many characters are printed when logging objects. The default is <strong>10,000</strong>, which is plenty, so you will almost never have to set this.  The only time you will see the string representation of an object truncated is when you have an Attribute of type String that maps to a field of type Binary on StackMob, because you are sending a string containing the binary of the image, etc. String representations of objects that have been truncated end with &lt;MAX_LOG_LENGTH_REACHED>.</li>
+</ul>
+
+
 <p><a name="coding_practices">&nbsp;</a></p>
 
 <h2>StackMob &lt;&mdash;> Core Data Coding Practices</h2>
 
-<p>There are a few coding practices to adhere to as well as general things to know when using StackMob with Core Data.  This allows StackMob to seamlessly translate to and from the language that Core Data speaks.</p>
+<p>There are a few coding practices to adhere to as well as general things to keep in mind when using StackMob with Core Data.  This allows StackMob to seamlessly translate to and from the language that Core Data speaks.</p>
 
 <p>First, a table of how Core Data, StackMob and regular databases map to each other:</p>
 
@@ -215,13 +250,22 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 </table>
 
 
+<p><strong>General Information:</strong></p>
+
+<ol>
+<li><strong>Entity Names:</strong> Core Data entities are encouraged to start with a capital letter and will translate to all lowercase on StackMob. Example: <strong>Superpower</strong> entity on Core Data translates to <strong>superpower</strong> schema on StackMob.</li>
+<li><strong>Property Names:</strong> Core Data attribute and relationship names are encouraged to be in camelCase, but can also be in StackMob form, all lowercase with optional underscores. Acceptable formats are therefore <strong>yearBorn</strong>, <strong>year_born</strong>, or <strong>yearborn</strong>. All camelCased names will be converted to and from their equivalent form on StackMob, i.e. the property yearBorn will appear as year_born on StackMob.</li>
+<li><strong>StackMob Schema Primary Keys:</strong> All StackMob schemas have a primary key field that is always schemaName_id, unless the schema is a user object, in which case it defaults to &ldquo;username&rdquo; but can be changed manually.</li>
+</ol>
+
+
+<br/>
+
+
 <p><strong>Coding Practices for successful app development:</strong></p>
 
 <ol>
-<li><strong>Lowercase Entities:</strong> Core Data entities are encouraged to start with a capital letter and will translate to all lowercase on StackMob. Example: <strong>Superpower</strong> entity on Core Data translates to <strong>superpower</strong> schema on StackMob.</li>
-<li><strong>Lowercase Properties:</strong> Core Data attribute and relationship names must be all lowercase and can include underscores (for now). RIGHT: <strong>year_born</strong>, WRONG: <strong>yearBorn</strong>.</li>
-<li><strong>Schema Primary Keys:</strong> All StackMob schemas have a primary key field that is always schemaName_id, unless the schema is a user object, in which case it defaults to username but can be changed manually.</li>
-<li><strong>Entity Primary Keys:</strong> Following #3, each Core Data entity must include an attribute of type string that maps to the primary key field on StackMob. If it is not schemaName_id, you must adopt the <a href="http://stackmob.github.com/stackmob-ios-sdk/Protocols/SMModel.html">SMModel</a> protocol. In order to adopt the protocol you will make an NSManagedObject subclass of the entity. This is good to do in general as it automatically provides getters and setters. Example, entity <strong>Soda</strong> should have attribute <strong>soda_id</strong>.</li>
+<li><strong>Entity Primary Keys:</strong> Following #3 above, each Core Data entity must include an attribute of type string that maps to the primary key field on StackMob. If it is not <em>schemaName_Id or </em>schemaName__id, you must adopt the <a href="http://stackmob.github.com/stackmob-ios-sdk/Protocols/SMModel.html">SMModel</a> protocol. The protocol should be adopted the NSManagedObject subclass of the entity. For example: entity <strong>Soda</strong> should have attribute <strong>sodaId</strong> or <strong>soda_id</strong>, whereas your <strong>User</strong> entity might adopt the <code>SMModel</code> protocol and return <strong>@&ldquo;username&rdquo;</strong>.</li>
 <li><p><strong>Assign IDs:</strong> When inserting new objects into your managed object context, you must assign an id value to the attribute which maps to the StackMob primary key field BEFORE you make save the context.
 90% of the time you can get away with assigning ids like this:</p>
 
@@ -269,16 +313,19 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <h2>Tutorials</h2>
 
 <ul>
-<li><a href="https://stackmob.com/devcenter/docs/StackMob-iOS-Starter-App">Starter App</a></li>
-<li><a href="https://stackmob.com/devcenter/docs/StackMob-iOS-Create-Tutorial">Create an Object</a></li>
-<li><a href="https://stackmob.com/devcenter/docs/StackMob-iOS-Read-Tutorial">Read an Object</a></li>
-<li><a href="https://stackmob.com/devcenter/docs/StackMob-iOS-Read-TableView-Tutorial">Read to a Tableview</a></li>
-<li><a href="https://stackmob.com/devcenter/docs/StackMob-iOS-Update-Tutorial">Update an Object</a></li>
-<li><a href="https://stackmob.com/devcenter/docs/StackMob-iOS-Delete-Tutorial">Delete an Object</a></li>
-<li><a href="https://stackmob.com/devcenter/docs/StackMob-iOS-User-Object-Tutorial">Create a User Object</a></li>
-<li><a href="https://stackmob.com/devcenter/docs/StackMob-iOS-User-Authentication-Tutorial">User Authentication</a></li>
-<li><a href="https://stackmob.com/devcenter/docs/StackMob-iOS-One-To-One-Relationship-Tutorial">One To One Relationships</a></li>
-<li><a href="https://stackmob.com/devcenter/docs/StackMob-iOS-One-To-Many-Relationship-Tutorial">One To Many Relationships</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/Starter-App">Starter App</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/Create-an-Object">Create an Object</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/Read-an-Object">Read an Object</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/Read-into-Table-View">Read to a Table View</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/Update-an-Object">Update an Object</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/Delete-an-Object">Delete an Object</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/Basic-Queries">Basic Queries</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/Advanced-Queries">Advanced Queries</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/Create-a-User-Object">Create a User Object</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/User-Authentication">User Authentication</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/One-to-One-Relationships">One to One Relationships</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/One-to-Many-Relationships">One to Many Relationships</a></li>
+<li><a href="https://developer.stackmob.com/tutorials/ios/Lower-Level-CRUD-API">Lower Level CRUD API</a></li>
 </ul>
 
 
@@ -376,7 +423,7 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-09-07)</span><br />
+						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-09-26)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

@@ -80,7 +80,7 @@
     </tr>
     <tr>
         <td>NSDate</td>
-        <td>Currently Not Supported</td>
+        <td>Integer, Representing the number of seconds since 1970</td>
     </tr>
     <tr>
         <td>Binary Data</td>
@@ -91,6 +91,25 @@
         <td>Currently Not Supported</td>
     </tr>
 </table>
+
+<h2>Entity and Property Naming Conventions</h2>
+
+<h3>Entities</h3>
+
+<p>Entities should be one word, starting with a capital letter.  The schema name will appear on StackMob as all lowercase.</p>
+<p>When using the data store API alongside the Core Data integration you may refer to the schema by its corresponding Entity name.  For example, you may call <i>createObject:inSchema:onSuccess:onFailure:</i> and provide @"Todo" as the schema, even though the schema appears on StackMob as "todo".</p><br/>
+
+<h3>Properties (Attributes and Relationships):</h3>
+
+<p>Suppose we want an attribute describing the year someone was born.  The name in your data model may be in one of the following formats:</p>
+<ul>
+	<li>Core Data preferred camelCase: <strong>yearBorn</strong></li>
+	<li>StackMob (lowercase with optional underscores): <strong>year_born</strong></li>
+	<li>All lowercase: <strong>yearborn</strong></li>
+</ul>
+
+<p>All camelCase Core Data property names will appear on StackMob as their formatted equivalents.  Therefore, the Core Data property yearBorn will appear on StackMob as year_born.
+<p>All translation is done by the SDK when using the Core Data integration. Thus, the only time you will need to refer to fields by the name that appears on StackMob is when using the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html">data store API</a>.</p>
 
 <h2>Fetch Requests</h2>
 
@@ -122,8 +141,6 @@
 <ul>
 	<li>NSAndPredicateType</li>
 </ul>
-
-
 
 					
 				</div>

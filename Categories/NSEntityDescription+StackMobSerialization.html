@@ -50,8 +50,6 @@
 	
 	<option value="//api/name/sm_propertyForField:">&nbsp;&nbsp;&nbsp;&nbsp;- sm_propertyForField:</option>
 	
-	<option value="//api/name/sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:keyPath:">&nbsp;&nbsp;&nbsp;&nbsp;- sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:keyPath:</option>
-	
 	<option value="//api/name/sm_schema">&nbsp;&nbsp;&nbsp;&nbsp;- sm_schema</option>
 	
 	
@@ -87,8 +85,6 @@
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_primaryKeyField">sm_primaryKeyField</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_propertyForField:">sm_propertyForField:</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:keyPath:">sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:keyPath:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_schema">sm_schema</a></span></li>
 	
@@ -152,7 +148,7 @@
 </li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/sm_primaryKeyField">&ndash;&nbsp;sm_primaryKeyField</a></code>
-		<span class="tooltip"><p>Returns the primary key field for the entity used to uniquely define the object on StackMob.</p></span>
+		<span class="tooltip"><p>Returns the primary key field name for this entity whose value will map to the primary key field on StackMob.</p></span>
 	</span>
 	
 	
@@ -167,13 +163,6 @@
 	<span class="tooltip">
 		<code><a href="#//api/name/sm_propertyForField:">&ndash;&nbsp;sm_propertyForField:</a></code>
 		<span class="tooltip"><p>Given a StackMob field name, returns the equivalent <code>NSPropertyDescription</code> for the Core Data attribute or relationship.</p></span>
-	</span>
-	
-	
-</li><li>
-	<span class="tooltip">
-		<code><a href="#//api/name/sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:keyPath:">&ndash;&nbsp;sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:keyPath:</a></code>
-		<span class="tooltip"><p>A recursive method to traverse an <code>NSEntityDescription</code>&rsquo;s properties and create a relationship header needed by StackMob when POSTing objects which contain nested relationship objects.</p></span>
 	</span>
 	
 	
@@ -257,7 +246,7 @@
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Returns the primary key field for the entity used to uniquely define the object on StackMob.</p>
+		<p>Returns the primary key field name for this entity whose value will map to the primary key field on StackMob.</p>
 	</div>		
 	
     
@@ -274,7 +263,7 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>If the <code>NSManagedObject</code> subclass for this entity conforms to the <a href="../Protocols/SMModel.html">SMModel</a> protocol, the return string from the overridden <primaryKeyFieldName> method is returned. Otherwise lowercaseEntityName_id is used.</p><div class="note"><p><strong>Note:</strong> If the <code>NSManagedObject</code> subclass for this entity does not conforms to the &lsquo;SMModel&rsquo; protocol, and lowercaseEntityName_id (i.e. person_id for entity Person) is not one of the entity&rsquo;s attributes, a <code>SMExceptionIncompatibleObject</code> exception is thrown.</p></div>
+		<p>If the <code>NSManagedObject</code> subclass for this entity conforms to the <a href="../Protocols/SMModel.html">SMModel</a> protocol, the return string from the overridden <primaryKeyFieldName> method is returned. Otherwise lowercaseEntityNameId or lowercaseEntityName_id is returned, if found.</p><div class="note"><p><strong>Note:</strong> If the <code>NSManagedObject</code> subclass for this entity does not conforms to the &lsquo;SMModel&rsquo; protocol, and lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity&rsquo;s attributes, a <code>SMExceptionIncompatibleObject</code> exception is thrown.</p></div>
 	</div>
 	
 	
@@ -322,62 +311,6 @@
 	<div class="method-subsection return">
 		<h4 class="method-subtitle parameter-title">Return Value</h4>
 		<p>An <code>NSPropertyDescription</code> for the equivalent Core Data attribute or relationship, if one exists.</p>
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">NSEntityDescription+StackMobSerialization.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:keyPath:" title="sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:keyPath:"></a>
-	<h3 class="subsubtitle method-title">sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:keyPath:</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>A recursive method to traverse an <code>NSEntityDescription</code>&rsquo;s properties and create a relationship header needed by StackMob when POSTing objects which contain nested relationship objects.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>- (NSArray *)sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:(NSMutableSet *)<em>processedEntities</em> keyPath:(NSString *)<em>path</em></code></div>
-
-    
-	
-	<div class="method-subsection arguments-section parameters">
-		<h4 class="method-subtitle parameter-title">Parameters</h4>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>processedEntities</em></dt>
-			<dd><p>A set of the entities that have already been processed.</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>path</em></dt>
-			<dd><p>The current path in the traversal tree, which allows us to add headers like person.superpower.interest=interest.</p></dd>
-		</dl>
-		
-	</div>
-	
-	
-	
-	<div class="method-subsection return">
-		<h4 class="method-subtitle parameter-title">Return Value</h4>
-		<p>An <code>NSArray</code> containing each piece of the relationship header, which is then joined by &amp; to form an <code>NSString</code> and added to the request headers.</p>
 	</div>
 	
 	
@@ -447,7 +380,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-09-07)</span><br />
+						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-09-26)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

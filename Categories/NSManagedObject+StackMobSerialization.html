@@ -52,8 +52,6 @@
 	
 	<option value="//api/name/sm_primaryKeyField">&nbsp;&nbsp;&nbsp;&nbsp;- sm_primaryKeyField</option>
 	
-	<option value="//api/name/sm_relationshipHeader">&nbsp;&nbsp;&nbsp;&nbsp;- sm_relationshipHeader</option>
-	
 	<option value="//api/name/sm_schema">&nbsp;&nbsp;&nbsp;&nbsp;- sm_schema</option>
 	
 	
@@ -91,8 +89,6 @@
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_objectId">sm_objectId</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_primaryKeyField">sm_primaryKeyField</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_relationshipHeader">sm_relationshipHeader</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_schema">sm_schema</a></span></li>
 	
@@ -170,7 +166,7 @@
 </li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/sm_primaryKeyField">&ndash;&nbsp;sm_primaryKeyField</a></code>
-		<span class="tooltip"><p>Returns the primary key field for the entity used to uniquely define the object on StackMob.</p></span>
+		<span class="tooltip"><p>Returns the primary key field name for this entity whose value will map to the primary key field on StackMob.</p></span>
 	</span>
 	
 	
@@ -178,13 +174,6 @@
 	<span class="tooltip">
 		<code><a href="#//api/name/sm_dictionarySerialization">&ndash;&nbsp;sm_dictionarySerialization</a></code>
 		<span class="tooltip"><p>Converts an <code>NSManagedObject</code> into an equivalent dictionary form for StackMob to process.</p></span>
-	</span>
-	
-	
-</li><li>
-	<span class="tooltip">
-		<code><a href="#//api/name/sm_relationshipHeader">&ndash;&nbsp;sm_relationshipHeader</a></code>
-		<span class="tooltip"><p>Triggers the <code>sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:withKeyPath:</code> method in <a href="../Categories/NSEntityDescription+StackMobSerialization.html">NSEntityDescription(StackMobSerialization)</a>.</p></span>
 	</span>
 	
 	
@@ -328,7 +317,7 @@
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Returns the primary key field for the entity used to uniquely define the object on StackMob.</p>
+		<p>Returns the primary key field name for this entity whose value will map to the primary key field on StackMob.</p>
 	</div>		
 	
     
@@ -345,49 +334,8 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>If the <code>NSManagedObject</code> subclass for this entity conforms to the <a href="../Protocols/SMModel.html">SMModel</a> protocol, the return string from the overridden <code>primaryKeyFieldName</code> method is returned. Otherwise lowercaseEntityName_id (i.e. person_id for entity Person) is used.</p><div class="note"><p><strong>Note:</strong> If the <code>NSManagedObject</code> subclass for this entity does not conforms to the <code>SMModel</code> protocol, and lowercaseEntityName_id is not one of the entity&rsquo;s attributes, a <code>SMExceptionIncompatibleObject</code> exception is thrown.</p></div>
+		<p>If the <code>NSManagedObject</code> subclass for this entity conforms to the <a href="../Protocols/SMModel.html">SMModel</a> protocol, the return string from the overridden <primaryKeyFieldName> method is returned. Otherwise lowercaseEntityNameId or lowercaseEntityName_id is returned, if found.</p><div class="note"><p><strong>Note:</strong> If the <code>NSManagedObject</code> subclass for this entity does not conforms to the &lsquo;SMModel&rsquo; protocol, and lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity&rsquo;s attributes, a <code>SMExceptionIncompatibleObject</code> exception is thrown.</p></div>
 	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">NSManagedObject+StackMobSerialization.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/sm_relationshipHeader" title="sm_relationshipHeader"></a>
-	<h3 class="subsubtitle method-title">sm_relationshipHeader</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Triggers the <code>sm_relationshipHeaderValuesByTraversingRelationshipsExcludingEntities:withKeyPath:</code> method in <a href="../Categories/NSEntityDescription+StackMobSerialization.html">NSEntityDescription(StackMobSerialization)</a>.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>- (NSString *)sm_relationshipHeader</code></div>
-
-    
-	
-	
-	
-	<div class="method-subsection return">
-		<h4 class="method-subtitle parameter-title">Return Value</h4>
-		<p>A string of all relationship header components joined by &amp;.</p>
-	</div>
-	
-	
-	
-	
 	
 	
 	
@@ -452,7 +400,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-09-07)</span><br />
+						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-09-26)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						
