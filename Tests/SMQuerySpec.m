@@ -38,19 +38,32 @@ describe(@"-initWithSchema", ^{
 });
 
 describe(@"where clauses", ^{
-    NSString *field1 = @"field1";
-    NSString *value1 = @"value1";
+    __block NSString *field1 = @"field1";
+    __block NSString *value1 = @"value1";
     NSArray *valueArray1 = [NSArray arrayWithObjects:@"value1", @"value2", @"value3", nil];
     CLLocationCoordinate2D location1 = CLLocationCoordinate2DMake(37.7750, 122.4183); // SF
     CLLocationCoordinate2D location2 = CLLocationCoordinate2DMake(52.134068, -106.647635); // Saskatoon
-    
+    beforeEach(^{
+        field1 = @"field1";
+        value1 = @"value1";
+    });
     it(@"-where:isEqualTo", ^{
         [query where:field1 isEqualTo:value1];
         [[[[query requestParameters] objectForKey:field1] should] equal:@"value1"];
     });
+    it(@"-where:isEqualTo, nil value", ^{
+        value1 = nil;
+        [query where:field1 isEqualTo:value1];
+        [[[[query requestParameters] objectForKey:CONCAT(field1, @"[null]")] should] equal:@"true"];
+    });
     it(@"-where:isNotEqualTo", ^{
         [query where:field1 isNotEqualTo:@"value1"];
         [[[[query requestParameters] objectForKey:CONCAT(field1, @"[ne]")] should] equal:@"value1"];
+    });
+    it(@"-where:isNotEqualTo, nil value", ^{
+        value1 = nil;
+        [query where:field1 isNotEqualTo:value1];
+        [[[[query requestParameters] objectForKey:CONCAT(field1, @"[null]")] should] equal:@"false"];
     });
     it(@"-where:isLessThan", ^{
         [query where:field1 isLessThan:@"value1"];

@@ -138,6 +138,7 @@
 		DE8D51DF15E2CB11002F582A /* SMVersion.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E16115E2C02200224E4E /* SMVersion.h */; };
 		DE8D51E015E2CB11002F582A /* StackMob.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E16215E2C02200224E4E /* StackMob.h */; };
 		DE8D51E115E2CB11002F582A /* Base64EncodedStringFromData.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE13864015DC7BAB00610EE1 /* Base64EncodedStringFromData.h */; };
+		DEA55E0F1619000F00E7AB2B /* SMIncrementalStoreFetchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A615CB5EA200E491C4 /* SMIncrementalStoreFetchTest.m */; };
 		DEBBBCAF15CC440600650D75 /* SMCoreDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCA515CC440600650D75 /* SMCoreDataStore.h */; };
 		DEBBBCB015CC440600650D75 /* SMCoreDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCA615CC440600650D75 /* SMCoreDataStore.m */; };
 		DEBBBCB115CC440600650D75 /* SMIncrementalStore+Query.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCA715CC440600650D75 /* SMIncrementalStore+Query.h */; };
@@ -1087,6 +1088,7 @@
 				DECE28C915E709CB0092AFDD /* SMBinDataConvertCDIntegrationSpec.m in Sources */,
 				DE1615E91612758A00A42B31 /* SMCoreDataStoreTest.m in Sources */,
 				DE1615EA1612758D00A42B31 /* SMIncrementalStoreTest.m in Sources */,
+				DEA55E0F1619000F00E7AB2B /* SMIncrementalStoreFetchTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1369,7 +1371,7 @@
 				DEPLOYMENT_POSTPROCESSING = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDK_VERSION = 1.0.0;
+				SDK_VERSION = 1.0.1;
 				STRIP_INSTALLED_PRODUCT = YES;
 			};
 			name = Debug;
@@ -1380,7 +1382,7 @@
 				DEPLOYMENT_POSTPROCESSING = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDK_VERSION = 1.0.0;
+				SDK_VERSION = 1.0.1;
 				STRIP_INSTALLED_PRODUCT = YES;
 			};
 			name = Release;
