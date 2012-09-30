@@ -19,7 +19,7 @@
 
 SPEC_BEGIN(SMDataStoreSpec)
 
-describe(@"Creating a data store instance", ^{
+describe(@"Creating a Datastore instance", ^{
     __block SMDataStore *dataStore = nil;
     __block SMClient *client = nil;
     beforeEach(^{

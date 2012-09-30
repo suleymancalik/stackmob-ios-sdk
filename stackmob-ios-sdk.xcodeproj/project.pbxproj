@@ -118,7 +118,6 @@
 		DE13864315DC7BAB00610EE1 /* Base64EncodedStringFromData.m in Sources */ = {isa = PBXBuildFile; fileRef = DE13864115DC7BAB00610EE1 /* Base64EncodedStringFromData.m */; };
 		DE1615E91612758A00A42B31 /* SMCoreDataStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC570FA15D065FC00D9E44E /* SMCoreDataStoreTest.m */; };
 		DE1615EA1612758D00A42B31 /* SMIncrementalStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A715CB5EA200E491C4 /* SMIncrementalStoreTest.m */; };
-		DE1615EB1612759100A42B31 /* SMIncrementalStoreFetchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A615CB5EA200E491C4 /* SMIncrementalStoreFetchTest.m */; };
 		DE432D4D15E5AA93003B6FDF /* CRUDTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C33B0641591355A00BE2570 /* CRUDTests.m */; };
 		DE8D51CF15E2CB11002F582A /* NSDictionary+AtomicCounter.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E14315E2C02200224E4E /* NSDictionary+AtomicCounter.h */; };
 		DE8D51D015E2CB11002F582A /* NSEntityDescription+StackMobSerialization.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E14515E2C02200224E4E /* NSEntityDescription+StackMobSerialization.h */; };
@@ -249,11 +248,11 @@
 		8C33B04E15912B1F00BE2570 /* integration tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "integration tests-Info.plist"; sourceTree = "<group>"; };
 		8C33B05015912B1F00BE2570 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8C33B05515912B1F00BE2570 /* integration tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "integration tests-Prefix.pch"; sourceTree = "<group>"; };
-		8C33B0641591355A00BE2570 /* CRUDTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CRUDTests.m; sourceTree = "<group>"; };
+		8C33B0641591355A00BE2570 /* CRUDTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CRUDTests.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		8C3E7067158AA67400E22505 /* CoreData.framework */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		8C3E7071158AEBB000E22505 /* CoreLocation.framework */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		8C4A8D6F15928D7800FC1319 /* StackMobCredentials.plist.example */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = StackMobCredentials.plist.example; sourceTree = "<group>"; };
-		8CC4148B1587A43D004EA957 /* SMClientSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMClientSpec.m; sourceTree = "<group>"; };
+		8CC4148B1587A43D004EA957 /* SMClientSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = SMClientSpec.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		8CC414A815881960004EA957 /* libPods-stackmob-ios-sdkTests.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libPods-stackmob-ios-sdkTests.a"; path = "Pods/build/Release-iphoneos/libPods-stackmob-ios-sdkTests.a"; sourceTree = "<group>"; };
 		8CCCE4E61580389800C38962 /* libstackmob-ios-sdk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libstackmob-ios-sdk.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CCCE4E91580389800C38962 /* Foundation.framework */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -276,13 +275,13 @@
 		DE05E14815E2C02200224E4E /* NSManagedObject+StackMobSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+StackMobSerialization.m"; sourceTree = "<group>"; };
 		DE05E14915E2C02200224E4E /* SMBinaryDataConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMBinaryDataConversion.h; sourceTree = "<group>"; };
 		DE05E14A15E2C02200224E4E /* SMBinaryDataConversion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMBinaryDataConversion.m; sourceTree = "<group>"; };
-		DE05E14B15E2C02200224E4E /* SMClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMClient.h; sourceTree = "<group>"; };
+		DE05E14B15E2C02200224E4E /* SMClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SMClient.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		DE05E14C15E2C02200224E4E /* SMClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMClient.m; sourceTree = "<group>"; };
 		DE05E14D15E2C02200224E4E /* SMCustomCodeRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMCustomCodeRequest.h; sourceTree = "<group>"; };
 		DE05E14E15E2C02200224E4E /* SMCustomCodeRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMCustomCodeRequest.m; sourceTree = "<group>"; };
 		DE05E14F15E2C02200224E4E /* SMDataStore+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SMDataStore+Protected.h"; sourceTree = "<group>"; };
 		DE05E15015E2C02200224E4E /* SMDataStore+Protected.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SMDataStore+Protected.m"; sourceTree = "<group>"; };
-		DE05E15115E2C02200224E4E /* SMDataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMDataStore.h; sourceTree = "<group>"; };
+		DE05E15115E2C02200224E4E /* SMDataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SMDataStore.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		DE05E15215E2C02200224E4E /* SMDataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMDataStore.m; sourceTree = "<group>"; };
 		DE05E15315E2C02200224E4E /* SMError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMError.h; sourceTree = "<group>"; };
 		DE05E15415E2C02200224E4E /* SMError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMError.m; sourceTree = "<group>"; };
@@ -1088,7 +1087,6 @@
 				DECE28C915E709CB0092AFDD /* SMBinDataConvertCDIntegrationSpec.m in Sources */,
 				DE1615E91612758A00A42B31 /* SMCoreDataStoreTest.m in Sources */,
 				DE1615EA1612758D00A42B31 /* SMIncrementalStoreTest.m in Sources */,
-				DE1615EB1612759100A42B31 /* SMIncrementalStoreFetchTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

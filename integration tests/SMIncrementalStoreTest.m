@@ -830,4 +830,53 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
     });
 });
 
+describe(@"test camel case with relationships", ^{
+    __block NSManagedObjectContext *moc = nil;
+    __block NSManagedObject *todo = nil;
+    __block NSManagedObject *category = nil;
+    beforeEach(^{
+        moc = [SMCoreDataIntegrationTestHelpers moc];
+    });
+    afterEach(^{
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    it(@"Should pass for one-to-one", ^{
+        todo = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
+        
+        [todo setValue:@"Hello One-To-One" forKey:@"title"];
+        [todo setValue:[todo sm_assignObjectId] forKey:[todo sm_primaryKeyField]];
+        
+        category = [NSEntityDescription insertNewObjectForEntityForName:@"Category" inManagedObjectContext:moc];
+        
+        [category setValue:@"Work" forKey:@"name"];
+        [category setValue:[category sm_assignObjectId] forKey:[category sm_primaryKeyField]];
+        
+        
+        NSError *error = nil;
+        if (![moc save:&error]) {
+            NSLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            NSLog(@"You created a Todo and Category object!");
+        }
+        
+        [todo setValue:category forKey:@"category"];
+        
+        error = nil;
+        if (![moc save:&error]) {
+            NSLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            NSLog(@"You created a relationship between the Todo and Category Object!");
+        }
+    });
+});
+
 SPEC_END

@@ -42,9 +42,9 @@
  Create a variable of type `SMClient`, most likely in your AppDelegate file where you initialize other application wide variables, and initialize it like this:
  
     // Assuming your variable is declared SMClient *client;
-    client = [[SMClient alloc] initWithAPIVersion:@"API-VERSION" publicKey:@"PUBLIC-KEY"];
+    client = [[SMClient alloc] initWithAPIVersion:@"YOUR_API_VERSION" publicKey:@"YOUR_PUBLIC_KEY"];
  
- For API-VERSION, pass @"0" for Development, @"1" or higher for the corresponding version in Production.
+ For YOUR_API_VERSION, pass @"0" for Development, @"1" or higher for the corresponding version in Production.
  
  If you haven't found your public key yet, check out **Manage App Info** under the **App Settings** sidebar on the [Dashboard page](https://dashboard.stackmob.com).
  
@@ -205,9 +205,9 @@
  */
 - (id)initWithAPIVersion:(NSString *)appAPIVersion publicKey:(NSString *)publicKey;
 
-#pragma mark data store
+#pragma mark Datastore
 ///-------------------------------
-/// @name Retrieving a Data Store
+/// @name Retrieving a Datastore
 ///-------------------------------
 
 /**
@@ -391,7 +391,7 @@
 /**
  Reset a user's password securely.
  
- This would be hooked up to a password reset form. Changing a password via the regular data store API 
+ This would be hooked up to a password reset form. Changing a password via the regular Datastore API 
  will result in an error. This API requires the user to be logged in as well as to supply their old password.
  
  @param oldPassword The user's current password.

@@ -166,7 +166,9 @@
                         
                         [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] sm_schema]]];
                         
-                        [objectDictionary setObject:[NSDictionary dictionaryWithObject:[relationshipContents sm_objectId] forKey:[relationshipContents sm_primaryKeyField]] forKey:[selfEntity sm_fieldNameForProperty:property]];
+                        
+                        NSPropertyDescription *primaryKeyProperty = [[[relationship destinationEntity] propertiesByName] objectForKey:[relationshipContents sm_primaryKeyField]];
+                        [objectDictionary setObject:[NSDictionary dictionaryWithObject:[relationshipContents sm_objectId] forKey:[[relationship destinationEntity] sm_fieldNameForProperty:primaryKeyProperty]] forKey:[selfEntity sm_fieldNameForProperty:property]];
                     }
                     else {
                         NSMutableString *relationshipKeyPath = [NSMutableString string];

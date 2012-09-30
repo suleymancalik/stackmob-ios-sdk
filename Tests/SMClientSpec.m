@@ -240,7 +240,7 @@ describe(@"-dataStore", ^{
     it(@"it should return an SMDataStore instance", ^{
         [dataStore shouldNotBeNil];
     });
-    it(@"the data store should have the client's configuration settings", ^{
+    it(@"the Datastore should have the client's configuration settings", ^{
         [[[dataStore apiVersion] should] equal:APIVersion];
     });
     it(@"datastore session should be the same as the clients", ^{

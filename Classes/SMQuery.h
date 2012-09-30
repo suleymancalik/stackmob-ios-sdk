@@ -19,7 +19,7 @@
 #import <CoreLocation/CoreLocation.h>
 
 /**
- `SMQuery` exposes an interface for defining a query against StackMob's data store API.
+ `SMQuery` exposes an interface for defining a query against StackMob's Datastore API.
  
  `SMQuery` uses StackMob's terminology:
  - Queries are performed against a specific _schema_ (usually also the name of a model class or of an entity in a managed object model)

@@ -24,7 +24,7 @@ describe(@"CRUD", ^{
     beforeEach(^{
         dataStore = [SMIntegrationTestHelpers dataStore];
     });
-    it(@"should successfully create a data store", ^{
+    it(@"should successfully create a Datastore", ^{
         [dataStore shouldNotBeNil];
     });
     

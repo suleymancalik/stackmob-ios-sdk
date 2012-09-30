@@ -35,7 +35,7 @@ We've also separated our Push Notification API into a separate SDK. For more inf
 
 <br/>
 ### Why base the new SDK on Core Data? 
-Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and data store API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full data store API as well.
+Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and Datastore API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full Datastore API as well.
 
 <br/>
 ### Already know Core Data?
@@ -63,7 +63,7 @@ Email us at [support@stackmob.com](mailto:support@stackmob.com).
 
 If you don't already have the StackMob SDK imported into your application, [get started with StackMob](https://developer.stackmob.com/start).
 
-**The fundamental class for StackMob is SMClient**.  From an instance of this class you have access to a configured managed object context and persistent store coordinator as well as a REST-based data store. Check out the [class reference for SMClient](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html) for more information.  Let's see how to initialize our `SMClient`:
+**The fundamental class for StackMob is SMClient**.  From an instance of this class you have access to a configured managed object context and persistent store coordinator as well as a REST-based Datastore. Check out the [class reference for SMClient](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html) for more information.  Let's see how to initialize our `SMClient`:
 
 <br/>
 
@@ -74,9 +74,9 @@ Wherever you plan to use StackMob, add `#import "StackMob.h"` to the header file
 Create a variable of class `SMClient`, most likely in your AppDelegate file where you initialize other application wide variables, and initialize it like this:
 
 	// Assuming your variable is declared SMClient *client;
-	client = [[SMClient alloc] initWithAPIVersion:@"API-VERSION" publicKey:@"PUBLIC-KEY"];
+	client = [[SMClient alloc] initWithAPIVersion:@"YOUR_API_VERSION" publicKey:@"YOUR_PUBLIC_KEY"];
 
-For API-VERSION, pass @"0" for Development, @"1" or higher for the corresponding version in Production.
+For YOUR_API_VERSION, pass @"0" for Development, @"1" or higher for the corresponding version in Production.
 
 If you haven't found your public key yet, check out **Manage App Info** under the **App Settings** sidebar on the [Dashboard page](https://dashboard.stackmob.com).
 
@@ -87,7 +87,7 @@ If you haven't found your public key yet, check out **Manage App Info** under th
 There are two ways to persist data to StackMob:
 
 * Core Data
-* Lower Level Data Store API
+* Lower Level Datastore API
 
 <br/>
 
@@ -119,9 +119,9 @@ Use this instance of NSManagedObjectContext throughout your application. Other t
 
 <br/>
 
-#### Lower Level Data Store API
+#### Lower Level Datastore API
 
-If you want to make direct REST-based calls to the data store, check out the [SMDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html) class.
+If you want to make direct REST-based calls to the Datastore, check out the [SMDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html) class.
 
 <br/>
 
@@ -144,7 +144,7 @@ Push Notification support has been moved into a separate SDK.  Check out the [iO
 
 The iOS SDK gives developers access to two global variables that will enable additional logging statements when using the Core Data integration:
 
-* **SM_CORE_DATA_DEBUG** - In your AppDelegate's `application:DidFinishLaunchingWithOptions:` method, include the line `SM_CORE_DATA_DEBUG = YES;` to turn on log statements from `SMIncrementalStore`. This will provide information about the data store calls to StackMob happening behind the scenes during Core Data saves and fetches. The default is `NO`.
+* **SM_CORE_DATA_DEBUG** - In your AppDelegate's `application:DidFinishLaunchingWithOptions:` method, include the line `SM_CORE_DATA_DEBUG = YES;` to turn on log statements from `SMIncrementalStore`. This will provide information about the Datastore calls to StackMob happening behind the scenes during Core Data saves and fetches. The default is `NO`.
 * **SM_MAX_LOG_LENGTH** - Used to control how many characters are printed when logging objects. The default is **10,000**, which is plenty, so you will almost never have to set this.  The only time you will see the string representation of an object truncated is when you have an Attribute of type String that maps to a field of type Binary on StackMob, because you are sending a string containing the binary of the image, etc. String representations of objects that have been truncated end with \<MAX\_LOG\_LENGTH\_REACHED\>.   
 
 

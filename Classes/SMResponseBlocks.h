@@ -48,7 +48,7 @@ typedef void (^SMFullResponseSuccessBlock)(NSURLRequest *request, NSHTTPURLRespo
 typedef void (^SMFullResponseFailureBlock)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON);
 
 /**
- The block parameters expected for a success response from a call to the data store which returns the full object and schema. 
+ The block parameters expected for a success response from a call to the Datastore which returns the full object and schema. 
  
  @param theObject An updated dictionary representation of the requested object.
  @param schema The schema to which the object belongs.
@@ -56,7 +56,7 @@ typedef void (^SMFullResponseFailureBlock)(NSURLRequest *request, NSHTTPURLRespo
 typedef void (^SMDataStoreSuccessBlock)(NSDictionary* theObject, NSString *schema);
 
 /**
- The block parameters expected for a success response from a call to the data store which returns the object ID and schema.
+ The block parameters expected for a success response from a call to the Datastore which returns the object ID and schema.
  
  @param theObjectId The object id used in this operation.
  @param schema The schema to which the object belongs.
@@ -64,7 +64,7 @@ typedef void (^SMDataStoreSuccessBlock)(NSDictionary* theObject, NSString *schem
 typedef void (^SMDataStoreObjectIdSuccessBlock)(NSString* theObjectId, NSString *schema);
 
 /** 
- The block parameters expected for a failure response from a call to the data store which returns the error, full object and schema.
+ The block parameters expected for a failure response from a call to the Datastore which returns the error, full object and schema.
  
  @param theError An error object describing the failure.
  @param theObject The dictionary representation of the object sent as part of the failed operation.
@@ -73,7 +73,7 @@ typedef void (^SMDataStoreObjectIdSuccessBlock)(NSString* theObjectId, NSString 
 typedef void (^SMDataStoreFailureBlock)(NSError *theError, NSDictionary* theObject, NSString *schema);
 
 /** 
- The block parameters expected for a failure response from a call to the data store which returns the error, object ID and schema.
+ The block parameters expected for a failure response from a call to the Datastore which returns the error, object ID and schema.
  
  @param theError An error object describing the failure.
  @param theObjectId The object id sent as part of the failed operation.
