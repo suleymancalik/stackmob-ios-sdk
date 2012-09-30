@@ -55,17 +55,26 @@
     return self;
 }
 
-// TODO: == and != maybe should do something smart with nil, like map it into key[null] = ...
 - (void)where:(NSString *)field isEqualTo:(id)value
 {
-    [self.requestParameters setValue:value 
-                              forKey:field];
+    if(value == nil) {
+        [self.requestParameters setValue:@"true"
+                                  forKey:CONCAT(field, @"[null]")];
+    } else {
+        [self.requestParameters setValue:value 
+                                  forKey:field];
+    }
 }
 
 - (void)where:(NSString *)field isNotEqualTo:(id)value
 {
-    [self.requestParameters setValue:value
-                              forKey:CONCAT(field, @"[ne]")];
+    if(value == nil) {
+        [self.requestParameters setValue:@"false"
+                                  forKey:CONCAT(field, @"[null]")];
+    } else {
+        [self.requestParameters setValue:value
+                                  forKey:CONCAT(field, @"[ne]")];
+    }
 }
 
 - (void)where:(NSString *)field isLessThan:(id)value
