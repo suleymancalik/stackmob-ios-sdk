@@ -615,5 +615,60 @@ describe(@"forgotPassword", ^{
     });
 });
 
+describe(@"authentication with permissions", ^{
+    __block SMClient *client = nil;
+    __block BOOL readSuccess = NO;
+    beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        readSuccess = NO;
+    });
+    context(@"not logged in", ^{
+        it(@"should not allow to read from a schema with permissions set", ^{
+            readSuccess = NO;
+            SMQuery *query = [[SMQuery alloc] initWithSchema:@"oauth2test"];
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [[client dataStore] performQuery:query onSuccess:^(NSArray *results) {
+                    NSLog(@"read success: %@", results);
+                    readSuccess = YES;
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *error) {
+                    NSLog(@"read failure: %@", error);
+                    syncReturn(semaphore);
+                }];
+            });
+            [[theValue(readSuccess) should] beNo];
+        });
+    });
+    context(@"logged in", ^{
+        beforeEach(^{
+            readSuccess = NO;
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [client loginWithUsername:@"dude" password:@"sweet" onSuccess:^(NSDictionary *result) {
+                    NSLog(@"login success");
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *error) {
+                    NSLog(@"login failure: %@", error);
+                    [error shouldBeNil];
+                    syncReturn(semaphore);
+                }];
+            });
+        });
+        it(@"Should allow read from a schema with permissions set", ^{
+            SMQuery *query = [[SMQuery alloc] initWithSchema:@"oauth2test"];
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [[client dataStore] performQuery:query onSuccess:^(NSArray *results) {
+                    NSLog(@"read success: %@", results);
+                    readSuccess = YES;
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *error) {
+                    NSLog(@"read failure: %@", error);
+                    syncReturn(semaphore);
+                }];
+            });
+            [[theValue(readSuccess) should] beYes];
+        });
+    });
+});
+
 
 SPEC_END

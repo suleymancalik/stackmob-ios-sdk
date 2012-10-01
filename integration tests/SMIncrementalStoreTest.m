@@ -838,6 +838,8 @@ describe(@"test camel case with relationships", ^{
         moc = [SMCoreDataIntegrationTestHelpers moc];
     });
     afterEach(^{
+        [moc deleteObject:todo];
+        [moc deleteObject:category];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
                 DLog(@"Error userInfo is %@", [error userInfo]);

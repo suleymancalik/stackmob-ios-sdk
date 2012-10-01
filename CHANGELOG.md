@@ -1,5 +1,16 @@
 <h2>StackMob iOS SDK Change Log</h2>
 
+<h3>v1.0.1 - Oct 1, 2012</h3>
+
+**Features**
+
+* Can query whether fields are or are not nil.
+
+**Fixes**
+
+* Address error in serialization algorithm for one-to-one relationship camel cased attributes.
+* Address error in request sent when reading from schemas with permissions set.
+
 <h3>v1.0.0 - Sep 26, 2012</h3>
 
 **Features**
@@ -19,8 +30,8 @@
 
 **Fixes** 
 
-  * The method save: to the managed object context will return NO if StackMob calls fail.
-  * Fetch requests not returning errors.
+* The method save: to the managed object context will return NO if StackMob calls fail.
+* Fetch requests not returning errors.
 
 <h3>v1.0.0beta.2 - Aug 20, 2012</h3>
 

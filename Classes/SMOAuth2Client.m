@@ -92,7 +92,7 @@
 - (void)signRequest:(NSMutableURLRequest *)request
 {
     if ([self hasValidCredentials]) {
-        NSString *queryString = [[request URL] query] == nil ? @"" : [NSString stringWithFormat:@"&%@", [[request URL] query]];
+        NSString *queryString = [[[request URL] query] length] == 0 ? @"" : [NSString stringWithFormat:@"?%@", [[request URL] query]];
         NSString *pathAndQuery = [NSString stringWithFormat:@"%@%@", [[request URL] path], queryString];
         NSString *macHeader = [self createMACHeaderForHttpMethod:[request HTTPMethod] path:pathAndQuery];
         [request setValue:macHeader forHTTPHeaderField:@"Authorization"];
