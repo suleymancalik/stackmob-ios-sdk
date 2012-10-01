@@ -36,7 +36,7 @@
 						
 						<h1>Welcome to the docs for the StackMob iOS SDK!</h1>
 
-<h3>Current Version: 1.0.0</h3>
+<h3>Current Version: 1.0.1</h3>
 
 <h3>Jump To:</h3>
 
@@ -78,7 +78,7 @@
 
 <h3>Why base the new SDK on Core Data?</h3>
 
-<p>Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and data store API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full data store API as well.</p>
+<p>Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and Datastore API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full Datastore API as well.</p>
 
 <br/>
 
@@ -116,7 +116,7 @@
 
 <p>If you don&rsquo;t already have the StackMob SDK imported into your application, <a href="https://developer.stackmob.com/start">get started with StackMob</a>.</p>
 
-<p><strong>The fundamental class for StackMob is SMClient</strong>.  From an instance of this class you have access to a configured managed object context and persistent store coordinator as well as a REST-based data store. Check out the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html">class reference for SMClient</a> for more information.  Let&rsquo;s see how to initialize our <code>SMClient</code>:</p>
+<p><strong>The fundamental class for StackMob is SMClient</strong>.  From an instance of this class you have access to a configured managed object context and persistent store coordinator as well as a REST-based Datastore. Check out the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html">class reference for SMClient</a> for more information.  Let&rsquo;s see how to initialize our <code>SMClient</code>:</p>
 
 <br/>
 
@@ -128,10 +128,10 @@
 <p>Create a variable of class <code>SMClient</code>, most likely in your AppDelegate file where you initialize other application wide variables, and initialize it like this:</p>
 
 <pre><code>// Assuming your variable is declared SMClient *client;
-client = [[SMClient alloc] initWithAPIVersion:@"API-VERSION" publicKey:@"PUBLIC-KEY"];
+client = [[SMClient alloc] initWithAPIVersion:@"YOUR_API_VERSION" publicKey:@"YOUR_PUBLIC_KEY"];
 </code></pre>
 
-<p>For API-VERSION, pass @&ldquo;0&rdquo; for Development, @&ldquo;1&rdquo; or higher for the corresponding version in Production.</p>
+<p>For YOUR_API_VERSION, pass @&ldquo;0&rdquo; for Development, @&ldquo;1&rdquo; or higher for the corresponding version in Production.</p>
 
 <p>If you haven&rsquo;t found your public key yet, check out <strong>Manage App Info</strong> under the <strong>App Settings</strong> sidebar on the <a href="https://dashboard.stackmob.com">Dashboard page</a>.</p>
 
@@ -144,7 +144,7 @@ client = [[SMClient alloc] initWithAPIVersion:@"API-VERSION" publicKey:@"PUBLIC-
 
 <ul>
 <li>Core Data</li>
-<li>Lower Level Data Store API</li>
+<li>Lower Level Datastore API</li>
 </ul>
 
 
@@ -183,9 +183,9 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <br/>
 
 
-<h4>Lower Level Data Store API</h4>
+<h4>Lower Level Datastore API</h4>
 
-<p>If you want to make direct REST-based calls to the data store, check out the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html">SMDataStore</a> class.</p>
+<p>If you want to make direct REST-based calls to the Datastore, check out the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html">SMDataStore</a> class.</p>
 
 <br/>
 
@@ -213,7 +213,7 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <p>The iOS SDK gives developers access to two global variables that will enable additional logging statements when using the Core Data integration:</p>
 
 <ul>
-<li><strong>SM_CORE_DATA_DEBUG</strong> &ndash; In your AppDelegate&rsquo;s <code>application:DidFinishLaunchingWithOptions:</code> method, include the line <code>SM_CORE_DATA_DEBUG = YES;</code> to turn on log statements from <code>SMIncrementalStore</code>. This will provide information about the data store calls to StackMob happening behind the scenes during Core Data saves and fetches. The default is <code>NO</code>.</li>
+<li><strong>SM_CORE_DATA_DEBUG</strong> &ndash; In your AppDelegate&rsquo;s <code>application:DidFinishLaunchingWithOptions:</code> method, include the line <code>SM_CORE_DATA_DEBUG = YES;</code> to turn on log statements from <code>SMIncrementalStore</code>. This will provide information about the Datastore calls to StackMob happening behind the scenes during Core Data saves and fetches. The default is <code>NO</code>.</li>
 <li><strong>SM_MAX_LOG_LENGTH</strong> &ndash; Used to control how many characters are printed when logging objects. The default is <strong>10,000</strong>, which is plenty, so you will almost never have to set this.  The only time you will see the string representation of an object truncated is when you have an Attribute of type String that maps to a field of type Binary on StackMob, because you are sending a string containing the binary of the image, etc. String representations of objects that have been truncated end with &lt;MAX_LOG_LENGTH_REACHED>.</li>
 </ul>
 
@@ -312,24 +312,7 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 
 <h2>Tutorials</h2>
 
-<ul>
-<li><a href="https://developer.stackmob.com/tutorials/ios/Starter-App">Starter App</a></li>
-<li><a href="https://developer.stackmob.com/tutorials/ios/Create-an-Object">Create an Object</a></li>
-<li><a href="https://developer.stackmob.com/tutorials/ios/Read-an-Object">Read an Object</a></li>
-<li><a href="https://developer.stackmob.com/tutorials/ios/Read-into-Table-View">Read to a Table View</a></li>
-<li><a href="https://developer.stackmob.com/tutorials/ios/Update-an-Object">Update an Object</a></li>
-<li><a href="https://developer.stackmob.com/tutorials/ios/Delete-an-Object">Delete an Object</a></li>
-<li><a href="https://developer.stackmob.com/tutorials/ios/Basic-Queries">Basic Queries</a></li>
-<li><a href="https://developer.stackmob.com/tutorials/ios/Advanced-Queries">Advanced Queries</a></li>
-<li><a href="https://developer.stackmob.com/tutorials/ios/Create-a-User-Object">Create a User Object</a></li>
-<li><a href="https://developer.stackmob.com/tutorials/ios/User-Authentication">User Authentication</a></li>
-<li><a href="https://developer.stackmob.com/tutorials/ios/One-to-One-Relationships">One to One Relationships</a></li>
-<li><a href="https://developer.stackmob.com/tutorials/ios/One-to-Many-Relationships">One to Many Relationships</a></li>
-<li><a href="https://developer.stackmob.com/tutorials/ios/Lower-Level-CRUD-API">Lower Level CRUD API</a></li>
-</ul>
-
-
-<p>&hellip; More coming soon!</p>
+<p>You can find all the iOS SDK tutorials at our <a href="https://developer.stackmob.com/tutorials/ios" target="_blank">Dev Center</a>.</p>
 
 <p><a name="core_data_references">&nbsp;</a></p>
 
@@ -423,7 +406,7 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-09-27)</span><br />
+						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-10-01)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						
