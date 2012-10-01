@@ -4,7 +4,7 @@
 
 **Features**
 
-* Can query whether fields are or are not nil.
+* Can query whether fields are or are not nil. Thanks to combinatorial for the pull request.
 
 **Fixes**
 
