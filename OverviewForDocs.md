@@ -224,21 +224,8 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 
 <a name="tutorials">&nbsp;</a>
 ## Tutorials
-* [Starter App](https://developer.stackmob.com/tutorials/ios/Starter-App)
-* [Create an Object](https://developer.stackmob.com/tutorials/ios/Create-an-Object)
-* [Read an Object](https://developer.stackmob.com/tutorials/ios/Read-an-Object)
-* [Read to a Table View](https://developer.stackmob.com/tutorials/ios/Read-into-Table-View)
-* [Update an Object](https://developer.stackmob.com/tutorials/ios/Update-an-Object)
-* [Delete an Object](https://developer.stackmob.com/tutorials/ios/Delete-an-Object)
-* [Basic Queries](https://developer.stackmob.com/tutorials/ios/Basic-Queries)
-* [Advanced Queries](https://developer.stackmob.com/tutorials/ios/Advanced-Queries)
-* [Create a User Object](https://developer.stackmob.com/tutorials/ios/Create-a-User-Object)
-* [User Authentication](https://developer.stackmob.com/tutorials/ios/User-Authentication)
-* [One to One Relationships](https://developer.stackmob.com/tutorials/ios/One-to-One-Relationships)
-* [One to Many Relationships](https://developer.stackmob.com/tutorials/ios/One-to-Many-Relationships)
-* [Lower Level CRUD API](https://developer.stackmob.com/tutorials/ios/Lower-Level-CRUD-API)
 
-... More coming soon!
+You can find all the iOS SDK tutorials at our <a href="https://developer.stackmob.com/tutorials/ios" target="_blank">Dev Center</a>.
 
 <a name="core_data_references">&nbsp;</a>
 ## Core Data References
