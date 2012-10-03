@@ -189,7 +189,7 @@
 					<div class="section section-overview">
 						<a title="Overview" name="overview"></a>
 						<h2 class="subtitle subtitle-overview">Overview</h2>
-						<p><code>SMDataStore</code> exposes an interface for performing CRUD operations on known StackMob objects and for executing an <a href="../Classes/SMQuery.html">SMQuery</a>.</p>
+						<p><code>SMDataStore</code> exposes an interface for performing CRUD operations on known StackMob objects and for executing an <a href="../Classes/SMQuery.html">SMQuery</a> or <a href="../Classes/SMCustomCodeRequest.html">SMCustomCodeRequest</a>.</p>
 
 <p>As a direct interface to StackMob, <code>SMDataStore</code> uses StackMob&rsquo;s terminology:</p>
 
@@ -427,12 +427,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke after the object is successfully created. Passed the dictionary representation of the response from StackMob and the schema in which the new object was created.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary<em> theObject, NSString </em>schema)</i>. A block object to invoke after the object is successfully created. Passed the dictionary representation of the response from StackMob and the schema in which the new object was created.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to create the specified object. Passed the error returned by StackMob, the dictionary sent with this create request, and the schema in which the object was to be created.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreFailureBlock)(NSError <em>theError, NSDictionary</em> theObject, NSString *schema)</i>. A block object to invoke if the Datastore fails to create the specified object. Passed the error returned by StackMob, the dictionary sent with this create request, and the schema in which the object was to be created.</p></dd>
 		</dl>
 		
 	</div>
@@ -493,12 +493,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke after the object is successfully created. Passed the dictionary representation of the response from StackMob and the schema in which the new object was created.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary<em> theObject, NSString </em>schema)</i>. A block object to invoke after the object is successfully created. Passed the dictionary representation of the response from StackMob and the schema in which the new object was created.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to create the specified object. Passed the error returned by StackMob, the dictionary sent with this create request, and the schema in which the object was to be created.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreFailureBlock)(NSError <em>theError, NSDictionary</em> theObject, NSString *schema)</i>. A block object to invoke if the Datastore fails to create the specified object. Passed the error returned by StackMob, the dictionary sent with this create request, and the schema in which the object was to be created.</p></dd>
 		</dl>
 		
 	</div>
@@ -554,12 +554,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke after the object is successfully deleted. Passed the object id of the deleted object and the object&rsquo;s schema.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreObjectIdSuccessBlock)(NSString<em> theObjectId, NSString </em>schema)</i>. A block object to invoke after the object is successfully deleted. Passed the object id of the deleted object and the object&rsquo;s schema.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreObjectIdFailureBlock)(NSError <em>theError, NSString</em> theObjectId, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.</p></dd>
 		</dl>
 		
 	</div>
@@ -620,12 +620,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke after the object is successfully deleted. Passed the object id of the deleted object and the object&rsquo;s schema.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreObjectIdSuccessBlock)(NSString<em> theObjectId, NSString </em>schema)</i>. A block object to invoke after the object is successfully deleted. Passed the object id of the deleted object and the object&rsquo;s schema.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreObjectIdFailureBlock)(NSError <em>theError, NSString</em> theObjectId, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.</p></dd>
 		</dl>
 		
 	</div>
@@ -732,12 +732,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke when the count is complete.  Passed the number of objects returned that would by the query.</p></dd>
+			<dd><p><i>typedef void (^SMCountSuccessBlock)(NSNumber *count)</i>. A block object to invoke when the count is complete.  Passed the number of objects returned that would by the query.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.</p></dd>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.</p></dd>
 		</dl>
 		
 	</div>
@@ -793,12 +793,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke when the count is complete.  Passed the number of objects that would be returned by the query.</p></dd>
+			<dd><p><i>typedef void (^SMCountSuccessBlock)(NSNumber *count)</i>. A block object to invoke when the count is complete.  Passed the number of objects that would be returned by the query.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.</p></dd>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.</p></dd>
 		</dl>
 		
 	</div>
@@ -849,12 +849,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>The block to call upon success.</p></dd>
+			<dd><p><i>typedef void (^SMFullResponseSuccessBlock)(NSURLRequest <em>request, NSHTTPURLResponse </em>response, id JSON)</i>. A block object to call upon success.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>The block to call upon failure.</p></dd>
+			<dd><p><i>typedef void (^SMFullResponseFailureBlock)(NSURLRequest <em>request, NSHTTPURLResponse </em>response, NSError *error, id JSON)</i>. A block object to call upon failure.</p></dd>
 		</dl>
 		
 	</div>
@@ -910,12 +910,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>The block to call upon success.</p></dd>
+			<dd><p><i>typedef void (^SMFullResponseSuccessBlock)(NSURLRequest <em>request, NSHTTPURLResponse </em>response, id JSON)</i>. A block object to call upon success.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>The block to call upon failure.</p></dd>
+			<dd><p><i>typedef void (^SMFullResponseFailureBlock)(NSURLRequest <em>request, NSHTTPURLResponse </em>response, NSError *error, id JSON)</i>. A block object to call upon failure.</p></dd>
 		</dl>
 		
 	</div>
@@ -971,12 +971,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke after the query succeeds. Passed an array of object dictionaries returned from StackMob (if any).</p></dd>
+			<dd><p><i>typedef void (^SMResultsSuccessBlock)(NSArray *results)</i>. A block object to invoke after the query succeeds. Passed an array of object dictionaries returned from StackMob (if any).</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.</p></dd>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.</p></dd>
 		</dl>
 		
 	</div>
@@ -1032,12 +1032,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke after the query succeeds. Passed an array of object dictionaries returned from StackMob (if any).</p></dd>
+			<dd><p><i>typedef void (^SMResultsSuccessBlock)(NSArray *results)</i>. A block object to invoke after the query succeeds. Passed an array of object dictionaries returned from StackMob (if any).</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.</p></dd>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.</p></dd>
 		</dl>
 		
 	</div>
@@ -1093,12 +1093,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke after the object is successfully read. Passed the dictionary representation of the response from StackMob and the object&rsquo;s schema.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary<em> theObject, NSString </em>schema)</i>. A block object to invoke after the object is successfully read. Passed the dictionary representation of the response from StackMob and the object&rsquo;s schema.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreObjectIdFailureBlock)(NSError <em>theError, NSString</em> theObjectId, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.</p></dd>
 		</dl>
 		
 	</div>
@@ -1159,12 +1159,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke after the object is successfully read. Passed the dictionary representation of the response from StackMob and the object&rsquo;s schema.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary<em> theObject, NSString </em>schema)</i>. A block object to invoke after the object is successfully read. Passed the dictionary representation of the response from StackMob and the object&rsquo;s schema.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreObjectIdFailureBlock)(NSError <em>theError, NSString</em> theObjectId, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.</p></dd>
 		</dl>
 		
 	</div>
@@ -1220,12 +1220,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>The block to call upon success.</p></dd>
+			<dd><p><i>typedef void (^SMFullResponseSuccessBlock)(NSURLRequest <em>request, NSHTTPURLResponse </em>response, id JSON)</i>. A block object to call upon success.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>The block to call upon failure.</p></dd>
+			<dd><p><i>typedef void (^SMFullResponseFailureBlock)(NSURLRequest <em>request, NSHTTPURLResponse </em>response, NSError *error, id JSON)</i>. A block object to call upon failure.</p></dd>
 		</dl>
 		
 	</div>
@@ -1296,12 +1296,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object&rsquo;s schema.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary<em> theObject, NSString </em>schema)</i>. A block object to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object&rsquo;s schema.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreFailureBlock)(NSError <em>theError, NSDictionary</em> theObject, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.</p></dd>
 		</dl>
 		
 	</div>
@@ -1372,12 +1372,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object&rsquo;s schema.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary<em> theObject, NSString </em>schema)</i>. A block object to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object&rsquo;s schema.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreFailureBlock)(NSError <em>theError, NSDictionary</em> theObject, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.</p></dd>
 		</dl>
 		
 	</div>
@@ -1438,12 +1438,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object&rsquo;s schema.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary<em> theObject, NSString </em>schema)</i>. A block object to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object&rsquo;s schema.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreFailureBlock)(NSError <em>theError, NSDictionary</em> theObject, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.</p></dd>
 		</dl>
 		
 	</div>
@@ -1509,12 +1509,12 @@ SMDataStore *dataStore = [[self client] dataStore];
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
-			<dd><p>A block to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object&rsquo;s schema.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary<em> theObject, NSString </em>schema)</i>. A block object to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object&rsquo;s schema.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
 			<dt><em>failureBlock</em></dt>
-			<dd><p>A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.</p></dd>
+			<dd><p><i>typedef void (^SMDataStoreFailureBlock)(NSError <em>theError, NSDictionary</em> theObject, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.</p></dd>
 		</dl>
 		
 	</div>
@@ -1552,7 +1552,7 @@ SMDataStore *dataStore = [[self client] dataStore];
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-10-01)</span><br />
+						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-10-02)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						
