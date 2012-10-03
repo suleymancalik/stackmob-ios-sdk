@@ -30,7 +30,7 @@
 @class SMCustomCodeRequest;
 
 /**
- `SMDataStore` exposes an interface for performing CRUD operations on known StackMob objects and for executing an <SMQuery>.
+ `SMDataStore` exposes an interface for performing CRUD operations on known StackMob objects and for executing an <SMQuery> or <SMCustomCodeRequest>.
  
  As a direct interface to StackMob, `SMDataStore` uses StackMob's terminology:
  
@@ -83,8 +83,8 @@
  
  @param theObject A dictionary describing the object to create on StackMob. Keys should map to valid StackMob fields. Values should be JSON serializable objects.
  @param schema The StackMob schema in which to create this new object.
- @param successBlock A block to invoke after the object is successfully created. Passed the dictionary representation of the response from StackMob and the schema in which the new object was created.
- @param failureBlock A block to invoke if the Datastore fails to create the specified object. Passed the error returned by StackMob, the dictionary sent with this create request, and the schema in which the object was to be created.
+ @param successBlock <i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary* theObject, NSString *schema)</i>. A block object to invoke after the object is successfully created. Passed the dictionary representation of the response from StackMob and the schema in which the new object was created.
+ @param failureBlock <i>typedef void (^SMDataStoreFailureBlock)(NSError *theError, NSDictionary* theObject, NSString *schema)</i>. A block object to invoke if the Datastore fails to create the specified object. Passed the error returned by StackMob, the dictionary sent with this create request, and the schema in which the object was to be created.
  */
 - (void)createObject:(NSDictionary *)theObject
             inSchema:(NSString *)schema
@@ -97,8 +97,8 @@
  @param theObject A dictionary describing the object to create on StackMob. Keys should map to valid StackMob fields. Values should be JSON serializable objects.
  @param schema The StackMob schema in which to create this new object.
  @param options An options object contains headers and other configuration for this request
- @param successBlock A block to invoke after the object is successfully created. Passed the dictionary representation of the response from StackMob and the schema in which the new object was created.
- @param failureBlock A block to invoke if the Datastore fails to create the specified object. Passed the error returned by StackMob, the dictionary sent with this create request, and the schema in which the object was to be created.
+ @param successBlock <i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary* theObject, NSString *schema)</i>. A block object to invoke after the object is successfully created. Passed the dictionary representation of the response from StackMob and the schema in which the new object was created.
+ @param failureBlock <i>typedef void (^SMDataStoreFailureBlock)(NSError *theError, NSDictionary* theObject, NSString *schema)</i>. A block object to invoke if the Datastore fails to create the specified object. Passed the error returned by StackMob, the dictionary sent with this create request, and the schema in which the object was to be created.
  */
 - (void)createObject:(NSDictionary *)theObject
             inSchema:(NSString *)schema
@@ -111,8 +111,8 @@
  
  @param theObjectId The object id (the value of the primary key field) for the object to read.
  @param schema The StackMob schema containing this object.
- @param successBlock A block to invoke after the object is successfully read. Passed the dictionary representation of the response from StackMob and the object's schema.
- @param failureBlock A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.
+ @param successBlock <i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary* theObject, NSString *schema)</i>. A block object to invoke after the object is successfully read. Passed the dictionary representation of the response from StackMob and the object's schema.
+ @param failureBlock <i>typedef void (^SMDataStoreObjectIdFailureBlock)(NSError *theError, NSString* theObjectId, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.
  */
 - (void)readObjectWithId:(NSString *)theObjectId
                 inSchema:(NSString *)schema
@@ -125,8 +125,8 @@
  @param theObjectId The object id (the value of the primary key field) for the object to read.
  @param schema The StackMob schema containing this object.
  @param options An options object contains headers and other configuration for this request
- @param successBlock A block to invoke after the object is successfully read. Passed the dictionary representation of the response from StackMob and the object's schema.
- @param failureBlock A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.
+ @param successBlock <i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary* theObject, NSString *schema)</i>. A block object to invoke after the object is successfully read. Passed the dictionary representation of the response from StackMob and the object's schema.
+ @param failureBlock <i>typedef void (^SMDataStoreObjectIdFailureBlock)(NSError *theError, NSString* theObjectId, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.
  */
 - (void)readObjectWithId:(NSString *)theObjectId
                 inSchema:(NSString *)schema
@@ -140,8 +140,8 @@
  @param theObjectId The object id (the value of the primary key field) for the object to update.
  @param schema The StackMob schema containing this object.
  @param updatedFields A dictionary describing the object. Keys should map to valid StackMob fields. Values should be JSON serializable objects.
- @param successBlock A block to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object's schema.
- @param failureBlock A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.
+ @param successBlock <i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary* theObject, NSString *schema)</i>. A block object to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object's schema.
+ @param failureBlock <i>typedef void (^SMDataStoreFailureBlock)(NSError *theError, NSDictionary* theObject, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.
  */
 - (void)updateObjectWithId:(NSString *)theObjectId
                   inSchema:(NSString *)schema
@@ -156,8 +156,8 @@
  @param schema The StackMob schema containing this object.
  @param updatedFields A dictionary describing the object. Keys should map to valid StackMob fields. Values should be JSON serializable objects.
  @param options An options object contains headers and other configuration for this request
- @param successBlock A block to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object's schema.
- @param failureBlock A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.
+ @param successBlock <i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary* theObject, NSString *schema)</i>. A block object to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object's schema.
+ @param failureBlock <i>typedef void (^SMDataStoreFailureBlock)(NSError *theError, NSDictionary* theObject, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.
  */
 - (void)updateObjectWithId:(NSString *)theObjectId
                   inSchema:(NSString *)schema
@@ -173,8 +173,8 @@
  @param field the field in the schema that represents the counter.
  @param schema The StackMob schema containing the counter.
  @param increment The value (positive or negative) to increment the counter by.
- @param successBlock A block to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object's schema.
- @param failureBlock A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.
+ @param successBlock <i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary* theObject, NSString *schema)</i>. A block object to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object's schema.
+ @param failureBlock <i>typedef void (^SMDataStoreFailureBlock)(NSError *theError, NSDictionary* theObject, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.
  */
 - (void)updateAtomicCounterWithId:(NSString *)theObjectId
                             field:(NSString *)field
@@ -191,8 +191,8 @@
  @param schema The StackMob schema containing the counter.
  @param increment The value (positive or negative) to increment the counter by.
  @param options An options object contains headers and other configuration for this request.
- @param successBlock A block to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object's schema.
- @param failureBlock A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.
+ @param successBlock <i>typedef void (^SMDataStoreSuccessBlock)(NSDictionary* theObject, NSString *schema)</i>. A block object to invoke after the object is successfully updated. Passed the dictionary representation of the response from StackMob and the object's schema.
+ @param failureBlock <i>typedef void (^SMDataStoreFailureBlock)(NSError *theError, NSDictionary* theObject, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the dictionary sent with this request, and the schema in which the object was to be found.
  */
 - (void)updateAtomicCounterWithId:(NSString *)theObjectId
                             field:(NSString *)field
@@ -207,8 +207,8 @@
  
  @param theObjectId The object id (the value of the primary key field) for the object to delete.
  @param schema The StackMob schema containing this object.
- @param successBlock A block to invoke after the object is successfully deleted. Passed the object id of the deleted object and the object's schema.
- @param failureBlock A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.
+ @param successBlock <i>typedef void (^SMDataStoreObjectIdSuccessBlock)(NSString* theObjectId, NSString *schema)</i>. A block object to invoke after the object is successfully deleted. Passed the object id of the deleted object and the object's schema.
+ @param failureBlock <i>typedef void (^SMDataStoreObjectIdFailureBlock)(NSError *theError, NSString* theObjectId, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.
  */
 - (void)deleteObjectId:(NSString *)theObjectId
               inSchema:(NSString *)schema
@@ -221,8 +221,8 @@
  @param theObjectId The object id (the value of the primary key field) for the object to delete.
  @param schema The StackMob schema containing this object.
  @param options An options object contains headers and other configuration for this request
- @param successBlock A block to invoke after the object is successfully deleted. Passed the object id of the deleted object and the object's schema.
- @param failureBlock A block to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.
+ @param successBlock <i>typedef void (^SMDataStoreObjectIdSuccessBlock)(NSString* theObjectId, NSString *schema)</i>. A block object to invoke after the object is successfully deleted. Passed the object id of the deleted object and the object's schema.
+ @param failureBlock <i>typedef void (^SMDataStoreObjectIdFailureBlock)(NSError *theError, NSString* theObjectId, NSString *schema)</i>. A block object to invoke if the Datastore fails to read the specified object. Passed the error returned by StackMob, the object id sent with this request, and the schema in which the object was to be found.
  */
 - (void)deleteObjectId:(NSString *)theObjectId
               inSchema:(NSString *)schema
@@ -241,8 +241,8 @@
  Execute a query against your StackMob Datastore.
   
  @param query An `SMQuery` object describing the query to perform.
- @param successBlock A block to invoke after the query succeeds. Passed an array of object dictionaries returned from StackMob (if any).
- @param failureBlock A block to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.
+ @param successBlock <i>typedef void (^SMResultsSuccessBlock)(NSArray *results)</i>. A block object to invoke after the query succeeds. Passed an array of object dictionaries returned from StackMob (if any).
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.
  */
 - (void)performQuery:(SMQuery *)query onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
@@ -251,8 +251,8 @@
   
  @param query An `SMQuery` object describing the query to perform.
  @param options An options object contains headers and other configuration for this request.
- @param successBlock A block to invoke after the query succeeds. Passed an array of object dictionaries returned from StackMob (if any).
- @param failureBlock A block to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.
+ @param successBlock <i>typedef void (^SMResultsSuccessBlock)(NSArray *results)</i>. A block object to invoke after the query succeeds. Passed an array of object dictionaries returned from StackMob (if any).
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.
  */
 - (void)performQuery:(SMQuery *)query options:(SMRequestOptions *)options onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
@@ -260,8 +260,8 @@
  Count the results that would be returned by a query against your StackMob Datastore.
   
  @param query An `SMQuery` object describing the query to perform.
- @param successBlock A block to invoke when the count is complete.  Passed the number of objects returned that would by the query.
- @param failureBlock A block to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.
+ @param successBlock <i>typedef void (^SMCountSuccessBlock)(NSNumber *count)</i>. A block object to invoke when the count is complete.  Passed the number of objects returned that would by the query.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.
  */
 - (void)performCount:(SMQuery *)query onSuccess:(SMCountSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
@@ -270,8 +270,8 @@
   
  @param query An `SMQuery` object describing the query to perform.
  @param options An options object contains headers and other configuration for this request.
- @param successBlock A block to invoke when the count is complete.  Passed the number of objects that would be returned by the query.
- @param failureBlock A block to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.
+ @param successBlock <i>typedef void (^SMCountSuccessBlock)(NSNumber *count)</i>. A block object to invoke when the count is complete.  Passed the number of objects that would be returned by the query.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to invoke if the Datastore fails to perform the query. Passed the error returned by StackMob.
  */
 - (void)performCount:(SMQuery *)query options:(SMRequestOptions *)options onSuccess:(SMCountSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
@@ -284,8 +284,8 @@
  Calls <performCustomCodeRequest:options:onSuccess:onFailure:> with `[SMRequestOptions options]` for the parameter `options`.
  
  @param customCodeRequest The request to execute.
- @param successBlock The block to call upon success.
- @param failureBlock The block to call upon failure.
+ @param successBlock <i>typedef void (^SMFullResponseSuccessBlock)(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)</i>. A block object to call upon success.
+ @param failureBlock <i>typedef void (^SMFullResponseFailureBlock)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)</i>. A block object to call upon failure.
  */
 - (void)performCustomCodeRequest:(SMCustomCodeRequest *)customCodeRequest onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock;
 /**
@@ -295,8 +295,8 @@
  
  @param customCodeRequest The request to execute.
  @param options The options for this request.
- @param successBlock The block to call upon success.
- @param failureBlock The block to call upon failure.
+ @param successBlock <i>typedef void (^SMFullResponseSuccessBlock)(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)</i>. A block object to call upon success.
+ @param failureBlock <i>typedef void (^SMFullResponseFailureBlock)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)</i>. A block object to call upon failure.
  */
 - (void)performCustomCodeRequest:(SMCustomCodeRequest *)customCodeRequest options:(SMRequestOptions *)options onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock;
 
@@ -307,8 +307,8 @@
  
  @param request The request to execute.
  @param options The options for this request.
- @param successBlock The block to call upon success.
- @param failureBlock The block to call upon failure.
+ @param successBlock <i>typedef void (^SMFullResponseSuccessBlock)(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)</i>. A block object to call upon success.
+ @param failureBlock <i>typedef void (^SMFullResponseFailureBlock)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)</i>. A block object to call upon failure.
  */
 - (void)retryCustomCodeRequest:(NSURLRequest *)request options:(SMRequestOptions *)options onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock;
 

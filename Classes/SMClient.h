@@ -238,8 +238,8 @@
  
  @param username The username to log in with.
  @param password The password to log in with.
- @param successBlock Completion block called on successful login with the user object for the logged in user.
- @param failureBlock Completion block called on failure. If the error code is `SMErrorTemporaryPasswordResetRequired`, you should prompt the user supply a new password and call <loginWithUsername:temporaryPassword:settingNewPassword:onSuccess:onFailure:>.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure. If the error code is `SMErrorTemporaryPasswordResetRequired`, you should prompt the user supply a new password and call <loginWithUsername:temporaryPassword:settingNewPassword:onSuccess:onFailure:>.
  */
 - (void)loginWithUsername:(NSString *)username
                  password:(NSString *)password
@@ -254,8 +254,8 @@
  @param username The username to log in with.
  @param password The password to log in with.
  @param options An options object contains headers and other configuration for this request.
- @param successBlock Completion block called on successful login with the user object for the logged in user.
- @param failureBlock Completion block called on failure. If the error code is `SMErrorTemporaryPasswordResetRequired`, you should prompt the user supply a new password and call <loginWithUsername:temporaryPassword:settingNewPassword:onSuccess:onFailure:>.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure. If the error code is `SMErrorTemporaryPasswordResetRequired`, you should prompt the user supply a new password and call <loginWithUsername:temporaryPassword:settingNewPassword:onSuccess:onFailure:>.
  */
 - (void)loginWithUsername:(NSString *)username
                  password:(NSString *)password
@@ -271,8 +271,8 @@
  @param username The username to log in with.
  @param tempPassword The temporary password received via email.
  @param newPassword The new password to be set, invalidating the old and temporary passwords.
- @param successBlock Completion block called on successful login with the user object for the logged in user.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)loginWithUsername:(NSString *)username
         temporaryPassword:(NSString *)tempPassword
@@ -289,8 +289,8 @@
  @param tempPassword The temporary password received via email.
  @param newPassword The new password to be set, invalidating the old and temporary passwords.
  @param options An options object contains headers and other configuration for this request.
- @param successBlock Completion block called on successful login with the user object for the logged in user.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)loginWithUsername:(NSString *)username
         temporaryPassword:(NSString *)tempPassword
@@ -304,8 +304,8 @@
  
  Only use this method if you plan to manually manage your session. Logins expire after an hour and needs to be refreshed. This is handled automatically when you make a request, but for highly concurrent systems you may want to call this manually.
  
- @param successBlock Completion block called on success with the user object for the logged in user.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)refreshLoginWithOnSuccess:(SMResultSuccessBlock)successBlock
                         onFailure:(SMFailureBlock)failureBlock;
@@ -321,8 +321,8 @@
  Useful on app startup to replace login when the user is already logged in.
  
  @param options An options object contains headers and other configuration for this request.
- @param successBlock Completion block called on success with the user object for the logged in user.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)getLoggedInUserWithOptions:(SMRequestOptions *)options
                          onSuccess:(SMResultSuccessBlock)successBlock
@@ -333,8 +333,8 @@
  
  Useful on app startup to replace login when the user is already logged in.
  
- @param successBlock Completion block called on success with the user object for the logged in user.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)getLoggedInUserOnSuccess:(SMResultSuccessBlock)successBlock
                        onFailure:(SMFailureBlock)failureBlock;
@@ -363,8 +363,8 @@
 /**
  Logout, clearing token validity locally and on the server.
  
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)logoutOnSuccess:(SMResultSuccessBlock)successBlock
               onFailure:(SMFailureBlock)failureBlock;
@@ -381,8 +381,8 @@
  password. They can then use that temporary password to login with <loginWithUsername:temporaryPassword:settingNewPassword:onSuccess:onFailure:>.
  
  @param username The user to send the email to.
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)sendForgotPaswordEmailForUser:(NSString *)username
                             onSuccess:(SMResultSuccessBlock)successBlock
@@ -396,8 +396,8 @@
  
  @param oldPassword The user's current password.
  @param newPassword The new password for the user.
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 
 - (void)changeLoggedInUserPasswordFrom:(NSString *)oldPassword
@@ -416,8 +416,8 @@
  
  The username for this method is extracted from the Facebook account.
  @param fbToken A Facebook access token obtained from Facebook.
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)createUserWithFacebookToken:(NSString *)fbToken
                           onSuccess:(SMResultSuccessBlock)successBlock
@@ -428,8 +428,8 @@
  
  @param fbToken A Facebook access token obtained from Facebook
  @param username The username to user, rather than getting one from Facebook.
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)createUserWithFacebookToken:(NSString *)fbToken
                            username:(NSString *)username
@@ -440,8 +440,8 @@
  Link the logged in user with a Facebook account.
  
  @param fbToken A Facebook access token obtained from Facebook.
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)linkLoggedInUserWithFacebookToken:(NSString *)fbToken
                                 onSuccess:(SMResultSuccessBlock)successBlock
@@ -453,8 +453,8 @@
  The credentials should match a existing user object that has a linked Facebook account, via either <createUserWithFacebookToken:onSuccess:onFailure:>, or <linkLoggedInUserWithFacebookToken:onSuccess:onFailure:>.
  
  @param fbToken A Facebook access token obtained from Facebook.
- @param successBlock Completion block called on successful login with the user object for the logged in user.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)loginWithFacebookToken:(NSString *)fbToken
                      onSuccess:(SMResultSuccessBlock)successBlock
@@ -467,8 +467,8 @@
  
  @param fbToken A Facebook access token obtained from Facebook.
  @param options An options object contains headers and other configuration for this request.
- @param successBlock Completion block called on successful login with the user object for the logged in user.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)loginWithFacebookToken:(NSString *)fbToken
                    options:(SMRequestOptions *)options
@@ -482,8 +482,8 @@
  <createUserWithFacebookToken:onSuccess:onFailure:>, or <linkLoggedInUserWithFacebookToken:onSuccess:onFailure:>.
  
  @param message The message to post.
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)updateFacebookStatusWithMessage:(NSString *)message
                           onSuccess:(SMResultSuccessBlock)successBlock
@@ -495,8 +495,8 @@
  The logged in user must have a linked Facebook account, via either 
  <createUserWithFacebookToken:onSuccess:onFailure:>, or <linkLoggedInUserWithFacebookToken:onSuccess:onFailure:>.
  
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)getLoggedInUserFacebookInfoWithOnSuccess:(SMResultSuccessBlock)successBlock
                                        onFailure:(SMFailureBlock)failureBlock;
@@ -514,8 +514,8 @@
  
  @param twitterToken A Twitter token obtained from Twitter.
  @param twitterSecret A Twitter secret obtained from Twitter.
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)createUserWithTwitterToken:(NSString *)twitterToken
                      twitterSecret:(NSString *)twitterSecret
@@ -528,8 +528,8 @@
  @param twitterToken A Twitter token obtained from Twitter.
  @param twitterSecret A Twitter secret obtained from Twitter.
  @param username The username to user, rather than getting one from Twitter.
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)createUserWithTwitterToken:(NSString *)twitterToken
                      twitterSecret:(NSString *)twitterSecret
@@ -542,8 +542,8 @@
  
  @param twitterToken A Twitter token obtained from Twitter.
  @param twitterSecret A Twitter secret obtained from Twitter.
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)linkLoggedInUserWithTwitterToken:(NSString *)twitterToken
                            twitterSecret:(NSString *)twitterSecret
@@ -557,8 +557,8 @@
  
  @param twitterToken A Twitter token obtained from Twitter.
  @param twitterSecret A Twitter secret obtained from Twitter.
- @param successBlock Completion block called on successful login with the user object for the logged in user.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)loginWithTwitterToken:(NSString *)twitterToken
                 twitterSecret:(NSString *)twitterSecret
@@ -574,8 +574,8 @@
  @param twitterToken A Twitter token obtained from Twitter.
  @param twitterSecret A Twitter secret obtained from Twitter.
  @param options An options object contains headers and other configuration for this request.
- @param successBlock Completion block called on successful login with the user object for the logged in user.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)loginWithTwitterToken:(NSString *)twitterToken
                 twitterSecret:(NSString *)twitterSecret
@@ -590,8 +590,8 @@
  <createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>, or <linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>.
  
  @param message The message to post.
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)updateTwitterStatusWithMessage:(NSString *)message
                              onSuccess:(SMResultSuccessBlock)successBlock
@@ -603,8 +603,8 @@
  The logged in user must have a linked Twitter account, via either
  <createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>, or <linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>.
  
- @param successBlock Completion block called on success.
- @param failureBlock Completion block called on failure.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)getLoggedInUserTwitterInfoOnSuccess:(SMResultSuccessBlock)successBlock
                                       onFailure:(SMFailureBlock)failureBlock;

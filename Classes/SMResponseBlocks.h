@@ -100,3 +100,4 @@ typedef void (^SMCountSuccessBlock)(NSNumber *count);
  @param failureBlock The block to invoke on failure.
  */
 typedef void (^SMFailureRetryBlock)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON, SMRequestOptions *options, SMFullResponseSuccessBlock successBlock, SMFullResponseFailureBlock failureBlock);
+
