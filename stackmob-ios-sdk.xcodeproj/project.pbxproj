@@ -116,8 +116,6 @@
 		DE0CC7F015CB6E4200E491C4 /* libstackmob-ios-sdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CCCE4E61580389800C38962 /* libstackmob-ios-sdk.a */; };
 		DE13864215DC7BAB00610EE1 /* Base64EncodedStringFromData.h in Headers */ = {isa = PBXBuildFile; fileRef = DE13864015DC7BAB00610EE1 /* Base64EncodedStringFromData.h */; };
 		DE13864315DC7BAB00610EE1 /* Base64EncodedStringFromData.m in Sources */ = {isa = PBXBuildFile; fileRef = DE13864115DC7BAB00610EE1 /* Base64EncodedStringFromData.m */; };
-		DE1615E91612758A00A42B31 /* SMCoreDataStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC570FA15D065FC00D9E44E /* SMCoreDataStoreTest.m */; };
-		DE1615EA1612758D00A42B31 /* SMIncrementalStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A715CB5EA200E491C4 /* SMIncrementalStoreTest.m */; };
 		DE8D51CF15E2CB11002F582A /* NSDictionary+AtomicCounter.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E14315E2C02200224E4E /* NSDictionary+AtomicCounter.h */; };
 		DE8D51D015E2CB11002F582A /* NSEntityDescription+StackMobSerialization.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E14515E2C02200224E4E /* NSEntityDescription+StackMobSerialization.h */; };
 		DE8D51D115E2CB11002F582A /* NSManagedObject+StackMobSerialization.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E14715E2C02200224E4E /* NSManagedObject+StackMobSerialization.h */; };
@@ -137,7 +135,13 @@
 		DE8D51DF15E2CB11002F582A /* SMVersion.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E16115E2C02200224E4E /* SMVersion.h */; };
 		DE8D51E015E2CB11002F582A /* StackMob.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E16215E2C02200224E4E /* StackMob.h */; };
 		DE8D51E115E2CB11002F582A /* Base64EncodedStringFromData.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE13864015DC7BAB00610EE1 /* Base64EncodedStringFromData.h */; };
-		DEA55E0F1619000F00E7AB2B /* SMIncrementalStoreFetchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A615CB5EA200E491C4 /* SMIncrementalStoreFetchTest.m */; };
+		DE9227ED161E37EA00DA0D00 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */; };
+		DE9227F0161E41C600DA0D00 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */; };
+		DE9227F5161E439900DA0D00 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */; };
+		DE9227F6161E439F00DA0D00 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */; };
+		DE922801161E748300DA0D00 /* SMMultipleStoresSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE922800161E748300DA0D00 /* SMMultipleStoresSpec.m */; };
+		DE922808161E77ED00DA0D00 /* NSPersistentStoreCoordinator+StackMob.h in Headers */ = {isa = PBXBuildFile; fileRef = DE922806161E77EC00DA0D00 /* NSPersistentStoreCoordinator+StackMob.h */; };
+		DE922809161E77ED00DA0D00 /* NSPersistentStoreCoordinator+StackMob.m in Sources */ = {isa = PBXBuildFile; fileRef = DE922807161E77ED00DA0D00 /* NSPersistentStoreCoordinator+StackMob.m */; };
 		DEBBBCAF15CC440600650D75 /* SMCoreDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCA515CC440600650D75 /* SMCoreDataStore.h */; };
 		DEBBBCB015CC440600650D75 /* SMCoreDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCA615CC440600650D75 /* SMCoreDataStore.m */; };
 		DEBBBCB115CC440600650D75 /* SMIncrementalStore+Query.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCA715CC440600650D75 /* SMIncrementalStore+Query.h */; };
@@ -148,7 +152,6 @@
 		DEBBBCBE15CC441900650D75 /* NSArray+Enumerable.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBA15CC441900650D75 /* NSArray+Enumerable.m */; };
 		DEBBBCBF15CC441900650D75 /* Synchronization.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCBB15CC441900650D75 /* Synchronization.h */; };
 		DEBBBCC015CC441900650D75 /* Synchronization.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBC15CC441900650D75 /* Synchronization.m */; };
-		DECE28C915E709CB0092AFDD /* SMBinDataConvertCDIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E19515E2C0BF00224E4E /* SMBinDataConvertCDIntegrationSpec.m */; };
 		DEDDE19B15DD8D3A0055FAFF /* NSArray+Enumerable.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = DEBBBCB915CC441900650D75 /* NSArray+Enumerable.h */; };
 		DEDDE19C15DD8D3A0055FAFF /* Synchronization.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = DEBBBCBB15CC441900650D75 /* Synchronization.h */; };
 		DEDDE19D15DD8D3A0055FAFF /* SMCoreDataStore.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = DEBBBCA515CC440600650D75 /* SMCoreDataStore.h */; };
@@ -332,6 +335,10 @@
 		DE0CC7C515CB6A9000E491C4 /* integrationTestsCoreData-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "integrationTestsCoreData-Prefix.pch"; sourceTree = "<group>"; };
 		DE13864015DC7BAB00610EE1 /* Base64EncodedStringFromData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base64EncodedStringFromData.h; sourceTree = "<group>"; };
 		DE13864115DC7BAB00610EE1 /* Base64EncodedStringFromData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Base64EncodedStringFromData.m; sourceTree = "<group>"; };
+		DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		DE922800161E748300DA0D00 /* SMMultipleStoresSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMMultipleStoresSpec.m; sourceTree = "<group>"; };
+		DE922806161E77EC00DA0D00 /* NSPersistentStoreCoordinator+StackMob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSPersistentStoreCoordinator+StackMob.h"; sourceTree = "<group>"; };
+		DE922807161E77ED00DA0D00 /* NSPersistentStoreCoordinator+StackMob.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPersistentStoreCoordinator+StackMob.m"; sourceTree = "<group>"; };
 		DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMCusCodeReqIntegrationSpec.m; sourceTree = "<group>"; };
 		DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMClientIntegrationSpec.m; sourceTree = "<group>"; };
 		DEBA17DB15CC9A4600913CF8 /* stackmob-ios-sdkTests copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "stackmob-ios-sdkTests copy-Info.plist"; path = "/Users/mattvaz/Documents/stackmob/stackmob-ios-sdk/stackmob-ios-sdkTests copy-Info.plist"; sourceTree = "<absolute>"; };
@@ -356,6 +363,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE9227F6161E439F00DA0D00 /* SystemConfiguration.framework in Frameworks */,
 				8C33B068159136CE00BE2570 /* CoreData.framework in Frameworks */,
 				8C33B069159136CE00BE2570 /* CoreLocation.framework in Frameworks */,
 				8C33B0671591367100BE2570 /* libstackmob-ios-sdk.a in Frameworks */,
@@ -370,6 +378,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE9227ED161E37EA00DA0D00 /* SystemConfiguration.framework in Frameworks */,
 				8C3E7072158AEBB000E22505 /* CoreLocation.framework in Frameworks */,
 				8C3E7068158AA67400E22505 /* CoreData.framework in Frameworks */,
 				8CCCE4EA1580389800C38962 /* Foundation.framework in Frameworks */,
@@ -381,6 +390,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE9227F0161E41C600DA0D00 /* SystemConfiguration.framework in Frameworks */,
 				8C33B002158C242600BE2570 /* CoreLocation.framework in Frameworks */,
 				8C33B000158C241D00BE2570 /* CoreData.framework in Frameworks */,
 				8C33AF20158C1E0100BE2570 /* libstackmob-ios-sdk.a in Frameworks */,
@@ -395,6 +405,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE9227F5161E439900DA0D00 /* SystemConfiguration.framework in Frameworks */,
 				DE0CC7F015CB6E4200E491C4 /* libstackmob-ios-sdk.a in Frameworks */,
 				DE0CC7D615CB6C6400E491C4 /* CoreLocation.framework in Frameworks */,
 				DE0CC7D515CB6C5B00E491C4 /* CoreData.framework in Frameworks */,
@@ -456,6 +467,7 @@
 				DE05E14015E2C02200224E4E /* Classes */,
 				DEBBBCB815CC441800650D75 /* Utility */,
 				DE0CC76E15CB516800E491C4 /* CoreData */,
+				DE9227EF161E3BDA00DA0D00 /* Supporting Files */,
 				8CCCE4FF1580389800C38962 /* Tests */,
 				8C33B04C15912B1F00BE2570 /* Integration Tests */,
 				DE0CC7BC15CB6A9000E491C4 /* integrationTestsCoreData */,
@@ -488,6 +500,7 @@
 				8CCCE4E91580389800C38962 /* Foundation.framework */,
 				8CCCE4F71580389800C38962 /* SenTestingKit.framework */,
 				8CCCE4F91580389800C38962 /* UIKit.framework */,
+				DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */,
 				CC1E56D1B3EB4DE7BDACFF7A /* libPods.a */,
 				8CC414A815881960004EA957 /* libPods-stackmob-ios-sdkTests.a */,
 				605B6D27590C45BD84549778 /* libPods-integration tests.a */,
@@ -616,6 +629,7 @@
 				DE0CC7A715CB5EA200E491C4 /* SMIncrementalStoreTest.m */,
 				DEC570FA15D065FC00D9E44E /* SMCoreDataStoreTest.m */,
 				DE05E19515E2C0BF00224E4E /* SMBinDataConvertCDIntegrationSpec.m */,
+				DE922800161E748300DA0D00 /* SMMultipleStoresSpec.m */,
 			);
 			path = integrationTestsCoreData;
 			sourceTree = "<group>";
@@ -630,6 +644,13 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		DE9227EF161E3BDA00DA0D00 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		DEBBBCA415CC440600650D75 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
@@ -639,6 +660,8 @@
 				DEBBBCA815CC440600650D75 /* SMIncrementalStore+Query.m */,
 				DEBBBCA915CC440600650D75 /* SMIncrementalStore.h */,
 				DEBBBCAA15CC440600650D75 /* SMIncrementalStore.m */,
+				DE922806161E77EC00DA0D00 /* NSPersistentStoreCoordinator+StackMob.h */,
+				DE922807161E77ED00DA0D00 /* NSPersistentStoreCoordinator+StackMob.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -687,6 +710,7 @@
 				DE05E18115E2C02200224E4E /* SMUserSession.h in Headers */,
 				DE05E18315E2C02200224E4E /* SMVersion.h in Headers */,
 				DE05E18415E2C02200224E4E /* StackMob.h in Headers */,
+				DE922808161E77ED00DA0D00 /* NSPersistentStoreCoordinator+StackMob.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1050,6 +1074,7 @@
 				DE05E17D15E2C02200224E4E /* SMQuery.m in Sources */,
 				DE05E17F15E2C02200224E4E /* SMRequestOptions.m in Sources */,
 				DE05E18215E2C02200224E4E /* SMUserSession.m in Sources */,
+				DE922809161E77ED00DA0D00 /* NSPersistentStoreCoordinator+StackMob.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1085,10 +1110,7 @@
 				DE0CC7CB15CB6ADF00E491C4 /* Superpower.m in Sources */,
 				DE0CC7CF15CB6B1F00E491C4 /* SMIntegrationTestHelpers.m in Sources */,
 				DE0CC7D215CB6B3800E491C4 /* SMCoreDataIntegrationTestHelpers.m in Sources */,
-				DECE28C915E709CB0092AFDD /* SMBinDataConvertCDIntegrationSpec.m in Sources */,
-				DE1615E91612758A00A42B31 /* SMCoreDataStoreTest.m in Sources */,
-				DE1615EA1612758D00A42B31 /* SMIncrementalStoreTest.m in Sources */,
-				DEA55E0F1619000F00E7AB2B /* SMIncrementalStoreFetchTest.m in Sources */,
+				DE922801161E748300DA0D00 /* SMMultipleStoresSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

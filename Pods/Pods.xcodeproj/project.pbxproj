@@ -451,6 +451,8 @@
 		DE020EFEBCFF457FA1F19E33 /* KWCallSite.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = E3ABD3138BCC4914AA58767A /* KWCallSite.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE265664E6A84C8EA5B520E4 /* KWValue.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 75173CED72F74656BB43F384 /* KWValue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE8A3B6F4952457C905978F5 /* KWFutureObject.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = E21FD3A8CEA04102AF74E454 /* KWFutureObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DE9227F2161E428700DA0D00 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE9227F1161E428700DA0D00 /* SystemConfiguration.framework */; };
+		DE9227F4161E429000DA0D00 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE9227F1161E428700DA0D00 /* SystemConfiguration.framework */; };
 		DEEC73B380B54B7AB6981093 /* KWBeforeEachNode.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4C3FFAED97AF453FAE8D1D33 /* KWBeforeEachNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DF03EC0B585E4F5B96B814FB /* KWValue.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324E4B79F60A45329E6C3E8C /* KWValue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DF09458E8A9F401695F43D93 /* KWValue.m in Sources */ = {isa = PBXBuildFile; fileRef = D464BABE90D642A0A8A3FFA7 /* KWValue.m */; };
@@ -1261,6 +1263,7 @@
 		DD10B162B9A5471984422A31 /* KWStringUtilities.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = KWStringUtilities.h; path = Kiwi/Kiwi/KWStringUtilities.h; sourceTree = SOURCE_ROOT; };
 		DD7AE44866D34C848E3ED2E0 /* KWBlock.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = KWBlock.h; path = Kiwi/Kiwi/KWBlock.h; sourceTree = SOURCE_ROOT; };
 		DDBE64DFD10549A5AEC159E3 /* KWExampleGroupDelegate.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = KWExampleGroupDelegate.h; path = Kiwi/Kiwi/KWExampleGroupDelegate.h; sourceTree = SOURCE_ROOT; };
+		DE9227F1161E428700DA0D00 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		DF44276FC983488E91061569 /* KWProbe.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = KWProbe.h; path = Kiwi/Kiwi/KWProbe.h; sourceTree = SOURCE_ROOT; };
 		DF7FB1F2C8A14DCBA7C91ADD /* KWAfterAllNode.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = KWAfterAllNode.m; path = Kiwi/Kiwi/KWAfterAllNode.m; sourceTree = SOURCE_ROOT; };
 		DFED828EC05841EE87CE38D4 /* KWItNode.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = KWItNode.m; path = Kiwi/Kiwi/KWItNode.m; sourceTree = SOURCE_ROOT; };
@@ -1347,6 +1350,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE9227F2161E428700DA0D00 /* SystemConfiguration.framework in Frameworks */,
 				ABA924B4F0734E0A9FE62301 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1371,6 +1375,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE9227F4161E429000DA0D00 /* SystemConfiguration.framework in Frameworks */,
 				3B60B100BD294F6AB4F535C5 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1402,6 +1407,7 @@
 		436208A6F844407B8DDD4ABC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DE9227F1161E428700DA0D00 /* SystemConfiguration.framework */,
 				D79A94CEC0904113AE8FC642 /* Foundation.framework */,
 			);
 			name = Frameworks;
