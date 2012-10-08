@@ -38,4 +38,6 @@
 
 #import "SMBinaryDataConversion.h"
 
+#import "SMUserManagedObject.h"
+
 

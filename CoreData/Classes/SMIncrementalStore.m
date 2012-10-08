@@ -188,6 +188,15 @@ You should implement this method conservatively, and expect that unknown request
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             NSDictionary *serializedObjDict = [obj sm_dictionarySerialization];
             NSString *schemaName = [obj sm_schema];
+            
+            // If superclass is SMUserNSManagedObject, add password
+            if ([[obj superclass] isKindOfClass:[SMUserManagedObject class]]) {
+                
+                NSLog(@"superclass of SMUserManagedObject");
+                
+            }
+            
+            
             if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)) }
             // add relationship headers if needed
             NSMutableDictionary *headerDict = [NSMutableDictionary dictionary];
