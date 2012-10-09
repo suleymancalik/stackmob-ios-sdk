@@ -15,25 +15,20 @@
  */
 
 #import "SMUserManagedObject.h"
-#import <Security/Security.h>
 #import "StackMob.h"
+#import "KeychainWrapper.h"
 
 @implementation SMUserManagedObject
 
-- (void)setValue:(NSString *)value forPasswordField:(NSString *)passwordField
+- (void)setPassword:(NSString *)value
 {
-    NSString *account = [NSString stringWithFormat:@"com.stackmob.makethisbetter.%@", self.entity];
-    NSMutableDictionary *query = [NSMutableDictionary dictionary];
-    [query setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
-    [query setObject:account forKey:(__bridge id)kSecAttrAccount];
-    [query setObject:(__bridge id)kSecAttrAccessibleWhenUnlocked forKey:(__bridge id)kSecAttrAccessible];
-    [query setObject:[value dataUsingEncoding:NSUTF8StringEncoding] forKey:(__bridge id)kSecValueData];
-    [query setObject:[@"password" dataUsingEncoding:NSUTF8StringEncoding] forKey:(__bridge id)kSecValueData];
-    
-    OSStatus error = SecItemAdd((__bridge CFDictionaryRef)query, NULL);
-    if (error)
-    {
-        //[NSException raise: format:]
+    NSString *serviceName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleIdentifierKey];
+    if (serviceName == nil) {
+        serviceName = @"com.stackmob.passwordstore";
+    }
+    NSString *passwordIdentifier = [serviceName stringByAppendingPathComponent:@"password"];
+    if (![KeychainWrapper createKeychainValue:value forIdentifier:passwordIdentifier]) {
+        [NSException raise:@"SMKeychainSaveUnsuccessful" format:@"Password could not be saved to keychain"];
     }
 }
 

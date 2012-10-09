@@ -11,9 +11,8 @@
 #import "StackMob.h"
 
 @class Superpower;
-@class SMModel;
 
-@interface Person : SMUserManagedObject <SMModel>
+@interface Person : NSManagedObject
 
 @property (nonatomic, retain) NSNumber * armor_class;
 @property (nonatomic, retain) NSString * company;

@@ -16,25 +16,74 @@
 
 #import <Kiwi/Kiwi.h>
 #import "SMUserManagedObject.h"
+#import "User3.h"
+#import "SMCoreDataIntegrationTestHelpers.h"
+#import "SMIntegrationTestHelpers.h"
+#import "KeychainWrapper.h"
 
 SPEC_BEGIN(SMUserManagedObjectSpec)
 
 describe(@"SMUserManagedObject", ^{
+    __block SMClient *client = nil;
     __block NSManagedObjectContext *moc = nil;
-    __block NSManagedObject *todo = nil;
-    __block NSManagedObject *category = nil;
+    __block User3 *person = nil;
     beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        [[client session] setUserSchema:@"user3"];
         moc = [SMCoreDataIntegrationTestHelpers moc];
-    });
-    afterEach(^{
-        [moc deleteObject:todo];
-        [moc deleteObject:category];
+        // tests save here
+        person = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
+        [person setUsername:@"bob"];
+        [person setPassword:@"1234"];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
+                NSLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
             }
         }];
+    });
+    afterEach(^{
+        [moc deleteObject:person];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    describe(@"Should save a person with a SMUserManagedObject subclass without a password attribute in Core Data", ^{
+        it(@"should have deleted the entry from the keychain", ^{
+            NSString *serviceName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleIdentifierKey];
+            if (serviceName == nil) {
+                serviceName = @"com.stackmob.passwordstore";
+            }
+            NSString *passwordIdentifier = [serviceName stringByAppendingPathComponent:@"password"];
+            
+            NSString *result = [KeychainWrapper keychainStringFromMatchingIdentifier:passwordIdentifier];
+            [result shouldBeNil];
+        });
+        it(@"we can login successfully", ^{
+            __block BOOL loginSuccess = NO;
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [client loginWithUsername:@"bob" password:@"1234" onSuccess:^(NSDictionary *result) {
+                    loginSuccess = YES;
+                    NSLog(@"you have logged in");
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *error) {
+                    NSLog(@"error is %@", error);
+                    syncReturn(semaphore);
+                }];
+            });
+            [[theValue(loginSuccess) should] beYes];
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [client logoutOnSuccess:^(NSDictionary *result) {
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *error) {
+                    [error shouldBeNil];
+                    syncReturn(semaphore);
+                }];
+            });
+        });
     });
   
 });

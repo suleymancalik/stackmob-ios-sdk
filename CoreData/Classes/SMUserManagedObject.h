@@ -18,6 +18,6 @@
 
 @interface SMUserManagedObject : NSManagedObject
 
-- (void)setValue:(NSString *)value forPasswordField:(NSString *)passwordField;
+- (void)setPassword:(NSString *)password;
 
 @end
