@@ -18,7 +18,14 @@
 #import "StackMob.h"
 #import "KeychainWrapper.h"
 
+@interface SMUserManagedObject ()
+
+@property (nonatomic, readwrite) NSString *passwordIdentifier;
+@end
+
 @implementation SMUserManagedObject
+
+@synthesize passwordIdentifier = _passwordIdentifier;
 
 - (void)setPassword:(NSString *)value
 {
@@ -26,10 +33,16 @@
     if (serviceName == nil) {
         serviceName = @"com.stackmob.passwordstore";
     }
-    NSString *passwordIdentifier = [serviceName stringByAppendingPathComponent:@"password"];
-    if (![KeychainWrapper createKeychainValue:value forIdentifier:passwordIdentifier]) {
+    self.passwordIdentifier = [[serviceName stringByAppendingPathExtension:[NSString stringWithFormat:@"%d", arc4random() / 1000]] stringByAppendingPathExtension:@"password"];
+    NSLog(@"passwordIdentifier is %@", self.passwordIdentifier);
+    if (![KeychainWrapper createKeychainValue:value forIdentifier:self.passwordIdentifier]) {
         [NSException raise:@"SMKeychainSaveUnsuccessful" format:@"Password could not be saved to keychain"];
     }
+}
+
+- (NSString *)passwordIdentifier
+{
+    return _passwordIdentifier;
 }
 
 

@@ -16,8 +16,18 @@
 
 #import <CoreData/CoreData.h>
 
+/**
+ Inherit from SMUserManagedObject when your Managed Object subclass is defining a user object.
+ 
+ This class provides a method to securly set a password for the user object, without directly setting any attributes in Core Data.  When a save call is made to Core Data, the password is persisted along with the object to StackMob.
+ */
 @interface SMUserManagedObject : NSManagedObject
 
+/**
+ @param password The password associated with the user object to be used for authentication.
+ */
 - (void)setPassword:(NSString *)password;
+
+- (NSString *)passwordIdentifier;
 
 @end

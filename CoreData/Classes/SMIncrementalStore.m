@@ -40,6 +40,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     NSMutableDictionary *cache;
 }
 
+
 @property (nonatomic, strong) SMDataStore *smDataStore;
 
 - (id)handleSaveRequest:(NSPersistentStoreRequest *)request 
@@ -193,8 +194,8 @@ You should implement this method conservatively, and expect that unknown request
             SMRequestOptions *options = [SMRequestOptions options];
             // If superclass is SMUserNSManagedObject, add password
             if ([obj superclass]  == [SMUserManagedObject class]) {
-                serializedObjDict = [self addPasswordToSerializedDictionary:serializedObjDict];
-                //options.isSecure = YES;
+                serializedObjDict = [self addPasswordToSerializedDictionary:serializedObjDict originalObject:obj];
+                options.isSecure = YES;
             }
             if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)) }
             // add relationship headers if needed
@@ -703,25 +704,20 @@ You should implement this method conservatively, and expect that unknown request
     return serializedDictionary;
 }
 
-- (NSDictionary *)addPasswordToSerializedDictionary:(NSDictionary *)originalDictionary
+- (NSDictionary *)addPasswordToSerializedDictionary:(NSDictionary *)originalDictionary originalObject:(SMUserManagedObject *)object
 {
     NSMutableDictionary *dictionaryToReturn = [originalDictionary mutableCopy];
     
     NSMutableDictionary *serializedDictCopy = [[originalDictionary objectForKey:SerializedDictKey] mutableCopy];
     
     NSLog(@"PULLING FROM KEYCHAIN");
-    NSString *serviceName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleIdentifierKey];
-    if (serviceName == nil) {
-        serviceName = @"com.stackmob.passwordstore";
-    }
-    NSString *passwordIdentifier = [serviceName stringByAppendingPathComponent:@"password"];
+    NSString *passwordIdentifier = [object passwordIdentifier];
     NSString *thePassword = [KeychainWrapper keychainStringFromMatchingIdentifier:passwordIdentifier];
     
     // delete password from keychain
     [KeychainWrapper deleteItemFromKeychainWithIdentifier:passwordIdentifier];
-    NSLog(@"the password is %@ for field %@", thePassword, );
-    
-    [serializedDictCopy setObject:thePassword forKey:thePasswordField];
+    NSLog(@"the password is %@ for field %@", thePassword, [[[self smDataStore] session] passwordFieldName] );
+    [serializedDictCopy setObject:thePassword forKey:[[[self smDataStore] session] passwordFieldName]];
     
     [dictionaryToReturn setObject:serializedDictCopy forKey:SerializedDictKey];
     

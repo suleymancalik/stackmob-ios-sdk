@@ -87,7 +87,7 @@ static SMClient *defaultClient = nil;
             [NSException raise:@"SMClientInitializationException" format:@"Incorrect Public Key format provided.  Please check your public key to make sure you are passing the correct one, and that you are not passing nil."];
         }
         
-        self.session = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion apiHost:apiHost publicKey:publicKey userSchema:userSchema];
+        self.session = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion apiHost:apiHost publicKey:publicKey userSchema:userSchema userIdName:userIdName passwordFieldName:passwordFieldName];
         self.coreDataStore = nil;
 
         if ([SMClient defaultClient] == nil)
@@ -126,6 +126,23 @@ static SMClient *defaultClient = nil;
 {
     if (_SM_userSchema != userSchema) {
         _SM_userSchema = [userSchema lowercaseString];
+        [self.session setUserSchema:_SM_userSchema];
+    }
+}
+
+- (void)setUserIdName:(NSString *)userIdName
+{
+    if (_SM_userIdName != userIdName) {
+        _SM_userIdName = userIdName;
+        [self.session setUserIdName:userIdName];
+    }
+}
+
+- (void)setPasswordFieldName:(NSString *)passwordFieldName
+{
+    if (_SM_passwordFieldName != passwordFieldName) {
+        _SM_passwordFieldName = passwordFieldName;
+        [self.session setPasswordFieldName:passwordFieldName];
     }
 }
 
