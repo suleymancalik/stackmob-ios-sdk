@@ -48,24 +48,26 @@
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="todoId" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="category" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="todo" inverseEntity="Category" syncable="YES"/>
+        <relationship name="user3" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="User3" inverseName="todos" inverseEntity="User3" syncable="YES"/>
     </entity>
     <entity name="User3" representedClassName="User3" syncable="YES">
         <attribute name="username" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="todos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Todo" inverseName="user3" inverseEntity="Todo" syncable="YES"/>
     </entity>
     <entity name="User4" representedClassName="User4" syncable="YES">
         <attribute name="thepassword" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="theuser" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Category" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Favorite" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Interest" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Oauth2test" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Person" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Random" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Superpower" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Todo" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="User3" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="User4" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Category" positionX="0" positionY="0" width="128" height="90"/>
+        <element name="Favorite" positionX="0" positionY="0" width="128" height="90"/>
+        <element name="Interest" positionX="0" positionY="0" width="128" height="105"/>
+        <element name="Oauth2test" positionX="0" positionY="0" width="128" height="75"/>
+        <element name="Person" positionX="0" positionY="0" width="128" height="165"/>
+        <element name="Random" positionX="0" positionY="0" width="128" height="120"/>
+        <element name="Superpower" positionX="0" positionY="0" width="128" height="120"/>
+        <element name="Todo" positionX="0" positionY="0" width="128" height="105"/>
+        <element name="User3" positionX="0" positionY="0" width="128" height="75"/>
+        <element name="User4" positionX="0" positionY="0" width="128" height="75"/>
     </elements>
 </model>

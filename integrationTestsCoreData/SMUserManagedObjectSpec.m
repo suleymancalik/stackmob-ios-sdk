@@ -206,4 +206,55 @@ describe(@"creating and saving two users should not conflict with each other", ^
     });
 });
 
+describe(@"should be able to create a user, relate to other object, and save everything without reset password errors", ^{
+    
+    __block SMClient *client = nil;
+    __block NSManagedObjectContext *moc = nil;
+    __block User3 *person = nil;
+    __block NSManagedObject *todo = nil;
+    beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        [client setUserSchema:@"User3"];
+        moc = [SMCoreDataIntegrationTestHelpers moc];
+        // tests save here
+        person = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
+        [person setUsername:@"bob"];
+        [person setPassword:@"1234"];
+        
+        todo = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
+        [todo setValue:[todo sm_assignObjectId] forKey:[todo sm_primaryKeyField]];
+        [todo setValue:@"related to user3" forKey:@"title"];
+    });
+    afterEach(^{
+        [moc deleteObject:person];
+        [moc deleteObject:todo];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    it(@"should save before and after relation", ^{
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+
+        [todo setValue:person forKey:@"user3"];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+
+        
+        
+    });
+    
+});
+
 SPEC_END
