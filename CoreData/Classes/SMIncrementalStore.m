@@ -20,6 +20,7 @@
 
 #import "SMIncrementalStore.h"
 #import "StackMob.h"
+#import "KeychainWrapper.h"
 
 #define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
@@ -38,6 +39,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 @interface SMIncrementalStore () {
     NSMutableDictionary *cache;
 }
+
 
 @property (nonatomic, strong) SMDataStore *smDataStore;
 
@@ -188,15 +190,32 @@ You should implement this method conservatively, and expect that unknown request
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             NSDictionary *serializedObjDict = [obj sm_dictionarySerialization];
             NSString *schemaName = [obj sm_schema];
+            
+            SMRequestOptions *options = [SMRequestOptions options];
+            // If superclass is SMUserNSManagedObject, add password
+            if ([obj superclass]  == [SMUserManagedObject class]) {
+                BOOL addPasswordSuccess = [self addPasswordToSerializedDictionary:&serializedObjDict originalObject:obj];
+                if (!addPasswordSuccess)
+                {
+                    *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorPasswordForUserObjectNotFound userInfo:nil];
+                    *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+                    *stop = YES;
+                }
+                options.isSecure = YES;
+            }
             if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)) }
             // add relationship headers if needed
             NSMutableDictionary *headerDict = [NSMutableDictionary dictionary];
             if ([serializedObjDict objectForKey:StackMobRelationsKey]) {
                 [headerDict setObject:[serializedObjDict objectForKey:StackMobRelationsKey] forKey:StackMobRelationsKey];
+                [options setHeaders:headerDict];
             }
             
-            [self.smDataStore createObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:[SMRequestOptions optionsWithHeaders:headerDict] onSuccess:^(NSDictionary *theObject, NSString *schema) {
+            [self.smDataStore createObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options onSuccess:^(NSDictionary *theObject, NSString *schema) {
                 if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schema); }
+                if ([obj superclass]  == [SMUserManagedObject class]) {
+                    [obj removePassword];
+                }
                 success = YES;
                 // TO-DO OFFLINE-SUPPORT
                 //[self cacheInsert:theObject forEntity:[obj entity] inContext:context];
@@ -692,6 +711,28 @@ You should implement this method conservatively, and expect that unknown request
     }];
     
     return serializedDictionary;
+}
+
+- (BOOL)addPasswordToSerializedDictionary:(NSDictionary **)originalDictionary originalObject:(SMUserManagedObject *)object
+{
+    NSMutableDictionary *dictionaryToReturn = [*originalDictionary mutableCopy];
+    
+    NSMutableDictionary *serializedDictCopy = [[*originalDictionary objectForKey:SerializedDictKey] mutableCopy];
+    
+    NSString *passwordIdentifier = [object passwordIdentifier];
+    NSString *thePassword = [KeychainWrapper keychainStringFromMatchingIdentifier:passwordIdentifier];
+    
+    if (!thePassword) {
+        return NO;
+    }
+    
+    [serializedDictCopy setObject:thePassword forKey:[[[self smDataStore] session] passwordFieldName]];
+    
+    [dictionaryToReturn setObject:serializedDictCopy forKey:SerializedDictKey];
+    
+    *originalDictionary = dictionaryToReturn;
+    
+    return YES;
 }
 
 @end

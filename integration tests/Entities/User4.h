@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2012 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,17 +15,13 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <CoreData/CoreData.h>
+#import "StackMob.h"
 
-/**
- `NSManagedObject` subclasses that have an attribute to be used by StackMob as it's primary key field that does not conform to lowercaseEntityName_id (i.e. person_id for entity Person) should adopt this protocol.  The will override the <primaryKeyFieldName> method to specify the name of the attribute to be used by StackMob as the primary key field.
- */
-@protocol SMModel <NSObject>
 
-/**
- Method to override in `NSManagedObject` subclass.
- 
- @return the name of the attribute corresponding to the StackMob primary key field for this entity/schema. 
- */
-+ (NSString *)primaryKeyFieldName;
+@interface User4 : SMUserManagedObject
+
+@property (nonatomic, retain) NSString * theuser;
+@property (nonatomic, retain) NSString * thepassword;
 
 @end

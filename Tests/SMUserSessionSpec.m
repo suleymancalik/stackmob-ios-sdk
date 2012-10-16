@@ -27,11 +27,15 @@ describe(@"Creating a SMUserSession instance", ^{
     __block NSString *apiHost = @"host";
     __block NSString *publicKey = @"foo";
     __block NSString *userSchema = @"user";
+    __block NSString *primaryKeyFieldName = @"username";
+    __block NSString *passwordFieldName = @"password";
     beforeEach(^{
         userSession = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion 
                                                         apiHost:apiHost 
                                                       publicKey:publicKey
-                                                     userSchema:userSchema];
+                                                     userSchema:userSchema
+                                                     primaryKeyFieldName:primaryKeyFieldName
+                                              passwordFieldName:passwordFieldName];
     });
     describe(@"regularOAuthClient", ^{
         it(@"should not be nil", ^{
@@ -77,11 +81,15 @@ describe(@"getting an oauth2 client", ^{
     __block NSString *apiHost = @"host";
     __block NSString *publicKey = @"foo";
     __block NSString *userSchema = @"user";
+    __block NSString *primaryKeyFieldName = @"username";
+    __block NSString *passwordFieldName = @"password";
     beforeEach(^{
         userSession = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion 
                                                         apiHost:apiHost 
                                                       publicKey:publicKey
-                                                     userSchema:userSchema];
+                                                     userSchema:userSchema
+                                                     primaryKeyFieldName:primaryKeyFieldName
+                                              passwordFieldName:passwordFieldName];
     });
     describe(@"http", ^{
         it(@"should return regularOAuthCleint", ^{
@@ -103,11 +111,15 @@ describe(@"perform an access token request", ^{
     __block NSString *apiHost = @"host";
     __block NSString *publicKey = @"foo";
     __block NSString *userSchema = @"user";
+    __block NSString *primaryKeyFieldName = @"username";
+    __block NSString *passwordFieldName = @"password";
     beforeEach(^{
         userSession = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion 
                                                         apiHost:apiHost 
                                                       publicKey:publicKey
-                                                     userSchema:userSchema];
+                                                     userSchema:userSchema
+                                                     primaryKeyFieldName:primaryKeyFieldName
+                                              passwordFieldName:passwordFieldName];
         userSession.tokenClient = [AFHTTPClient nullMock];
     });
 
@@ -133,11 +145,15 @@ describe(@"parseTokenResults", ^{
     __block NSString *apiHost = @"host";
     __block NSString *publicKey = @"foo";
     __block NSString *userSchema = @"user";
+    __block NSString *primaryKeyFieldName = @"username";
+    __block NSString *passwordFieldName = @"password";
     beforeEach(^{
         userSession = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion 
                                                         apiHost:apiHost 
                                                       publicKey:publicKey
-                                                     userSchema:userSchema];
+                                                     userSchema:userSchema
+                                                     primaryKeyFieldName:primaryKeyFieldName
+                                              passwordFieldName:passwordFieldName];
         userSession.tokenClient = [AFHTTPClient nullMock];
     });
     
@@ -159,11 +175,15 @@ describe(@"saveAccessTokenInfo", ^{
     __block NSString *apiHost = @"host";
     __block NSString *publicKey = @"foo";
     __block NSString *userSchema = @"user";
+    __block NSString *primaryKeyFieldName = @"username";
+    __block NSString *passwordFieldName = @"password";
     beforeEach(^{
         userSession = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion 
                                                         apiHost:apiHost 
                                                       publicKey:publicKey
-                                                     userSchema:userSchema];
+                                                     userSchema:userSchema
+                                                    primaryKeyFieldName:primaryKeyFieldName
+                                              passwordFieldName:passwordFieldName];
         userSession.tokenClient = [AFHTTPClient nullMock];
     });
     

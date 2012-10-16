@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-#import "Person.h"
-#import "Superpower.h"
+#import "User3.h"
+#import "SMIntegrationTestHelpers.h"
 
 
-@implementation Person
+@implementation User3
 
-@dynamic armor_class;
-@dynamic company;
-@dynamic first_name;
-@dynamic last_name;
-@dynamic person_id;
-@dynamic favorites;
-@dynamic interests;
-@dynamic superpower;
+@dynamic username;
 
 @end

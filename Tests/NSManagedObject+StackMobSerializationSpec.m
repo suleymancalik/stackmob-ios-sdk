@@ -15,19 +15,13 @@
  */
 
 #import <Kiwi/Kiwi.h>
-#import "NSManagedObject+StackMobSerialization.h"
-#import "SMModel.h"
-#import "SMError.h"
+#import "StackMob.h"
 
-@interface StackMobSerializationSpecUser : NSManagedObject <SMModel>
+@interface StackMobSerializationSpecUser : SMUserManagedObject
 
 @end
 
 @implementation StackMobSerializationSpecUser
-
-+ (NSString *)primaryKeyFieldName {
-    return @"username";
-}
 
 @end
 
@@ -75,7 +69,9 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
         });
         context(@"given an object which defines a custom id attribute", ^{
             __block StackMobSerializationSpecUser *user = nil;
+            __block SMClient *client = nil;
             beforeEach(^{
+                client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
                 NSEntityDescription *userEntity = [[NSEntityDescription alloc] init];
                 [userEntity setName:@"User"];
                 [userEntity setManagedObjectClassName:@"StackMobSerializationSpecUser"];
@@ -386,7 +382,9 @@ describe(@"-primaryKeyFieldName", ^{
     });
     context(@"With an entity that adopts the SMModel protocol", ^{
         __block StackMobSerializationSpecUser *user = nil;
+        __block SMClient *client = nil;
         beforeEach(^{
+            client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
             NSEntityDescription *userEntity = [[NSEntityDescription alloc] init];
             [userEntity setName:@"User"];
             [userEntity setManagedObjectClassName:@"StackMobSerializationSpecUser"];
