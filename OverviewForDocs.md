@@ -1,6 +1,6 @@
 # Welcome to the docs for the StackMob iOS SDK!
 
-### Current Version: 1.0.1
+### Current Version: 1.1.0
 
 ### Jump To:
 <a href="#overview">Overview</a>
@@ -125,13 +125,15 @@ If you want to make direct REST-based calls to the Datastore, check out the [SMD
 
 <br/>
 
-### User Authentication
+### User Schema and Authentication
 
 SMClient provides all the necessary methods for user authentication.
 
-The default schema to use for authentication is **user**, with **username** and **password** fields. 
+The default schema to use for authentication is **user**, with **username** and **password** fields.
 
-If you plan on using a different user object schema or different field names, check out the **User Authentication** section of the [SMClient Class Reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html).
+You can set these using setters or the extended `SMClient` initialization method.
+
+For more information see **The User Schema** and **User Authentication** sections of the [SMClient Class Reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html).
 
 <br/>
 
@@ -219,6 +221,7 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 * [SMCoreDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) -  Gives you access to a configured NSManagedObjectContext communicate with StackMob directly through Core Data.
 * [SMDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html) - Gives you access to make direct REST-based calls to StackMob.
 * [SMRequestOptions](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMRequestOptions.html) - When making direct calls to StackMob, an instance of SMRequestOptions gives you request configuration options.
+* [SMUserManagedObject](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMUserManagedObject.html) - The managed object subclass that defines your users should inherit from SMUserManagedObject.  
 * [SMCustomCodeRequest](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCustomCodeRequest.html) - Starting place for making custom code calls.
 * [SMBinaryDataConversion](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMBinaryDataConversion.html) - Convert NSData to NSString for persisting to a field on StackMob with type Binary Data (s3 Integration).
 

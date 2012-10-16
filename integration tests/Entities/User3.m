@@ -15,15 +15,11 @@
  */
 
 #import "User3.h"
+#import "SMIntegrationTestHelpers.h"
 
 
 @implementation User3
 
 @dynamic username;
-
-+(NSString *)primaryKeyFieldName
-{
-    return @"username";
-}
 
 @end

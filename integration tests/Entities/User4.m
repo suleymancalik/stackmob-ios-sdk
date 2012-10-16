@@ -19,11 +19,6 @@
 
 @implementation User4
 
-+(NSString *)primaryKeyFieldName
-{
-    return @"theuser";
-}
-
 @dynamic theuser;
 @dynamic thepassword;
 

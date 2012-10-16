@@ -39,6 +39,5 @@
 #import "SMBinaryDataConversion.h"
 
 #import "SMUserManagedObject.h"
-#import "SMModel.h"
 
 

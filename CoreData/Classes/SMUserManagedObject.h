@@ -16,18 +16,69 @@
 
 #import <CoreData/CoreData.h>
 
+@class SMClient;
+
 /**
- Inherit from SMUserManagedObject when your Managed Object subclass is defining a user object.
+ Inherit from SMUserManagedObject when your managed object subclass is defining user objects.
  
- This class provides a method to securly set a password for the user object, without directly setting any attributes in Core Data.  When a save call is made to Core Data, the password is persisted along with the object to StackMob.
+ This class provides a method to securely set a password for the user object, without directly setting any attributes in Core Data.  When a save call is made to Core Data, the password is persisted along with the object to StackMob.
+ 
+ `SMUserManagedObject` references an instance of <SMClient> for returning the primary key field name. In your managed object subclass's init method you should be calling Core Data's designated initializer `initWithEntity:insertIntoManagedObjectContext:`. This will reference `[SMClient defaultClient]`. Optionally, if you wish to reference a specific client instance, use the <initWithEntity:client:insertIntoManagedObjectContext:> initializer instead.
  */
 @interface SMUserManagedObject : NSManagedObject
 
+///-------------------------------
+/// @name Properties
+///-------------------------------
+
 /**
+ A unique string used to retrieve the password when persisting to StackMob.
+ */
+@property (nonatomic, readonly) NSString *passwordIdentifier;
+
+///-------------------------------
+/// @name Initialize
+///-------------------------------
+
+/**
+ Initializes a new managed object with a reference to `[SMClient defaultClient]`.
+ 
+ @param entity The description of this managed object's entity.
+ @param context The managed object context to insert the object into.
+ 
+ @return An newly instantiated managed object to define a user.
+ */
+- (id)initWithEntity:(NSEntityDescription *)entity insertIntoManagedObjectContext:(NSManagedObjectContext *)context;
+
+/**
+ Initializes a new managed object with a reference to the provided `SMClient` instance.
+ 
+ @param entity The description of this managed object's entity.
+ @param client The `SMClient` instance to reference for the primary key field name, taken from client.primaryKeyFieldName.
+ @param context The managed object context to insert the object into.
+ 
+ @return An newly instantiated managed object to define a user.
+ */
+- (id)initWithEntity:(NSEntityDescription *)entity client:(SMClient *)client insertIntoManagedObjectContext:(NSManagedObjectContext *)context;
+
+///-------------------------------
+/// @name Setting Password
+///-------------------------------
+
+/**
+ Sets the password to associate with the user object.
+ 
  @param password The password associated with the user object to be used for authentication.
  */
 - (void)setPassword:(NSString *)password;
 
-- (NSString *)passwordIdentifier;
+/**
+ Removes the password.
+ 
+ This method is called upon successful persistence of the user object on StackMob to delete the passsword any prevent further accessing. 
+ 
+ **Important:** Call this method if the creation of a user object fails and you delete or undo the original insert of the user object.
+ */
+- (void)removePassword;
 
 @end

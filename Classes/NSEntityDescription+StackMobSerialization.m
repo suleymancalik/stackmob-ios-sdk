@@ -15,7 +15,7 @@
  */
 
 #import "NSEntityDescription+StackMobSerialization.h"
-#import "SMModel.h"
+#import "SMUserManagedObject.h"
 #import "SMError.h"
 
 @implementation NSEntityDescription (StackMobSerialization)
@@ -28,16 +28,7 @@
 - (NSString *)sm_primaryKeyField
 {
     NSString *objectIdField = nil;
-    
-    // Search for SMModel protocol
-    id aClass = NSClassFromString([self name]);
-    if (aClass != nil) {
-        if ([aClass conformsToProtocol:@protocol(SMModel)]) {
-            objectIdField = [(id <SMModel>)aClass primaryKeyFieldName];
-            return objectIdField;
-        }
-    }
-    
+     
     // Search for schemanameId
     objectIdField = [[self sm_schema] stringByAppendingFormat:@"Id"];
     if ([[self propertiesByName] objectForKey:objectIdField] != nil) {

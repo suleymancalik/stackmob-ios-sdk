@@ -194,7 +194,13 @@ You should implement this method conservatively, and expect that unknown request
             SMRequestOptions *options = [SMRequestOptions options];
             // If superclass is SMUserNSManagedObject, add password
             if ([obj superclass]  == [SMUserManagedObject class]) {
-                serializedObjDict = [self addPasswordToSerializedDictionary:serializedObjDict originalObject:obj];
+                BOOL addPasswordSuccess = [self addPasswordToSerializedDictionary:&serializedObjDict originalObject:obj error:error];
+                if (!addPasswordSuccess)
+                {
+                    *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNotFound userInfo:nil];
+                    *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+                    *stop = YES;
+                }
                 options.isSecure = YES;
             }
             if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)) }
@@ -207,6 +213,9 @@ You should implement this method conservatively, and expect that unknown request
             
             [self.smDataStore createObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options onSuccess:^(NSDictionary *theObject, NSString *schema) {
                 if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schema); }
+                if ([obj superclass]  == [SMUserManagedObject class]) {
+                    [obj removePassword];
+                }
                 success = YES;
                 // TO-DO OFFLINE-SUPPORT
                 //[self cacheInsert:theObject forEntity:[obj entity] inContext:context];
@@ -704,24 +713,26 @@ You should implement this method conservatively, and expect that unknown request
     return serializedDictionary;
 }
 
-- (NSDictionary *)addPasswordToSerializedDictionary:(NSDictionary *)originalDictionary originalObject:(SMUserManagedObject *)object
+- (BOOL)addPasswordToSerializedDictionary:(NSDictionary **)originalDictionary originalObject:(SMUserManagedObject *)object error:(NSError *__autoreleasing*)error
 {
-    NSMutableDictionary *dictionaryToReturn = [originalDictionary mutableCopy];
+    NSMutableDictionary *dictionaryToReturn = [*originalDictionary mutableCopy];
     
-    NSMutableDictionary *serializedDictCopy = [[originalDictionary objectForKey:SerializedDictKey] mutableCopy];
+    NSMutableDictionary *serializedDictCopy = [[*originalDictionary objectForKey:SerializedDictKey] mutableCopy];
     
-    NSLog(@"PULLING FROM KEYCHAIN");
     NSString *passwordIdentifier = [object passwordIdentifier];
     NSString *thePassword = [KeychainWrapper keychainStringFromMatchingIdentifier:passwordIdentifier];
     
-    // delete password from keychain
-    [KeychainWrapper deleteItemFromKeychainWithIdentifier:passwordIdentifier];
-    NSLog(@"the password is %@ for field %@", thePassword, [[[self smDataStore] session] passwordFieldName] );
+    if (!thePassword) {
+        return NO;
+    }
+    
     [serializedDictCopy setObject:thePassword forKey:[[[self smDataStore] session] passwordFieldName]];
     
     [dictionaryToReturn setObject:serializedDictCopy forKey:SerializedDictKey];
     
-    return dictionaryToReturn;
+    *originalDictionary = dictionaryToReturn;
+    
+    return YES;
 }
 
 @end

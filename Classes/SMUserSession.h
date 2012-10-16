@@ -37,7 +37,7 @@
 @property (nonatomic, readwrite, strong) SMOAuth2Client *secureOAuthClient;
 @property (nonatomic, readwrite, strong) AFHTTPClient *tokenClient;
 @property (nonatomic, copy) NSString *userSchema;
-@property (nonatomic, copy) NSString *userIdName;
+@property (nonatomic, copy) NSString *primaryKeyFieldName;
 @property (nonatomic, copy) NSString *passwordFieldName;
 @property (nonatomic, copy) NSDate *expiration;
 @property (nonatomic, copy) NSString *refreshToken;
@@ -72,11 +72,11 @@
  @param apiHost The host to connect to for API requests.
  @param publicKey Your StackMob application's OAuth2 public key.
  @param userSchema The StackMob schema that has been flagged as a user object. Default is `@"user"`.
- @param userIdName The StackMob primary key field name for the user object schema. Default is `@"username"`.
+ @param primaryKeyFieldName The StackMob primary key field name for the user object schema. Default is `@"username"`.
  @param passwordFieldName The StackMob field name for the password. Default is `@"password"`.
  @return An instance of `SMUserSession` configured with the provided settings.
  */
-- (id)initWithAPIVersion:(NSString *)version apiHost:(NSString *)apiHost publicKey:(NSString *)publicKey userSchema:(NSString *)userSchema userIdName:(NSString *)userIdName passwordFieldName:(NSString *)passwordFieldName;
+- (id)initWithAPIVersion:(NSString *)version apiHost:(NSString *)apiHost publicKey:(NSString *)publicKey userSchema:(NSString *)userSchema primaryKeyFieldName:(NSString *)primaryKeyFieldName passwordFieldName:(NSString *)passwordFieldName;
 
 /**
  Returns an instance of `SMOAuth2Client` configured to make requests over http or https.

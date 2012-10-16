@@ -17,9 +17,8 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 #import "StackMob.h"
-#import "SMModel.h"
 
-@interface User3 : SMUserManagedObject <SMModel>
+@interface User3 : SMUserManagedObject
 
 @property (nonatomic, retain) NSString * username;
 

@@ -21,11 +21,33 @@
 @interface SMUserManagedObject ()
 
 @property (nonatomic, readwrite) NSString *passwordIdentifier;
+@property (nonatomic, readwrite) SMClient *client;
 @end
 
 @implementation SMUserManagedObject
 
 @synthesize passwordIdentifier = _passwordIdentifier;
+@synthesize client = _client;
+
+- (id)initWithEntity:(NSEntityDescription *)entity insertIntoManagedObjectContext:(NSManagedObjectContext *)context
+{
+    return [self initWithEntity:entity client:[SMClient defaultClient] insertIntoManagedObjectContext:context];
+}
+
+- (id)initWithEntity:(NSEntityDescription *)entity client:(SMClient *)client insertIntoManagedObjectContext:(NSManagedObjectContext *)context
+{
+    self = [super initWithEntity:entity insertIntoManagedObjectContext:context];
+    if (self) {
+        self.client = client;
+    }
+    
+    return self;
+}
+
+- (NSString *)sm_primaryKeyField
+{
+    return self.client.primaryKeyFieldName;
+}
 
 - (void)setPassword:(NSString *)value
 {
@@ -34,15 +56,14 @@
         serviceName = @"com.stackmob.passwordstore";
     }
     self.passwordIdentifier = [[serviceName stringByAppendingPathExtension:[NSString stringWithFormat:@"%d", arc4random() / 1000]] stringByAppendingPathExtension:@"password"];
-    NSLog(@"passwordIdentifier is %@", self.passwordIdentifier);
     if (![KeychainWrapper createKeychainValue:value forIdentifier:self.passwordIdentifier]) {
         [NSException raise:@"SMKeychainSaveUnsuccessful" format:@"Password could not be saved to keychain"];
     }
 }
 
-- (NSString *)passwordIdentifier
+- (void)removePassword
 {
-    return _passwordIdentifier;
+    [KeychainWrapper deleteItemFromKeychainWithIdentifier:[self passwordIdentifier]];
 }
 
 

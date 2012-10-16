@@ -91,7 +91,7 @@ describe(@"can set a client with different password field name and everything st
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
         [client setUserSchema:@"User4"];
-        [client setUserIdName:@"theuser"];
+        [client setPrimaryKeyFieldName:@"theuser"];
         [client setPasswordFieldName:@"thepassword"];
         moc = [SMCoreDataIntegrationTestHelpers moc];
         // tests save here
@@ -252,6 +252,121 @@ describe(@"should be able to create a user, relate to other object, and save eve
         }];
 
         
+        
+    });
+    
+});
+ 
+describe(@"sm_primaryKeyFieldName works", ^{
+    
+    __block SMClient *client = nil;
+    __block NSManagedObjectContext *moc = nil;
+    __block User3 *user3 = nil;
+    beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        [client setUserSchema:@"User3"];
+        moc = [SMCoreDataIntegrationTestHelpers moc];
+    });
+    afterEach(^{
+        [moc deleteObject:user3];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    it(@"saves correctly when using default client", ^{
+        // tests save here
+        user3 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] insertIntoManagedObjectContext:moc];
+        [user3 setValue:[user3 sm_assignObjectId] forKey:[user3 sm_primaryKeyField]];
+        [user3 setPassword:@"1234"];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    it(@"saves correctly when specifying client", ^{
+        // tests save here
+        user3 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] client:client insertIntoManagedObjectContext:moc];
+        [user3 setValue:[user3 sm_assignObjectId] forKey:[user3 sm_primaryKeyField]];
+        [user3 setPassword:@"1234"];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+
+    
+});
+
+describe(@"testing someting", ^{
+    
+    __block SMClient *client = nil;
+    __block NSManagedObjectContext *moc = nil;
+    __block User3 *ardoObject = nil;
+    __block User3 *failObject = nil;
+    __block User3 *successObject = nil;
+    beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        [client setUserSchema:@"User3"];
+        moc = [SMCoreDataIntegrationTestHelpers moc];
+    });
+    afterEach(^{
+        [moc deleteObject:ardoObject];
+        [moc deleteObject:successObject];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+
+    it(@"should save", ^{
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc];
+        ardoObject = [[User3 alloc] initWithEntity:entity insertIntoManagedObjectContext:moc];
+        [ardoObject setUsername:@"ardo"];
+        [ardoObject setPassword:@"1234"];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        
+        failObject = [[User3 alloc] initWithEntity:entity insertIntoManagedObjectContext:moc];
+        [failObject setUsername:@"ardo"];
+        [failObject setPassword:@"1234"];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldNotBeNil];
+                NSString *result = [KeychainWrapper keychainStringFromMatchingIdentifier:[failObject passwordIdentifier]];
+                [result shouldNotBeNil];
+                [failObject removePassword];
+                result = [KeychainWrapper keychainStringFromMatchingIdentifier:[failObject passwordIdentifier]];
+                [result shouldBeNil];
+                [moc deleteObject:failObject];
+            }
+        }];
+        
+        successObject = [[User3 alloc] initWithEntity:entity insertIntoManagedObjectContext:moc];
+        [successObject setUsername:@"james"];
+        [successObject setPassword:@"1234"];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
         
     });
     

@@ -25,7 +25,7 @@
 
 #define DEFAULT_API_HOST @"api.stackmob.com"
 #define DEFAULT_USER_SCHEMA @"user"
-#define DEFAULT_USER_ID_NAME @"username"
+#define DEFAULT_PRIMARY_KEY_FIELD_NAME @"username"
 #define DEFAULT_PASSWORD_FIELD_NAME @"password"
 
 /**
@@ -71,13 +71,7 @@
  
  Last but not least, make sure to adhere to the [StackMob <--> Core Data Coding Practices](http://stackmob.github.com/stackmob-ios-sdk/index.html\#coding\_practices)!
  
- ## User Authentication ##
- 
- When a client is instantiated, an instance of `SMUserSession` is initialized and configured with the provided settings.  This is where the user's OAuth2 credentials and token information is located, and is used by the internal `SMDataStore` instance to authenticate requests.
- 
- `SMClient` provides a set of methods for logging in and out, checking state, and resetting passwords.
- 
- ### The User Schema ###
+ ## The User Schema ##
  
  When you create an application on StackMob, a **user** schema is automatically generated, with **username** as it's primary key field as well as a **password** field. This is the default schema for user objects.
  
@@ -85,21 +79,27 @@
  
  * apiHost = @"api.stackmob.com";
  * userSchema = @"user";
- * userIdName = @"username";
+ * primaryKeyFieldName = @"username";
  * passwordFieldName = @"password";
  
  To change the defaults so they match your schemas and fields on StackMob:
  
  * With your instance of `SMClient`, you can directly set the properties listed above using the dot notation or setters.  For example:
-    
-        client.userSchema = @"teacher";
-        [client setUserIdName:@"name_of_user"];
+ 
+ client.userSchema = @"teacher";
+ [client setprimaryKeyFieldName:@"name_of_user"];
  
  
- * Alternatively, you can set all the properties at once using <initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:>.
+ * Alternatively, you can set all the properties at once using <initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:>.
  
- **Important:** Don't forget to check the **Create as a User Object** box when <a href="https://developer.stackmob.com/api/schemas/create" target="_blank">creating a new schema</a> for user objects. 
+ **Important:** Don't forget to check the **Create as a User Object** box when <a href="https://developer.stackmob.com/api/schemas/create" target="_blank">creating a new schema</a> for user objects.
  
+ 
+ ## User Authentication ##
+ 
+ When a client is instantiated, an instance of `SMUserSession` is initialized and configured with the provided settings.  This is where the user's OAuth2 credentials and token information is located, and is used by the internal `SMDataStore` instance to authenticate requests.
+ 
+ `SMClient` provides a set of methods for logging in and out, checking state, and resetting passwords. They are listed under the **Tasks -> Basic Authentication** section below.
  
  ## Facebook Authentication ##
  
@@ -144,7 +144,7 @@
  
  Default is `@"username"`.
  */
-@property(nonatomic, copy) NSString *userIdName;
+@property(nonatomic, copy) NSString *primaryKeyFieldName;
 
 /**
  The StackMob field name for the password. 
@@ -183,7 +183,7 @@
  @param apiHost The host to connect to for API requests. Default is `api.stackmob.com`.
  @param publicKey Your StackMob application's OAuth2 public key.
  @param userSchema The StackMob schema that has been marked as a user object. Default is `@"user"`.
- @param userIdName The StackMob primary key field name for the user object schema. Default is `@"username"`.
+ @param primaryKeyFieldName The StackMob primary key field name for the user object schema. Default is `@"username"`.
  @param passwordFieldName The StackMob field name for the password. Default is `@"password"`.
  
  @return An instance of `SMClient`.
@@ -192,7 +192,7 @@
                  apiHost:(NSString *)apiHost 
                publicKey:(NSString *)publicKey 
               userSchema:(NSString *)userSchema
-              userIdName:(NSString *)userIdName
+              primaryKeyFieldName:(NSString *)primaryKeyFieldName
        passwordFieldName:(NSString *)passwordFieldName;
 
 /**
