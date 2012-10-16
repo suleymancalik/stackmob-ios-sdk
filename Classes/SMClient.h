@@ -86,8 +86,9 @@
  
  * With your instance of `SMClient`, you can directly set the properties listed above using the dot notation or setters.  For example:
  
- client.userSchema = @"teacher";
- [client setprimaryKeyFieldName:@"name_of_user"];
+ 
+        client.userSchema = @"teacher";
+        [client setPrimaryKeyFieldName:@"name_of_user"];
  
  
  * Alternatively, you can set all the properties at once using <initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:>.
