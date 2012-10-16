@@ -100,7 +100,7 @@
  
  When a client is instantiated, an instance of `SMUserSession` is initialized and configured with the provided settings.  This is where the user's OAuth2 credentials and token information is located, and is used by the internal `SMDataStore` instance to authenticate requests.
  
- `SMClient` provides a set of methods for logging in and out, checking state, and resetting passwords. They are listed under the **Tasks -> Basic Authentication** section below.
+ `SMClient` provides a set of methods for logging in and out, checking state, and resetting passwords. They are listed below in **Tasks** starting with the **Basic Authentication** section.
  
  ## Facebook Authentication ##
  

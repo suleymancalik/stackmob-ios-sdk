@@ -194,10 +194,10 @@ You should implement this method conservatively, and expect that unknown request
             SMRequestOptions *options = [SMRequestOptions options];
             // If superclass is SMUserNSManagedObject, add password
             if ([obj superclass]  == [SMUserManagedObject class]) {
-                BOOL addPasswordSuccess = [self addPasswordToSerializedDictionary:&serializedObjDict originalObject:obj error:error];
+                BOOL addPasswordSuccess = [self addPasswordToSerializedDictionary:&serializedObjDict originalObject:obj];
                 if (!addPasswordSuccess)
                 {
-                    *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNotFound userInfo:nil];
+                    *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorPasswordForUserObjectNotFound userInfo:nil];
                     *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
                     *stop = YES;
                 }
@@ -713,7 +713,7 @@ You should implement this method conservatively, and expect that unknown request
     return serializedDictionary;
 }
 
-- (BOOL)addPasswordToSerializedDictionary:(NSDictionary **)originalDictionary originalObject:(SMUserManagedObject *)object error:(NSError *__autoreleasing*)error
+- (BOOL)addPasswordToSerializedDictionary:(NSDictionary **)originalDictionary originalObject:(SMUserManagedObject *)object
 {
     NSMutableDictionary *dictionaryToReturn = [*originalDictionary mutableCopy];
     

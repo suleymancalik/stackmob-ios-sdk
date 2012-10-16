@@ -62,7 +62,7 @@
 - (id)initWithEntity:(NSEntityDescription *)entity client:(SMClient *)client insertIntoManagedObjectContext:(NSManagedObjectContext *)context;
 
 ///-------------------------------
-/// @name Setting Password
+/// @name Setting and Removing Password
 ///-------------------------------
 
 /**
