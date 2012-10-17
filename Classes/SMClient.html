@@ -46,11 +46,11 @@
 	
 	<option value="//api/name/passwordFieldName">&nbsp;&nbsp;&nbsp;&nbsp;passwordFieldName</option>
 	
+	<option value="//api/name/primaryKeyFieldName">&nbsp;&nbsp;&nbsp;&nbsp;primaryKeyFieldName</option>
+	
 	<option value="//api/name/publicKey">&nbsp;&nbsp;&nbsp;&nbsp;publicKey</option>
 	
 	<option value="//api/name/session">&nbsp;&nbsp;&nbsp;&nbsp;session</option>
-	
-	<option value="//api/name/userIdName">&nbsp;&nbsp;&nbsp;&nbsp;userIdName</option>
 	
 	<option value="//api/name/userSchema">&nbsp;&nbsp;&nbsp;&nbsp;userSchema</option>
 	
@@ -90,7 +90,7 @@
 	
 	<option value="//api/name/getLoggedInUserWithOptions:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- getLoggedInUserWithOptions:onSuccess:onFailure:</option>
 	
-	<option value="//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:</option>
+	<option value="//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:</option>
 	
 	<option value="//api/name/initWithAPIVersion:publicKey:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAPIVersion:publicKey:</option>
 	
@@ -176,11 +176,11 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/passwordFieldName">passwordFieldName</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/primaryKeyFieldName">primaryKeyFieldName</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/publicKey">publicKey</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/session">session</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/userIdName">userIdName</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/userSchema">userSchema</a></span></li>
 	
@@ -222,7 +222,7 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/getLoggedInUserWithOptions:onSuccess:onFailure:">getLoggedInUserWithOptions:onSuccess:onFailure:</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:">initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:">initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithAPIVersion:publicKey:">initWithAPIVersion:publicKey:</a></span></li>
 	
@@ -341,13 +341,7 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 
 <p>Last but not least, make sure to adhere to the <a href="http://stackmob.github.com/stackmob-ios-sdk/index.html#coding_practices">StackMob &lt;&mdash;> Core Data Coding Practices</a>!</p>
 
-<h2>User Authentication</h2>
-
-<p>When a client is instantiated, an instance of <code>SMUserSession</code> is initialized and configured with the provided settings.  This is where the user&rsquo;s OAuth2 credentials and token information is located, and is used by the internal <code>SMDataStore</code> instance to authenticate requests.</p>
-
-<p><code>SMClient</code> provides a set of methods for logging in and out, checking state, and resetting passwords.</p>
-
-<h3>The User Schema</h3>
+<h2>The User Schema</h2>
 
 <p>When you create an application on StackMob, a <strong>user</strong> schema is automatically generated, with <strong>username</strong> as it&rsquo;s primary key field as well as a <strong>password</strong> field. This is the default schema for user objects.</p>
 
@@ -356,7 +350,7 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <ul>
 <li>apiHost = @&ldquo;api.stackmob.com&rdquo;;</li>
 <li>userSchema = @&ldquo;user&rdquo;;</li>
-<li>userIdName = @&ldquo;username&rdquo;;</li>
+<li>primaryKeyFieldName = @&ldquo;username&rdquo;;</li>
 <li>passwordFieldName = @&ldquo;password&rdquo;;</li>
 </ul>
 
@@ -367,13 +361,19 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <li><p>With your instance of <code>SMClient</code>, you can directly set the properties listed above using the dot notation or setters.  For example:</p>
 
 <pre><code>  client.userSchema = @"teacher";
-  [client setUserIdName:@"name_of_user"];
+  [client setPrimaryKeyFieldName:@"name_of_user"];
 </code></pre></li>
-<li><p>Alternatively, you can set all the properties at once using <a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:">initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:</a>.</p></li>
+<li><p>Alternatively, you can set all the properties at once using <a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:">initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:</a>.</p></li>
 </ul>
 
 
 <p><strong>Important:</strong> Don&rsquo;t forget to check the <strong>Create as a User Object</strong> box when <a href="https://developer.stackmob.com/api/schemas/create" target="_blank">creating a new schema</a> for user objects.</p>
+
+<h2>User Authentication</h2>
+
+<p>When a client is instantiated, an instance of <code>SMUserSession</code> is initialized and configured with the provided settings.  This is where the user&rsquo;s OAuth2 credentials and token information is located, and is used by the internal <code>SMDataStore</code> instance to authenticate requests.</p>
+
+<p><code>SMClient</code> provides a set of methods for logging in and out, checking state, and resetting passwords. They are listed below in <strong>Tasks</strong> starting with the <strong>Basic Authentication</strong> section.</p>
 
 <h2>Facebook Authentication</h2>
 
@@ -423,7 +423,7 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/userIdName">&nbsp;&nbsp;userIdName</a></code>
+		<code><a href="#//api/name/primaryKeyFieldName">&nbsp;&nbsp;primaryKeyFieldName</a></code>
 		<span class="tooltip"><p>The StackMob primary key field name for the user object schema.</p></span>
 	</span>
 	<span class="task-item-suffix">property</span>
@@ -467,7 +467,7 @@ via <a href="#//api/name/setDefaultClient:">setDefaultClient:</a>.</p></span>
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:">&ndash;&nbsp;initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:</a></code>
+		<code><a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:">&ndash;&nbsp;initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:</a></code>
 		<span class="tooltip"><p>Initialize specifying all parameters.</p></span>
 	</span>
 	
@@ -868,6 +868,47 @@ via <a href="#//api/name/setDefaultClient:">setDefaultClient:</a>.</p></span>
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/primaryKeyFieldName" title="primaryKeyFieldName"></a>
+	<h3 class="subsubtitle method-title">primaryKeyFieldName</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The StackMob primary key field name for the user object schema.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, copy) NSString *primaryKeyFieldName</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Default is <code>@"username"</code>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/publicKey" title="publicKey"></a>
 	<h3 class="subsubtitle method-title">publicKey</h3>
 	
@@ -924,47 +965,6 @@ via <a href="#//api/name/setDefaultClient:">setDefaultClient:</a>.</p></span>
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">SMClient.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/userIdName" title="userIdName"></a>
-	<h3 class="subsubtitle method-title">userIdName</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>The StackMob primary key field name for the user object schema.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>@property (nonatomic, copy) NSString *userIdName</code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>Default is <code>@"username"</code>.</p>
-	</div>
 	
 	
 	
@@ -1765,8 +1765,8 @@ will result in an error. This API requires the user to be logged in as well as t
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:" title="initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:"></a>
-	<h3 class="subsubtitle method-title">initWithAPIVersion:apiHost:publicKey:userSchema:userIdName:passwordFieldName:</h3>
+	<a name="//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:" title="initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:"></a>
+	<h3 class="subsubtitle method-title">initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:</h3>
 	
 	
 	
@@ -1776,7 +1776,7 @@ will result in an error. This API requires the user to be logged in as well as t
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (id)initWithAPIVersion:(NSString *)<em>appAPIVersion</em> apiHost:(NSString *)<em>apiHost</em> publicKey:(NSString *)<em>publicKey</em> userSchema:(NSString *)<em>userSchema</em> userIdName:(NSString *)<em>userIdName</em> passwordFieldName:(NSString *)<em>passwordFieldName</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (id)initWithAPIVersion:(NSString *)<em>appAPIVersion</em> apiHost:(NSString *)<em>apiHost</em> publicKey:(NSString *)<em>publicKey</em> userSchema:(NSString *)<em>userSchema</em> primaryKeyFieldName:(NSString *)<em>primaryKeyFieldName</em> passwordFieldName:(NSString *)<em>passwordFieldName</em></code></div>
 
     
 	
@@ -1804,7 +1804,7 @@ will result in an error. This API requires the user to be logged in as well as t
 		</dl>
 		
 		<dl class="argument-def parameter-def">
-			<dt><em>userIdName</em></dt>
+			<dt><em>primaryKeyFieldName</em></dt>
 			<dd><p>The StackMob primary key field name for the user object schema. Default is <code>@"username"</code>.</p></dd>
 		</dl>
 		
@@ -2955,7 +2955,7 @@ password. They can then use that temporary password to login with <a href="#//ap
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-10-02)</span><br />
+						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-10-17)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						
