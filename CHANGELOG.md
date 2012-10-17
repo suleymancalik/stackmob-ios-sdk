@@ -1,5 +1,13 @@
 <h2>StackMob iOS SDK Change Log</h2>
 
+<h3>v1.1.0 - Oct 17, 2012</h3>
+
+**Features**
+
+* Removal of SMModel Protocol.  
+* Addition of SMUserManagedObject. Your managed object subclass corresponding to user objects should inherit from this class.  SMUserManagedObject provides methods to securely set passwords for user objects without storing them in Core Data attributes. For all the information on how to update your current code [see this blogpost](http://blog.stackmob.com/?p=3547).
+* Built for armv7 and armv7s architectures.
+
 <h3>v1.0.1 - Oct 1, 2012</h3>
 
 **Features**
