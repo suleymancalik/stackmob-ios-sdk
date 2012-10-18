@@ -257,7 +257,7 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <ol>
 <li><strong>Entity Names:</strong> Core Data entities are encouraged to start with a capital letter and will translate to all lowercase on StackMob. Example: <strong>Superpower</strong> entity on Core Data translates to <strong>superpower</strong> schema on StackMob.</li>
 <li><strong>Property Names:</strong> Core Data attribute and relationship names are encouraged to be in camelCase, but can also be in StackMob form, all lowercase with optional underscores. Acceptable formats are therefore <strong>yearBorn</strong>, <strong>year_born</strong>, or <strong>yearborn</strong>. All camelCased names will be converted to and from their equivalent form on StackMob, i.e. the property yearBorn will appear as year_born on StackMob.</li>
-<li><strong>StackMob Schema Primary Keys:</strong> All StackMob schemas have a primary key field that is always schemaName_id, unless the schema is a user object, in which case it defaults to &ldquo;username&rdquo; but can be changed manually.</li>
+<li><strong>StackMob Schema Primary Keys:</strong> All StackMob schemas have a primary key field that is always schemaName_id, unless the schema is a user object, in which case it defaults to &ldquo;username&rdquo; but can be changed manually by setting the primaryKeyFieldName property in your <code>SMClient</code> instance.</li>
 </ol>
 
 
@@ -267,7 +267,7 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <p><strong>Coding Practices for successful app development:</strong></p>
 
 <ol>
-<li><strong>Entity Primary Keys:</strong> Following #3 above, each Core Data entity must include an attribute of type string that maps to the primary key field on StackMob. If it is not <em>schemaName_Id or </em>schemaName__id, you must adopt the <a href="http://stackmob.github.com/stackmob-ios-sdk/Protocols/SMModel.html">SMModel</a> protocol. The protocol should be adopted the NSManagedObject subclass of the entity. For example: entity <strong>Soda</strong> should have attribute <strong>sodaId</strong> or <strong>soda_id</strong>, whereas your <strong>User</strong> entity might adopt the <code>SMModel</code> protocol and return <strong>@&ldquo;username&rdquo;</strong>.</li>
+<li><strong>Entity Primary Keys:</strong> Following #3 above, each Core Data entity must include an attribute of type string that maps to the primary key field on StackMob. Acceptable formats are <em>schemaName_Id or </em>schemaName__id. If the managed object subclass for the Entity inherits from <code>SMUserManagedObject</code>, meaning it is intended to define user objects, you may use either of the above formats or whatever lowercase string with optional underscores matches the primary key field on StackMob. For example: entity <strong>Soda</strong> should have attribute <strong>sodaId</strong> or <strong>soda_id</strong>, whereas your <strong>User</strong> entity primary key field defaults to <strong>@&ldquo;username&rdquo;</strong>.</li>
 <li><p><strong>Assign IDs:</strong> When inserting new objects into your managed object context, you must assign an id value to the attribute which maps to the StackMob primary key field BEFORE you make save the context.
 90% of the time you can get away with assigning ids like this:</p>
 
@@ -277,7 +277,13 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
   // now you can make a call to save: on your managed object context
 </code></pre>
 
-<p>  The other 10% of the time is when you want to assign your own ids that aren&rsquo;t unique strings based on a UUID algorithm. A great example of this is user objects, where you would probably assign the user&rsquo;s name to the primary key field.</p></li>
+<p>  The other 10% of the time is when you want to assign your own ids that aren&rsquo;t unique strings based on a UUID algorithm. A great example of this is user objects, where you would probably assign the user&rsquo;s name to the primary key field.  In that case, your code might look more like this:</p>
+
+<pre><code>  // assuming your instance is called newManagedObject
+  [newManagedObject setValue:@"bob" forKey:[newManagedObject sm_primaryKeyField]];
+
+  // now you can make a call to save: on your managed object context 
+</code></pre></li>
 <li><p><strong>NSManagedObject Subclasses:</strong> Creating an NSManagedObject subclass for each of your entities is highly recommended for convenience. You can add an init method to each subclass and include the ID assignment line from above &ndash; then you don&rsquo;t have to remember to do it each time you create a new object!</p></li>
 <li><p><strong>Asynchronous Save Calls:</strong> Core Data performs synchronous calls to its Persistent Store. To get the effect of asynchronous save: calls on your managed object context, allowing you to continue working on the main thread, you can use NSManagedObjectContext&rsquo;s performBlock: method like this:</p>
 
