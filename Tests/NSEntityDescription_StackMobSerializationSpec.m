@@ -120,7 +120,7 @@ describe(@"-primaryKeyFieldName", ^{
             [theEntity setProperties:[NSArray arrayWithObjects:entity_id, name, nil]];
         });
         it(@"Should return entity_id for primaryKeyFieldName", ^{
-            [[[theEntity sm_primaryKeyField] should] equal:@"entity_id"];
+            [[[theEntity primaryKeyField] should] equal:@"entity_id"];
         });
     });
     context(@"With an entity that has a CoreData-like primaryKeyFieldName", ^{
@@ -140,7 +140,7 @@ describe(@"-primaryKeyFieldName", ^{
             [theEntity setProperties:[NSArray arrayWithObjects:entityId, name, nil]];
         });
         it(@"Should return entityId for primaryKeyFieldName", ^{
-            [[[theEntity sm_primaryKeyField] should] equal:@"entityId"];
+            [[[theEntity primaryKeyField] should] equal:@"entityId"];
         });
         
     });

@@ -25,7 +25,7 @@
     return [[self name] lowercaseString];
 }
 
-- (NSString *)sm_primaryKeyField
+- (NSString *)primaryKeyField
 {
     NSString *objectIdField = nil;
      

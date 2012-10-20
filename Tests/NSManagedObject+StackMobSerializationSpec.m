@@ -28,7 +28,7 @@
 SPEC_BEGIN(NSManagedObject_StackMobSerializationSpec)
 
 describe(@"NSManagedObject_StackMobSerialization", ^{
-    describe(@"-sm_assignObjectId", ^{
+    describe(@"-assignObjectId", ^{
         context(@"given an object with an id field matching its entity name", ^{
             __block NSManagedObject *map = nil;
             beforeEach(^{
@@ -47,7 +47,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             });
             context(@"when the object does not have an id", ^{
                 it(@"creates a new object id", ^{
-                    [[map sm_assignObjectId] shouldNotBeNil];
+                    [[map assignObjectId] shouldNotBeNil];
                     [[map valueForKey:@"map_id"] shouldNotBeNil];
                 });
             });
@@ -63,7 +63,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             });
             it(@"fails loudly", ^{
                 [[theBlock(^{
-                    [model sm_assignObjectId];
+                    [model assignObjectId];
                 }) should] raise];
             });
         });
@@ -87,7 +87,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             });
             context(@"when the object does not have an id", ^{
                 it(@"creates a new object id", ^{
-                    [[user sm_assignObjectId] shouldNotBeNil];
+                    [[user assignObjectId] shouldNotBeNil];
                 });
             });
         });
@@ -238,18 +238,18 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             iMadeYouACookie = [[NSManagedObject alloc] initWithEntity:lolCatEntity insertIntoManagedObjectContext:nil];
             kittenPhoto = [[NSManagedObject alloc] initWithEntity:photoEntity insertIntoManagedObjectContext:nil];
             cookieTag = [[NSManagedObject alloc] initWithEntity:tagEntity insertIntoManagedObjectContext:nil];
-            [cookieTag setValue:[cookieTag sm_assignObjectId] forKey:@"tag_id"];
+            [cookieTag setValue:[cookieTag assignObjectId] forKey:@"tag_id"];
             foodTag = [[NSManagedObject alloc] initWithEntity:tagEntity insertIntoManagedObjectContext:nil];
-            [foodTag setValue:[foodTag sm_assignObjectId] forKey:@"tag_id"];
+            [foodTag setValue:[foodTag assignObjectId] forKey:@"tag_id"];
             
             [kittenPhoto setValue:@"http://cutethings.example/kitten" forKey:@"url"];
             [kittenPhoto setValue:hooman forKey:@"photographer"];
-            [kittenPhoto setValue:[kittenPhoto sm_assignObjectId] forKey:@"photo_id"];
+            [kittenPhoto setValue:[kittenPhoto assignObjectId] forKey:@"photo_id"];
             
             [iMadeYouACookie setValue:kittenPhoto forKey:@"photo"];        
             [iMadeYouACookie setValue:@"I MADE YOU A COOKIE, BUT I EATED IT" forKey:@"caption"];
             [iMadeYouACookie setValue:now forKey:@"captionedAt"];
-            [iMadeYouACookie setValue:[iMadeYouACookie sm_assignObjectId] forKey:@"lolcat_id"];
+            [iMadeYouACookie setValue:[iMadeYouACookie assignObjectId] forKey:@"lolcat_id"];
             NSMutableSet *tagSet = [iMadeYouACookie mutableSetValueForKey:@"tags"];
             [tagSet addObject:cookieTag];
             [tagSet addObject:foodTag];
@@ -349,7 +349,7 @@ describe(@"-primaryKeyFieldName", ^{
             theObject = [[NSManagedObject alloc] initWithEntity:theEntity insertIntoManagedObjectContext:nil];
         });
         it(@"Should return entity_id for primaryKeyFieldName", ^{
-            [[[theObject sm_primaryKeyField] should] equal:@"entity_id"];
+            [[[theObject primaryKeyField] should] equal:@"entity_id"];
         });
     });
     context(@"With an entity that has a CoreData-like primaryKeyFieldName", ^{
@@ -377,7 +377,7 @@ describe(@"-primaryKeyFieldName", ^{
 
         });
         it(@"Should return entityId for primaryKeyFieldName", ^{
-            [[[theObject sm_primaryKeyField] should] equal:@"entityId"];
+            [[[theObject primaryKeyField] should] equal:@"entityId"];
         });
     });
     context(@"With an entity that adopts the SMModel protocol", ^{
@@ -399,7 +399,7 @@ describe(@"-primaryKeyFieldName", ^{
             user = [[StackMobSerializationSpecUser alloc] initWithEntity:userEntity insertIntoManagedObjectContext:nil];
         });
         it(@"Should return entityId for primaryKeyFieldName", ^{
-            [[[user sm_primaryKeyField] should] equal:@"username"];
+            [[[user primaryKeyField] should] equal:@"username"];
         });
     });
     

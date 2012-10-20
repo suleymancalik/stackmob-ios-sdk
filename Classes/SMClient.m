@@ -42,7 +42,7 @@ static SMClient *defaultClient = nil;
 @synthesize publicKey = _SM_publicKey;
 @synthesize apiHost = _SM_APIHost;
 @synthesize userSchema = _SM_userSchema;
-@synthesize primaryKeyFieldName = _SM_primaryKeyFieldName;
+@synthesize primaryKeyFieldName = _primaryKeyFieldName;
 @synthesize passwordFieldName = _SM_passwordFieldName;
 
 @synthesize session = _SM_session;
@@ -132,8 +132,8 @@ static SMClient *defaultClient = nil;
 
 - (void)setprimaryKeyFieldName:(NSString *)primaryKeyFieldName
 {
-    if (_SM_primaryKeyFieldName != primaryKeyFieldName) {
-        _SM_primaryKeyFieldName = primaryKeyFieldName;
+    if (_primaryKeyFieldName != primaryKeyFieldName) {
+        _primaryKeyFieldName = primaryKeyFieldName;
         [self.session setPrimaryKeyFieldName:primaryKeyFieldName];
     }
 }

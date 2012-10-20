@@ -34,7 +34,7 @@
  
  @note If the `NSManagedObject` subclass for this entity does not conforms to the 'SMModel' protocol, and lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity's attributes, a `SMExceptionIncompatibleObject` exception is thrown.
  */
-- (NSString *)sm_primaryKeyField;
+- (NSString *)primaryKeyField;
 
 /**
  Given a property description, returns the equivalent field name on StackMob.

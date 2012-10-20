@@ -48,7 +48,7 @@ describe(@"SMRelationshipHeaders", ^{
             aPerson = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
             [aPerson setValue:@"the" forKey:@"first_name"];
             [aPerson setValue:@"dude" forKey:@"last_name"];
-            [aPerson setValue:[aPerson sm_assignObjectId] forKey:[aPerson sm_primaryKeyField]];
+            [aPerson setValue:[aPerson assignObjectId] forKey:[aPerson primaryKeyField]];
         });
         
         it(@"Should contain no relationship headers", ^{
@@ -74,11 +74,11 @@ describe(@"SMRelationshipHeaders", ^{
             aPerson = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
             [aPerson setValue:@"the" forKey:@"first_name"];
             [aPerson setValue:@"dude" forKey:@"last_name"];
-            [aPerson setValue:[aPerson sm_assignObjectId] forKey:[aPerson sm_primaryKeyField]];
+            [aPerson setValue:[aPerson assignObjectId] forKey:[aPerson primaryKeyField]];
             
             aSuperpower = [NSEntityDescription insertNewObjectForEntityForName:@"Superpower" inManagedObjectContext:moc];
             [aSuperpower setValue:@"sweet" forKey:@"name"];
-            [aSuperpower setValue:[aSuperpower sm_assignObjectId] forKey:[aSuperpower sm_primaryKeyField]];
+            [aSuperpower setValue:[aSuperpower assignObjectId] forKey:[aSuperpower primaryKeyField]];
             [aSuperpower setValue:aPerson forKey:@"person"];
         });
         
@@ -110,11 +110,11 @@ describe(@"SMRelationshipHeaders", ^{
             aPerson = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
             [aPerson setValue:@"the" forKey:@"first_name"];
             [aPerson setValue:@"dude" forKey:@"last_name"];
-            [aPerson setValue:[aPerson sm_assignObjectId] forKey:[aPerson sm_primaryKeyField]];
+            [aPerson setValue:[aPerson assignObjectId] forKey:[aPerson primaryKeyField]];
             
             anInterest = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
             [anInterest setValue:@"sports" forKey:@"name"];
-            [anInterest setValue:[anInterest sm_assignObjectId] forKey:[anInterest sm_primaryKeyField]];
+            [anInterest setValue:[anInterest assignObjectId] forKey:[anInterest primaryKeyField]];
             
             [aPerson setValue:[NSMutableSet setWithObject:anInterest] forKey:@"interests"];
         });
@@ -148,11 +148,11 @@ describe(@"SMRelationshipHeaders", ^{
             aPerson = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
             [aPerson setValue:@"the" forKey:@"first_name"];
             [aPerson setValue:@"dude" forKey:@"last_name"];
-            [aPerson setValue:[aPerson sm_assignObjectId] forKey:[aPerson sm_primaryKeyField]];
+            [aPerson setValue:[aPerson assignObjectId] forKey:[aPerson primaryKeyField]];
             
             aFavorite = [NSEntityDescription insertNewObjectForEntityForName:@"Favorite" inManagedObjectContext:moc];
             [aFavorite setValue:@"Sports" forKey:@"genre"];
-            [aFavorite setValue:[aFavorite sm_assignObjectId] forKey:[aFavorite sm_primaryKeyField]];
+            [aFavorite setValue:[aFavorite assignObjectId] forKey:[aFavorite primaryKeyField]];
             
             [aPerson setValue:[NSMutableSet setWithObject:aFavorite] forKey:@"favorites"];
             
@@ -189,16 +189,16 @@ describe(@"SMRelationshipHeaders", ^{
             aPerson = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
             [aPerson setValue:@"the" forKey:@"first_name"];
             [aPerson setValue:@"dude" forKey:@"last_name"];
-            [aPerson setValue:[aPerson sm_assignObjectId] forKey:[aPerson sm_primaryKeyField]];
+            [aPerson setValue:[aPerson assignObjectId] forKey:[aPerson primaryKeyField]];
             
             aSuperpower = [NSEntityDescription insertNewObjectForEntityForName:@"Superpower" inManagedObjectContext:moc];
             [aSuperpower setValue:@"sweet" forKey:@"name"];
-            [aSuperpower setValue:[aSuperpower sm_assignObjectId] forKey:[aSuperpower sm_primaryKeyField]];
+            [aSuperpower setValue:[aSuperpower assignObjectId] forKey:[aSuperpower primaryKeyField]];
             [aSuperpower setValue:aPerson forKey:@"person"];
             
             anInterest = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
             [anInterest setValue:@"sports" forKey:@"name"];
-            [anInterest setValue:[anInterest sm_assignObjectId] forKey:[anInterest sm_primaryKeyField]];
+            [anInterest setValue:[anInterest assignObjectId] forKey:[anInterest primaryKeyField]];
             
             [aPerson setValue:[NSMutableSet setWithObject:anInterest] forKey:@"interests"];
         });

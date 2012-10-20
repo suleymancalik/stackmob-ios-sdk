@@ -49,7 +49,7 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
                 aPerson = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
                 [aPerson setValue:@"the" forKey:@"first_name"];
                 [aPerson setValue:@"dude" forKey:@"last_name"];
-                [aPerson setValue:[aPerson sm_assignObjectId] forKey:[aPerson sm_primaryKeyField]];
+                [aPerson setValue:[aPerson assignObjectId] forKey:[aPerson primaryKeyField]];
             });
             afterEach(^{
                 [moc deleteObject:aPerson];
@@ -73,7 +73,7 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
                 aPerson = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
                 [aPerson setValue:@"the" forKey:@"first_name"];
                 [aPerson setValue:@"dude" forKey:@"last_name"];
-                [aPerson setValue:[aPerson sm_assignObjectId] forKey:[aPerson sm_primaryKeyField]];
+                [aPerson setValue:[aPerson assignObjectId] forKey:[aPerson primaryKeyField]];
                 [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                     [error shouldBeNil];
                 }];
@@ -122,7 +122,7 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
                 beforeEach(^{
                     newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:@"Oauth2test" inManagedObjectContext:moc];
                     [newManagedObject setValue:@"fail" forKey:@"name"];
-                    [newManagedObject setValue:[newManagedObject sm_assignObjectId] forKey:[newManagedObject sm_primaryKeyField]];
+                    [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]];
                 });
                 it(@"a call to save: should fail, and the error should contain the info", ^{
                     __block BOOL saveSuccess = NO;

@@ -35,14 +35,14 @@
 /**
  Assigns a unique ID to the `NSManagedObject` instance.
  
- The id is placed in the object's primary key attribute, retrieved from <sm_primaryKeyField>. It is used as the reference when assigning a permanent ID to the Core Data `NSManagedObject` so that Core Data and StackMob are referencing the same key.
+ The id is placed in the object's primary key attribute, retrieved from <primaryKeyField>. It is used as the reference when assigning a permanent ID to the Core Data `NSManagedObject` so that Core Data and StackMob are referencing the same key.
  
  @note When creating an `NSManagedObject`, you must call this method and set it's return string as the value for the primary key field.  A call to `save:` on the managed object context will fail if any newly inserted object has a nil value for its primary key field.  To avoid this, when you are done setting other values simply add the line (assuming your new object is called newManagedObject):
  
-    [newManagedObject setValue:[newManagedObject sm_assignObjectId] forKey:[newManagedObject sm_primaryKeyField]];
+    [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]];
  
  */
-- (NSString *)sm_assignObjectId;
+- (NSString *)assignObjectId;
 
 /**
  Returns the primary key field name for this entity whose value will map to the primary key field on StackMob.
@@ -52,6 +52,8 @@
  @note If the `NSManagedObject` subclass for this entity does not conforms to the 'SMModel' protocol, and lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity's attributes, a `SMExceptionIncompatibleObject` exception is thrown.
  */
 - (NSString *)sm_primaryKeyField;
+
+- (NSString *)primaryKeyField;
 
 /**
  Converts an `NSManagedObject` into an equivalent dictionary form for StackMob to process.
