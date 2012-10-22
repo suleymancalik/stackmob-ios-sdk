@@ -26,17 +26,16 @@
 SPEC_BEGIN(SMBinDataConvertCDIntegrationSpec)
 
 describe(@"SMBinDataConvertCDIntegration", ^{
-    __block SMClient *client = nil;
-    __block SMCoreDataStore *coreDataStore = nil;
-    __block NSManagedObjectModel *mom = nil;
     __block NSManagedObjectContext *moc = nil;
     __block Superpower *superpower = nil;
     beforeEach(^{
+        /*
         mom = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]];
         client = [SMIntegrationTestHelpers defaultClient];
         coreDataStore = [client coreDataStoreWithManagedObjectModel:mom];
         moc = [coreDataStore managedObjectContext];
-        
+        */
+        moc = [SMCoreDataIntegrationTestHelpers moc];
     });
     describe(@"should successfully set binary data when translated to string", ^{
         __block NSString *dataString = nil;

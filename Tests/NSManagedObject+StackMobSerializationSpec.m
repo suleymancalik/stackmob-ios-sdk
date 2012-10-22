@@ -264,10 +264,6 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
                 beforeEach(^{
                     dictionary = [[iMadeYouACookie sm_dictionarySerialization] objectForKey:@"SerializedDict"];
                 });
-                it(@"returns a dictionary of the object's properties as field names", ^{
-                    [[dictionary should] haveValue:@"I MADE YOU A COOKIE, BUT I EATED IT" forKey:@"caption"];
-                    [[dictionary should] haveValue:[NSNumber numberWithInt:[now timeIntervalSince1970]] forKey:@"captioned_at"];
-                });
                 /*
                 it(@"includes nil properties", ^{
                     [[dictionary should] haveValue:[NSNull null] forKey:@"subcaption"];
@@ -290,32 +286,12 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
                     [[[dictionary valueForKey:@"owner"] should] equal:[NSNull null]];
                 });
                  */
-                it(@"includes dictionary for has-one relationships", ^{
-                    NSDictionary *photo = [dictionary objectForKey:@"photo"];
-                    [[photo should] beKindOfClass:[NSDictionary class]];
-                    [[[photo objectForKey:@"photo_id"] should] equal:[kittenPhoto valueForKey:@"photo_id"]];
-                    [[photo should] haveCountOf:3];
-                });
-                it(@"includes dictionaries for has-many relationships", ^{
-                    NSArray *tags = [dictionary objectForKey:@"tags"];
-                    [[tags should] beKindOfClass:[NSArray class]];
-                    [[tags should] haveCountOf:2];
-                    [[[tags objectAtIndex:0] should] beKindOfClass:[NSString class]];
-                });
                 describe(@"circular relationships", ^{
                     it(@"survives circular references", ^{
                         [[[[[[hooman valueForKey:@"lolcats"] anyObject] valueForKey:@"photo"] valueForKey:@"photographer"] should] equal:hooman];
                         [[hooman sm_dictionarySerialization] shouldNotBeNil];
                     });
                 });
-            });
-        });
-        
-        describe(@"-sm_relationshipHeader", ^{
-            it(@"should return the appropriate header string for nested relationships", ^{
-                NSDictionary *serializedDict = [iMadeYouACookie sm_dictionarySerialization];
-                NSArray *relationships = [[serializedDict objectForKey:@"X-StackMob-Relations"] componentsSeparatedByString:@"&"];
-                [[relationships should] containObjects:@"tags=tag", @"photo=photo", @"photo.photographer=user", @"photo.photographer.lolcats=lolcat", nil];
             });
         });
     });
