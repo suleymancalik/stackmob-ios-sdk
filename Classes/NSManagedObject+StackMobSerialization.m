@@ -31,13 +31,13 @@
 {
     NSString *objectIdField = [self primaryKeyField];
     if ([[[self entity] attributesByName] objectForKey:objectIdField] == nil) {
-        [NSException raise:SMExceptionIncompatibleObject format:@"Unable to locate a primary key field for %@, expected %@ or the return value from +(NSString *)primaryKeyFieldName if adopting the SMModel protocol.", [self description], objectIdField];
+        [NSException raise:SMExceptionIncompatibleObject format:@"Unable to locate a primary key field for %@, expected %@.  If this is an Entity which describes user objects, and your managed object subclass inherits from SMUserManagedObject, make sure to include an attribute that matches the value returned by your SMClient's primaryKeyFieldName property.", [self description], objectIdField];
     }
     return [self valueForKey:objectIdField];
 }
 
 - (NSString *)assignObjectId
-{    
+{
     id objectId = nil;
     CFUUIDRef uuid = CFUUIDCreate(CFAllocatorGetDefault());
     objectId = (__bridge_transfer NSString *)CFUUIDCreateString(CFAllocatorGetDefault(), uuid);
