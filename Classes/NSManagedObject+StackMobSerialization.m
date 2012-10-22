@@ -107,13 +107,13 @@
             NSAttributeDescription *attributeDescription = (NSAttributeDescription *)property;
             if (attributeDescription.attributeType != NSUndefinedAttributeType) {
                 if (attributeDescription.attributeType == NSDateAttributeType) {
-                    NSDate *dateValue = propertyValue;//[self valueForKey:(NSString *)propertyName];
+                    NSDate *dateValue = propertyValue;
                     if (dateValue != nil) {
                         double convertedDate = [dateValue timeIntervalSince1970];
                         [objectDictionary setObject:[NSNumber numberWithInt:convertedDate] forKey:[selfEntity sm_fieldNameForProperty:property]];
                     }
                 } else {
-                    id value = propertyValue;//[self valueForKey:(NSString *)propertyName];
+                    id value = propertyValue;
                     if (value != nil) {
                         [objectDictionary setObject:value forKey:[selfEntity sm_fieldNameForProperty:property]];
                     }
@@ -174,93 +174,7 @@
         }
     }];
     
-    /*
-    [selfEntity.propertiesByName enumerateKeysAndObjectsUsingBlock:^(id propertyName, id property, BOOL *stopPropEnum) {
-        if ([property isKindOfClass:[NSAttributeDescription class]]) {
-            NSAttributeDescription *attributeDescription = (NSAttributeDescription *)property;
-            if (attributeDescription.attributeType != NSUndefinedAttributeType) {
-                if (attributeDescription.attributeType == NSDateAttributeType) {
-                    NSDate *dateValue = [self valueForKey:(NSString *)propertyName];
-                    if (dateValue != nil) {
-                        double convertedDate = [dateValue timeIntervalSince1970];
-                        [objectDictionary setObject:[NSNumber numberWithInt:convertedDate] forKey:[selfEntity sm_fieldNameForProperty:property]];
-                    }
-                } else {
-                    id value = [self valueForKey:(NSString *)propertyName];
-                    // do not support [NSNull null] values yet
-                    // if (value == nil) { value = [NSNull null]; }
-                    if (value != nil) {
-                        [objectDictionary setObject:value forKey:[selfEntity sm_fieldNameForProperty:property]];
-                    }
-                }
-            }
-            
-        }
-        else if ([property isKindOfClass:[NSRelationshipDescription class]]) {
-            NSRelationshipDescription *relationship = (NSRelationshipDescription *)property;
-            
-            // get the relationship contents for the property
-            id relationshipContents = [self valueForKey:propertyName];
-            
-            // to-many relationship
-            if ([relationship isToMany]) {
-                //
-                if ([relationshipContents count] > 0) {
-                    NSMutableArray *relatedObjectDictionaries = [NSMutableArray array];
-                    [(NSSet *)relationshipContents enumerateObjectsUsingBlock:^(id child, BOOL *stopRelEnum) {
-                        NSString *childObjectId = [child sm_objectId];
-                        if (childObjectId == nil) {
-                            *stopRelEnum = YES;
-                            [NSException raise:SMExceptionIncompatibleObject format:@"Trying to serialize an object with a to-many relationship whose value references an object with a nil value for it's primary key field.  Please make sure you assign object ids with assignObjectId before attaching to relationships.  The object in question is %@", [child description]];
-                        }
-                        [relatedObjectDictionaries addObject:[child sm_objectId]];
-                    }];
-                    
-                    // add relationship header only if there are actual keys
-                    if ([relatedObjectDictionaries count] > 0) {
-                        NSMutableString *relationshipKeyPath = [NSMutableString string];
-                        if (keyPath && [keyPath length] > 0) {
-                            [relationshipKeyPath appendFormat:@"%@.", keyPath];
-                        }
-                        [relationshipKeyPath appendString:[selfEntity sm_fieldNameForProperty:relationship]];
-                        
-                        [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] sm_schema]]];
-                    }
-                    [objectDictionary setObject:relatedObjectDictionaries forKey:[selfEntity sm_fieldNameForProperty:property]];
-                }
-            } else { 
-                if (relationshipContents) {
-                    if ([processedObjects containsObject:relationshipContents]) {
-                        // add relationship header
-                        NSMutableString *relationshipKeyPath = [NSMutableString string];
-                        if (keyPath && [keyPath length] > 0) {
-                            [relationshipKeyPath appendFormat:@"%@.", keyPath];
-                        }
-                        [relationshipKeyPath appendString:[selfEntity sm_fieldNameForProperty:relationship]];
-                        
-                        [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] sm_schema]]];
-                        
-                        
-                        NSPropertyDescription *primaryKeyProperty = [[[relationship destinationEntity] propertiesByName] objectForKey:[relationshipContents primaryKeyField]];
-                        [objectDictionary setObject:[NSDictionary dictionaryWithObject:[relationshipContents sm_objectId] forKey:[[relationship destinationEntity] sm_fieldNameForProperty:primaryKeyProperty]] forKey:[selfEntity sm_fieldNameForProperty:property]];
-                    }
-                    else {
-                        NSMutableString *relationshipKeyPath = [NSMutableString string];
-                        if (keyPath && [keyPath length] > 0) {
-                            [relationshipKeyPath appendFormat:@"%@.", keyPath];
-                        }
-                        [relationshipKeyPath appendString:[selfEntity sm_fieldNameForProperty:relationship]];
-                        
-                        [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] sm_schema]]];
-                        
-                        [objectDictionary setObject:[relationshipContents sm_dictionarySerializationByTraversingRelationshipsExcludingObjects:processedObjects entities:processedEntities relationshipHeaderValues:values relationshipKeyPath:relationshipKeyPath] forKey:[selfEntity sm_fieldNameForProperty:property]];
-                    }
-                }
-            }
-        }
-    }];
-     */
-    // Add value for primary key field
+    // Add value for primary key field if needed
     NSString *primaryKeyField = [self sm_primaryKeyField];
     if (![objectDictionary valueForKey:primaryKeyField]) {
         [self attachObjectIdToDictionary:&objectDictionary];
