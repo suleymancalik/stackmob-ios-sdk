@@ -365,9 +365,15 @@ You should implement this method conservatively, and expect that unknown request
     return [resultsWithoutOID map:^(id item) {
         // TO-DO OFFLINE-SUPPORT
         //NSManagedObjectID *oid = [self cacheInsert:item forEntity:fetchRequest.entity inContext:context];
-        
-        
-        NSString *primaryKeyField = [fetchRequest.entity sm_fieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
+        NSString *primaryKeyField = nil;
+        @try {
+            primaryKeyField = [fetchRequest.entity sm_fieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
+        }
+        @catch (NSException *exception) {
+            if (NSClassFromString(fetchRequest.entityName) && [NSClassFromString(fetchRequest.entityName) superclass] == [SMUserManagedObject class]) {
+                primaryKeyField = [self.smDataStore.session primaryKeyFieldName];
+            }
+        }
         id remoteID = [item objectForKey:primaryKeyField];
         if (!remoteID) {
             [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];

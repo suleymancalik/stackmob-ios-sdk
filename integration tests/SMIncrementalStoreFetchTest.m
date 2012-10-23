@@ -19,6 +19,7 @@
 #import "StackMob.h"
 #import "SMIntegrationTestHelpers.h"
 #import "SMCoreDataIntegrationTestHelpers.h"
+#import "User3.h"
 
 SPEC_BEGIN(SMIncrementalStorePredicateTest)
 
@@ -351,6 +352,59 @@ describe(@"with fixtures", ^{
                 }];
             });
         });
+    });
+    
+});
+
+describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^{
+    __block NSManagedObjectContext *moc = nil;
+    __block SMClient *client = nil;
+    __block User3 *user1 = nil;
+    __block User3 *user2 = nil;
+    __block User3 *user3 = nil;
+    beforeEach(^{
+        // create a bunch of users
+        moc = [SMCoreDataIntegrationTestHelpers moc];
+        client = [SMIntegrationTestHelpers defaultClient];
+        
+        user1 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] insertIntoManagedObjectContext:moc];
+        [user1 setUsername:[NSString stringWithFormat:@"matt%d", arc4random() / 10000]];
+        [user1 setPassword:@"1234"];
+        
+        user2 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] insertIntoManagedObjectContext:moc];
+        [user2 setUsername:[NSString stringWithFormat:@"matt%d", arc4random() / 10000]];
+        [user2 setPassword:@"1234"];
+        
+        user3 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] insertIntoManagedObjectContext:moc];
+        [user3 setUsername:[NSString stringWithFormat:@"matt%d", arc4random() / 10000]];
+        [user3 setPassword:@"1234"];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    afterEach(^{
+        [moc deleteObject:user1];
+        [moc deleteObject:user2];
+        [moc deleteObject:user3];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    it(@"Should correctly fetch", ^{
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc];
+        [fetchRequest setEntity:entity];
+        NSError *anError = nil;
+        NSArray *theResults = [moc executeFetchRequest:fetchRequest error:&anError];
+        [anError shouldBeNil];
+        [[theValue([theResults count]) should] equal:theValue(3)];
     });
     
 });
