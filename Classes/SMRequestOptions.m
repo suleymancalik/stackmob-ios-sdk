@@ -28,6 +28,8 @@
 + (SMRequestOptions *)options
 {
     SMRequestOptions *opts = [[SMRequestOptions alloc] init];
+    opts.headers = nil;
+    opts.isSecure = NO;
     opts.tryRefreshToken = YES;
     opts.numberOfRetries = 3;
     opts.retryBlock = nil;
@@ -49,14 +51,14 @@
     return opt;
 }
 
-+ optionsWithExpandDepth:(NSUInteger)depth
++ (SMRequestOptions *)optionsWithExpandDepth:(NSUInteger)depth
 {
     SMRequestOptions *opt = [SMRequestOptions options];
     [opt setExpandDepth:depth];
     return opt;
 }
 
-+ optionsWithReturnedFieldsRestrictedTo:(NSArray *)fields
++ (SMRequestOptions *)optionsWithReturnedFieldsRestrictedTo:(NSArray *)fields
 {
     SMRequestOptions *opt = [SMRequestOptions options];
     [opt restrictReturnedFieldsTo:fields];
@@ -65,12 +67,22 @@
 
 - (void)setExpandDepth:(NSUInteger)depth
 {
-    [self.headers setValue:[NSString stringWithFormat:@"%d", depth] forKey:@"X-StackMob-Expand"];
+    if (!self.headers) {
+        self.headers = [NSDictionary dictionary];
+    }
+    NSMutableDictionary *tempHeadersDict = [self.headers mutableCopy];
+    [tempHeadersDict setValue:[NSString stringWithFormat:@"%d", depth] forKey:@"X-StackMob-Expand"];
+    self.headers = tempHeadersDict;
 }
 
 - (void)restrictReturnedFieldsTo:(NSArray *)fields
 {
-    [self.headers setValue:[fields componentsJoinedByString:@","] forKey:@"X-StackMob-Select"];
+    if (!self.headers) {
+        self.headers = [NSDictionary dictionary];
+    }
+    NSMutableDictionary *tempHeadersDict = [self.headers mutableCopy];
+    [tempHeadersDict setValue:[fields componentsJoinedByString:@","] forKey:@"X-StackMob-Select"];
+    self.headers = tempHeadersDict;
 }
 
 - (void)addSMErrorServiceUnavailableRetryBlock:(SMFailureRetryBlock)retryBlock

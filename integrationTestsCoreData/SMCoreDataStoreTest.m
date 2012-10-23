@@ -127,7 +127,7 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
                 it(@"a call to save: should fail, and the error should contain the info", ^{
                     __block BOOL saveSuccess = NO;
                     [moc performBlockAndWait:^{
-                        NSError *__autoreleasing anError = nil;
+                        NSError *anError = nil;
                         saveSuccess = [moc save:&anError];
                         
                         [anError shouldNotBeNil];
