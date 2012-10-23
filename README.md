@@ -28,7 +28,7 @@ We need to create a Podfile to contain our project's configuration for CocoaPods
 
 Your Podfile defines your app's dependencies on other libraries. Add StackMob to it.
 
-		platform :ios
+		platform :ios, '5.0'
 		pod 'StackMob', '1.1.0'
 
 Now you can use CocoaPods to install your dependencies.
@@ -118,11 +118,11 @@ By default, custom code tests are turned off.  This is because they require you 
 ## Submitting pull requests
 
 0. Fork the repository on github and clone your fork.
-1. Create a topic branch: `git checkout -b make_sdk_better`.
+1. Create a topic branch: `git checkout -b make_sdk_better development`.
 2. Write some tests for your change.
 3. Make the tests pass.
 4. Commit your changes.
-5. (Go to #2.)
-6. Make sure your topic branch is up to date with any changes other developers have added to master while you were working: `git checkout master && git pull && git checkout - && git merge master` (`git rebase master` for local branches if you prefer).
+5. (Repeat Steps 2-4 as needed.)
+6. Make sure your topic branch is up to date with any changes other developers have added to the development branch while you were working: `git merge development` (`git rebase development` for local branches if you prefer).
 7. Push your topic branch to your fork: `git push origin make_sdk_better`.
-8. Create a pull request on github asking StackMob to merge your topic branch into StackMob's master branch.
+8. Create a pull request on github asking StackMob to merge your topic branch into StackMob's **development** branch.
