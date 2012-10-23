@@ -91,8 +91,8 @@ describe(@"can set a client with different password field name and everything st
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
         [client setUserSchema:@"User4"];
-        [client setPrimaryKeyFieldName:@"theuser"];
-        [client setPasswordFieldName:@"thepassword"];
+        [client setUserPrimaryKeyField:@"theuser"];
+        [client setUserPasswordField:@"thepassword"];
         moc = [SMCoreDataIntegrationTestHelpers moc];
         // tests save here
         person = [NSEntityDescription insertNewObjectForEntityForName:@"User4" inManagedObjectContext:moc];
@@ -257,7 +257,7 @@ describe(@"should be able to create a user, relate to other object, and save eve
     
 });
  
-describe(@"primaryKeyFieldName works", ^{
+describe(@"userPrimaryKeyField works", ^{
     
     __block SMClient *client = nil;
     __block NSManagedObjectContext *moc = nil;

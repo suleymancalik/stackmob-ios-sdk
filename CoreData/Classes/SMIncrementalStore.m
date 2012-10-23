@@ -371,7 +371,7 @@ You should implement this method conservatively, and expect that unknown request
         }
         @catch (NSException *exception) {
             if (NSClassFromString(fetchRequest.entityName) && [NSClassFromString(fetchRequest.entityName) superclass] == [SMUserManagedObject class]) {
-                primaryKeyField = [self.smDataStore.session primaryKeyFieldName];
+                primaryKeyField = [self.smDataStore.session userPrimaryKeyField];
             }
         }
         id remoteID = [item objectForKey:primaryKeyField];
@@ -732,7 +732,7 @@ You should implement this method conservatively, and expect that unknown request
         return NO;
     }
     
-    [serializedDictCopy setObject:thePassword forKey:[[[self smDataStore] session] passwordFieldName]];
+    [serializedDictCopy setObject:thePassword forKey:[[[self smDataStore] session] userPasswordField]];
     
     [dictionaryToReturn setObject:serializedDictCopy forKey:SerializedDictKey];
     

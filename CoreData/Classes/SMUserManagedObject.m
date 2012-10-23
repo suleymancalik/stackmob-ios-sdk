@@ -46,7 +46,7 @@
 
 - (NSString *)primaryKeyField
 {
-    return self.client.primaryKeyFieldName;
+    return self.client.userPrimaryKeyField;
 }
 
 - (void)setPassword:(NSString *)value

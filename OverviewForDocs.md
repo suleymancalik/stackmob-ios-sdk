@@ -183,7 +183,7 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 
 1. **Entity Names:** Core Data entities are encouraged to start with a capital letter and will translate to all lowercase on StackMob. Example: **Superpower** entity on Core Data translates to **superpower** schema on StackMob.
 2. **Property Names:** Core Data attribute and relationship names are encouraged to be in camelCase, but can also be in StackMob form, all lowercase with optional underscores. Acceptable formats are therefore **yearBorn**, **year_born**, or **yearborn**. All camelCased names will be converted to and from their equivalent form on StackMob, i.e. the property yearBorn will appear as year\_born on StackMob.
-3. **StackMob Schema Primary Keys:** All StackMob schemas have a primary key field that is always schemaName\_id, unless the schema is a user object, in which case it defaults to "username" but can be changed manually by setting the primaryKeyFieldName property in your `SMClient` instance.
+3. **StackMob Schema Primary Keys:** All StackMob schemas have a primary key field that is always schemaName\_id, unless the schema is a user object, in which case it defaults to "username" but can be changed manually by setting the userPrimaryKeyField property in your `SMClient` instance.
 
 <br/>
 
@@ -194,14 +194,14 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 90% of the time you can get away with assigning ids like this:
 		
 		// assuming your instance is called newManagedObject
-		[newManagedObject setValue:[newManagedObject sm_assignObjectId] forKey:[newManagedObject sm_primaryKeyField]];
+		[newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]];
 		
 		// now you can make a call to save: on your managed object context
 		
 	The other 10% of the time is when you want to assign your own ids that aren't unique strings based on a UUID algorithm. A great example of this is user objects, where you would probably assign the user's name to the primary key field.  In that case, your code might look more like this:
 	
 		// assuming your instance is called newManagedObject
-		[newManagedObject setValue:@"bob" forKey:[newManagedObject sm_primaryKeyField]];
+		[newManagedObject setValue:@"bob" forKey:[newManagedObject primaryKeyField]];
 		
 		// now you can make a call to save: on your managed object context 
 		

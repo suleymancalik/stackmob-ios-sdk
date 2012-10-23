@@ -54,7 +54,7 @@
  Initializes a new managed object with a reference to the provided `SMClient` instance.
  
  @param entity The description of this managed object's entity.
- @param client The `SMClient` instance to reference for the primary key field name, taken from client.primaryKeyFieldName.
+ @param client The `SMClient` instance to reference for the primary key field name, taken from client.userPrimaryKeyField.
  @param context The managed object context to insert the object into.
  
  @return An newly instantiated managed object to define a user.

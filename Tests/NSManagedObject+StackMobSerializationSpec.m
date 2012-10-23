@@ -298,10 +298,10 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
     
 });
 
-describe(@"-primaryKeyFieldName", ^{
+describe(@"-userPrimaryKeyField", ^{
     __block NSEntityDescription *theEntity = nil;
     __block NSManagedObject *theObject = nil;
-    context(@"With an entity that has a StackMob-like primaryKeyFieldName", ^{
+    context(@"With an entity that has a StackMob-like userPrimaryKeyField", ^{
         beforeEach(^{
             theEntity = [[NSEntityDescription alloc] init];
             [theEntity setName:@"Entity"];
@@ -324,11 +324,11 @@ describe(@"-primaryKeyFieldName", ^{
             
             theObject = [[NSManagedObject alloc] initWithEntity:theEntity insertIntoManagedObjectContext:nil];
         });
-        it(@"Should return entity_id for primaryKeyFieldName", ^{
+        it(@"Should return entity_id for userPrimaryKeyField", ^{
             [[[theObject primaryKeyField] should] equal:@"entity_id"];
         });
     });
-    context(@"With an entity that has a CoreData-like primaryKeyFieldName", ^{
+    context(@"With an entity that has a CoreData-like userPrimaryKeyField", ^{
         beforeEach(^{
             theEntity = [[NSEntityDescription alloc] init];
             [theEntity setName:@"Entity"];
@@ -352,7 +352,7 @@ describe(@"-primaryKeyFieldName", ^{
             theObject = [[NSManagedObject alloc] initWithEntity:theEntity insertIntoManagedObjectContext:nil];
 
         });
-        it(@"Should return entityId for primaryKeyFieldName", ^{
+        it(@"Should return entityId for userPrimaryKeyField", ^{
             [[[theObject primaryKeyField] should] equal:@"entityId"];
         });
     });
@@ -374,7 +374,7 @@ describe(@"-primaryKeyFieldName", ^{
             
             user = [[StackMobSerializationSpecUser alloc] initWithEntity:userEntity insertIntoManagedObjectContext:nil];
         });
-        it(@"Should return entityId for primaryKeyFieldName", ^{
+        it(@"Should return entityId for userPrimaryKeyField", ^{
             [[[user primaryKeyField] should] equal:@"username"];
         });
     });

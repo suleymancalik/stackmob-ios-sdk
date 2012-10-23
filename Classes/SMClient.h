@@ -79,8 +79,8 @@
  
  * apiHost = @"api.stackmob.com";
  * userSchema = @"user";
- * primaryKeyFieldName = @"username";
- * passwordFieldName = @"password";
+ * userPrimaryKeyField = @"username";
+ * userPasswordField = @"password";
  
  To change the defaults so they match your schemas and fields on StackMob:
  
@@ -88,10 +88,10 @@
  
  
         client.userSchema = @"teacher";
-        [client setPrimaryKeyFieldName:@"name_of_user"];
+        [client setUserPrimaryKeyField:@"email"];
  
  
- * Alternatively, you can set all the properties at once using <initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:>.
+ * Alternatively, you can set all the properties at once using <initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:>.
  
  **Important:** Don't forget to check the **Create as a User Object** box when <a href="https://developer.stackmob.com/api/schemas/create" target="_blank">creating a new schema</a> for user objects.
  
@@ -145,14 +145,14 @@
  
  Default is `@"username"`.
  */
-@property(nonatomic, copy) NSString *primaryKeyFieldName;
+@property(nonatomic, copy) NSString *userPrimaryKeyField;
 
 /**
  The StackMob field name for the password. 
  
  Default is `@"password"`.
  */
-@property(nonatomic, copy) NSString *passwordFieldName;
+@property(nonatomic, copy) NSString *userPasswordField;
 
 /**
  An instance of `SMUserSession` which contains the necessary credentials to make StackMob requests.
@@ -184,8 +184,8 @@
  @param apiHost The host to connect to for API requests. Default is `api.stackmob.com`.
  @param publicKey Your StackMob application's OAuth2 public key.
  @param userSchema The StackMob schema that has been marked as a user object. Default is `@"user"`.
- @param primaryKeyFieldName The StackMob primary key field name for the user object schema. Default is `@"username"`.
- @param passwordFieldName The StackMob field name for the password. Default is `@"password"`.
+ @param userPrimaryKeyField The StackMob primary key field name for the user object schema. Default is `@"username"`.
+ @param userPasswordField The StackMob field name for the password. Default is `@"password"`.
  
  @return An instance of `SMClient`.
  */
@@ -193,8 +193,8 @@
                  apiHost:(NSString *)apiHost 
                publicKey:(NSString *)publicKey 
               userSchema:(NSString *)userSchema
-              primaryKeyFieldName:(NSString *)primaryKeyFieldName
-       passwordFieldName:(NSString *)passwordFieldName;
+              userPrimaryKeyField:(NSString *)userPrimaryKeyField
+       userPasswordField:(NSString *)userPasswordField;
 
 /**
  Initialize with only the most basic parameters and defaults for the rest.
