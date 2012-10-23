@@ -101,9 +101,9 @@ describe(@"NSEntityDescription_StackMobSerializationSpec", ^{
     });
 });
 
-describe(@"-primaryKeyFieldName", ^{
+describe(@"-userPrimaryKeyField", ^{
     __block NSEntityDescription *theEntity = nil;
-    context(@"With an entity that has a StackMob-like primaryKeyFieldName", ^{
+    context(@"With an entity that has a StackMob-like userPrimaryKeyField", ^{
         beforeEach(^{
             theEntity = [[NSEntityDescription alloc] init];
             [theEntity setName:@"Entity"];
@@ -119,11 +119,11 @@ describe(@"-primaryKeyFieldName", ^{
             
             [theEntity setProperties:[NSArray arrayWithObjects:entity_id, name, nil]];
         });
-        it(@"Should return entity_id for primaryKeyFieldName", ^{
-            [[[theEntity sm_primaryKeyField] should] equal:@"entity_id"];
+        it(@"Should return entity_id for userPrimaryKeyField", ^{
+            [[[theEntity primaryKeyField] should] equal:@"entity_id"];
         });
     });
-    context(@"With an entity that has a CoreData-like primaryKeyFieldName", ^{
+    context(@"With an entity that has a CoreData-like userPrimaryKeyField", ^{
         beforeEach(^{
             theEntity = [[NSEntityDescription alloc] init];
             [theEntity setName:@"Entity"];
@@ -139,8 +139,8 @@ describe(@"-primaryKeyFieldName", ^{
             
             [theEntity setProperties:[NSArray arrayWithObjects:entityId, name, nil]];
         });
-        it(@"Should return entityId for primaryKeyFieldName", ^{
-            [[[theEntity sm_primaryKeyField] should] equal:@"entityId"];
+        it(@"Should return entityId for userPrimaryKeyField", ^{
+            [[[theEntity primaryKeyField] should] equal:@"entityId"];
         });
         
     });
