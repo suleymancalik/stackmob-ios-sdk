@@ -44,13 +44,13 @@
 	
 	<option value="//api/name/appAPIVersion">&nbsp;&nbsp;&nbsp;&nbsp;appAPIVersion</option>
 	
-	<option value="//api/name/passwordFieldName">&nbsp;&nbsp;&nbsp;&nbsp;passwordFieldName</option>
-	
-	<option value="//api/name/primaryKeyFieldName">&nbsp;&nbsp;&nbsp;&nbsp;primaryKeyFieldName</option>
-	
 	<option value="//api/name/publicKey">&nbsp;&nbsp;&nbsp;&nbsp;publicKey</option>
 	
 	<option value="//api/name/session">&nbsp;&nbsp;&nbsp;&nbsp;session</option>
+	
+	<option value="//api/name/userPasswordField">&nbsp;&nbsp;&nbsp;&nbsp;userPasswordField</option>
+	
+	<option value="//api/name/userPrimaryKeyField">&nbsp;&nbsp;&nbsp;&nbsp;userPrimaryKeyField</option>
 	
 	<option value="//api/name/userSchema">&nbsp;&nbsp;&nbsp;&nbsp;userSchema</option>
 	
@@ -90,7 +90,7 @@
 	
 	<option value="//api/name/getLoggedInUserWithOptions:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- getLoggedInUserWithOptions:onSuccess:onFailure:</option>
 	
-	<option value="//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:</option>
+	<option value="//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:</option>
 	
 	<option value="//api/name/initWithAPIVersion:publicKey:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAPIVersion:publicKey:</option>
 	
@@ -174,13 +174,13 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/appAPIVersion">appAPIVersion</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/passwordFieldName">passwordFieldName</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/primaryKeyFieldName">primaryKeyFieldName</a></span></li>
-	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/publicKey">publicKey</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/session">session</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/userPasswordField">userPasswordField</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/userPrimaryKeyField">userPrimaryKeyField</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/userSchema">userSchema</a></span></li>
 	
@@ -222,7 +222,7 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/getLoggedInUserWithOptions:onSuccess:onFailure:">getLoggedInUserWithOptions:onSuccess:onFailure:</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:">initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:">initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithAPIVersion:publicKey:">initWithAPIVersion:publicKey:</a></span></li>
 	
@@ -350,8 +350,8 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <ul>
 <li>apiHost = @&ldquo;api.stackmob.com&rdquo;;</li>
 <li>userSchema = @&ldquo;user&rdquo;;</li>
-<li>primaryKeyFieldName = @&ldquo;username&rdquo;;</li>
-<li>passwordFieldName = @&ldquo;password&rdquo;;</li>
+<li>userPrimaryKeyField = @&ldquo;username&rdquo;;</li>
+<li>userPasswordField = @&ldquo;password&rdquo;;</li>
 </ul>
 
 
@@ -361,9 +361,9 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <li><p>With your instance of <code>SMClient</code>, you can directly set the properties listed above using the dot notation or setters.  For example:</p>
 
 <pre><code>  client.userSchema = @"teacher";
-  [client setPrimaryKeyFieldName:@"name_of_user"];
+  [client setUserPrimaryKeyField:@"email"];
 </code></pre></li>
-<li><p>Alternatively, you can set all the properties at once using <a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:">initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:</a>.</p></li>
+<li><p>Alternatively, you can set all the properties at once using <a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:">initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:</a>.</p></li>
 </ul>
 
 
@@ -423,14 +423,14 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/primaryKeyFieldName">&nbsp;&nbsp;primaryKeyFieldName</a></code>
+		<code><a href="#//api/name/userPrimaryKeyField">&nbsp;&nbsp;userPrimaryKeyField</a></code>
 		<span class="tooltip"><p>The StackMob primary key field name for the user object schema.</p></span>
 	</span>
 	<span class="task-item-suffix">property</span>
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/passwordFieldName">&nbsp;&nbsp;passwordFieldName</a></code>
+		<code><a href="#//api/name/userPasswordField">&nbsp;&nbsp;userPasswordField</a></code>
 		<span class="tooltip"><p>The StackMob field name for the password.</p></span>
 	</span>
 	<span class="task-item-suffix">property</span>
@@ -467,7 +467,7 @@ via <a href="#//api/name/setDefaultClient:">setDefaultClient:</a>.</p></span>
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:">&ndash;&nbsp;initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:</a></code>
+		<code><a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:">&ndash;&nbsp;initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:</a></code>
 		<span class="tooltip"><p>Initialize specifying all parameters.</p></span>
 	</span>
 	
@@ -827,88 +827,6 @@ via <a href="#//api/name/setDefaultClient:">setDefaultClient:</a>.</p></span>
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/passwordFieldName" title="passwordFieldName"></a>
-	<h3 class="subsubtitle method-title">passwordFieldName</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>The StackMob field name for the password.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>@property (nonatomic, copy) NSString *passwordFieldName</code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>Default is <code>@"password"</code>.</p>
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">SMClient.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/primaryKeyFieldName" title="primaryKeyFieldName"></a>
-	<h3 class="subsubtitle method-title">primaryKeyFieldName</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>The StackMob primary key field name for the user object schema.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>@property (nonatomic, copy) NSString *primaryKeyFieldName</code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>Default is <code>@"username"</code>.</p>
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">SMClient.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
 	<a name="//api/name/publicKey" title="publicKey"></a>
 	<h3 class="subsubtitle method-title">publicKey</h3>
 	
@@ -965,6 +883,88 @@ via <a href="#//api/name/setDefaultClient:">setDefaultClient:</a>.</p></span>
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/userPasswordField" title="userPasswordField"></a>
+	<h3 class="subsubtitle method-title">userPasswordField</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The StackMob field name for the password.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, copy) NSString *userPasswordField</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Default is <code>@"password"</code>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/userPrimaryKeyField" title="userPrimaryKeyField"></a>
+	<h3 class="subsubtitle method-title">userPrimaryKeyField</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The StackMob primary key field name for the user object schema.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, copy) NSString *userPrimaryKeyField</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Default is <code>@"username"</code>.</p>
+	</div>
 	
 	
 	
@@ -1765,8 +1765,8 @@ will result in an error. This API requires the user to be logged in as well as t
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:" title="initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:"></a>
-	<h3 class="subsubtitle method-title">initWithAPIVersion:apiHost:publicKey:userSchema:primaryKeyFieldName:passwordFieldName:</h3>
+	<a name="//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:" title="initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:"></a>
+	<h3 class="subsubtitle method-title">initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:</h3>
 	
 	
 	
@@ -1776,7 +1776,7 @@ will result in an error. This API requires the user to be logged in as well as t
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (id)initWithAPIVersion:(NSString *)<em>appAPIVersion</em> apiHost:(NSString *)<em>apiHost</em> publicKey:(NSString *)<em>publicKey</em> userSchema:(NSString *)<em>userSchema</em> primaryKeyFieldName:(NSString *)<em>primaryKeyFieldName</em> passwordFieldName:(NSString *)<em>passwordFieldName</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (id)initWithAPIVersion:(NSString *)<em>appAPIVersion</em> apiHost:(NSString *)<em>apiHost</em> publicKey:(NSString *)<em>publicKey</em> userSchema:(NSString *)<em>userSchema</em> userPrimaryKeyField:(NSString *)<em>userPrimaryKeyField</em> userPasswordField:(NSString *)<em>userPasswordField</em></code></div>
 
     
 	
@@ -1804,12 +1804,12 @@ will result in an error. This API requires the user to be logged in as well as t
 		</dl>
 		
 		<dl class="argument-def parameter-def">
-			<dt><em>primaryKeyFieldName</em></dt>
+			<dt><em>userPrimaryKeyField</em></dt>
 			<dd><p>The StackMob primary key field name for the user object schema. Default is <code>@"username"</code>.</p></dd>
 		</dl>
 		
 		<dl class="argument-def parameter-def">
-			<dt><em>passwordFieldName</em></dt>
+			<dt><em>userPasswordField</em></dt>
 			<dd><p>The StackMob field name for the password. Default is <code>@"password"</code>.</p></dd>
 		</dl>
 		
@@ -2955,7 +2955,7 @@ password. They can then use that temporary password to login with <a href="#//ap
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-10-17)</span><br />
+						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-10-24)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

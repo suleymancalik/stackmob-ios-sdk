@@ -44,9 +44,9 @@
 	
 	<option value="instance_methods">Instance Methods</option>
 	
-	<option value="//api/name/sm_fieldNameForProperty:">&nbsp;&nbsp;&nbsp;&nbsp;- sm_fieldNameForProperty:</option>
+	<option value="//api/name/primaryKeyField">&nbsp;&nbsp;&nbsp;&nbsp;- primaryKeyField</option>
 	
-	<option value="//api/name/sm_primaryKeyField">&nbsp;&nbsp;&nbsp;&nbsp;- sm_primaryKeyField</option>
+	<option value="//api/name/sm_fieldNameForProperty:">&nbsp;&nbsp;&nbsp;&nbsp;- sm_fieldNameForProperty:</option>
 	
 	<option value="//api/name/sm_propertyForField:">&nbsp;&nbsp;&nbsp;&nbsp;- sm_propertyForField:</option>
 	
@@ -80,9 +80,9 @@
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_fieldNameForProperty:">sm_fieldNameForProperty:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/primaryKeyField">primaryKeyField</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_primaryKeyField">sm_primaryKeyField</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_fieldNameForProperty:">sm_fieldNameForProperty:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_propertyForField:">sm_propertyForField:</a></span></li>
 	
@@ -147,8 +147,8 @@
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/sm_primaryKeyField">&ndash;&nbsp;sm_primaryKeyField</a></code>
-		<span class="tooltip"><p>Returns the primary key field name for this entity whose value will map to the primary key field on StackMob.</p></span>
+		<code><a href="#//api/name/primaryKeyField">&ndash;&nbsp;primaryKeyField</a></code>
+		<span class="tooltip"><p>Returns the primary key field name for this entity.</p></span>
 	</span>
 	
 	
@@ -182,6 +182,47 @@
 					<div class="section section-methods">
 						<a title="Instance Methods" name="instance_methods"></a>
 						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/primaryKeyField" title="primaryKeyField"></a>
+	<h3 class="subsubtitle method-title">primaryKeyField</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns the primary key field name for this entity.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSString *)primaryKeyField</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>lowercaseEntityNameId or lowercaseEntityName_id is returned, if found as an attribute.</p><div class="note"><p><strong>Note:</strong> If lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity&rsquo;s attributes, a <code>SMExceptionIncompatibleObject</code> exception is thrown.</p></div>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSEntityDescription+StackMobSerialization.h</code><br />
+	</div>				
+	
+	
+</div>
 						
 						<div class="section-method">
 	<a name="//api/name/sm_fieldNameForProperty:" title="sm_fieldNameForProperty:"></a>
@@ -223,47 +264,6 @@
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
 		<div class="note"><p><strong>Note:</strong> An <code>SMExceptionIncompatibleObject</code> exception is thrown if the field name matches multiple properties.</p></div>
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">NSEntityDescription+StackMobSerialization.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/sm_primaryKeyField" title="sm_primaryKeyField"></a>
-	<h3 class="subsubtitle method-title">sm_primaryKeyField</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Returns the primary key field name for this entity whose value will map to the primary key field on StackMob.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>- (NSString *)sm_primaryKeyField</code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>If the <code>NSManagedObject</code> subclass for this entity conforms to the <SMModel> protocol, the return string from the overridden <primaryKeyFieldName> method is returned. Otherwise lowercaseEntityNameId or lowercaseEntityName_id is returned, if found.</p><div class="note"><p><strong>Note:</strong> If the <code>NSManagedObject</code> subclass for this entity does not conforms to the &lsquo;SMModel&rsquo; protocol, and lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity&rsquo;s attributes, a <code>SMExceptionIncompatibleObject</code> exception is thrown.</p></div>
 	</div>
 	
 	
@@ -380,7 +380,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-10-17)</span><br />
+						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-10-24)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						
