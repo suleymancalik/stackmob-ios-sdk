@@ -29,7 +29,7 @@ We need to create a Podfile to contain our project's configuration for CocoaPods
 Your Podfile defines your app's dependencies on other libraries. Add StackMob to it.
 
 		platform :ios, '5.0'
-		pod 'StackMob', '1.1.0'
+		pod 'StackMob', '1.1.1'
 
 Now you can use CocoaPods to install your dependencies.
 
