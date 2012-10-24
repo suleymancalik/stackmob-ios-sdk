@@ -31,7 +31,7 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
         camelCaseObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
         [camelCaseObject setValue:@"new" forKey:@"name"];
         [camelCaseObject setValue:date forKey:@"time"];
-        [camelCaseObject setValue:[camelCaseObject sm_assignObjectId] forKey:[camelCaseObject sm_primaryKeyField]];
+        [camelCaseObject setValue:[camelCaseObject assignObjectId] forKey:[camelCaseObject primaryKeyField]];
     });
     afterEach(^{
         [moc deleteObject:camelCaseObject];
@@ -113,7 +113,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
         booleanObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
         [booleanObject setValue:@"TRUUUUUUUUU" forKey:@"name"];
         [booleanObject setValue:[NSNumber numberWithBool:YES] forKey:@"done"];
-        [booleanObject setValue:[booleanObject sm_assignObjectId] forKey:[booleanObject sm_primaryKeyField]];
+        [booleanObject setValue:[booleanObject assignObjectId] forKey:[booleanObject primaryKeyField]];
     });
     afterEach(^{
         [moc deleteObject:booleanObject];
@@ -195,7 +195,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to false", ^{
         booleanObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
         [booleanObject setValue:@"Should be False" forKey:@"name"];
         [booleanObject setValue:[NSNumber numberWithBool:NO] forKey:@"done"];
-        [booleanObject setValue:[booleanObject sm_assignObjectId] forKey:[booleanObject sm_primaryKeyField]];
+        [booleanObject setValue:[booleanObject assignObjectId] forKey:[booleanObject primaryKeyField]];
     });
     afterEach(^{
         [moc deleteObject:booleanObject];

@@ -31,8 +31,8 @@
 @synthesize secureOAuthClient = _SM_secureOAuthClient;
 @synthesize tokenClient = _SM_tokenClient;  
 @synthesize userSchema = _SM_userSchema;
-@synthesize primaryKeyFieldName = _SM_primaryKeyFieldName;
-@synthesize passwordFieldName = _SM_passwordFieldName;
+@synthesize userPrimaryKeyField = _userPrimaryKeyField;
+@synthesize userPasswordField = _SM_userPasswordField;
 @synthesize expiration = _SM_expiration;
 @synthesize refreshToken = _SM_refreshToken;
 @synthesize refreshing = _SM_refreshing;
@@ -42,8 +42,8 @@
                  apiHost:(NSString *)apiHost 
                publicKey:(NSString *)publicKey 
               userSchema:(NSString *)userSchema
-              primaryKeyFieldName:(NSString *)primaryKeyFieldName
-       passwordFieldName:(NSString *)passwordFieldName
+     userPrimaryKeyField:(NSString *)userPrimaryKeyField
+       userPasswordField:(NSString *)userPasswordField
 {
     self = [super init];
     if (self) {
@@ -56,8 +56,8 @@
         [self.tokenClient setDefaultHeader:@"Content-Type" value:@"application/x-www-form-urlencoded"];
         [self.tokenClient setDefaultHeader:@"User-Agent" value:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, [[UIDevice currentDevice] model], [[UIDevice currentDevice] systemVersion], [[NSLocale currentLocale] localeIdentifier]]];
         self.userSchema = userSchema;
-        self.primaryKeyFieldName = primaryKeyFieldName;
-        self.passwordFieldName = passwordFieldName;
+        self.userPrimaryKeyField = userPrimaryKeyField;
+        self.userPasswordField = userPasswordField;
         self.refreshing = NO;
         self.oauthStorageKey = [NSString stringWithFormat:@"%@.oauth", publicKey];
         [self saveAccessTokenInfo:[[NSUserDefaults standardUserDefaults] dictionaryForKey:self.oauthStorageKey]];

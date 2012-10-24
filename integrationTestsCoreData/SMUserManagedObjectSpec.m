@@ -91,8 +91,8 @@ describe(@"can set a client with different password field name and everything st
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
         [client setUserSchema:@"User4"];
-        [client setPrimaryKeyFieldName:@"theuser"];
-        [client setPasswordFieldName:@"thepassword"];
+        [client setUserPrimaryKeyField:@"theuser"];
+        [client setUserPasswordField:@"thepassword"];
         moc = [SMCoreDataIntegrationTestHelpers moc];
         // tests save here
         person = [NSEntityDescription insertNewObjectForEntityForName:@"User4" inManagedObjectContext:moc];
@@ -222,7 +222,7 @@ describe(@"should be able to create a user, relate to other object, and save eve
         [person setPassword:@"1234"];
         
         todo = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
-        [todo setValue:[todo sm_assignObjectId] forKey:[todo sm_primaryKeyField]];
+        [todo setValue:[todo assignObjectId] forKey:[todo primaryKeyField]];
         [todo setValue:@"related to user3" forKey:@"title"];
     });
     afterEach(^{
@@ -257,7 +257,7 @@ describe(@"should be able to create a user, relate to other object, and save eve
     
 });
  
-describe(@"sm_primaryKeyFieldName works", ^{
+describe(@"userPrimaryKeyField works", ^{
     
     __block SMClient *client = nil;
     __block NSManagedObjectContext *moc = nil;
@@ -279,7 +279,7 @@ describe(@"sm_primaryKeyFieldName works", ^{
     it(@"saves correctly when using default client", ^{
         // tests save here
         user3 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] insertIntoManagedObjectContext:moc];
-        [user3 setValue:[user3 sm_assignObjectId] forKey:[user3 sm_primaryKeyField]];
+        [user3 setValue:[user3 assignObjectId] forKey:[user3 primaryKeyField]];
         [user3 setPassword:@"1234"];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
@@ -291,7 +291,7 @@ describe(@"sm_primaryKeyFieldName works", ^{
     it(@"saves correctly when specifying client", ^{
         // tests save here
         user3 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] client:client insertIntoManagedObjectContext:moc];
-        [user3 setValue:[user3 sm_assignObjectId] forKey:[user3 sm_primaryKeyField]];
+        [user3 setValue:[user3 assignObjectId] forKey:[user3 primaryKeyField]];
         [user3 setPassword:@"1234"];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
