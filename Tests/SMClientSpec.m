@@ -114,14 +114,14 @@ describe(@"simple configuration", ^{
     
     describe(@"userId", ^{
         it(@"should default to username", ^{
-            [[[client primaryKeyFieldName] should] equal:DEFAULT_PRIMARY_KEY_FIELD_NAME];
+            [[[client userPrimaryKeyField] should] equal:DEFAULT_PRIMARY_KEY_FIELD_NAME];
         });
     });
     
     
-    describe(@"passwordFieldName", ^{
+    describe(@"userPasswordField", ^{
         it(@"should default to password", ^{
-            [[[client passwordFieldName] should] equal:DEFAULT_PASSWORD_FIELD_NAME];
+            [[[client userPasswordField] should] equal:DEFAULT_PASSWORD_FIELD_NAME];
         });
     });
     
@@ -146,8 +146,8 @@ describe(@"complex configuration", ^{
     __block NSString *UDIDSalt = nil;
     __block NSString *apiHost = nil;
     __block NSString *userSchema = nil;
-    __block NSString *primaryKeyFieldName = nil;
-    __block NSString *passwordFieldName = nil;
+    __block NSString *userPrimaryKeyField = nil;
+    __block NSString *userPasswordField = nil;
 
 
     
@@ -156,9 +156,9 @@ describe(@"complex configuration", ^{
         UDIDSalt = @"foo";
         apiHost = @"bar";
         userSchema = @"qux";
-        primaryKeyFieldName = @"hello";
-        passwordFieldName = @"world";
-        client = [[SMClient alloc] initWithAPIVersion:appAPIVersion apiHost:apiHost publicKey:publicKey userSchema:userSchema primaryKeyFieldName:primaryKeyFieldName passwordFieldName:passwordFieldName];
+        userPrimaryKeyField = @"hello";
+        userPasswordField = @"world";
+        client = [[SMClient alloc] initWithAPIVersion:appAPIVersion apiHost:apiHost publicKey:publicKey userSchema:userSchema userPrimaryKeyField:userPrimaryKeyField userPasswordField:userPasswordField];
     });
     
     describe(@"app api version", ^{
@@ -202,15 +202,15 @@ describe(@"complex configuration", ^{
         });
     });
     
-    describe(@"primaryKeyFieldName", ^{
+    describe(@"userPrimaryKeyField", ^{
         it(@"should be set", ^{
-            [[[client primaryKeyFieldName] should] equal:primaryKeyFieldName];
+            [[[client userPrimaryKeyField] should] equal:userPrimaryKeyField];
         });
     });
     
-    describe(@"passwordFieldName", ^{
+    describe(@"userPasswordField", ^{
         it(@"should be set", ^{
-            [[[client passwordFieldName] should] equal:passwordFieldName];
+            [[[client userPasswordField] should] equal:userPasswordField];
         });
     });
 
@@ -264,7 +264,7 @@ describe(@"login with SM username and password", ^{
     
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" primaryKeyFieldName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userPrimaryKeyField:@"doggyname" userPasswordField:@"doggysecret"];
         });
         it(@"should pick up the user schema, user id, and password field", ^{
             NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"matt", @"doggyname", @"1234", @"doggysecret", @"mac", @"token_type", @"hmac-sha-1", @"mac_algorithm", nil];
@@ -320,7 +320,7 @@ describe(@"login with SM username, temporary password, and new password", ^{
     
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" primaryKeyFieldName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userPrimaryKeyField:@"doggyname" userPasswordField:@"doggysecret"];
         });
         it(@"should pick up the user schema, user id, and password field", ^{
             NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"matt", @"doggyname", @"1234", @"doggysecret", @"12345", @"new_password", @"mac", @"token_type", @"hmac-sha-1", @"mac_algorithm", nil];
@@ -389,7 +389,7 @@ describe(@"loggedInUser", ^{
     });   
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" primaryKeyFieldName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userPrimaryKeyField:@"doggyname" userPasswordField:@"doggysecret"];
         });
         it(@"should pick up the user schema", ^{
             [[[client.session.regularOAuthClient should] receive] requestWithMethod:@"GET" path:@"dog/loggedInUser" parameters:nil];
@@ -413,7 +413,7 @@ describe(@"refreshLogin", ^{
     
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" primaryKeyFieldName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userPrimaryKeyField:@"doggyname" userPasswordField:@"doggysecret"];
         });
         it(@"should pick up the user schema, user id, and password field", ^{
             NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"matt", @"doggyname", @"1234", @"doggysecret", @"mac", @"token_type", @"hmac-sha-1", @"mac_algorithm", nil];
@@ -471,7 +471,7 @@ describe(@"logout", ^{
     });   
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" primaryKeyFieldName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userPrimaryKeyField:@"doggyname" userPasswordField:@"doggysecret"];
         });
         it(@"should pick up the user schema", ^{
             [[[client.session.regularOAuthClient should] receive] requestWithMethod:@"GET" path:@"dog/logout" parameters:nil];
@@ -498,7 +498,7 @@ describe(@"forgot password", ^{
     
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" primaryKeyFieldName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userPrimaryKeyField:@"doggyname" userPasswordField:@"doggysecret"];
         });
         it(@"should pick up the user schema", ^{
             NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"matt", @"doggyname", nil];
@@ -542,7 +542,7 @@ describe(@"reset password", ^{
     
     context(@"when alternate values are specified in client ctor", ^{
         beforeEach(^{
-            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" primaryKeyFieldName:@"doggyname" passwordFieldName:@"doggysecret"];
+            client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userPrimaryKeyField:@"doggyname" userPasswordField:@"doggysecret"];
         });
         it(@"should pick up the user schema", ^{
             NSDictionary *old = [NSDictionary dictionaryWithObject:@"foo" forKey:@"password"];

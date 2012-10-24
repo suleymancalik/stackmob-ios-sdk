@@ -365,9 +365,15 @@ You should implement this method conservatively, and expect that unknown request
     return [resultsWithoutOID map:^(id item) {
         // TO-DO OFFLINE-SUPPORT
         //NSManagedObjectID *oid = [self cacheInsert:item forEntity:fetchRequest.entity inContext:context];
-        
-        
-        NSString *primaryKeyField = [fetchRequest.entity sm_fieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity sm_primaryKeyField]]];
+        NSString *primaryKeyField = nil;
+        @try {
+            primaryKeyField = [fetchRequest.entity sm_fieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
+        }
+        @catch (NSException *exception) {
+            if (NSClassFromString(fetchRequest.entityName) && [NSClassFromString(fetchRequest.entityName) superclass] == [SMUserManagedObject class]) {
+                primaryKeyField = [self.smDataStore.session userPrimaryKeyField];
+            }
+        }
         id remoteID = [item objectForKey:primaryKeyField];
         if (!remoteID) {
             [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
@@ -572,7 +578,7 @@ You should implement this method conservatively, and expect that unknown request
     return [array map:^id(id item) {
         NSString *itemId = [item sm_objectId];
         if (!itemId) {
-            [NSException raise:SMExceptionIncompatibleObject format:@"Item not previously assigned an object ID for it's primary key field, which is used to obtain a permanent ID for the Core Data object.  Before a call to save on the managedObjectContext, be sure to assign an object ID.  This looks something like [newManagedObject setValue:[newManagedObject sm_assignObjectId] forKey:[newManagedObject sm_primaryKeyField]].  The item in question is %@", item];
+            [NSException raise:SMExceptionIncompatibleObject format:@"Item not previously assigned an object ID for it's primary key field, which is used to obtain a permanent ID for the Core Data object.  Before a call to save on the managedObjectContext, be sure to assign an object ID.  This looks something like [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]].  The item in question is %@", item];
         } 
         
         NSManagedObjectID *returnId = [self newObjectIDForEntity:[item entity] referenceObject:itemId];
@@ -629,7 +635,7 @@ You should implement this method conservatively, and expect that unknown request
                         // else create the NSMangedObjectId from the primary key field
                         else {
                             NSEntityDescription *entityDescriptionForRelationship = [NSEntityDescription entityForName:[[obj entity] name] inManagedObjectContext:context];
-                            NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:entityDescriptionForRelationship referenceObject:[obj valueForKey:[obj sm_primaryKeyField]]];
+                            NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:entityDescriptionForRelationship referenceObject:[obj valueForKey:[obj primaryKeyField]]];
                             [relationshipIds addObject:relationshipObjectID];
                         }
                     }];
@@ -726,7 +732,7 @@ You should implement this method conservatively, and expect that unknown request
         return NO;
     }
     
-    [serializedDictCopy setObject:thePassword forKey:[[[self smDataStore] session] passwordFieldName]];
+    [serializedDictCopy setObject:thePassword forKey:[[[self smDataStore] session] userPasswordField]];
     
     [dictionaryToReturn setObject:serializedDictCopy forKey:SerializedDictKey];
     

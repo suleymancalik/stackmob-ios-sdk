@@ -1,5 +1,19 @@
 <h2>StackMob iOS SDK Change Log</h2>
 
+<h3>v1.1.1 - Oct 24, 2012</h3>
+
+**Features**
+
+* Full support for Core Data Boolean Data Types.  A Core Data Boolean attribute will map to a Boolean field on StackMob.
+* Removal of 'sm_' prefix for NSManagedObject category helper methods.  Use [managedObject assignObjectId] and [managedObject primaryKeyField].
+* Update SMClient user schema field property names. **userPrimaryKeyField** and **userPasswordField** describe the primary key and password field names for the user schema, respectively.
+
+**Fixes**
+
+* Update fetch request algorithm to support SMUserManagedObject change.
+* Update Core Data object serialization algorithm.  Serialized dictionary sent in request now includes only fields which have been updated since insert or the last call to save.
+* Update SMRequestOptions for proper headers dictionary initialization.
+
 <h3>v1.1.0 - Oct 17, 2012</h3>
 
 **Features**
