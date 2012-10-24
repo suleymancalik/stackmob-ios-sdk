@@ -112,6 +112,17 @@
                         double convertedDate = [dateValue timeIntervalSince1970];
                         [objectDictionary setObject:[NSNumber numberWithInt:convertedDate] forKey:[selfEntity sm_fieldNameForProperty:property]];
                     }
+                } else if (attributeDescription.attributeType == NSBooleanAttributeType) {
+                    // make sure that boolean values are serialized as true or false
+                    id value = propertyValue;
+                    if (value != nil) {
+                        if ([value boolValue]) {
+                            [objectDictionary setObject:[NSNumber numberWithBool:YES] forKey:[selfEntity sm_fieldNameForProperty:property]];
+                        }
+                        else {
+                            [objectDictionary setObject:[NSNumber numberWithBool:NO] forKey:[selfEntity sm_fieldNameForProperty:property]];
+                        }
+                    }
                 } else {
                     id value = propertyValue;
                     if (value != nil) {
