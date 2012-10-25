@@ -7,6 +7,21 @@
 		<link rel="stylesheet" type="text/css" media="print" href="css/stylesPrint.css" />
 		<meta name="generator" content="appledoc 2.0.5 (build 789)" />
 	</head>
+	<style>
+	.leftmap 
+	{
+	float:left;
+	margin-right:100px;
+	}
+	.rightmap
+	{
+	float:left;
+	}
+	.clearmap
+	{
+	clear:both;
+	}
+	</style>
 	<body>
 		<header id="top_header">
 			<div id="library" class="hideInXcode">
@@ -37,9 +52,11 @@
 <p>As part of the integration between StackMob and Core Data, our goal is to support as much Core Data functionality as we can, including attribute types, fetch request settings and predicate formats.</p>
 <p>As we continually improve our SDK this page will stay up to date with everything that is currently supported.</p>
 
-<h2>Data Type Map</h2>
+<h2>Data Type Maps</h2>
 
-<p>The following is a list of Core Data attribute types and their corresponding field type on StackMob, if supported:</p> 
+<div class="leftmap">
+
+<h3>Core Data Attribute Type -> StackMob Field Type</h3> 
 
 <table cellpadding="8px" width="600px">
     <tr align="center">
@@ -72,7 +89,7 @@
     </tr>
     <tr>
         <td>String</td>
-        <td>String, Binary Data (see <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMBinaryDataConversion.html">SMBinaryDataConversion</a>)</td>
+        <td>String, Binary (see <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMBinaryDataConversion.html">SMBinaryDataConversion</a>)</td>
     </tr>
     <tr>
         <td>Boolean</td>
@@ -91,6 +108,50 @@
         <td>Currently Not Supported</td>
     </tr>
 </table>
+</div>
+
+<div class="rightmap">
+
+<h3>StackMob Field Type -> Core Data Attribute Type</h3>
+
+<table cellpadding="8px" width="600px">
+    <tr align="center">
+        <th>StackMob Field Type</th>
+        <th>Core Data Attribute Type</th>
+    </tr>
+    <tr>
+        <td>String</td>
+        <td>String</td>
+    </tr>
+    <tr>
+        <td>Integer</td>
+        <td>Integer 16, 32, & 64</td>
+    </tr>
+    <tr>
+        <td>Float</td>
+        <td>Decimal</td>
+    </tr>
+    <tr>
+        <td>Boolean</td>
+        <td>Boolean</td>
+    </tr>
+    <tr>
+        <td>Array</td>
+        <td>Currently not supported with Core Data, use the Datastore API (See <a href="https://developer.stackmob.com/tutorials/ios/Lower-Level-CRUD-API">Lower Level CRUD API Tutorial</a>)</td>
+    </tr>
+    <tr>
+        <td>Binary</td>
+        <td>String</td>
+    </tr>
+    <tr>
+        <td>Geopoint (lat/lon)</td>
+        <td>Currently not supported with Core Data, use the Datastore API (See <a href="https://developer.stackmob.com/tutorials/ios/Saving-Geo-Location-Data">Saving Geo Location Data Tutorial</a>)</td>
+    </tr>
+</table>
+
+</div>
+
+<div class="clearmap"></div>
 
 <h2>Entity and Property Naming Conventions</h2>
 
