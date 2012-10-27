@@ -18,6 +18,7 @@
 #import "StackMob.h"
 #import "SMCoreDataIntegrationTestHelpers.h"
 #import "SMIntegrationTestHelpers.h"
+#import "Random.h"
 
 SPEC_BEGIN(CoreDataPropertyTypesSpec)
 
@@ -107,7 +108,7 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
 
 describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
     __block NSManagedObjectContext *moc = nil;
-    __block NSManagedObject *booleanObject = nil;
+    __block Random *booleanObject = nil;
     beforeEach(^{
         moc = [SMCoreDataIntegrationTestHelpers moc];
         booleanObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];

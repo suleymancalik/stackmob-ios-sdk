@@ -156,7 +156,10 @@
                 }
                 [objectDictionary setObject:relatedObjectDictionaries forKey:[selfEntity sm_fieldNameForProperty:property]];
             } else {
-                if ([processedObjects containsObject:propertyValue]) {
+                if (propertyValue == [NSNull null]) {
+                    [objectDictionary setObject:propertyValue forKey:[selfEntity sm_fieldNameForProperty:property]];
+                }
+                else if ([processedObjects containsObject:propertyValue]) {
                     // add relationship header
                     NSMutableString *relationshipKeyPath = [NSMutableString string];
                     if (keyPath && [keyPath length] > 0) {
