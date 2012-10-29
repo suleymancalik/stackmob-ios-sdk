@@ -120,9 +120,9 @@
                               forKey:CONCAT(field, @"[within]")];
 }
 
-- (void)where:(NSString *)field isWithin:(CLLocationDistance)meters metersOf:(CLLocationCoordinate2D)point
+- (void)where:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point
 {
-    double radius = (meters / 1000.0) / EARTH_RADIAN_KM;
+    double radius = kilometers / EARTH_RADIAN_KM;
     NSString *withinParam = [NSString stringWithFormat:@"%.6f,%.6f,%.6f",
                              point.latitude, 
                              point.longitude, 

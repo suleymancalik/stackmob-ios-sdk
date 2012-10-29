@@ -146,15 +146,15 @@
 - (void)where:(NSString *)field isWithin:(double)miles milesOf:(CLLocationCoordinate2D)point;
 
 /**
- Add the query criteria: `field`'s location is within `meters` of `point`.
+ Add the query criteria: `field`'s location is within `kilometers` of `point`.
  
  @note StackMob will generate a field `distance` and insert it into the response. This field is the distance between the query `field`'s location and `point`.
  
  @param field The geo field in the StackMob schema that is to be compared.
- @param meters Distance in meters.
+ @param kilometers Distance in kilometers.
  @param point The point around which to search.
  */
-- (void)where:(NSString *)field isWithin:(CLLocationDistance)meters metersOf:(CLLocationCoordinate2D)point;
+- (void)where:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point;
 
 /**
  Add the query criteria: `field`'s location falls within the bounding box with corners `sw` and `ne`.
