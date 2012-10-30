@@ -1,5 +1,19 @@
 <h2>StackMob iOS SDK Change Log</h2>
 
+<h3>v1.1.2 - Oct 29, 2012</h3>
+
+**Features**
+
+* Updated SMQuery Geopoint method to take distance in kilometers instead of meters.  New method is _where:isWithin:kilometersOf:_.
+* Add _optionsWithExpandDepth:_ and _optionsWithReturnedFieldsRestrictedTo:_ methods to SMRequestOptions class. 
+* Provide error message when creating an object with null values for fields.  If you receive an error which states that a field was sent with a value of null and the type cannot be inferred, simply go online to the Manage Schemas section of your StackMob Dashboard and manually add the field with correct data type.  This happens occasionally when working with number types in Core Data.
+
+**Fixes**
+
+* Allow setting of Core Data relationships to nil.
+* Add proper SMRequestOptions headers dictionary initialization.   
+* Change default merge policy of SMCoreDataStore _managedObjectContext_ property to NSMergeByPropertyObjectTrumpMergePolicy.  This translates to "client wins" when there are conflicts for particular objects.  Feel free to change the merge policy at any time by calling the _setMergePolicy:_ method on the managed object context of your SMCoreDataStore instance.
+
 <h3>v1.1.1 - Oct 24, 2012</h3>
 
 **Features**
