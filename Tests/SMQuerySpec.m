@@ -96,11 +96,11 @@ describe(@"where clauses", ^{
         [[results should] equal:expectation];
     });
     it(@"-where:isWithin:metersOf", ^{
-        [query where:field1 isWithin:1000.0 metersOf:location1];
+        [query where:field1 isWithin:1000.0 kilometersOf:location1];
         NSString *expectation = [NSString stringWithFormat:@"%.6f,%.6f,%.6f", 
                                  location1.latitude,
                                  location1.longitude,
-                                 0.000157];
+                                 0.157048];
         NSArray *results = [[query requestParameters] objectForKey:CONCAT(field1, @"[within]")];
         [[results should] equal:expectation];
     });

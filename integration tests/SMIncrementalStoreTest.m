@@ -780,24 +780,247 @@ describe(@"test camel case with relationships", ^{
         
         NSError *error = nil;
         if (![moc save:&error]) {
-            NSLog(@"There was an error! %@", error);
+            DLog(@"There was an error! %@", error);
             [error shouldBeNil];
         }
         else {
-            NSLog(@"You created a Todo and Category object!");
+            DLog(@"You created a Todo and Category object!");
         }
         
         [todo setValue:category forKey:@"category"];
         
         error = nil;
         if (![moc save:&error]) {
-            NSLog(@"There was an error! %@", error);
+            DLog(@"There was an error! %@", error);
             [error shouldBeNil];
         }
         else {
-            NSLog(@"You created a relationship between the Todo and Category Object!");
+            DLog(@"You created a relationship between the Todo and Category Object!");
         }
     });
+});
+
+describe(@"Updating existing object relationship fields to nil", ^{
+    __block NSManagedObjectContext *moc = nil;
+    __block Person *person = nil;
+    __block Superpower *superpower = nil;
+    __block NSManagedObject *interest = nil;
+    beforeEach(^{
+        moc = [SMCoreDataIntegrationTestHelpers moc];
+    });
+    it(@"passes for one-to-one", ^{
+        // create person and superpower
+        person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        
+        superpower = [NSEntityDescription insertNewObjectForEntityForName:@"Superpower" inManagedObjectContext:moc];
+        [superpower setValue:[superpower assignObjectId] forKey:[superpower primaryKeyField]];
+        
+        // save
+        NSError *error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // set relationship and save
+        [person setValue:superpower forKey:@"superpower"];
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // set relationship to nil and save
+        [person setValue:nil forKey:@"superpower"];
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // delete objects and save
+        [moc deleteObject:person];
+        [moc deleteObject:superpower];
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+    });
+    it(@"passes for one-to-many", ^{
+        // create person and superpower
+        person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        
+        interest = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
+        [interest setValue:[interest assignObjectId] forKey:[interest primaryKeyField]];
+        
+        // save
+        NSError *error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // set relationship and save
+        [person setValue:[NSSet setWithObject:interest] forKey:@"interests"];
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // set relationship to nil and save
+        [person setValue:nil forKey:@"interests"];
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // delete objects and save
+        [moc deleteObject:person];
+        [moc deleteObject:interest];
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+    });
+});
+
+describe(@"can update a field to null", ^{
+    __block NSManagedObjectContext *moc = nil;
+    __block Person *person = nil;
+    __block Superpower *superpower = nil;
+    beforeEach(^{
+        moc = [SMCoreDataIntegrationTestHelpers moc];
+        person = nil;
+        superpower = nil;
+    });
+    it(@"updates", ^{
+        person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        [person setValue:[NSNumber numberWithInt:3] forKey:@"armor_class"];
+        
+        // save
+        NSError *error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        [person setValue:nil forKey:@"armor_class"];
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // delete objects and save
+        [moc deleteObject:person];
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+
+        
+    });
+    it(@"updates with relationships, too", ^{
+        person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        [person setValue:[NSNumber numberWithInt:3] forKey:@"armor_class"];
+        
+        superpower = [NSEntityDescription insertNewObjectForEntityForName:@"Superpower" inManagedObjectContext:moc];
+        [superpower setValue:[superpower assignObjectId] forKey:[superpower primaryKeyField]];
+        
+        // save
+        NSError *error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // set relationship and save
+        [person setValue:superpower forKey:@"superpower"];
+        [person setValue:nil forKey:@"armor_class"];
+        
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // delete objects and save
+        [moc deleteObject:person];
+        [moc deleteObject:superpower];
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }        
+    });
+    
 });
 
 SPEC_END

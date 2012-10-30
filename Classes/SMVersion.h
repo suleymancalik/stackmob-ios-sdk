@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-#define SDK_VERSION @"1.1.1"
+#define SDK_VERSION @"1.1.2"
