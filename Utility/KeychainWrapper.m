@@ -78,8 +78,10 @@
     NSData *valueData = [value dataUsingEncoding:NSUTF8StringEncoding];
     [dictionary setObject:valueData forKey:(__bridge id)kSecValueData];
     
+#if __IPHONE_OS_VERSION_MIN_REQUIRED
     // Protect the keychain entry so it's only valid when the device is unlocked.
     [dictionary setObject:(__bridge id)kSecAttrAccessibleWhenUnlocked forKey:(__bridge id)kSecAttrAccessible];
+#endif
     
     // Add.
     OSStatus status = SecItemAdd((__bridge CFDictionaryRef)dictionary, NULL);
