@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-#import "Person.h"
-#import "Superpower.h"
+#import <Foundation/Foundation.h>
+#import <CoreData/CoreData.h>
+#import "StackMob.h"
 
+@interface User3 : SMUserManagedObject
 
-@implementation Person
-
-@dynamic armor_class;
-@dynamic company;
-@dynamic first_name;
-@dynamic last_name;
-@dynamic person_id;
-@dynamic favorites;
-@dynamic interests;
-@dynamic superpower;
+@property (nonatomic, retain) NSString * username;
 
 @end

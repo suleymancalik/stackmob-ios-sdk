@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1487" systemVersion="11E53" minimumToolsVersion="Xcode 4.1" macOSVersion="Automatic" iOSVersion="Automatic">
+<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1811" systemVersion="11E53" minimumToolsVersion="Xcode 4.1" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Category" syncable="YES">
         <attribute name="categoryId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
@@ -30,7 +30,8 @@
         <relationship name="interests" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Interest" inverseName="person" inverseEntity="Interest" syncable="YES"/>
         <relationship name="superpower" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Superpower" inverseName="person" inverseEntity="Superpower" syncable="YES"/>
     </entity>
-    <entity name="Random" syncable="YES">
+    <entity name="Random" representedClassName="Random" syncable="YES">
+        <attribute name="done" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="randomId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="server_id" optional="YES" attributeType="String" syncable="YES"/>
@@ -48,15 +49,26 @@
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="todoId" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="category" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="todo" inverseEntity="Category" syncable="YES"/>
+        <relationship name="user3" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="User3" inverseName="todos" inverseEntity="User3" syncable="YES"/>
+    </entity>
+    <entity name="User3" representedClassName="User3" syncable="YES">
+        <attribute name="username" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="todos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Todo" inverseName="user3" inverseEntity="Todo" syncable="YES"/>
+    </entity>
+    <entity name="User4" representedClassName="User4" syncable="YES">
+        <attribute name="thepassword" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="theuser" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Favorite" positionX="160" positionY="192" width="128" height="90"/>
-        <element name="Interest" positionX="160" positionY="192" width="128" height="105"/>
-        <element name="Oauth2test" positionX="160" positionY="192" width="128" height="75"/>
-        <element name="Person" positionX="160" positionY="192" width="128" height="165"/>
-        <element name="Random" positionX="160" positionY="192" width="128" height="105"/>
-        <element name="Superpower" positionX="511" positionY="216" width="128" height="120"/>
-        <element name="Todo" positionX="160" positionY="192" width="128" height="90"/>
-        <element name="Category" positionX="160" positionY="192" width="128" height="90"/>
+        <element name="Category" positionX="0" positionY="0" width="128" height="90"/>
+        <element name="Favorite" positionX="0" positionY="0" width="128" height="90"/>
+        <element name="Interest" positionX="0" positionY="0" width="128" height="105"/>
+        <element name="Oauth2test" positionX="0" positionY="0" width="128" height="75"/>
+        <element name="Person" positionX="0" positionY="0" width="128" height="165"/>
+        <element name="Random" positionX="187" positionY="-108" width="128" height="135"/>
+        <element name="Superpower" positionX="-171" positionY="123" width="128" height="120"/>
+        <element name="Todo" positionX="-218" positionY="396" width="128" height="105"/>
+        <element name="User3" positionX="-306" positionY="0" width="128" height="75"/>
+        <element name="User4" positionX="-108" positionY="-135" width="128" height="75"/>
     </elements>
 </model>

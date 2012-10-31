@@ -16,19 +16,32 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
-#import "SMModel.h"
+#import "StackMob.h"
 
 @class Superpower;
 
-@class SMModel;
-
-@interface Person : NSManagedObject <SMModel>
+@interface Person : NSManagedObject
 
 @property (nonatomic, retain) NSNumber * armor_class;
 @property (nonatomic, retain) NSString * company;
 @property (nonatomic, retain) NSString * first_name;
 @property (nonatomic, retain) NSString * last_name;
 @property (nonatomic, retain) NSString * person_id;
+@property (nonatomic, retain) NSSet *favorites;
+@property (nonatomic, retain) NSSet *interests;
 @property (nonatomic, retain) Superpower *superpower;
+@end
+
+@interface Person (CoreDataGeneratedAccessors)
+
+- (void)addFavoritesObject:(NSManagedObject *)value;
+- (void)removeFavoritesObject:(NSManagedObject *)value;
+- (void)addFavorites:(NSSet *)values;
+- (void)removeFavorites:(NSSet *)values;
+
+- (void)addInterestsObject:(NSManagedObject *)value;
+- (void)removeInterestsObject:(NSManagedObject *)value;
+- (void)addInterests:(NSSet *)values;
+- (void)removeInterests:(NSSet *)values;
 
 @end

@@ -15,7 +15,7 @@
  */
 
 #import "NSEntityDescription+StackMobSerialization.h"
-#import "SMModel.h"
+#import "SMUserManagedObject.h"
 #import "SMError.h"
 
 @implementation NSEntityDescription (StackMobSerialization)
@@ -25,19 +25,10 @@
     return [[self name] lowercaseString];
 }
 
-- (NSString *)sm_primaryKeyField
+- (NSString *)primaryKeyField
 {
     NSString *objectIdField = nil;
-    
-    // Search for SMModel protocol
-    id aClass = NSClassFromString([self name]);
-    if (aClass != nil) {
-        if ([aClass conformsToProtocol:@protocol(SMModel)]) {
-            objectIdField = [(id <SMModel>)aClass primaryKeyFieldName];
-            return objectIdField;
-        }
-    }
-    
+     
     // Search for schemanameId
     objectIdField = [[self sm_schema] stringByAppendingFormat:@"Id"];
     if ([[self propertiesByName] objectForKey:objectIdField] != nil) {
@@ -51,7 +42,7 @@
     }
     
     // Raise an exception and return nil
-    [NSException raise:SMExceptionIncompatibleObject format:@"No Primary Key Field found for entity %@ which matches the following format: <lowercase_entity_name>Id or <lowercase_entity_name>_id.  If you adopt the SMModel protocol, you may return either of those formats or any lowercase string with optional underscores that matches the primary key field on StackMob.", [self name]];
+    [NSException raise:SMExceptionIncompatibleObject format:@"No Attribute found for entity %@ which maps to the primary key on StackMob. The Attribute name should match one of the following formats: lowercasedEntityNameId or lowercasedEntityName_id.  If the managed object subclass for %@ inherits from SMUserManagedObject, meaning it is intended to define user objects, you may return either of the above formats or whatever lowercase string with optional underscores matches the primary key field on StackMob.", [self name], [self name]];
     return nil;
 }
 

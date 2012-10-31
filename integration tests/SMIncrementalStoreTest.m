@@ -60,7 +60,7 @@ describe(@"with fixtures", ^{
                 [sean setValue:@"Smith" forKey:@"last_name"];
                 [sean setValue:@"StackMob" forKey:@"company"];
                 [sean setValue:[NSNumber numberWithInt:15] forKey:@"armor_class"];
-                [sean setValue:[sean sm_assignObjectId] forKey:@"person_id"];
+                [sean setValue:[sean assignObjectId] forKey:@"person_id"];
                 DLog(@"inserted objects before save %@", [moc insertedObjects]);
                 [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                     if (error != nil) {
@@ -88,14 +88,14 @@ describe(@"with fixtures", ^{
                 [sean setValue:@"Bobberson" forKey:@"last_name"];
                 [sean setValue:@"StackMob" forKey:@"company"];
                 [sean setValue:[NSNumber numberWithInt:15] forKey:@"armor_class"];
-                [sean setValue:[sean sm_assignObjectId] forKey:@"person_id"];
+                [sean setValue:[sean assignObjectId] forKey:@"person_id"];
                 
                 
                 // create superpower
                 NSManagedObject *invisibility = [NSEntityDescription insertNewObjectForEntityForName:@"Superpower" inManagedObjectContext:moc];
                 [invisibility setValue:@"invisibility" forKey:@"name"];
                 [invisibility setValue:[NSNumber numberWithInt:7] forKey:@"level"];
-                [invisibility setValue:[invisibility sm_assignObjectId] forKey:@"superpower_id"];
+                [invisibility setValue:[invisibility assignObjectId] forKey:@"superpower_id"];
                 
                 
                 [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -159,17 +159,17 @@ describe(@"with fixtures", ^{
                 [sean setValue:@"Bobberson" forKey:@"last_name"];
                 [sean setValue:@"StackMob" forKey:@"company"];
                 [sean setValue:[NSNumber numberWithInt:15] forKey:@"armor_class"];
-                [sean setValue:[sean sm_assignObjectId] forKey:[sean sm_primaryKeyField]];
+                [sean setValue:[sean assignObjectId] forKey:[sean primaryKeyField]];
                 // create 2 interests
                 NSManagedObject *basketball = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
                 [basketball setValue:@"basketball" forKey:@"name"];
                 [basketball setValue:[NSNumber numberWithInt:10] forKey:@"years_involved"];
-                [basketball setValue:[basketball sm_assignObjectId] forKey:[basketball sm_primaryKeyField]];
+                [basketball setValue:[basketball assignObjectId] forKey:[basketball primaryKeyField]];
                 
                 NSManagedObject *tennis = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
                 [tennis setValue:@"tennis" forKey:@"name"];
                 [tennis setValue:[NSNumber numberWithInt:3] forKey:@"years_involved"];
-                [tennis setValue:[tennis sm_assignObjectId] forKey:[tennis sm_primaryKeyField]];
+                [tennis setValue:[tennis assignObjectId] forKey:[tennis primaryKeyField]];
                 
                 [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                     if (error != nil) {
@@ -199,9 +199,9 @@ describe(@"with fixtures", ^{
                 }];
                 
                 // fetch and check
-                __block NSString *seanId = [sean valueForKey:[sean sm_primaryKeyField]];
-                __block NSString *bbId = [basketball valueForKey:[basketball sm_primaryKeyField]];
-                __block NSString *tennisId = [tennis valueForKey:[tennis sm_primaryKeyField]];
+                __block NSString *seanId = [sean valueForKey:[sean primaryKeyField]];
+                __block NSString *bbId = [basketball valueForKey:[basketball primaryKeyField]];
+                __block NSString *tennisId = [tennis valueForKey:[tennis primaryKeyField]];
                 
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"last_name = 'Bobberson'"];
                 [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
@@ -262,23 +262,23 @@ describe(@"with fixtures", ^{
                 [bob setValue:@"Bobberson" forKey:@"last_name"];
                 [bob setValue:@"StackMob" forKey:@"company"];
                 [bob setValue:[NSNumber numberWithInt:15] forKey:@"armor_class"];
-                [bob setValue:[bob sm_assignObjectId] forKey:[bob sm_primaryKeyField]];
+                [bob setValue:[bob assignObjectId] forKey:[bob primaryKeyField]];
                 
                 NSManagedObject *jack = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
                 [jack setValue:@"Jack" forKey:@"first_name"];
                 [jack setValue:@"Jackerson" forKey:@"last_name"];
                 [jack setValue:@"StackMob" forKey:@"company"];
                 [jack setValue:[NSNumber numberWithInt:20] forKey:@"armor_class"];
-                [jack setValue:[jack sm_assignObjectId] forKey:[jack sm_primaryKeyField]];
+                [jack setValue:[jack assignObjectId] forKey:[jack primaryKeyField]];
                 
                 // make 2 favorite objects
                 NSManagedObject *blueBottle = [NSEntityDescription insertNewObjectForEntityForName:@"Favorite" inManagedObjectContext:moc];
                 [blueBottle setValue:@"coffee" forKey:@"genre"];
-                [blueBottle setValue:[blueBottle sm_assignObjectId] forKey:[blueBottle sm_primaryKeyField]];
+                [blueBottle setValue:[blueBottle assignObjectId] forKey:[blueBottle primaryKeyField]];
                 
                 NSManagedObject *batman = [NSEntityDescription insertNewObjectForEntityForName:@"Favorite" inManagedObjectContext:moc];
                 [batman setValue:@"movies" forKey:@"genre"];
-                [batman setValue:[batman sm_assignObjectId] forKey:[batman sm_primaryKeyField]];
+                [batman setValue:[batman assignObjectId] forKey:[batman primaryKeyField]];
                 
                 [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                     if (error != nil) {
@@ -307,10 +307,10 @@ describe(@"with fixtures", ^{
                 }];
                 
                 // fetch and check
-                __block NSString *batmanId = [batman valueForKey:[batman sm_primaryKeyField]];
-                __block NSString *blueBottleId = [blueBottle valueForKey:[blueBottle sm_primaryKeyField]];
-                __block NSString *bobId = [bob valueForKey:[bob sm_primaryKeyField]];
-                __block NSString *jackId = [jack valueForKey:[jack sm_primaryKeyField]];
+                __block NSString *batmanId = [batman valueForKey:[batman primaryKeyField]];
+                __block NSString *blueBottleId = [blueBottle valueForKey:[blueBottle primaryKeyField]];
+                __block NSString *bobId = [bob valueForKey:[bob primaryKeyField]];
+                __block NSString *jackId = [jack valueForKey:[jack primaryKeyField]];
                 
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"last_name = 'Bobberson'"];
                 [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
@@ -503,7 +503,7 @@ describe(@"with fixtures", ^{
                 // add an interest
                 NSManagedObject *batman = [NSEntityDescription insertNewObjectForEntityForName:@"Favorite" inManagedObjectContext:moc];
                 [batman setValue:@"movies" forKey:@"genre"];
-                [batman setValue:[batman sm_assignObjectId] forKey:[batman sm_primaryKeyField]];
+                [batman setValue:[batman assignObjectId] forKey:[batman primaryKeyField]];
                 
                 [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                     if (error != nil) {
@@ -571,12 +571,12 @@ describe(@"with fixtures", ^{
                 NSManagedObject *basketball = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
                 [basketball setValue:@"basketball" forKey:@"name"];
                 [basketball setValue:[NSNumber numberWithInt:10] forKey:@"years_involved"];
-                [basketball setValue:[basketball sm_assignObjectId] forKey:[basketball sm_primaryKeyField]];
+                [basketball setValue:[basketball assignObjectId] forKey:[basketball primaryKeyField]];
                 
                 NSManagedObject *tennis = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
                 [tennis setValue:@"tennis" forKey:@"name"];
                 [tennis setValue:[NSNumber numberWithInt:3] forKey:@"years_involved"];
-                [tennis setValue:[tennis sm_assignObjectId] forKey:[tennis sm_primaryKeyField]];
+                [tennis setValue:[tennis assignObjectId] forKey:[tennis primaryKeyField]];
                 
                 [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                     if (error != nil) {
@@ -646,7 +646,7 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
         [camelCaseObject setValue:@"new" forKey:@"name"];
         [camelCaseObject setValue:@"1234" forKey:@"server_id"];
         [camelCaseObject setValue:[NSNumber numberWithInt:1900] forKey:@"yearBorn"];
-        [camelCaseObject setValue:[camelCaseObject sm_assignObjectId] forKey:[camelCaseObject sm_primaryKeyField]];
+        [camelCaseObject setValue:[camelCaseObject assignObjectId] forKey:[camelCaseObject primaryKeyField]];
     });
     afterEach(^{
         [moc deleteObject:camelCaseObject];
@@ -690,13 +690,13 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
         [anotherRandom setValue:@"another" forKey:@"name"];
         [anotherRandom setValue:@"1234" forKey:@"server_id"];
         [anotherRandom setValue:[NSNumber numberWithInt:2012] forKey:@"yearBorn"];
-        [anotherRandom setValue:[anotherRandom sm_assignObjectId] forKey:[anotherRandom sm_primaryKeyField]];
+        [anotherRandom setValue:[anotherRandom assignObjectId] forKey:[anotherRandom primaryKeyField]];
         
         NSManagedObject *yetAnotherRandom = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
         [yetAnotherRandom setValue:@"yetAnother" forKey:@"name"];
         [yetAnotherRandom setValue:@"1234" forKey:@"server_id"];
         [yetAnotherRandom setValue:[NSNumber numberWithInt:1800] forKey:@"yearBorn"];
-        [yetAnotherRandom setValue:[yetAnotherRandom sm_assignObjectId] forKey:[yetAnotherRandom sm_primaryKeyField]];
+        [yetAnotherRandom setValue:[yetAnotherRandom assignObjectId] forKey:[yetAnotherRandom primaryKeyField]];
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
@@ -749,87 +749,6 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
     });
 });
 
-describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
-    __block NSManagedObjectContext *moc = nil;
-    __block NSManagedObject *camelCaseObject = nil;
-    __block NSDate *date = nil;
-    beforeEach(^{
-        moc = [SMCoreDataIntegrationTestHelpers moc];
-        date = [NSDate date];
-        camelCaseObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
-        [camelCaseObject setValue:@"new" forKey:@"name"];
-        [camelCaseObject setValue:date forKey:@"time"];
-        [camelCaseObject setValue:[camelCaseObject sm_assignObjectId] forKey:[camelCaseObject sm_primaryKeyField]];
-    });
-    afterEach(^{
-        [moc deleteObject:camelCaseObject];
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-        }];
-    });
-    it(@"Will save without error after creation", ^{
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-        }];
-    });
-    it(@"Will successfully read", ^{
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-        }];
-        NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        [fetchRequest setEntity:entity];
-        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-            NSLog(@"results is %@", results);
-            [[theValue([results count]) should] equal:theValue(1)];
-            [[[[results objectAtIndex:0] valueForKey:@"time"] should] equal:date];
-        }];
-    });
-    it(@"Will save and read without error after update", ^{
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-        }];
-        __block NSDate *newDate = [NSDate date];
-        [camelCaseObject setValue:newDate forKey:@"time"];
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-        }];
-        
-        NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        [fetchRequest setEntity:entity];
-        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-            NSLog(@"results is %@", results);
-            [[theValue([results count]) should] equal:theValue(1)];
-            [[[[results objectAtIndex:0] valueForKey:@"time"] should] equal:newDate];
-        }];
-
-    });
-});
-
 describe(@"test camel case with relationships", ^{
     __block NSManagedObjectContext *moc = nil;
     __block NSManagedObject *todo = nil;
@@ -851,34 +770,257 @@ describe(@"test camel case with relationships", ^{
         todo = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
         
         [todo setValue:@"Hello One-To-One" forKey:@"title"];
-        [todo setValue:[todo sm_assignObjectId] forKey:[todo sm_primaryKeyField]];
+        [todo setValue:[todo assignObjectId] forKey:[todo primaryKeyField]];
         
         category = [NSEntityDescription insertNewObjectForEntityForName:@"Category" inManagedObjectContext:moc];
         
         [category setValue:@"Work" forKey:@"name"];
-        [category setValue:[category sm_assignObjectId] forKey:[category sm_primaryKeyField]];
+        [category setValue:[category assignObjectId] forKey:[category primaryKeyField]];
         
         
         NSError *error = nil;
         if (![moc save:&error]) {
-            NSLog(@"There was an error! %@", error);
+            DLog(@"There was an error! %@", error);
             [error shouldBeNil];
         }
         else {
-            NSLog(@"You created a Todo and Category object!");
+            DLog(@"You created a Todo and Category object!");
         }
         
         [todo setValue:category forKey:@"category"];
         
         error = nil;
         if (![moc save:&error]) {
-            NSLog(@"There was an error! %@", error);
+            DLog(@"There was an error! %@", error);
             [error shouldBeNil];
         }
         else {
-            NSLog(@"You created a relationship between the Todo and Category Object!");
+            DLog(@"You created a relationship between the Todo and Category Object!");
         }
     });
+});
+
+describe(@"Updating existing object relationship fields to nil", ^{
+    __block NSManagedObjectContext *moc = nil;
+    __block Person *person = nil;
+    __block Superpower *superpower = nil;
+    __block NSManagedObject *interest = nil;
+    beforeEach(^{
+        moc = [SMCoreDataIntegrationTestHelpers moc];
+    });
+    it(@"passes for one-to-one", ^{
+        // create person and superpower
+        person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        
+        superpower = [NSEntityDescription insertNewObjectForEntityForName:@"Superpower" inManagedObjectContext:moc];
+        [superpower setValue:[superpower assignObjectId] forKey:[superpower primaryKeyField]];
+        
+        // save
+        NSError *error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // set relationship and save
+        [person setValue:superpower forKey:@"superpower"];
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // set relationship to nil and save
+        [person setValue:nil forKey:@"superpower"];
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // delete objects and save
+        [moc deleteObject:person];
+        [moc deleteObject:superpower];
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+    });
+    it(@"passes for one-to-many", ^{
+        // create person and superpower
+        person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        
+        interest = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
+        [interest setValue:[interest assignObjectId] forKey:[interest primaryKeyField]];
+        
+        // save
+        NSError *error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // set relationship and save
+        [person setValue:[NSSet setWithObject:interest] forKey:@"interests"];
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // set relationship to nil and save
+        [person setValue:nil forKey:@"interests"];
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // delete objects and save
+        [moc deleteObject:person];
+        [moc deleteObject:interest];
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+    });
+});
+
+describe(@"can update a field to null", ^{
+    __block NSManagedObjectContext *moc = nil;
+    __block Person *person = nil;
+    __block Superpower *superpower = nil;
+    beforeEach(^{
+        moc = [SMCoreDataIntegrationTestHelpers moc];
+        person = nil;
+        superpower = nil;
+    });
+    it(@"updates", ^{
+        person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        [person setValue:[NSNumber numberWithInt:3] forKey:@"armor_class"];
+        
+        // save
+        NSError *error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        [person setValue:nil forKey:@"armor_class"];
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // delete objects and save
+        [moc deleteObject:person];
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+
+        
+    });
+    it(@"updates with relationships, too", ^{
+        person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        [person setValue:[NSNumber numberWithInt:3] forKey:@"armor_class"];
+        
+        superpower = [NSEntityDescription insertNewObjectForEntityForName:@"Superpower" inManagedObjectContext:moc];
+        [superpower setValue:[superpower assignObjectId] forKey:[superpower primaryKeyField]];
+        
+        // save
+        NSError *error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // set relationship and save
+        [person setValue:superpower forKey:@"superpower"];
+        [person setValue:nil forKey:@"armor_class"];
+        
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }
+        
+        // delete objects and save
+        [moc deleteObject:person];
+        [moc deleteObject:superpower];
+        error = nil;
+        if (![moc save:&error]) {
+            DLog(@"There was an error! %@", error);
+            [error shouldBeNil];
+        }
+        else {
+            DLog(@"Saved");
+        }        
+    });
+    
 });
 
 SPEC_END

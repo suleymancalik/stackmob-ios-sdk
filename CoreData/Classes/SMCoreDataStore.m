@@ -87,6 +87,7 @@
 {
     if (_managedObjectContext == nil) {
         _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        [_managedObjectContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
         [_managedObjectContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
     }
     return _managedObjectContext;

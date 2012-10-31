@@ -91,6 +91,24 @@
  */
 + (SMRequestOptions *)optionsWithHTTPS;
 
+/**
+ Options that will add a expand depth entry to the headers.  This is for returning full related objects rather than just reference IDs.
+ 
+ @param depth The depth by which to recursively expand related objects.  Maximum is 3.
+ 
+ @return An `SMRequestOptions` object with an expand depth entry in the headers dictionary.
+ */
++ (SMRequestOptions *)optionsWithExpandDepth:(NSUInteger)depth;
+
+/**
+ Options that will add an entry to the headers to restrict the response to the specified fields.
+ 
+ @param fields An array of strings specifying the fields to return.
+ 
+ @return An `SMRequestOptions` object with a field restriction entry in the headers dictionary.
+ */
++ (SMRequestOptions *)optionsWithReturnedFieldsRestrictedTo:(NSArray *)fields;
+
 #pragma mark - Expanding relationships
 ///-------------------------------
 /// @name Expanding Relationships

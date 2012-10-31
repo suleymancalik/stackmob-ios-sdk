@@ -1,5 +1,41 @@
 <h2>StackMob iOS SDK Change Log</h2>
 
+<h3>v1.1.2 - Oct 29, 2012</h3>
+
+**Features**
+
+* Updated SMQuery Geopoint method to take distance in kilometers instead of meters.  New method is _where:isWithin:kilometersOf:_.
+* Add _optionsWithExpandDepth:_ and _optionsWithReturnedFieldsRestrictedTo:_ methods to SMRequestOptions class. 
+* Provide error message when creating an object with null values for fields.  If you receive an error which states that a field was sent with a value of null and the type cannot be inferred, simply go online to the Manage Schemas section of your StackMob Dashboard and manually add the field with correct data type.  This happens occasionally when working with number types in Core Data.
+
+**Fixes**
+
+* Allow setting of Core Data relationships to nil.
+* Add proper SMRequestOptions headers dictionary initialization.   
+* Change default merge policy of SMCoreDataStore _managedObjectContext_ property to NSMergeByPropertyObjectTrumpMergePolicy.  This translates to "client wins" when there are conflicts for particular objects.  Feel free to change the merge policy at any time by calling the _setMergePolicy:_ method on the managed object context of your SMCoreDataStore instance.
+
+<h3>v1.1.1 - Oct 24, 2012</h3>
+
+**Features**
+
+* Full support for Core Data Boolean Data Types.  A Core Data Boolean attribute will map to a Boolean field on StackMob.
+* Removal of 'sm_' prefix for NSManagedObject category helper methods.  Use [managedObject assignObjectId] and [managedObject primaryKeyField].
+* Update SMClient user schema field property names. **userPrimaryKeyField** and **userPasswordField** describe the primary key and password field names for the user schema, respectively.
+
+**Fixes**
+
+* Update fetch request algorithm to support SMUserManagedObject change.
+* Update Core Data object serialization algorithm.  Serialized dictionary sent in request now includes only fields which have been updated since insert or the last call to save.
+* Update SMRequestOptions for proper headers dictionary initialization.
+
+<h3>v1.1.0 - Oct 17, 2012</h3>
+
+**Features**
+
+* Removal of SMModel Protocol.  
+* Addition of SMUserManagedObject. Your managed object subclass corresponding to user objects should inherit from this class.  SMUserManagedObject provides methods to securely set passwords for user objects without storing them in Core Data attributes. For all the information on how to update your current code [see this blogpost](http://blog.stackmob.com/?p=3547).
+* Built for armv7 and armv7s architectures.
+
 <h3>v1.0.1 - Oct 1, 2012</h3>
 
 **Features**

@@ -256,7 +256,7 @@ describe(@"with a prepopulated database of people", ^{
             });
         });
         it(@"-where:isWithin:metersOf", ^{
-            [query where:@"location" isWithin:35000.0 metersOf:sf];
+            [query where:@"location" isWithin:35.0 kilometersOf:sf];
             [query orderByField:@"name" ascending:YES];
             synchronousQuery(sm, query, ^(NSArray *results) {
                 [[results should] haveCountOf:2];

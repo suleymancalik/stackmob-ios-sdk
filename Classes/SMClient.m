@@ -42,8 +42,8 @@ static SMClient *defaultClient = nil;
 @synthesize publicKey = _SM_publicKey;
 @synthesize apiHost = _SM_APIHost;
 @synthesize userSchema = _SM_userSchema;
-@synthesize userIdName = _SM_userIdName;
-@synthesize passwordFieldName = _SM_passwordFieldName;
+@synthesize userPrimaryKeyField = _userPrimaryKeyField;
+@synthesize userPasswordField = _SM_userPasswordField;
 
 @synthesize session = _SM_session;
 @synthesize coreDataStore = _SM_coreDataStore;
@@ -62,8 +62,8 @@ static SMClient *defaultClient = nil;
                  apiHost:(NSString *)apiHost 
                publicKey:(NSString *)publicKey 
               userSchema:(NSString *)userSchema
-              userIdName:(NSString *)userIdName
-       passwordFieldName:(NSString *)passwordFieldName;
+     userPrimaryKeyField:(NSString *)userPrimaryKeyField
+       userPasswordField:(NSString *)userPasswordField;
 {
     self = [self init];
     if (self)
@@ -72,8 +72,8 @@ static SMClient *defaultClient = nil;
         self.apiHost = apiHost;
         self.publicKey = publicKey;
         self.userSchema = [userSchema lowercaseString];
-        self.userIdName = userIdName;
-        self.passwordFieldName = passwordFieldName;
+        self.userPrimaryKeyField = userPrimaryKeyField;
+        self.userPasswordField = userPasswordField;
         
         // Throw an exception if apiVersion is nil or incorrectly formatted
         NSCharacterSet* notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
@@ -87,7 +87,7 @@ static SMClient *defaultClient = nil;
             [NSException raise:@"SMClientInitializationException" format:@"Incorrect Public Key format provided.  Please check your public key to make sure you are passing the correct one, and that you are not passing nil."];
         }
         
-        self.session = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion apiHost:apiHost publicKey:publicKey userSchema:userSchema];
+        self.session = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion apiHost:apiHost publicKey:publicKey userSchema:userSchema userPrimaryKeyField:userPrimaryKeyField userPasswordField:userPasswordField];
         self.coreDataStore = nil;
 
         if ([SMClient defaultClient] == nil)
@@ -104,8 +104,8 @@ static SMClient *defaultClient = nil;
                             apiHost:DEFAULT_API_HOST 
                           publicKey:publicKey 
                          userSchema:DEFAULT_USER_SCHEMA
-                         userIdName:DEFAULT_USER_ID_NAME 
-                  passwordFieldName:DEFAULT_PASSWORD_FIELD_NAME];
+                userPrimaryKeyField:DEFAULT_PRIMARY_KEY_FIELD_NAME
+                  userPasswordField:DEFAULT_PASSWORD_FIELD_NAME];
 }
 
 - (SMDataStore *)dataStore
@@ -126,6 +126,23 @@ static SMClient *defaultClient = nil;
 {
     if (_SM_userSchema != userSchema) {
         _SM_userSchema = [userSchema lowercaseString];
+        [self.session setUserSchema:_SM_userSchema];
+    }
+}
+
+- (void)setUserPrimaryKeyField:(NSString *)userPrimaryKeyField
+{
+    if (_userPrimaryKeyField != userPrimaryKeyField) {
+        _userPrimaryKeyField = userPrimaryKeyField;
+        [self.session setUserPrimaryKeyField:userPrimaryKeyField];
+    }
+}
+
+- (void)setUserPasswordField:(NSString *)userPasswordField
+{
+    if (_SM_userPasswordField != userPasswordField) {
+        _SM_userPasswordField = userPasswordField;
+        [self.session setUserPasswordField:userPasswordField];
     }
 }
 
@@ -149,7 +166,7 @@ static SMClient *defaultClient = nil;
             failureBlock(error);
         }
     } else {
-        NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:username, self.userIdName, password, self.passwordFieldName, nil];
+        NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:username, self.userPrimaryKeyField, password, self.userPasswordField, nil];
         [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options onSuccess:successBlock onFailure:failureBlock]; 
     }
 }
@@ -176,8 +193,8 @@ static SMClient *defaultClient = nil;
             failureBlock(error);
         }
     } else {
-        NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:username, self.userIdName, 
-                              tempPassword, self.passwordFieldName, 
+        NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:username, self.userPrimaryKeyField, 
+                              tempPassword, self.userPasswordField, 
                               newPassword, @"new_password", nil];
         [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options onSuccess:successBlock onFailure:failureBlock]; 
     }
@@ -216,7 +233,7 @@ static SMClient *defaultClient = nil;
             failureBlock(error);
         }
     } else {
-        NSDictionary *args = [NSDictionary dictionaryWithObject:username forKey:self.userIdName];
+        NSDictionary *args = [NSDictionary dictionaryWithObject:username forKey:self.userPrimaryKeyField];
         [self.dataStore createObject:args inSchema:[self.userSchema stringByAppendingPathComponent:@"forgotPassword"] onSuccess:^(NSDictionary *theObject, NSString *schema) {
             successBlock(theObject);
         } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
@@ -290,7 +307,7 @@ static SMClient *defaultClient = nil;
     } else {
         NSMutableDictionary *args = [[NSDictionary dictionaryWithObject:fbToken forKey:FB_TOKEN_KEY] mutableCopy];
         if (username != nil) {
-            [args setValue:username forKey:self.userIdName];
+            [args setValue:username forKey:self.userPrimaryKeyField];
         }
         [self.dataStore readObjectWithId:@"createUserWithFacebook" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] onSuccess:^(NSDictionary *theObject, NSString *schema) {
             successBlock(theObject);
@@ -388,7 +405,7 @@ static SMClient *defaultClient = nil;
     } else {
         NSMutableDictionary *args = [[NSDictionary dictionaryWithObjectsAndKeys:twitterToken, TW_TOKEN_KEY, twitterSecret, TW_SECRET_KEY, nil] mutableCopy];
         if (username != nil) {
-            [args setValue:username forKey:self.userIdName];
+            [args setValue:username forKey:self.userPrimaryKeyField];
         }
         [self.dataStore readObjectWithId:@"createUserWithTwitter" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] onSuccess:^(NSDictionary *theObject, NSString *schema) {
             successBlock(theObject);

@@ -26,17 +26,16 @@
 SPEC_BEGIN(SMBinDataConvertCDIntegrationSpec)
 
 describe(@"SMBinDataConvertCDIntegration", ^{
-    __block SMClient *client = nil;
-    __block SMCoreDataStore *coreDataStore = nil;
-    __block NSManagedObjectModel *mom = nil;
     __block NSManagedObjectContext *moc = nil;
     __block Superpower *superpower = nil;
     beforeEach(^{
+        /*
         mom = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]];
         client = [SMIntegrationTestHelpers defaultClient];
         coreDataStore = [client coreDataStoreWithManagedObjectModel:mom];
         moc = [coreDataStore managedObjectContext];
-        
+        */
+        moc = [SMCoreDataIntegrationTestHelpers moc];
     });
     describe(@"should successfully set binary data when translated to string", ^{
         __block NSString *dataString = nil;
@@ -51,7 +50,7 @@ describe(@"SMBinDataConvertCDIntegration", ^{
             [dataString shouldNotBeNil];
             [superpower setName:@"cool"];
             [superpower setValue:dataString forKey:@"pic"];
-            [superpower setSuperpower_id:[superpower sm_assignObjectId]];
+            [superpower setSuperpower_id:[superpower assignObjectId]];
         });
         it(@"should persist to StackMob and update after a refresh call", ^{
             [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -59,6 +58,23 @@ describe(@"SMBinDataConvertCDIntegration", ^{
                 [moc refreshObject:superpower mergeChanges:YES];
                 NSString *picString = [superpower valueForKey:@"pic"];
                 [[[picString substringToIndex:4] should] equal:@"http"];
+            }];
+            [SMCoreDataIntegrationTestHelpers executeSynchronousDelete:moc withObject:[superpower objectID] andBlock:^(NSError *error) {
+                [error shouldBeNil];
+            }];
+        });
+        it(@"should update the object successfully without overwriting the data", ^{
+            __block NSString *picURL = nil;
+            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+                [error shouldBeNil];
+                [moc refreshObject:superpower mergeChanges:YES];
+                picURL = [superpower valueForKey:@"pic"];
+            }];
+            [superpower setName:@"the coolest"];
+            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+                [error shouldBeNil];
+                NSString *picString = [superpower valueForKey:@"pic"];
+                [[picString should] equal:picURL];
             }];
             [SMCoreDataIntegrationTestHelpers executeSynchronousDelete:moc withObject:[superpower objectID] andBlock:^(NSError *error) {
                 [error shouldBeNil];
