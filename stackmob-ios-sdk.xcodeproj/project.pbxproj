@@ -947,7 +947,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n#\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ]; then\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		8CCCE4F41580389800C38962 /* ShellScript */ = {
@@ -961,7 +961,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n#\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"";
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ]; then\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		DE0CC7B615CB6A9000E491C4 /* ShellScript */ = {
@@ -975,7 +975,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n#\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ]; then\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		DE3B0D61161134BF00854F88 /* Strip */ = {
