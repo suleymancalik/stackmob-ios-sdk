@@ -14,6 +14,4 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
 NSString * Base64EncodedStringFromData(NSData *data);

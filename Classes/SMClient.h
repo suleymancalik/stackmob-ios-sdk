@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 #import "SMResponseBlocks.h"
 

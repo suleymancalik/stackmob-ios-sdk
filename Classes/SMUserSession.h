@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "AFHTTPClient.h"
 #import "SMResponseBlocks.h"
 

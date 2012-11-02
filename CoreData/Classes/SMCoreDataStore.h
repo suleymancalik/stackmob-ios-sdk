@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "SMDataStore.h"
 
 @class SMIncrementalStore;
@@ -49,6 +48,7 @@
  */
 @property(nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 @property(nonatomic, strong) NSManagedObjectContext *localManagedObjectContext;
+
 
 ///-------------------------------
 /// @name Initialize

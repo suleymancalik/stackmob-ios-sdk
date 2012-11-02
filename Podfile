@@ -1,8 +1,8 @@
 xcodeproj 'stackmob-ios-sdk.xcodeproj'
 
-platform :ios
+platform :ios, '5.0'
 
-pod 'AFNetworking', '~> 1.0RC1'
+pod 'AFNetworking', '1.0'
 
 target 'stackmob-ios-sdkTests', :exclusive => true do
     pod 'Kiwi', :git =>'https://github.com/allending/Kiwi.git', :commit => '15a2936ac30117ab3bacca7fbd0d952b6dad37f8'

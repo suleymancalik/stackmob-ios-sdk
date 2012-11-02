@@ -37,10 +37,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 }
 
 @interface SMIncrementalStore () {
-    NSMutableDictionary *cache;
+    
 }
 
-
+@property (nonatomic, strong) NSManagedObjectContext *localManagedObjectContext;
+@property (nonatomic, strong) NSPersistentStoreCoordinator *localPersistentStoreCoordinator;
+@property (nonatomic, strong) NSManagedObjectModel *localManagedObjectModel;
 @property (nonatomic, strong) SMDataStore *smDataStore;
 
 - (id)handleSaveRequest:(NSPersistentStoreRequest *)request 
@@ -53,22 +55,133 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (NSDictionary *)sm_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context;
 
+- (NSURL *)getStoreURL;
+
+- (void)createStoreURLPathIfNeeded:(NSURL *)storeURL;
+
+- (BOOL)localSaveRequest:(NSDictionary *)serializedDictionary originalObject:(NSManagedObject *)object error:(NSError *__autoreleasing *)error;
+
 @end
 
 @implementation SMIncrementalStore
 
 @synthesize smDataStore = _smDataStore;
-
+@synthesize localManagedObjectModel = _localManagedObjectModel;
+@synthesize localManagedObjectContext = _localManagedObjectContext;
+@synthesize localPersistentStoreCoordinator = _localPersistentStoreCoordinator;
 
 - (id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root configurationName:(NSString *)name URL:(NSURL *)url options:(NSDictionary *)options {
     
     self = [super initWithPersistentStoreCoordinator:root configurationName:name URL:url options:options];
     if (self) {
-        cache = [NSMutableDictionary dictionary];
         _smDataStore = [options objectForKey:SM_DataStoreKey];
+        [self configureCache];
+        
+        // default to online
+        self.smDataStore.tempNetworkStatus = YES;
     }
     return self;
 }
+
+- (void)configureCache
+{
+    _localManagedObjectModel = self.localManagedObjectModel;
+    _localManagedObjectContext = self.localManagedObjectContext;
+    _localPersistentStoreCoordinator = self.localPersistentStoreCoordinator;
+    
+}
+
+- (NSManagedObjectModel *)localManagedObjectModel
+{
+    if (_localManagedObjectModel == nil) {
+        _localManagedObjectModel = self.persistentStoreCoordinator.managedObjectModel;
+    }
+    
+    return _localManagedObjectModel;
+}
+
+- (NSManagedObjectContext *)localManagedObjectContext
+{
+    if (_localManagedObjectContext == nil) {
+        _localManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        [_localManagedObjectContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
+        [_localManagedObjectContext setPersistentStoreCoordinator:self.localPersistentStoreCoordinator];
+    }
+    
+    return _localManagedObjectContext;
+
+}
+
+- (NSPersistentStoreCoordinator *)localPersistentStoreCoordinator
+{
+    if (_localPersistentStoreCoordinator == nil) {
+        
+        _localPersistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.localManagedObjectModel];
+        
+        NSURL *storeURL = [self getStoreURL];
+        [self createStoreURLPathIfNeeded:storeURL];
+         
+        NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSMigratePersistentStoresAutomaticallyOption, [NSNumber numberWithBool:YES], NSInferMappingModelAutomaticallyOption, nil];
+         
+        NSError *error = nil;
+        [_localPersistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error];
+        
+        if (error != nil) {
+            [NSException raise:SMExceptionAddPersistentStore format:@"Error creating sqlite persistent store: %@", error];
+        }
+        
+    }
+    
+    return _localPersistentStoreCoordinator;
+}
+
+- (NSURL *)getStoreURL
+{
+    NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+    NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
+    
+    NSString *defaultName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(id)kCFBundleNameKey];
+    if (defaultName == nil)
+    {
+        defaultName = @"CoreDataStore";
+    }
+    if (![defaultName hasSuffix:@"sqlite"])
+    {
+        defaultName = [defaultName stringByAppendingPathExtension:@"sqlite"];
+    }
+    
+    NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
+    
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    
+    for (NSString *path in paths)
+    {
+        NSString *filepath = [path stringByAppendingPathComponent:defaultName];
+        if ([fm fileExistsAtPath:filepath])
+        {
+            return [NSURL fileURLWithPath:filepath];
+        }
+        
+    }
+    
+    return [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+}
+
+- (void)createStoreURLPathIfNeeded:(NSURL *)storeURL
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSURL *pathToStore = [storeURL URLByDeletingLastPathComponent];
+    
+    NSError *error = nil;
+    BOOL pathWasCreated = [fileManager createDirectoryAtPath:[pathToStore path] withIntermediateDirectories:YES attributes:nil error:&error];
+    
+    if (!pathWasCreated) {
+        [NSException raise:SMExceptionAddPersistentStore format:@"Error creating sqlite persistent store: %@", error];
+    }
+    
+}
+
 
 /*
 Once a store has been created, the persistent store coordinator invokes loadMetadata: on it. In your implementation, if all goes well you should typically load the store metadata, call setMetadata: to store the metadata, and return YES. If an error occurs, however (if the store is invalid for some reason—for example, if the store URL is invalid, or the user doesn’t have read permission for the store URL), create an NSError object that describes the problem, assign it to the error parameter passed into the method, and return NO.
@@ -182,10 +295,36 @@ You should implement this method conservatively, and expect that unknown request
     return [NSArray array];
 }
 
+- (BOOL)localSaveRequest:(NSDictionary *)serializedDictionary originalObject:(NSManagedObject *)object error:(NSError *__autoreleasing *)error
+{
+    NSManagedObject *objectToSaveLocally = [NSEntityDescription insertNewObjectForEntityForName:[[object entity] name] inManagedObjectContext:self.localManagedObjectContext];
+    
+    // dictionary serialization should handle relationships
+    
+    // need to turn relationship keys into nsmanagedobjectids at some point
+    
+    
+    // create local save object
+    [objectToSaveLocally setValuesForKeysWithDictionary:serializedDictionary];
+    
+    NSLog(@"objectToSavelocally: %@", objectToSaveLocally);
+    
+    // save to local context
+    NSError *saveError = nil;
+    if (![self.localManagedObjectContext save:&saveError]) {
+        *error = (__bridge id)(__bridge_retained CFTypeRef)saveError;
+        return NO;
+    }
+    
+    return YES;
+}
+
 - (BOOL)handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
-    __block BOOL success = NO;
     if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be inserted are %@", truncateOutputIfExceedsMaxLogLength(insertedObjects))}
+
+    __block BOOL success = NO;
+    
     [insertedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             NSDictionary *serializedObjDict = [obj sm_dictionarySerialization];
@@ -211,22 +350,38 @@ You should implement this method conservatively, and expect that unknown request
                 [options setHeaders:headerDict];
             }
             
-            [self.smDataStore createObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schema); }
-                if ([obj superclass]  == [SMUserManagedObject class]) {
-                    [obj removePassword];
-                }
-                success = YES;
-                // TO-DO OFFLINE-SUPPORT
-                //[self cacheInsert:theObject forEntity:[obj entity] inContext:context];
-                syncReturn(semaphore);
-            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to insert object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
-                if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
-                success = NO;
-                *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
-                syncReturn(semaphore);
-            }];
+            // IF WE ARE ONLINE, PERSIST, PLACE INTO CACHE, RETURN 
+            
+            if (self.smDataStore.tempNetworkStatus) {
+                
+                [self.smDataStore createObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                    if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schema); }
+                    if ([obj superclass]  == [SMUserManagedObject class]) {
+                        [obj removePassword];
+                    }
+                    NSError *localSaveError = nil;
+                    BOOL localSave = [self localSaveRequest:[serializedObjDict objectForKey:SerializedDictKey] originalObject:obj error:&localSaveError];
+                    if (!localSave) {
+                        *error = (__bridge id)(__bridge_retained CFTypeRef)localSaveError;
+                        success = NO;
+                        syncReturn(semaphore);
+                    }
+                    
+                    success = YES;
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                    if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to insert object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
+                    if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
+                    success = NO;
+                    *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
+                    syncReturn(semaphore);
+                }];
+                
+            } else {
+                // NOT ONLINE, PLACE INTO CACHE AND PLACE ON QUEUE
+                
+            }
+            
         });
         if (success == NO)
             *stop = YES;
@@ -595,6 +750,16 @@ You should implement this method conservatively, and expect that unknown request
 - (NSManagedObjectID *)cacheInsert:(NSDictionary *)values forEntity:(NSEntityDescription *)entityDescription inContext:(NSManagedObjectContext *)context {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // TO-DO: GET THE PRIMARY FIELD KEY VS REMOTE KEY
     
     NSString *remoteKey = [self remoteKeyForEntityName:entityDescription.name];
@@ -604,9 +769,9 @@ You should implement this method conservatively, and expect that unknown request
     NSManagedObjectID *objectID = [self newObjectIDForEntity:entityDescription referenceObject:remoteID];
     
     // if the object exists in the cache already, remove it and insert the new version from the server
-    if ([cache objectForKey:objectID] != nil) {
-        [self cachePurge:objectID];
-    }
+    //if ([cache objectForKey:objectID] != nil) {
+        //[self cachePurge:objectID];
+    //}
     __block NSMutableDictionary *mutableValues = [NSMutableDictionary dictionary];;
     [entityDescription.propertiesByName enumerateKeysAndObjectsUsingBlock:^(id propertyName, id property, BOOL *stopPropEnum) {
         if ([property isKindOfClass:[NSAttributeDescription class]]) {
@@ -659,7 +824,7 @@ You should implement this method conservatively, and expect that unknown request
         }
     }];
     
-    [cache setObject:mutableValues forKey:objectID];
+    //[cache setObject:mutableValues forKey:objectID];
     return objectID;
 }
 
@@ -667,7 +832,7 @@ You should implement this method conservatively, and expect that unknown request
  Removes an object from the cache.
  */
 - (void)cachePurge:(NSManagedObjectID *)objectID {
-    [cache removeObjectForKey:objectID];
+    //[cache removeObjectForKey:objectID];
 }
 
 - (NSString *)remoteKeyForEntityName:(NSString *)entityName {
