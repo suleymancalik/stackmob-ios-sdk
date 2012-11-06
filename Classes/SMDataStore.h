@@ -56,9 +56,6 @@
 @property(nonatomic, readonly, copy) NSString *apiVersion;
 @property(nonatomic, readwrite, strong) SMUserSession *session;
 
-// TODO- REMOVE
-@property (nonatomic) BOOL tempNetworkStatus;
-
 
 ///-------------------------------
 /// @name Initialize

@@ -21,4 +21,8 @@
 
 - (id)initWithBaseURL:(NSURL *)url;
 
+- (id)initWithStackMobAPIHost;
+
+- (id)initWithAPIHost:(NSString *)apiHost;
+
 @end

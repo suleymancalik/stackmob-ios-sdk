@@ -91,6 +91,7 @@ static SMClient *defaultClient = nil;
         
         self.session = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion apiHost:apiHost publicKey:publicKey userSchema:userSchema userPrimaryKeyField:userPrimaryKeyField userPasswordField:userPasswordField];
         self.coreDataStore = nil;
+        self.networkReachability = [[SMNetworkReachability alloc] initWithBaseURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@", apiHost]]];
 
         if ([SMClient defaultClient] == nil)
         {

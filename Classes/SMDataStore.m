@@ -40,15 +40,13 @@
 
 @synthesize apiVersion = _SM_apiVersion;
 @synthesize session = _SM_session;
-@synthesize tempNetworkStatus;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session
 {
-    self = [self init];
+    self = [super init];
     if (self) {
         self.apiVersion = apiVersion;
 		self.session = session;
-        self.tempNetworkStatus = YES;
     }
     return self;
 }
