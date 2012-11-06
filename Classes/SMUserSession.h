@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "AFHTTPClient.h"
 #import "SMResponseBlocks.h"
+#import "AFHTTPClient.h"
 
 @class SMOAuth2Client;
 @class SMRequestOptions;

@@ -16,6 +16,7 @@
 
 #import <CoreData/CoreData.h>
 #import "SMResponseBlocks.h"
+#import "AFHTTPClient.h"
 
 @class SMRequestOptions;
 @class SMDataStore;
@@ -608,6 +609,10 @@
  */
 - (void)getLoggedInUserTwitterInfoOnSuccess:(SMResultSuccessBlock)successBlock
                                       onFailure:(SMFailureBlock)failureBlock;
+
+/// @name Network Reachability
+
+- (AFNetworkReachabilityStatus)currentNetworkReachability;
 
 
 @end

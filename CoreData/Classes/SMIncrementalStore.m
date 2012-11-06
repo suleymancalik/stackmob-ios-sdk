@@ -40,9 +40,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
+/*
 @property (nonatomic, strong) NSManagedObjectContext *localManagedObjectContext;
 @property (nonatomic, strong) NSPersistentStoreCoordinator *localPersistentStoreCoordinator;
 @property (nonatomic, strong) NSManagedObjectModel *localManagedObjectModel;
+ */
+
 @property (nonatomic, strong) SMDataStore *smDataStore;
 
 - (id)handleSaveRequest:(NSPersistentStoreRequest *)request 
@@ -55,27 +58,30 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (NSDictionary *)sm_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context;
 
+/*
 - (NSURL *)getStoreURL;
 
 - (void)createStoreURLPathIfNeeded:(NSURL *)storeURL;
 
 - (BOOL)localSaveRequest:(NSDictionary *)serializedDictionary originalObject:(NSManagedObject *)object error:(NSError *__autoreleasing *)error;
+*/
 
 @end
 
 @implementation SMIncrementalStore
 
 @synthesize smDataStore = _smDataStore;
+/*
 @synthesize localManagedObjectModel = _localManagedObjectModel;
 @synthesize localManagedObjectContext = _localManagedObjectContext;
 @synthesize localPersistentStoreCoordinator = _localPersistentStoreCoordinator;
-
+*/
 - (id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root configurationName:(NSString *)name URL:(NSURL *)url options:(NSDictionary *)options {
     
     self = [super initWithPersistentStoreCoordinator:root configurationName:name URL:url options:options];
     if (self) {
         _smDataStore = [options objectForKey:SM_DataStoreKey];
-        [self configureCache];
+        //[self configureCache];
         
         // default to online
         self.smDataStore.tempNetworkStatus = YES;
@@ -83,11 +89,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     return self;
 }
 
+/*
 - (void)configureCache
 {
-    _localManagedObjectModel = self.localManagedObjectModel;
-    _localManagedObjectContext = self.localManagedObjectContext;
-    _localPersistentStoreCoordinator = self.localPersistentStoreCoordinator;
+    //_localManagedObjectModel = self.localManagedObjectModel;
+    //_localManagedObjectContext = self.localManagedObjectContext;
+    //_localPersistentStoreCoordinator = self.localPersistentStoreCoordinator;
     
 }
 
@@ -181,7 +188,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     }
     
 }
-
+*/
 
 /*
 Once a store has been created, the persistent store coordinator invokes loadMetadata: on it. In your implementation, if all goes well you should typically load the store metadata, call setMetadata: to store the metadata, and return YES. If an error occurs, however (if the store is invalid for some reason—for example, if the store URL is invalid, or the user doesn’t have read permission for the store URL), create an NSError object that describes the problem, assign it to the error parameter passed into the method, and return NO.
@@ -295,6 +302,7 @@ You should implement this method conservatively, and expect that unknown request
     return [NSArray array];
 }
 
+/*
 - (BOOL)localSaveRequest:(NSDictionary *)serializedDictionary originalObject:(NSManagedObject *)object error:(NSError *__autoreleasing *)error
 {
     NSManagedObject *objectToSaveLocally = [NSEntityDescription insertNewObjectForEntityForName:[[object entity] name] inManagedObjectContext:self.localManagedObjectContext];
@@ -318,6 +326,7 @@ You should implement this method conservatively, and expect that unknown request
     
     return YES;
 }
+ */
 
 - (BOOL)handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
@@ -332,7 +341,7 @@ You should implement this method conservatively, and expect that unknown request
             
             SMRequestOptions *options = [SMRequestOptions options];
             // If superclass is SMUserNSManagedObject, add password
-            if ([obj superclass]  == [SMUserManagedObject class]) {
+            if ([obj isKindOfClass:[SMUserManagedObject class]]) {
                 BOOL addPasswordSuccess = [self addPasswordToSerializedDictionary:&serializedObjDict originalObject:obj];
                 if (!addPasswordSuccess)
                 {
@@ -350,37 +359,20 @@ You should implement this method conservatively, and expect that unknown request
                 [options setHeaders:headerDict];
             }
             
-            // IF WE ARE ONLINE, PERSIST, PLACE INTO CACHE, RETURN 
-            
-            if (self.smDataStore.tempNetworkStatus) {
-                
-                [self.smDataStore createObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                    if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schema); }
-                    if ([obj superclass]  == [SMUserManagedObject class]) {
-                        [obj removePassword];
-                    }
-                    NSError *localSaveError = nil;
-                    BOOL localSave = [self localSaveRequest:[serializedObjDict objectForKey:SerializedDictKey] originalObject:obj error:&localSaveError];
-                    if (!localSave) {
-                        *error = (__bridge id)(__bridge_retained CFTypeRef)localSaveError;
-                        success = NO;
-                        syncReturn(semaphore);
-                    }
-                    
-                    success = YES;
-                    syncReturn(semaphore);
-                } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                    if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to insert object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
-                    if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
-                    success = NO;
-                    *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
-                    syncReturn(semaphore);
-                }];
-                
-            } else {
-                // NOT ONLINE, PLACE INTO CACHE AND PLACE ON QUEUE
-                
-            }
+            [self.smDataStore createObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schema); }
+                if ([obj isKindOfClass:[SMUserManagedObject class]]) {
+                    [obj removePassword];
+                }
+                success = YES;
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to insert object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
+                if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
+                success = NO;
+                *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
+                syncReturn(semaphore);
+            }];
             
         });
         if (success == NO)
@@ -504,6 +496,11 @@ You should implement this method conservatively, and expect that unknown request
 
 - (id)fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
+    
+    /*
+     If we are offline, perform fetch 
+     */
+    
     SMQuery *query = [SMIncrementalStore queryForFetchRequest:fetchRequest error:error];
 
     if (query == nil) {
@@ -518,14 +515,12 @@ You should implement this method conservatively, and expect that unknown request
     });
 
     return [resultsWithoutOID map:^(id item) {
-        // TO-DO OFFLINE-SUPPORT
-        //NSManagedObjectID *oid = [self cacheInsert:item forEntity:fetchRequest.entity inContext:context];
         NSString *primaryKeyField = nil;
         @try {
             primaryKeyField = [fetchRequest.entity sm_fieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
         }
         @catch (NSException *exception) {
-            if (NSClassFromString(fetchRequest.entityName) && [NSClassFromString(fetchRequest.entityName) superclass] == [SMUserManagedObject class]) {
+            if (NSClassFromString(fetchRequest.entityName) && [NSClassFromString(fetchRequest.entityName) isKindOfClass:[SMUserManagedObject class]]) {
                 primaryKeyField = [self.smDataStore.session userPrimaryKeyField];
             }
         }
@@ -534,7 +529,18 @@ You should implement this method conservatively, and expect that unknown request
             [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
         }
         NSManagedObjectID *oid = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
-        return [context objectWithID:oid];
+        NSManagedObject *object = [context objectWithID:oid];
+        
+        // Populate the attributes of the object from the fetch data
+        for (NSString * field in [item allKeys]) {
+            NSString *coreDataPropertyName = [[fetchRequest.entity sm_propertyForField:field] name];
+            if (coreDataPropertyName != nil) {
+                [object setPrimitiveValue:item[field] forKey:coreDataPropertyName];
+            }
+        }
+        
+        return object;
+        
     }];
 }
 

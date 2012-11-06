@@ -70,7 +70,7 @@
 
 - (BOOL)accessTokenHasExpired
 {
-    return [[self.expiration laterDate:[NSDate date]] isEqualToDate:self.expiration];
+    return ![[self.expiration laterDate:[NSDate date]] isEqualToDate:self.expiration];
 }
 
 - (void)clearSessionInfo

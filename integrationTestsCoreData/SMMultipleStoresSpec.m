@@ -31,21 +31,25 @@ describe(@"LocalCacheTests", ^{
         NSDictionary *credentials = [NSDictionary dictionaryWithContentsOfURL:credentialsURL];
         NSString *publicKey = [credentials objectForKey:@"PublicKey"];
         client = [[SMClient alloc] initWithAPIVersion:SM_TEST_API_VERSION publicKey:publicKey];
+        moc = [SMCoreDataIntegrationTestHelpers moc];
     });
+    it(@"let's try a simple read call", ^{
+        
+        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"Random"];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            [error shouldBeNil];
+            NSLog(@"results are %@", results);
+        }];
+        
+    });
+    
+    
+    /*
     it(@"initializes the cds successfully", ^{
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
         moc = [cds managedObjectContext];
     });
-    /*
-    it(@"Can save an object into the local cache", ^{
-        cds.tempNetworkStatus = NO;
-        __block NSManagedObject *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
-        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-            [error shouldBeNil];
-        }];
-    });
-     */
     describe(@"save workflow when online", ^{
         __block NSManagedObject *random = nil;
         beforeEach(^{
@@ -69,53 +73,9 @@ describe(@"LocalCacheTests", ^{
             NSLog(@"person is now %@", random);
         });
     });
-    /*
-    describe(@"new values workflow", ^{
-        beforeEach(^{
-            cds.tempNetworkStatus = YES;
-            __block NSManagedObject *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
-            [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
-            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-                [error shouldBeNil];
-            }];
-        });
-        it(@"new values for relationship pulls from the cache", ^{
-            
-        });
-        
-    });
-     */
+    */
     
-    /*
-    describe(@"Save workflow when offline", ^{
-        
-        pending(@"queues the request to be persisted to StackMob next time we are online", ^{
-            
-        });
-    });
     
-    describe(@"just came online", ^{
-        pending(@"flushes out the request queue", ^{
-            
-        });
-        pending(@"upon error, does something", ^{
-            
-        });
-    });
-    
-    describe(@"new values for relationship workflow", ^{
-        beforeEach(^{
-            
-        });
-        afterEach(^{
-            
-        });
-        it(@"access local cache for values", ^{
-            
-        });
-        
-    });
-     */
   
 });
 

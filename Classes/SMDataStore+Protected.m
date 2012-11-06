@@ -164,7 +164,7 @@
 
 - (void)queueRequest:(NSURLRequest *)request options:(SMRequestOptions *)options onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
 {
-    if (![self.session accessTokenHasExpired] && self.session.refreshToken != nil && options.tryRefreshToken) {
+    if (self.session.refreshToken != nil && options.tryRefreshToken && [self.session accessTokenHasExpired]) {
         [self refreshAndRetry:request onSuccess:onSuccess onFailure:onFailure];
     } 
     else {

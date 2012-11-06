@@ -52,7 +52,6 @@
 		8CCCE4FB1580389800C38962 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CCCE4E91580389800C38962 /* Foundation.framework */; };
 		8CCCE5041580389800C38962 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8CCCE5021580389800C38962 /* InfoPlist.strings */; };
 		8CD0DEEA1592409D0087801F /* StackMobCredentials.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8CD0DEE91592409D0087801F /* StackMobCredentials.plist */; };
-		A5527654150846F1BAF7D502 /* libPods-integration tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 605B6D27590C45BD84549778 /* libPods-integration tests.a */; };
 		D80DEBB427BC4CCC8E29CD71 /* libPods-integrationTestsCoreData.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F19DAB09E04A42F58CE99823 /* libPods-integrationTestsCoreData.a */; };
 		DE05E13D15E2BE8F00224E4E /* goatPic.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = DE05E13C15E2BE8A00224E4E /* goatPic.jpeg */; };
 		DE05E13E15E2BE9000224E4E /* goatPic.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = DE05E13C15E2BE8A00224E4E /* goatPic.jpeg */; };
@@ -89,12 +88,14 @@
 		DE05E19215E2C08B00224E4E /* SMDataStore+ProtectedSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18A15E2C08B00224E4E /* SMDataStore+ProtectedSpec.m */; };
 		DE05E19315E2C08B00224E4E /* SMDataStoreSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18B15E2C08B00224E4E /* SMDataStoreSpec.m */; };
 		DE05E19415E2C08B00224E4E /* SMQuerySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18C15E2C08B00224E4E /* SMQuerySpec.m */; };
+		DE079B991649976E00C8AAA0 /* libPods-integration tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DE079B981649976E00C8AAA0 /* libPods-integration tests.a */; };
+		DE079B9C16499B0900C8AAA0 /* SMNetworkReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = DE079B9A16499B0900C8AAA0 /* SMNetworkReachability.h */; };
+		DE079B9D16499B0900C8AAA0 /* SMNetworkReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = DE079B9B16499B0900C8AAA0 /* SMNetworkReachability.m */; };
 		DE0C76141641D88700DDF7D3 /* stackmob-ios-sdk-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = DE0C76131641D88700DDF7D3 /* stackmob-ios-sdk-Prefix.pch */; };
 		DE0C76161641D8F900DDF7D3 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE0C76151641D8F900DDF7D3 /* MobileCoreServices.framework */; };
 		DE0C761A1641F78000DDF7D3 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE0C76151641D8F900DDF7D3 /* MobileCoreServices.framework */; };
 		DE0C761B1641F79000DDF7D3 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE0C76151641D8F900DDF7D3 /* MobileCoreServices.framework */; };
 		DE0C76261641FB9D00DDF7D3 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE0C76151641D8F900DDF7D3 /* MobileCoreServices.framework */; };
-		DE0C76291641FF8700DDF7D3 /* SMMultipleStoresSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE922800161E748300DA0D00 /* SMMultipleStoresSpec.m */; };
 		DE0CC78F15CB52D200E491C4 /* SMSpecHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC78E15CB52D200E491C4 /* SMSpecHelpers.m */; };
 		DE0CC7A015CB5DED00E491C4 /* person.json in Resources */ = {isa = PBXBuildFile; fileRef = DE0CC79F15CB5DED00E491C4 /* person.json */; };
 		DE0CC7A315CB5E0200E491C4 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A115CB5E0200E491C4 /* SMCoreDataIntegrationTest.xcdatamodeld */; };
@@ -117,6 +118,7 @@
 		DE13864315DC7BAB00610EE1 /* Base64EncodedStringFromData.m in Sources */ = {isa = PBXBuildFile; fileRef = DE13864115DC7BAB00610EE1 /* Base64EncodedStringFromData.m */; };
 		DE360C2D16431D5A00C31A55 /* Random.h in Headers */ = {isa = PBXBuildFile; fileRef = DE360C2B16431D5A00C31A55 /* Random.h */; };
 		DE360C2E16431D5A00C31A55 /* Random.m in Sources */ = {isa = PBXBuildFile; fileRef = DE360C2C16431D5A00C31A55 /* Random.m */; };
+		DE4E261E16489F4300711B0C /* SMMultipleStoresSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE922800161E748300DA0D00 /* SMMultipleStoresSpec.m */; };
 		DE64D6011623777900237570 /* SMUserManagedObject.h in Headers */ = {isa = PBXBuildFile; fileRef = DE64D5FF1623777900237570 /* SMUserManagedObject.h */; };
 		DE64D6021623777900237570 /* SMUserManagedObject.m in Sources */ = {isa = PBXBuildFile; fileRef = DE64D6001623777900237570 /* SMUserManagedObject.m */; };
 		DE64D608162389A600237570 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = DE64D607162389A600237570 /* Person.m */; };
@@ -262,7 +264,6 @@
 		1C66BB747CC543ECA80B6D69 /* Pods.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = SOURCE_ROOT; };
 		1DF4D7EF1631EBF400875E0F /* CoreDataPropertyTypesSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataPropertyTypesSpec.m; sourceTree = "<group>"; };
 		569CB63915BA2D84003AC6AF /* SMOAuth2ClientSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMOAuth2ClientSpec.m; sourceTree = "<group>"; };
-		605B6D27590C45BD84549778 /* libPods-integration tests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-integration tests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6102E0CE1593B60500B0C774 /* people.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = people.json; path = "Integration Tests/Fixtures/people.json"; sourceTree = SOURCE_ROOT; };
 		6188EB6B1593DE4700281D87 /* blogposts.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = blogposts.json; path = "Integration Tests/blogposts.json"; sourceTree = SOURCE_ROOT; };
 		6188EB6D1593E82600281D87 /* places.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = places.json; path = "Integration Tests/Fixtures/places.json"; sourceTree = SOURCE_ROOT; };
@@ -331,6 +332,9 @@
 		DE05E19815E2C5EC00224E4E /* EntryPointExtender.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; path = EntryPointExtender.java; sourceTree = "<group>"; };
 		DE05E19915E2C5EC00224E4E /* HelloWorld.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; path = HelloWorld.java; sourceTree = "<group>"; };
 		DE05E19A15E2C5EC00224E4E /* HelloWorldParams.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; path = HelloWorldParams.java; sourceTree = "<group>"; };
+		DE079B981649976E00C8AAA0 /* libPods-integration tests.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = "libPods-integration tests.a"; path = "Pods/build/Release-iphoneos/libPods-integration tests.a"; sourceTree = "<group>"; };
+		DE079B9A16499B0900C8AAA0 /* SMNetworkReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMNetworkReachability.h; sourceTree = "<group>"; };
+		DE079B9B16499B0900C8AAA0 /* SMNetworkReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMNetworkReachability.m; sourceTree = "<group>"; };
 		DE0C76131641D88700DDF7D3 /* stackmob-ios-sdk-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "stackmob-ios-sdk-Prefix.pch"; sourceTree = "<group>"; };
 		DE0C76151641D8F900DDF7D3 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		DE0C761C1641F7D700DDF7D3 /* stackmob-ios-sdkTests-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "stackmob-ios-sdkTests-Prefix.pch"; sourceTree = "<group>"; };
@@ -400,6 +404,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE079B991649976E00C8AAA0 /* libPods-integration tests.a in Frameworks */,
 				DE0C76261641FB9D00DDF7D3 /* MobileCoreServices.framework in Frameworks */,
 				DE9227F6161E439F00DA0D00 /* SystemConfiguration.framework in Frameworks */,
 				DEDD40471629225500F5C8E0 /* Security.framework in Frameworks */,
@@ -409,7 +414,6 @@
 				8C33B04915912B1F00BE2570 /* SenTestingKit.framework in Frameworks */,
 				8C33B04A15912B1F00BE2570 /* UIKit.framework in Frameworks */,
 				8C33B04B15912B1F00BE2570 /* Foundation.framework in Frameworks */,
-				A5527654150846F1BAF7D502 /* libPods-integration tests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -549,8 +553,8 @@
 				8CCCE4F91580389800C38962 /* UIKit.framework */,
 				DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */,
 				CC1E56D1B3EB4DE7BDACFF7A /* libPods.a */,
+				DE079B981649976E00C8AAA0 /* libPods-integration tests.a */,
 				8CC414A815881960004EA957 /* libPods-stackmob-ios-sdkTests.a */,
-				605B6D27590C45BD84549778 /* libPods-integration tests.a */,
 				F19DAB09E04A42F58CE99823 /* libPods-integrationTestsCoreData.a */,
 			);
 			name = Frameworks;
@@ -630,6 +634,8 @@
 				DE05E16015E2C02200224E4E /* SMUserSession.m */,
 				DE05E16115E2C02200224E4E /* SMVersion.h */,
 				DE05E16215E2C02200224E4E /* StackMob.h */,
+				DE079B9A16499B0900C8AAA0 /* SMNetworkReachability.h */,
+				DE079B9B16499B0900C8AAA0 /* SMNetworkReachability.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -778,6 +784,7 @@
 				DE9784A8163B5880001119D1 /* NSManagedObject+StackMobSerialization.h in Headers */,
 				DE0C76141641D88700DDF7D3 /* stackmob-ios-sdk-Prefix.pch in Headers */,
 				DE360C2D16431D5A00C31A55 /* Random.h in Headers */,
+				DE079B9C16499B0900C8AAA0 /* SMNetworkReachability.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1146,6 +1153,7 @@
 				DE9784A7163B5880001119D1 /* NSEntityDescription+StackMobSerialization.m in Sources */,
 				DE9784A9163B5880001119D1 /* NSManagedObject+StackMobSerialization.m in Sources */,
 				DE360C2E16431D5A00C31A55 /* Random.m in Sources */,
+				DE079B9D16499B0900C8AAA0 /* SMNetworkReachability.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1182,7 +1190,7 @@
 				DE0CC7CF15CB6B1F00E491C4 /* SMIntegrationTestHelpers.m in Sources */,
 				DE0CC7D215CB6B3800E491C4 /* SMCoreDataIntegrationTestHelpers.m in Sources */,
 				DE64D608162389A600237570 /* Person.m in Sources */,
-				DE0C76291641FF8700DDF7D3 /* SMMultipleStoresSpec.m in Sources */,
+				DE4E261E16489F4300711B0C /* SMMultipleStoresSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
