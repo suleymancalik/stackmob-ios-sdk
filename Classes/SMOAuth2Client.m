@@ -20,6 +20,7 @@
 #import "SMCustomCodeRequest.h"
 #import "SMRequestOptions.h"
 #import "Base64EncodedStringFromData.h"
+#import "SystemInformation.h"
 
 @implementation SMOAuth2Client
 
@@ -42,7 +43,7 @@
         NSString *acceptHeader = [NSString stringWithFormat:@"application/vnd.stackmob+json; version=%@", version];
         [self setDefaultHeader:@"Accept" value:acceptHeader]; 
         [self setDefaultHeader:@"X-StackMob-API-Key" value:self.publicKey];
-        [self setDefaultHeader:@"User-Agent" value:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, [[UIDevice currentDevice] model], [[UIDevice currentDevice] systemVersion], [[NSLocale currentLocale] localeIdentifier]]];
+        [self setDefaultHeader:@"User-Agent" value:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, smDeviceModel(), smSystemVersion(), [[NSLocale currentLocale] localeIdentifier]]];
         self.parameterEncoding = AFJSONParameterEncoding;
     }
     return self;
@@ -71,7 +72,8 @@
     NSString *acceptHeader = [NSString stringWithFormat:@"application/vnd.stackmob+json; version=%@", self.version];
     [request setValue:acceptHeader forHTTPHeaderField:@"Accept"];
     [request setValue:self.publicKey forHTTPHeaderField:@"X-StackMob-API-Key"];
-    [request setValue:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, [[UIDevice currentDevice] model], [[UIDevice currentDevice] systemVersion], [[NSLocale currentLocale] localeIdentifier]] forHTTPHeaderField:@"User-Agent"];
+    [request setValue:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, smDeviceModel(), smSystemVersion(), [[NSLocale currentLocale] localeIdentifier]] forHTTPHeaderField:@"User-Agent"];
+
     [options.headers enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
         [request setValue:(NSString *)obj forHTTPHeaderField:(NSString *)key];
     }];

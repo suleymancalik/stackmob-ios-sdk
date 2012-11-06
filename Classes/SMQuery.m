@@ -153,7 +153,7 @@
 
 - (void)fromIndex:(NSUInteger)start toIndex:(NSUInteger)end
 {
-    NSString *rangeHeader = [NSString stringWithFormat:@"objects=%i-%i", start, end];
+    NSString *rangeHeader = [NSString stringWithFormat:@"objects=%i-%i", (int)start, (int)end];
     [self.requestHeaders setValue:rangeHeader forKey:@"Range"];
 }
 
