@@ -17,6 +17,7 @@
 #import "StackMob.h"
 #import "AFJSONRequestOperation.h"
 #import "SMVersion.h"
+#import "SystemInformation.h"
 
 #define ACCESS_TOKEN @"access_token"
 #define EXPIRES_IN @"expires_in"
@@ -54,7 +55,7 @@
         [self.tokenClient setDefaultHeader:@"Accept" value:acceptHeader]; 
         [self.tokenClient setDefaultHeader:@"X-StackMob-API-Key" value:publicKey];
         [self.tokenClient setDefaultHeader:@"Content-Type" value:@"application/x-www-form-urlencoded"];
-        [self.tokenClient setDefaultHeader:@"User-Agent" value:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, [[UIDevice currentDevice] model], [[UIDevice currentDevice] systemVersion], [[NSLocale currentLocale] localeIdentifier]]];
+        [self.tokenClient setDefaultHeader:@"User-Agent" value:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, smDeviceModel(), smSystemVersion(), [[NSLocale currentLocale] localeIdentifier]]];
         self.userSchema = userSchema;
         self.userPrimaryKeyField = userPrimaryKeyField;
         self.userPasswordField = userPasswordField;

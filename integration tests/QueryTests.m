@@ -157,13 +157,15 @@ describe(@"with a prepopulated database of people", ^{
             query = [[SMQuery alloc] initWithSchema:@"blogposts"];
         });
         it(@"-fromIndex:toIndex", ^{
+            __block NSArray *expectedObjects = [NSArray arrayWithObjects:@"D", @"E", @"F", @"G", @"H", nil];
             [query fromIndex:4 toIndex:8];
+            [query orderByField:@"title" ascending:YES];
             synchronousQuery(sm, query, ^(NSArray *results) {
                 [[results should] haveCountOf:5];
                 NSArray *sortedResults = [results sortedArrayUsingDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES]]];
+                NSLog(@"sorted results: %@", sortedResults);
                 for (int i = 4; i <= 8; i++) {
-                    int postNumber = i + 1;
-                    [[[[sortedResults objectAtIndex:i-4] objectForKey:@"title"] should] equal:[NSString stringWithFormat:@"Post %d", postNumber]];
+                    [[[[sortedResults objectAtIndex:i-4] objectForKey:@"title"] should] equal:[NSString stringWithFormat:@"Post %@", [expectedObjects objectAtIndex:i-4]]];
                 }
             }, ^(NSError *error){
                 

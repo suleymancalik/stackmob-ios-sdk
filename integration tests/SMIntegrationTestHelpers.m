@@ -43,6 +43,15 @@ void synchronousQuery(SMDataStore *sm, SMQuery *query, SynchronousQueryBlock blo
     return [[SMClient alloc] initWithAPIVersion:SM_TEST_API_VERSION publicKey:publicKey];
 }
 
++ (SMPushClient *)defaultPushClient
+{
+    NSURL *credentialsURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"StackMobCredentials" withExtension:@"plist"];
+    NSDictionary *credentials = [NSDictionary dictionaryWithContentsOfURL:credentialsURL];
+    NSString *publicKey = [credentials objectForKey:@"PublicKey"];
+    NSString *privateKey = [credentials objectForKey:@"PrivateKey"];
+    return [[SMPushClient alloc] initWithAPIVersion:SM_TEST_API_VERSION publicKey:publicKey privateKey:privateKey];
+}
+
 + (SMDataStore *)dataStore {
     return [[SMIntegrationTestHelpers defaultClient] dataStore];
 }

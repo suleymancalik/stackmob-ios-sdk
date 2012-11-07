@@ -84,7 +84,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         //[self configureCache];
         
         // default to online
-        self.smDataStore.tempNetworkStatus = YES;
     }
     return self;
 }

@@ -14,41 +14,29 @@
  * limitations under the License.
  */
 
-#import "SMNetworkReachability.h"
+#import "SMPushToken.h"
 
-@implementation SMNetworkReachability
+@implementation SMPushToken
 
-- (id)initWithBaseURL:(NSURL *)url
+@synthesize tokenString = _SM_tokenString;
+@synthesize type = _SM_type;
+@synthesize registrationTime = _SM_registrationTime;
+
+-(id)initWithString:(NSString *)tokenString
 {
-    self = [super initWithBaseURL:url];
-    
-    if (self) {
-        
+    return [self initWithString:tokenString type:TOKEN_TYPE_IOS];
+}
+
+-(id)initWithString:(NSString *)tokenString type:(NSString *)type
+{
+    self = [self init];
+    if (self)
+    {
+        self.tokenString = tokenString;
+        self.type = type;
     }
-    
     return self;
 }
 
-- (id)initWithStackMobAPIHost
-{
-    self = [super initWithBaseURL:[NSURL URLWithString:@"http://api.stackmob.com"]];
-    
-    if (self) {
-        
-    }
-    
-    return self;
-}
-
-- (id)initWithAPIHost:(NSString *)apiHost
-{
-    self = [super initWithBaseURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@", apiHost]]];
-    
-    if (self) {
-        
-    }
-    
-    return self;
-}
 
 @end
