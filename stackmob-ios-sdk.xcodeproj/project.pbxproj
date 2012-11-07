@@ -146,6 +146,8 @@
 		DE9784AE163B675E001119D1 /* SMUpdateObjectsOptimizationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE585271631F3C40009A1DE /* SMUpdateObjectsOptimizationSpec.m */; };
 		DE9784DC163B6A79001119D1 /* NSEntityDescription+StackMobSerialization.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE9784A2163B5880001119D1 /* NSEntityDescription+StackMobSerialization.h */; };
 		DE9784DD163B6A79001119D1 /* NSManagedObject+StackMobSerialization.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE9784A4163B5880001119D1 /* NSManagedObject+StackMobSerialization.h */; };
+		DEA9EC82164AF22C006B7326 /* SystemInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = DEA9EC80164AF22C006B7326 /* SystemInformation.h */; };
+		DEA9EC83164AF22C006B7326 /* SystemInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9EC81164AF22C006B7326 /* SystemInformation.m */; };
 		DEBBBCAF15CC440600650D75 /* SMCoreDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCA515CC440600650D75 /* SMCoreDataStore.h */; };
 		DEBBBCB015CC440600650D75 /* SMCoreDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCA615CC440600650D75 /* SMCoreDataStore.m */; };
 		DEBBBCB115CC440600650D75 /* SMIncrementalStore+Query.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCA715CC440600650D75 /* SMIncrementalStore+Query.h */; };
@@ -357,6 +359,8 @@
 		DE9784A3163B5880001119D1 /* NSEntityDescription+StackMobSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSEntityDescription+StackMobSerialization.m"; sourceTree = "<group>"; };
 		DE9784A4163B5880001119D1 /* NSManagedObject+StackMobSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+StackMobSerialization.h"; sourceTree = "<group>"; };
 		DE9784A5163B5880001119D1 /* NSManagedObject+StackMobSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+StackMobSerialization.m"; sourceTree = "<group>"; };
+		DEA9EC80164AF22C006B7326 /* SystemInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SystemInformation.h; sourceTree = "<group>"; };
+		DEA9EC81164AF22C006B7326 /* SystemInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SystemInformation.m; sourceTree = "<group>"; };
 		DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMCusCodeReqIntegrationSpec.m; sourceTree = "<group>"; };
 		DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMClientIntegrationSpec.m; sourceTree = "<group>"; };
 		DEBA17DB15CC9A4600913CF8 /* stackmob-ios-sdkTests copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "stackmob-ios-sdkTests copy-Info.plist"; path = "/Users/mattvaz/Documents/stackmob/stackmob-ios-sdk/stackmob-ios-sdkTests copy-Info.plist"; sourceTree = "<absolute>"; };
@@ -694,6 +698,8 @@
 		DEBBBCB815CC441800650D75 /* Utility */ = {
 			isa = PBXGroup;
 			children = (
+				DEA9EC80164AF22C006B7326 /* SystemInformation.h */,
+				DEA9EC81164AF22C006B7326 /* SystemInformation.m */,
 				DEBBBCB915CC441900650D75 /* NSArray+Enumerable.h */,
 				DEBBBCBA15CC441900650D75 /* NSArray+Enumerable.m */,
 				DEBBBCBB15CC441900650D75 /* Synchronization.h */,
@@ -741,6 +747,7 @@
 				DE14311F1639CD2E008BD3DF /* Random.h in Headers */,
 				DE9784A6163B5880001119D1 /* NSEntityDescription+StackMobSerialization.h in Headers */,
 				DE9784A8163B5880001119D1 /* NSManagedObject+StackMobSerialization.h in Headers */,
+				DEA9EC82164AF22C006B7326 /* SystemInformation.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1108,6 +1115,7 @@
 				DE1431201639CD34008BD3DF /* Random.m in Sources */,
 				DE9784A7163B5880001119D1 /* NSEntityDescription+StackMobSerialization.m in Sources */,
 				DE9784A9163B5880001119D1 /* NSManagedObject+StackMobSerialization.m in Sources */,
+				DEA9EC83164AF22C006B7326 /* SystemInformation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
