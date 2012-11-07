@@ -71,7 +71,7 @@
         self.headers = [NSDictionary dictionary];
     }
     NSMutableDictionary *tempHeadersDict = [self.headers mutableCopy];
-    [tempHeadersDict setValue:[NSString stringWithFormat:@"%d", depth] forKey:@"X-StackMob-Expand"];
+    [tempHeadersDict setValue:[NSString stringWithFormat:@"%d", (int)depth] forKey:@"X-StackMob-Expand"];
     self.headers = tempHeadersDict;
 }
 
