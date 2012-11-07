@@ -162,8 +162,7 @@ describe(@"with a prepopulated database of people", ^{
                 [[results should] haveCountOf:5];
                 NSArray *sortedResults = [results sortedArrayUsingDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES]]];
                 for (int i = 4; i <= 8; i++) {
-                    int postNumber = i + 1;
-                    [[[[sortedResults objectAtIndex:i-4] objectForKey:@"title"] should] equal:[NSString stringWithFormat:@"Post %d", postNumber]];
+                    [[[[sortedResults objectAtIndex:i-4] objectForKey:@"title"] should] equal:[NSString stringWithFormat:@"Post %d", i]];
                 }
             }, ^(NSError *error){
                 

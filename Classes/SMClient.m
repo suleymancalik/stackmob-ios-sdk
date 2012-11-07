@@ -279,7 +279,7 @@ static SMClient *defaultClient = nil;
 
 - (BOOL)isLoggedIn
 {
-    return [self.session refreshToken] != nil || [self.session accessTokenHasExpired];
+    return [self.session refreshToken] != nil || ![self.session accessTokenHasExpired];
 }
 
 - (BOOL)isLoggedOut
