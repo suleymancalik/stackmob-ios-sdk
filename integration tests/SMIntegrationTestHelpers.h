@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "StackMob.h"
+#import "StackMobPush.h"
 #import "Synchronization.h"
 
 #define SM_TEST_API_VERSION @"0"
@@ -28,6 +29,7 @@
 @interface SMIntegrationTestHelpers : NSObject
 
 + (SMClient *)defaultClient;
++ (SMPushClient *)defaultPushClient;
 + (SMDataStore *)dataStore;
 
 + (NSDictionary *)loadFixturesNamed:(NSArray *)fixtureNames;
