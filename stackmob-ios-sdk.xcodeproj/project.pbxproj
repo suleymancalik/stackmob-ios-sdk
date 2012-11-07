@@ -90,6 +90,9 @@
 		DE05E19215E2C08B00224E4E /* SMDataStore+ProtectedSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18A15E2C08B00224E4E /* SMDataStore+ProtectedSpec.m */; };
 		DE05E19315E2C08B00224E4E /* SMDataStoreSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18B15E2C08B00224E4E /* SMDataStoreSpec.m */; };
 		DE05E19415E2C08B00224E4E /* SMQuerySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18C15E2C08B00224E4E /* SMQuerySpec.m */; };
+		DE079BB7164A0B6C00C8AAA0 /* CRUDTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C33B0641591355A00BE2570 /* CRUDTests.m */; };
+		DE079BB8164A0B7000C8AAA0 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
+		DE079BB9164A0B7400C8AAA0 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
 		DE0CC78F15CB52D200E491C4 /* SMSpecHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC78E15CB52D200E491C4 /* SMSpecHelpers.m */; };
 		DE0CC7A015CB5DED00E491C4 /* person.json in Resources */ = {isa = PBXBuildFile; fileRef = DE0CC79F15CB5DED00E491C4 /* person.json */; };
 		DE0CC7A315CB5E0200E491C4 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A115CB5E0200E491C4 /* SMCoreDataIntegrationTest.xcdatamodeld */; };
@@ -177,14 +180,11 @@
 		DEE18F61160A704000BDCCC6 /* NSDictionary+AtomicCounterSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18515E2C08B00224E4E /* NSDictionary+AtomicCounterSpec.m */; };
 		DEE18F62160A77A200BDCCC6 /* NSEntityDescription_StackMobSerializationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18615E2C08B00224E4E /* NSEntityDescription_StackMobSerializationSpec.m */; };
 		DEE18F63160A77AD00BDCCC6 /* NSManagedObject+StackMobSerializationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18715E2C08B00224E4E /* NSManagedObject+StackMobSerializationSpec.m */; };
-		DEEA2B99161A2FF400F78DBB /* CRUDTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C33B0641591355A00BE2570 /* CRUDTests.m */; };
 		DEEA2B9A161A2FF800F78DBB /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
-		DEEA2B9B161A2FFC00F78DBB /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
 		DEF756B61624918E006FD554 /* KeychainWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF756B41624918E006FD554 /* KeychainWrapper.h */; };
 		DEF756B71624918E006FD554 /* KeychainWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF756B51624918E006FD554 /* KeychainWrapper.m */; };
 		DEF756C81624D4BE006FD554 /* User3.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF756C61624D4BE006FD554 /* User3.h */; };
 		DEF756C91624D4BE006FD554 /* User3.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF756C71624D4BE006FD554 /* User3.m */; };
-		DEF7CEF7160BB51200635733 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
 		DEFA4EBF1628A93E00E75101 /* User4.h in Headers */ = {isa = PBXBuildFile; fileRef = DEFA4EBD1628A93E00E75101 /* User4.h */; };
 		DEFA4EC01628A93E00E75101 /* User4.m in Sources */ = {isa = PBXBuildFile; fileRef = DEFA4EBE1628A93E00E75101 /* User4.m */; };
 		DEFA4EC61628D0E700E75101 /* KeychainWrapper.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DEF756B41624918E006FD554 /* KeychainWrapper.h */; };
@@ -1072,10 +1072,10 @@
 				619EDF16159292CF0075BB93 /* SMIntegrationTestHelpers.m in Sources */,
 				DE0CC7A315CB5E0200E491C4 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */,
 				DE0CC7B115CB605900E491C4 /* Superpower.m in Sources */,
-				DEF7CEF7160BB51200635733 /* SMClientIntegrationSpec.m in Sources */,
-				DEEA2B99161A2FF400F78DBB /* CRUDTests.m in Sources */,
 				DEEA2B9A161A2FF800F78DBB /* QueryTests.m in Sources */,
-				DEEA2B9B161A2FFC00F78DBB /* SMCusCodeReqIntegrationSpec.m in Sources */,
+				DE079BB7164A0B6C00C8AAA0 /* CRUDTests.m in Sources */,
+				DE079BB8164A0B7000C8AAA0 /* SMClientIntegrationSpec.m in Sources */,
+				DE079BB9164A0B7400C8AAA0 /* SMCusCodeReqIntegrationSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
