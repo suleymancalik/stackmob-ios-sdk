@@ -17,6 +17,8 @@
 #import "SystemInformation.h"
 
 #if __IPHONE_OS_VERSION_MIN_REQUIRED
+#import <UIKit/UIKit.h>
+
 NSString * smDeviceModel()
 {
     return [[UIDevice currentDevice] model];
