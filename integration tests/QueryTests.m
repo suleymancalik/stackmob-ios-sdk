@@ -165,7 +165,7 @@ describe(@"with a prepopulated database of people", ^{
                 NSArray *sortedResults = [results sortedArrayUsingDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES]]];
                 NSLog(@"sorted results: %@", sortedResults);
                 for (int i = 4; i <= 8; i++) {
-                    [[[[sortedResults objectAtIndex:i-4] objectForKey:@"title"] should] equal:[NSString stringWithFormat:@"Post %@", expectedObjects[i-4]]];
+                    [[[[sortedResults objectAtIndex:i-4] objectForKey:@"title"] should] equal:[NSString stringWithFormat:@"Post %@", [expectedObjects objectAtIndex:i-4]]];
                 }
             }, ^(NSError *error){
                 
