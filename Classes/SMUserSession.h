@@ -17,6 +17,7 @@
 #import "SMResponseBlocks.h"
 #import "AFHTTPClient.h"
 
+@class SMNetworkReachability;
 @class SMOAuth2Client;
 @class SMRequestOptions;
 
@@ -35,6 +36,7 @@
 @property (nonatomic, readwrite, strong) SMOAuth2Client *regularOAuthClient;
 @property (nonatomic, readwrite, strong) SMOAuth2Client *secureOAuthClient;
 @property (nonatomic, readwrite, strong) AFHTTPClient *tokenClient;
+@property (nonatomic, readwrite, strong) SMNetworkReachability *networkMonitor;
 @property (nonatomic, copy) NSString *userSchema;
 @property (nonatomic, copy) NSString *userPrimaryKeyField;
 @property (nonatomic, copy) NSString *userPasswordField;

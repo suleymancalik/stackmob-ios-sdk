@@ -16,39 +16,99 @@
 
 #import "SMNetworkReachability.h"
 
+NSString * SMNetworkStatusDidChangeNotification = @"SMNetworkStatusDidChangeNotification";
+NSString * SMCurrentNetworkStatusKey = @"SMCurrentNetworkStatusKey";
+
+typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
+
+@interface SMNetworkReachability ()
+
+@property (nonatomic) int networkStatus;
+@property (readwrite, nonatomic, copy) SMNetworkStatusBlock localNetworkStatusBlock;
+
+- (void)addNetworkStatusDidChangeObserver;
+- (void)removeNetworkStatusDidChangeObserver;
+- (void)networkChangeNotificationFromAFNetworking:(NSNotification *)notification;
+
+@end
+
 @implementation SMNetworkReachability
+
+@synthesize networkStatus = _networkStatus;
+
+- (id)init
+{
+    self = [self initWithBaseURL:[NSURL URLWithString:@"http://api.stackmob.com"]];
+    
+    return self;
+}
 
 - (id)initWithBaseURL:(NSURL *)url
 {
     self = [super initWithBaseURL:url];
     
     if (self) {
-        
+        self.networkStatus = -2;
+        self.localNetworkStatusBlock = nil;
+        [self addNetworkStatusDidChangeObserver];
     }
     
     return self;
 }
 
-- (id)initWithStackMobAPIHost
+- (SMNetworkStatus)currentNetworkStatus
 {
-    self = [super initWithBaseURL:[NSURL URLWithString:@"http://api.stackmob.com"]];
-    
-    if (self) {
-        
-    }
-    
-    return self;
+    return self.networkStatus;
 }
 
-- (id)initWithAPIHost:(NSString *)apiHost
+- (void)addNetworkStatusDidChangeObserver
 {
-    self = [super initWithBaseURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@", apiHost]]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkChangeNotificationFromAFNetworking:) name:AFNetworkingReachabilityDidChangeNotification object:nil];
+}
+
+- (void)removeNetworkStatusDidChangeObserver
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AFNetworkingReachabilityDidChangeNotification object:nil];
+}
+
+- (void)setNetworkStatusChangeBlock:(void (^)(SMNetworkStatus))block
+{
+    self.localNetworkStatusBlock = block;
+}
+
+- (void)networkChangeNotificationFromAFNetworking:(NSNotification *)notification
+{
+    int notificationNetworkStatus = [self translateAFNetworkingStatus:[[[notification userInfo] objectForKey:AFNetworkingReachabilityNotificationStatusItem] intValue]];
     
-    if (self) {
-        
+    if (self.networkStatus != notificationNetworkStatus) {
+        self.networkStatus = notificationNetworkStatus;
+        if (self.localNetworkStatusBlock) {
+            self.localNetworkStatusBlock(self.networkStatus);
+        }
+        [[NSNotificationCenter defaultCenter] postNotificationName:SMNetworkStatusDidChangeNotification object:nil userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:self.currentNetworkStatus], SMCurrentNetworkStatusKey, nil]];
     }
     
-    return self;
+}
+
+- (SMNetworkStatus)translateAFNetworkingStatus:(AFNetworkReachabilityStatus)status
+{
+    switch (status) {
+        case AFNetworkReachabilityStatusReachableViaWiFi:
+            return Online;
+            break;
+        case AFNetworkReachabilityStatusNotReachable:
+            return Offline;
+            break;
+        case AFNetworkReachabilityStatusUnknown:
+            return Unknown;
+            break;
+        case AFNetworkReachabilityStatusReachableViaWWAN:
+            return Online;
+            break;
+        default:
+            return Unknown;
+            break;
+    }
 }
 
 @end

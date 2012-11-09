@@ -530,8 +530,10 @@ You should implement this method conservatively, and expect that unknown request
         NSManagedObjectID *oid = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
         NSManagedObject *object = [context objectWithID:oid];
         
+        
         // Populate the attributes of the object from the fetch data
-        for (NSString * field in [item allKeys]) {
+        NSDictionary *serializedDict = [self sm_responseSerializationForDictionary:item schemaEntityDescription:fetchRequest.entity managedObjectContext:context];
+        for (NSString *field in [serializedDict allKeys]) {
             NSString *coreDataPropertyName = [[fetchRequest.entity sm_propertyForField:field] name];
             if (coreDataPropertyName != nil) {
                 [object setPrimitiveValue:item[field] forKey:coreDataPropertyName];
@@ -883,7 +885,7 @@ You should implement this method conservatively, and expect that unknown request
                 }
             }
             
-        }        
+        }       
     }];
     
     return serializedDictionary;

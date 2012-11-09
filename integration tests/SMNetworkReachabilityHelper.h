@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2012 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,25 +15,12 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "AFHTTPClient.h"
+#import "StackMob.h"
 
-extern NSString * SMNetworkStatusDidChangeNotification;
-extern NSString * SMCurrentNetworkStatusKey;
+@interface SMNetworkReachabilityHelper : NSObject
 
-typedef enum {
-    Unknown = -1,
-    Offline  = 0,
-    Online = 1,
-} SMNetworkStatus;
+@property (nonatomic, strong) SMClient *client;
 
-@interface SMNetworkReachability : AFHTTPClient
-
-- (id)init;
-
-- (id)initWithBaseURL:(NSURL *)url;
-
-- (SMNetworkStatus)currentNetworkStatus;
-
-- (void)setNetworkStatusChangeBlock:(void (^)(SMNetworkStatus status))block;
+- (void)networkDidChange:(NSNotification *)notification;
 
 @end
