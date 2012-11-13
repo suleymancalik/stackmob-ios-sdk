@@ -122,17 +122,26 @@
         [request setValue:headerValue forHTTPHeaderField:headerField]; 
     }];
     SMFullResponseSuccessBlock successHandler = ^void(NSURLRequest *req, NSHTTPURLResponse *response, id JSON) {   
-        successBlock([self parseTokenResults:JSON]);
+        if (successBlock) {
+            successBlock([self parseTokenResults:JSON]);
+        }
     };
     SMFullResponseFailureBlock failureHandler = ^void(NSURLRequest *req, NSHTTPURLResponse *response, NSError *error, id JSON) {
         self.refreshing = NO;
-        int statusCode = response.statusCode;
-        NSString *domain = HTTPErrorDomain;
-        if ([[JSON valueForKey:@"error_description"] isEqualToString:@"Temporary password reset required."]) {
-            statusCode = SMErrorTemporaryPasswordResetRequired;
-            domain = SMErrorDomain;
+        if (failureBlock) {
+            if (response == nil) {
+                NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
+                failureBlock(networkNotReachableError);
+            } else {
+                int statusCode = response.statusCode;
+                NSString *domain = HTTPErrorDomain;
+                if ([[JSON valueForKey:@"error_description"] isEqualToString:@"Temporary password reset required."]) {
+                    statusCode = SMErrorTemporaryPasswordResetRequired;
+                    domain = SMErrorDomain;
+                }
+                failureBlock([NSError errorWithDomain:domain code:statusCode userInfo:JSON]);
+            }
         }
-        failureBlock([NSError errorWithDomain:domain code:statusCode userInfo:JSON]);
     };
     AFJSONRequestOperation * op = [SMJSONRequestOperation JSONRequestOperationWithRequest:request success:successHandler failure:failureHandler];
     [self.tokenClient enqueueHTTPRequestOperation:op];

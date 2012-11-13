@@ -83,7 +83,7 @@
     return ^void(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
     {
         if (failureBlock) {
-            failureBlock([self errorFromResponse:response JSON:JSON], theObject, schema);
+            response == nil? failureBlock(error, theObject, schema) : failureBlock([self errorFromResponse:response JSON:JSON], theObject, schema);
         }
     };
 }
@@ -93,7 +93,7 @@
     return ^void(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
     {
         if (failureBlock) {
-            failureBlock([self errorFromResponse:response JSON:JSON], theObjectId, schema);
+            response == nil ? failureBlock(error, theObjectId, schema) : failureBlock([self errorFromResponse:response JSON:JSON], theObjectId, schema);
         }
     };
 }
@@ -103,7 +103,7 @@
     return ^void(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
     {
         if (failureBlock) {
-            failureBlock([self errorFromResponse:response JSON:JSON]);
+            response == nil ? failureBlock(error) : failureBlock([self errorFromResponse:response JSON:JSON]);
         }
     };
 }
