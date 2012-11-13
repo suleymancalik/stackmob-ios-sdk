@@ -211,16 +211,16 @@ describe(@"with fixtures", ^{
                     }
                     [[theValue([results count]) should] equal:[NSNumber numberWithInt:1]];
                     Person *result = [results objectAtIndex:0];
-                    [[theValue([result valueForKey:@"person_id"]) should] equal:theValue(seanId)];
+                    [[[result valueForKey:@"person_id"] should] equal:seanId];
                     [[[result objectID] should] equal:[sean objectID]]; 
                     NSSet *interests = [result valueForKey:@"interests"];
                     [[theValue([interests count]) should] equal:[NSNumber numberWithInt:2]];
                     [interests enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
                         NSString *objName = [obj valueForKey:@"name"];
                         if ([objName isEqualToString:@"basketball"]) {
-                            [[theValue([obj valueForKey:@"interest_id"]) should] equal:theValue(bbId)];
+                            [[[obj valueForKey:@"interest_id"] should] equal:bbId];
                         } else if ([objName isEqualToString:@"tennis"]) {
-                            [[theValue([obj valueForKey:@"interest_id"]) should] equal:theValue(tennisId)];
+                            [[[obj valueForKey:@"interest_id"] should] equal:tennisId];
                         }
                     }];
                     
@@ -234,9 +234,9 @@ describe(@"with fixtures", ^{
                     }
                     [[theValue([results count]) should] equal:[NSNumber numberWithInt:1]];
                     NSManagedObject *result = [results objectAtIndex:0];
-                    [[theValue([result valueForKey:@"interest_id"]) should] equal:theValue(bbId)];
+                    [[[result valueForKey:@"interest_id"] should] equal:bbId];
                     [[[result objectID] should] equal:[basketball objectID]];
-                    [[theValue([[result valueForKey:@"person"] valueForKey:@"person_id"]) should] equal:theValue(seanId)];
+                    [[[[result valueForKey:@"person"] valueForKey:@"person_id"] should] equal:seanId];
                 }];
 
                 
@@ -320,16 +320,16 @@ describe(@"with fixtures", ^{
                     }
                     [[theValue([results count]) should] equal:[NSNumber numberWithInt:1]];
                     Person *result = [results objectAtIndex:0];
-                    [[theValue([result valueForKey:@"person_id"]) should] equal:theValue(bobId)];
+                    [[[result valueForKey:@"person_id"] should] equal:bobId];
                     [[[result objectID] should] equal:[bob objectID]]; 
                     NSSet *favorites = [result valueForKey:@"favorites"];
                     [[theValue([favorites count]) should] equal:[NSNumber numberWithInt:2]];
                     [favorites enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
                         NSString *objGenre = [obj valueForKey:@"genre"];
                         if ([objGenre isEqualToString:@"movies"]) {
-                            [[theValue([obj valueForKey:@"favorite_id"]) should] equal:theValue(batmanId)];
+                            [[[obj valueForKey:@"favorite_id"] should] equal:batmanId];
                         } else if ([objGenre isEqualToString:@"coffee"]) {
-                            [[theValue([obj valueForKey:@"favorite_id"]) should] equal:theValue(blueBottleId)];
+                            [[[obj valueForKey:@"favorite_id"] should] equal:blueBottleId];
                         }
                     }];
                     
@@ -343,16 +343,16 @@ describe(@"with fixtures", ^{
                     }
                     [[theValue([results count]) should] equal:[NSNumber numberWithInt:1]];
                     Person *result = [results objectAtIndex:0];
-                    [[theValue([result valueForKey:@"person_id"]) should] equal:theValue(jackId)];
+                    [[[result valueForKey:@"person_id"] should] equal:jackId];
                     [[[result objectID] should] equal:[jack objectID]]; 
                     NSSet *favorites = [result valueForKey:@"favorites"];
                     [[theValue([favorites count]) should] equal:[NSNumber numberWithInt:2]];
                     [favorites enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
                         NSString *objGenre = [obj valueForKey:@"genre"];
                         if ([objGenre isEqualToString:@"movies"]) {
-                            [[theValue([obj valueForKey:@"favorite_id"]) should] equal:theValue(batmanId)];
+                            [[[obj valueForKey:@"favorite_id"] should] equal:batmanId];
                         } else if ([objGenre isEqualToString:@"coffee"]) {
-                            [[theValue([obj valueForKey:@"favorite_id"]) should] equal:theValue(blueBottleId)];
+                            [[[obj valueForKey:@"favorite_id"] should] equal:blueBottleId];
                         }
                     }];
                     
@@ -366,16 +366,16 @@ describe(@"with fixtures", ^{
                     }
                     [[theValue([results count]) should] equal:[NSNumber numberWithInt:1]];
                     NSManagedObject *result = [results objectAtIndex:0];
-                    [[theValue([result valueForKey:@"favorite_id"]) should] equal:theValue(batmanId)];
+                    [[[result valueForKey:@"favorite_id"] should] equal:batmanId];
                     [[[result objectID] should] equal:[batman objectID]]; 
                     NSSet *persons = [result valueForKey:@"persons"];
                     [[theValue([persons count]) should] equal:[NSNumber numberWithInt:2]];
                     [persons enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
                         NSString *objLastName = [obj valueForKey:@"last_name"];
                         if ([objLastName isEqualToString:@"Bobberson"]) {
-                            [[theValue([obj valueForKey:@"person_id"]) should] equal:theValue(bobId)];
+                            [[[obj valueForKey:@"person_id"] should] equal:bobId];
                         } else if ([objLastName isEqualToString:@"Jackerson"]) {
-                            [[theValue([obj valueForKey:@"person_id"]) should] equal:theValue(jackId)];
+                            [[[obj valueForKey:@"person_id"] should] equal:jackId];
                         }
                     }];
                     
@@ -389,16 +389,16 @@ describe(@"with fixtures", ^{
                     }
                     [[theValue([results count]) should] equal:[NSNumber numberWithInt:1]];
                     NSManagedObject *result = [results objectAtIndex:0];
-                    [[theValue([result valueForKey:@"favorite_id"]) should] equal:theValue(blueBottleId)];
+                    [[[result valueForKey:@"favorite_id"] should] equal:blueBottleId];
                     [[[result objectID] should] equal:[blueBottle objectID]]; 
                     NSSet *persons = [result valueForKey:@"persons"];
                     [[theValue([persons count]) should] equal:[NSNumber numberWithInt:2]];
                     [persons enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
                         NSString *objLastName = [obj valueForKey:@"last_name"];
                         if ([objLastName isEqualToString:@"Bobberson"]) {
-                            [[theValue([obj valueForKey:@"person_id"]) should] equal:theValue(bobId)];
+                            [[[obj valueForKey:@"person_id"] should] equal:bobId];
                         } else if ([objLastName isEqualToString:@"Jackerson"]) {
-                            [[theValue([obj valueForKey:@"person_id"]) should] equal:theValue(jackId)];
+                            [[[obj valueForKey:@"person_id"] should] equal:jackId];
                         }
                     }];
                     

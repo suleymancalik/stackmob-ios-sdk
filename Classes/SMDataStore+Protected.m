@@ -166,9 +166,9 @@
 - (void)queueRequest:(NSURLRequest *)request options:(SMRequestOptions *)options onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
 {
     
-    NSArray *offlineSignals = [NSArray arrayWithObjects:[NSNumber numberWithInt:Offline], [NSNumber numberWithInt:Unknown], nil];
+    NSArray *offlineSignals = [NSArray arrayWithObjects:[NSNumber numberWithInt:NotReachable], [NSNumber numberWithInt:Unknown], nil];
     if ([offlineSignals indexOfObject:[NSNumber numberWithInt:[self.session.networkMonitor currentNetworkStatus]]] != NSNotFound) {
-        NSError *offlineError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkUnreachable userInfo:nil];
+        NSError *offlineError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
         onFailure(request, nil, offlineError, nil);
     }
     if (self.session.refreshToken != nil && options.tryRefreshToken && [self.session accessTokenHasExpired]) {

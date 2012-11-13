@@ -38,17 +38,10 @@ typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
 
 - (id)init
 {
-    self = [self initWithBaseURL:[NSURL URLWithString:@"http://api.stackmob.com"]];
-    
-    return self;
-}
-
-- (id)initWithBaseURL:(NSURL *)url
-{
-    self = [super initWithBaseURL:url];
+    self = [super initWithBaseURL:[NSURL URLWithString:@"http://api.stackmob.com"]];
     
     if (self) {
-        self.networkStatus = -2;
+        self.networkStatus = -1;
         self.localNetworkStatusBlock = nil;
         [self addNetworkStatusDidChangeObserver];
     }
@@ -94,16 +87,16 @@ typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
 {
     switch (status) {
         case AFNetworkReachabilityStatusReachableViaWiFi:
-            return Online;
+            return Reachable;
             break;
         case AFNetworkReachabilityStatusNotReachable:
-            return Offline;
+            return NotReachable;
             break;
         case AFNetworkReachabilityStatusUnknown:
             return Unknown;
             break;
         case AFNetworkReachabilityStatusReachableViaWWAN:
-            return Online;
+            return Reachable;
             break;
         default:
             return Unknown;

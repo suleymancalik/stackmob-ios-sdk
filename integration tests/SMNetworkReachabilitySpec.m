@@ -30,6 +30,22 @@ describe(@"SMNetworkReachability", ^{
         [client.session.networkMonitor setNetworkStatusChangeBlock:^(SMNetworkStatus status) {
             NSLog(@"block is getting called with status %d", status);
         }];
+        if ([client.session.networkMonitor currentNetworkStatus] == Reachable) {
+            NSLog(@"We are reachable");
+        }
+        switch ([client.session.networkMonitor currentNetworkStatus]) {
+            case  Reachable:
+                NSLog(@"Reachable via switch statement");
+                break;
+            case NotReachable:
+                NSLog(@"Not reachable");
+                break;
+            case Unknown:
+                NSLog(@"Unknowwn");
+                break;
+            default:
+                break;
+        }
     });
     afterEach(^{
         [[NSNotificationCenter defaultCenter] removeObserver:helper];
@@ -41,10 +57,8 @@ describe(@"SMNetworkReachability", ^{
             dispatch_after(popTime, dispatch_get_current_queue(), ^{
                 SMQuery *query = [[SMQuery alloc] initWithSchema:@"blog"];
                 [[client dataStore] performQuery:query onSuccess:^(NSArray *results) {
-                    NSLog(@"results: %@", results);
                     syncReturn(semaphore);
                 } onFailure:^(NSError *error) {
-                    NSLog(@"error: %@", error);
                     [error shouldBeNil];
                     syncReturn(semaphore);
                 }];

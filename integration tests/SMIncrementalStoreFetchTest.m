@@ -21,7 +21,7 @@
 #import "SMCoreDataIntegrationTestHelpers.h"
 #import "User3.h"
 
-SPEC_BEGIN(SMIncrementalStorePredicateTest)
+SPEC_BEGIN(SMIncrementalStoreFetchTest)
 
 describe(@"with fixtures", ^{
     __block NSArray *fixturesToLoad;
@@ -408,5 +408,6 @@ describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^
     });
     
 });
+
 
 SPEC_END
