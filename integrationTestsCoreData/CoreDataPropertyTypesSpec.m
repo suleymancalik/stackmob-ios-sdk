@@ -69,7 +69,10 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
             }
             NSLog(@"results is %@", results);
             [[theValue([results count]) should] equal:theValue(1)];
-            [[[[results objectAtIndex:0] valueForKey:@"time"] should] equal:date];
+            if ((int)[[[results objectAtIndex:0] valueForKey:@"time"] timeIntervalSince1970] == (int)[date timeIntervalSince1970]) {
+                NSLog(@"dates are equal");
+            }
+            [[theValue((int)[[[results objectAtIndex:0] valueForKey:@"time"] timeIntervalSince1970]) should] equal:theValue((int)[date timeIntervalSince1970])];
         }];
     });
     it(@"Will save and read without error after update", ^{
@@ -98,7 +101,7 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
             }
             NSLog(@"results is %@", results);
             [[theValue([results count]) should] equal:theValue(1)];
-            [[[[results objectAtIndex:0] valueForKey:@"time"] should] equal:newDate];
+            [[theValue((int)[[[results objectAtIndex:0] valueForKey:@"time"] timeIntervalSince1970]) should] equal:theValue((int)[newDate timeIntervalSince1970])];
         }];
         
     });

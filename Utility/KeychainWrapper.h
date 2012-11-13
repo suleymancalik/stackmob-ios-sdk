@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import <Security/Security.h>
 #import <CommonCrypto/CommonHMAC.h>
 

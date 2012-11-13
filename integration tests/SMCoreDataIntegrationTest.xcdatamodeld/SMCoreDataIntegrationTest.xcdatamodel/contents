@@ -31,6 +31,7 @@
         <relationship name="superpower" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Superpower" inverseName="person" inverseEntity="Superpower" syncable="YES"/>
     </entity>
     <entity name="Random" representedClassName="Random" syncable="YES">
+        <attribute name="createddate" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="done" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="randomId" optional="YES" attributeType="String" syncable="YES"/>
@@ -65,7 +66,7 @@
         <element name="Interest" positionX="0" positionY="0" width="128" height="105"/>
         <element name="Oauth2test" positionX="0" positionY="0" width="128" height="75"/>
         <element name="Person" positionX="0" positionY="0" width="128" height="165"/>
-        <element name="Random" positionX="187" positionY="-108" width="128" height="135"/>
+        <element name="Random" positionX="187" positionY="-108" width="128" height="150"/>
         <element name="Superpower" positionX="-171" positionY="123" width="128" height="120"/>
         <element name="Todo" positionX="-218" positionY="396" width="128" height="105"/>
         <element name="User3" positionX="-306" positionY="0" width="128" height="75"/>

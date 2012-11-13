@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 #import "SMClient.h"
 #import "SMQuery.h"
@@ -56,6 +55,7 @@
 
 @property(nonatomic, readonly, copy) NSString *apiVersion;
 @property(nonatomic, readwrite, strong) SMUserSession *session;
+
 
 ///-------------------------------
 /// @name Initialize

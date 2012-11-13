@@ -38,6 +38,7 @@
 @synthesize refreshToken = _SM_refreshToken;
 @synthesize refreshing = _SM_refreshing;
 @synthesize oauthStorageKey = _SM_oauthStorageKey;
+@synthesize networkMonitor = _SM_networkMonitor;
 
 - (id)initWithAPIVersion:(NSString *)version 
                  apiHost:(NSString *)apiHost 
@@ -56,6 +57,7 @@
         [self.tokenClient setDefaultHeader:@"X-StackMob-API-Key" value:publicKey];
         [self.tokenClient setDefaultHeader:@"Content-Type" value:@"application/x-www-form-urlencoded"];
         [self.tokenClient setDefaultHeader:@"User-Agent" value:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, smDeviceModel(), smSystemVersion(), [[NSLocale currentLocale] localeIdentifier]]];
+        self.networkMonitor = [[SMNetworkReachability alloc] init];
         self.userSchema = userSchema;
         self.userPrimaryKeyField = userPrimaryKeyField;
         self.userPasswordField = userPasswordField;
@@ -100,7 +102,7 @@
         }
     } else {
         self.refreshing = YES;//Don't ever trigger two refreshToken calls
-        [self doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] onSuccess:successBlock onFailure:failureBlock]; 
+        [self doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] onSuccess:successBlock onFailure:failureBlock];
     }
     
 }

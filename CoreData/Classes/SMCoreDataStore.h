@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "SMDataStore.h"
 
 @class SMIncrementalStore;
@@ -40,6 +39,7 @@
  Uses the `NSManagedObjectModel` passed to the `coreDataStoreWithManagedObjectModel:` method in <SMClient>.
  */
 @property(nonatomic, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property(nonatomic, strong) NSPersistentStoreCoordinator *localPersistentStoreCoordinator;
 
 /**
  An instance of `NSManagedObjectContext` set with this class's persistent store coordinator.
@@ -47,6 +47,8 @@
  This is the managed object context to use throughout your application.
  */
 @property(nonatomic, strong) NSManagedObjectContext *managedObjectContext;
+@property(nonatomic, strong) NSManagedObjectContext *localManagedObjectContext;
+
 
 ///-------------------------------
 /// @name Initialize
@@ -60,5 +62,41 @@
  @param managedObjectModel The managed object model to set to the persistent store coordinator.
  */
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel;
+
+/*
+// Tentative API for saving and fetching:
+
+typedef enum {
+    SMStackMobPersistentStore,
+    SMLocalPersistentStore
+} SMPersistentStore;
+
+//Fetch
+
+// Will fetch based on settings
+- (NSArray *)executeFetchRequest:(NSFetchRequest *)request error:(NSError **)error;
+
+
+- (NSArray *)executeFetchRequest:(NSFetchRequest *)request onStore:(SMPersistentStore)store error:(NSError **)error;
+
+- (void)setDefaultStoreToFetchFrom:(SMPersistentStore)store;
+- (void)setShouldFetchFromStackMobIfReachable:(BOOL)value;
+
+// Save
+
+- (void)performBlock;
+- (void)performBlockAndWait;
+
+- (void)performBlockInBackground;
+- (void)performBlockInBackgroundAndWait;
+
+- (void)performBlock:(void(^)()) inContext:(NSManagedObjectContext *)context synchronous:(BOOL)value;
+
+// whether or not data should be persisted locally.
+- (void)shouldSaveDataLocally:(BOOL)value;
+
+- (void)setShouldFillFaultsFromLocalCache:(BOOL)value;
+*/
+
 
 @end

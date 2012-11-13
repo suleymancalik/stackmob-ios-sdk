@@ -110,7 +110,7 @@
                     NSDate *dateValue = propertyValue;
                     if (dateValue != nil) {
                         double convertedDate = [dateValue timeIntervalSince1970];
-                        [objectDictionary setObject:[NSNumber numberWithInt:convertedDate] forKey:[selfEntity sm_fieldNameForProperty:property]];
+                        [objectDictionary setObject:[NSNumber numberWithInteger:convertedDate] forKey:[selfEntity sm_fieldNameForProperty:property]];
                     }
                 } else if (attributeDescription.attributeType == NSBooleanAttributeType) {
                     // make sure that boolean values are serialized as true or false

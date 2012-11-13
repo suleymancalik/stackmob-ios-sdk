@@ -21,6 +21,7 @@
 #import "SMDataStore+Protected.h"
 #import "SMRequestOptions.h"
 #import "SMError.h"
+#import "SMNetworkReachability.h"
 
 #define FB_TOKEN_KEY @"fb_at"
 #define TW_TOKEN_KEY @"tw_tk"
@@ -65,7 +66,7 @@ static SMClient *defaultClient = nil;
      userPrimaryKeyField:(NSString *)userPrimaryKeyField
        userPasswordField:(NSString *)userPasswordField;
 {
-    self = [self init];
+    self = [super init];
     if (self)
     {
         self.appAPIVersion = appAPIVersion;
@@ -89,7 +90,7 @@ static SMClient *defaultClient = nil;
         
         self.session = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion apiHost:apiHost publicKey:publicKey userSchema:userSchema userPrimaryKeyField:userPrimaryKeyField userPasswordField:userPasswordField];
         self.coreDataStore = nil;
-
+        
         if ([SMClient defaultClient] == nil)
         {
             [SMClient setDefaultClient:self];
@@ -481,6 +482,13 @@ static SMClient *defaultClient = nil;
     } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
         failureBlock(theError);
     }];
+}
+
+// Network Reachability
+
+- (AFNetworkReachabilityStatus)currentNetworkReachability
+{
+    return self.session.tokenClient.networkReachabilityStatus;
 }
 
 @end

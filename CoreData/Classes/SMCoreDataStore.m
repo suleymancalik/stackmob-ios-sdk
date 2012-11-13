@@ -44,7 +44,9 @@
 {
     if (_persistentStoreCoordinator == nil) {
         [NSPersistentStoreCoordinator registerStoreClass:[SMIncrementalStore class] forStoreType:SMIncrementalStoreType];
+        
         _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
+        
         NSError *error = nil;
         [_persistentStoreCoordinator addPersistentStoreWithType:SMIncrementalStoreType
                                    configuration:nil 
@@ -52,8 +54,9 @@
                                             options:[NSDictionary dictionaryWithObject:self forKey:SM_DataStoreKey] 
                                            error:&error];
         if (error != nil) {
-            [NSException raise:SMExceptionAddPersistentStore format:@"Error creating persistent store: %@", error];
+            [NSException raise:SMExceptionAddPersistentStore format:@"Error creating incremental persistent store: %@", error];
         }
+        
     }
     
     return _persistentStoreCoordinator;
