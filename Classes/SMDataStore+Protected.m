@@ -148,10 +148,8 @@
 - (void)refreshAndRetry:(NSURLRequest *)request onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
 {
     if (self.session.refreshing) {
-        if (onFailure) {
-            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
-            onFailure(request, nil, error, nil);
-        }
+        NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
+        onFailure(request, nil, error, nil);
     } else {
         __block SMRequestOptions *options = [SMRequestOptions options];
         [options setTryRefreshToken:NO];
@@ -165,12 +163,6 @@
 
 - (void)queueRequest:(NSURLRequest *)request options:(SMRequestOptions *)options onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
 {
-    
-    NSArray *offlineSignals = [NSArray arrayWithObjects:[NSNumber numberWithInt:NotReachable], [NSNumber numberWithInt:Unknown], nil];
-    if ([offlineSignals indexOfObject:[NSNumber numberWithInt:[self.session.networkMonitor currentNetworkStatus]]] != NSNotFound) {
-        NSError *offlineError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
-        onFailure(request, nil, offlineError, nil);
-    }
     if (self.session.refreshToken != nil && options.tryRefreshToken && [self.session accessTokenHasExpired]) {
         [self refreshAndRetry:request onSuccess:onSuccess onFailure:onFailure];
     } 
@@ -192,12 +184,20 @@
                         }
                     });
                 } else {
-                    onFailure(originalRequest, response, error, JSON);
+                    if (onFailure) {
+                        onFailure(originalRequest, response, error, JSON);
+                    }
+                }
+            } else if ([error domain] == NSURLErrorDomain && [error code] == -1009) {
+                if (onFailure) {
+                    NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
+                    onFailure(originalRequest, response, networkNotReachableError, JSON);
                 }
             } else {
-                onFailure(originalRequest, response, error, JSON);
+                if (onFailure) {
+                    onFailure(originalRequest, response, error, JSON);
+                }
             }
-            
         };
         
         AFJSONRequestOperation *op = [SMJSONRequestOperation JSONRequestOperationWithRequest:request success:onSuccess failure:retryBlock];

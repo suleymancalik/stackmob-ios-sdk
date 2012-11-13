@@ -191,12 +191,15 @@
     NSMutableURLRequest *request = [self requestFromQuery:query options:options];
     
     SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *successRequest, NSHTTPURLResponse *response, id JSON) {
-        successBlock((NSArray *)JSON);
+        if (successBlock) {
+            successBlock((NSArray *)JSON);
+        }
     };
     SMFullResponseFailureBlock urlFailureBlock = ^(NSURLRequest *failedRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
-        NSLog(@"Query failed with error: %@, response: %@, JSON: %@", error, response, JSON);
-        failureBlock(error);
-    };   
+        if (failureBlock) {
+            failureBlock(error);
+        }
+    };
     [self queueRequest:request options:options onSuccess:urlSuccessBlock onFailure:urlFailureBlock];
 }
 
@@ -217,9 +220,13 @@
         //No range header means we've got all the results right here (1 or 0)
         int count = [self countFromRangeHeader:rangeHeader results:JSON];
         if (count < 0) {
-            failureBlock([NSError errorWithDomain:SMErrorDomain code:SMErrorNoCountAvailable userInfo:nil]);
+            if (failureBlock) {
+                failureBlock([NSError errorWithDomain:SMErrorDomain code:SMErrorNoCountAvailable userInfo:nil]);
+            }
         } else {
-            successBlock([NSNumber numberWithInt:count]);
+            if (successBlock) {
+                successBlock([NSNumber numberWithInt:count]);
+            }
         }
     };
     

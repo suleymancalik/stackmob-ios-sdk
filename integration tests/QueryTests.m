@@ -31,6 +31,13 @@ NSArray *fixtureNames = [NSArray arrayWithObjects:
 
 describe(@"with a prepopulated database of people", ^{
     beforeAll(^{
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            double delayInSeconds = 2.0;
+            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+            dispatch_after(popTime, dispatch_get_current_queue(), ^{
+                syncReturn(semaphore);
+            });
+        });
         sm = [SMIntegrationTestHelpers dataStore];
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixtureNames];
     });

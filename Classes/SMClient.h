@@ -610,9 +610,5 @@
 - (void)getLoggedInUserTwitterInfoOnSuccess:(SMResultSuccessBlock)successBlock
                                       onFailure:(SMFailureBlock)failureBlock;
 
-/// @name Network Reachability
-
-- (AFNetworkReachabilityStatus)currentNetworkReachability;
-
 
 @end
