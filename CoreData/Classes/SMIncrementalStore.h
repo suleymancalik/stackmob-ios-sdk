@@ -15,7 +15,6 @@
  */
 
 #import <CoreData/CoreData.h>
-#import <Foundation/Foundation.h>
 
 extern NSString *const SMIncrementalStoreType;
 extern NSString *const SM_DataStoreKey;

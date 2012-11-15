@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
 /**
  Category on `NSDictionary` for atomic counter functionality.
  */

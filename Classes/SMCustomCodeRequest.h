@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
 /**
  The `SMCustomCodeRequest` class is for initializing instances of requests for custom code methods.
  

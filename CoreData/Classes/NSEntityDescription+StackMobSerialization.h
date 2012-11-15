@@ -15,7 +15,6 @@
  */
 
 #import <CoreData/CoreData.h>
-#import <Foundation/Foundation.h>
 
 /**
  The primary purpose for this category is use the information and methods provided by an `NSEntityDescription` to return StackMob equivalent descriptions of schemas and fields.  This is useful when we have an entity description for entity Person and we want to translate that into the schema for StackMob, or for creating relationship headers needed when posting objects with nested relationship objects.

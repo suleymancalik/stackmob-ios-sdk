@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Tokens version="1.0">
+	<File path="Categories/KWMatchVerifier+KWHaveMatcherAdditions.html">
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/cat/KWMatchVerifier(KWHaveMatcherAdditions)</TokenIdentifier>
+			<Abstract type="html"></Abstract>
+			<DeclaredIn>KWHaveMatcher.h</DeclaredIn>
+			
+			<NodeRef refid="64"/>
+		</Token>
+		
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/intfm/KWMatchVerifier(KWHaveMatcherAdditions)/have:</TokenIdentifier>
+			<Abstract type="html"></Abstract>
+			<DeclaredIn>KWHaveMatcher.h</DeclaredIn>			
+			
+			<Declaration>- (id)have:(NSUInteger)aCount</Declaration>
+			
+			
+			<Anchor>//api/name/have:</Anchor>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/intfm/KWMatchVerifier(KWHaveMatcherAdditions)/haveAtLeast:</TokenIdentifier>
+			<Abstract type="html"></Abstract>
+			<DeclaredIn>KWHaveMatcher.h</DeclaredIn>			
+			
+			<Declaration>- (id)haveAtLeast:(NSUInteger)aCount</Declaration>
+			
+			
+			<Anchor>//api/name/haveAtLeast:</Anchor>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/intfm/KWMatchVerifier(KWHaveMatcherAdditions)/haveAtMost:</TokenIdentifier>
+			<Abstract type="html"></Abstract>
+			<DeclaredIn>KWHaveMatcher.h</DeclaredIn>			
+			
+			<Declaration>- (id)haveAtMost:(NSUInteger)aCount</Declaration>
+			
+			
+			<Anchor>//api/name/haveAtMost:</Anchor>
+		</Token>
+		
+	</File>
+</Tokens>

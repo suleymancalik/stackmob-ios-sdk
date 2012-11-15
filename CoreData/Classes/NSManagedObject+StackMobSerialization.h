@@ -15,7 +15,6 @@
  */
 
 #import <CoreData/CoreData.h>
-#import <Foundation/Foundation.h>
 
 /**
  The methods in this category serve as the bread and butter for translating instances of `NSManagedObject` into StackMob equivalent objects.

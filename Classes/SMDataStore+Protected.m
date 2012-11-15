@@ -18,6 +18,7 @@
 #import "SMError.h"
 #import "SMJSONRequestOperation.h"
 #import "SMRequestOptions.h"
+#import "SMNetworkReachability.h"
 
 @implementation SMDataStore (SpecialCondition)
 
@@ -82,7 +83,7 @@
     return ^void(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
     {
         if (failureBlock) {
-            failureBlock([self errorFromResponse:response JSON:JSON], theObject, schema);
+            response == nil? failureBlock(error, theObject, schema) : failureBlock([self errorFromResponse:response JSON:JSON], theObject, schema);
         }
     };
 }
@@ -92,7 +93,7 @@
     return ^void(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
     {
         if (failureBlock) {
-            failureBlock([self errorFromResponse:response JSON:JSON], theObjectId, schema);
+            response == nil ? failureBlock(error, theObjectId, schema) : failureBlock([self errorFromResponse:response JSON:JSON], theObjectId, schema);
         }
     };
 }
@@ -102,7 +103,7 @@
     return ^void(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
     {
         if (failureBlock) {
-            failureBlock([self errorFromResponse:response JSON:JSON]);
+            response == nil ? failureBlock(error) : failureBlock([self errorFromResponse:response JSON:JSON]);
         }
     };
 }
@@ -132,7 +133,7 @@
             failureBlock(error, theObjectId, schema);
         }
     } else {
-        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:theObjectId];
+        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"GET" path:path parameters:parameters];
         [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
             [request setValue:headerValue forHTTPHeaderField:headerField]; 
@@ -147,10 +148,8 @@
 - (void)refreshAndRetry:(NSURLRequest *)request onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
 {
     if (self.session.refreshing) {
-        if (onFailure) {
-            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
-            onFailure(request, nil, error, nil);
-        }
+        NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
+        onFailure(request, nil, error, nil);
     } else {
         __block SMRequestOptions *options = [SMRequestOptions options];
         [options setTryRefreshToken:NO];
@@ -164,7 +163,7 @@
 
 - (void)queueRequest:(NSURLRequest *)request options:(SMRequestOptions *)options onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
 {
-    if (![self.session accessTokenHasExpired] && self.session.refreshToken != nil && options.tryRefreshToken) {
+    if (self.session.refreshToken != nil && options.tryRefreshToken && [self.session accessTokenHasExpired]) {
         [self refreshAndRetry:request onSuccess:onSuccess onFailure:onFailure];
     } 
     else {
@@ -185,18 +184,34 @@
                         }
                     });
                 } else {
-                    onFailure(originalRequest, response, error, JSON);
+                    if (onFailure) {
+                        onFailure(originalRequest, response, error, JSON);
+                    }
+                }
+            } else if ([error domain] == NSURLErrorDomain && [error code] == -1009) {
+                if (onFailure) {
+                    NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
+                    onFailure(originalRequest, response, networkNotReachableError, JSON);
                 }
             } else {
-                onFailure(originalRequest, response, error, JSON);
+                if (onFailure) {
+                    onFailure(originalRequest, response, error, JSON);
+                }
             }
-            
         };
         
         AFJSONRequestOperation *op = [SMJSONRequestOperation JSONRequestOperationWithRequest:request success:onSuccess failure:retryBlock];
         [[self.session oauthClientWithHTTPS:FALSE] enqueueHTTPRequestOperation:op];
     }
     
+}
+
+- (NSString *)URLEncodedStringFromValue:(NSString *)value
+{
+    static NSString * const kAFCharactersToBeEscaped = @":/.?&=;+!@#$()~[]";
+    //static NSString * const kAFCharactersToLeaveUnescaped = @"[]";
+    
+	return (__bridge_transfer  NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (__bridge CFStringRef)value, nil, (__bridge CFStringRef)kAFCharactersToBeEscaped, CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
 }
 
 

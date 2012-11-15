@@ -17,6 +17,7 @@
 #import "StackMob.h"
 #import "AFJSONRequestOperation.h"
 #import "SMVersion.h"
+#import "SystemInformation.h"
 
 #define ACCESS_TOKEN @"access_token"
 #define EXPIRES_IN @"expires_in"
@@ -37,6 +38,7 @@
 @synthesize refreshToken = _SM_refreshToken;
 @synthesize refreshing = _SM_refreshing;
 @synthesize oauthStorageKey = _SM_oauthStorageKey;
+@synthesize networkMonitor = _SM_networkMonitor;
 
 - (id)initWithAPIVersion:(NSString *)version 
                  apiHost:(NSString *)apiHost 
@@ -54,7 +56,8 @@
         [self.tokenClient setDefaultHeader:@"Accept" value:acceptHeader]; 
         [self.tokenClient setDefaultHeader:@"X-StackMob-API-Key" value:publicKey];
         [self.tokenClient setDefaultHeader:@"Content-Type" value:@"application/x-www-form-urlencoded"];
-        [self.tokenClient setDefaultHeader:@"User-Agent" value:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, [[UIDevice currentDevice] model], [[UIDevice currentDevice] systemVersion], [[NSLocale currentLocale] localeIdentifier]]];
+        [self.tokenClient setDefaultHeader:@"User-Agent" value:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, smDeviceModel(), smSystemVersion(), [[NSLocale currentLocale] localeIdentifier]]];
+        self.networkMonitor = [[SMNetworkReachability alloc] init];
         self.userSchema = userSchema;
         self.userPrimaryKeyField = userPrimaryKeyField;
         self.userPasswordField = userPasswordField;
@@ -70,7 +73,7 @@
 
 - (BOOL)accessTokenHasExpired
 {
-    return [[self.expiration laterDate:[NSDate date]] isEqualToDate:self.expiration];
+    return ![[self.expiration laterDate:[NSDate date]] isEqualToDate:self.expiration];
 }
 
 - (void)clearSessionInfo
@@ -99,7 +102,7 @@
         }
     } else {
         self.refreshing = YES;//Don't ever trigger two refreshToken calls
-        [self doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] onSuccess:successBlock onFailure:failureBlock]; 
+        [self doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] onSuccess:successBlock onFailure:failureBlock];
     }
     
 }
@@ -119,17 +122,26 @@
         [request setValue:headerValue forHTTPHeaderField:headerField]; 
     }];
     SMFullResponseSuccessBlock successHandler = ^void(NSURLRequest *req, NSHTTPURLResponse *response, id JSON) {   
-        successBlock([self parseTokenResults:JSON]);
+        if (successBlock) {
+            successBlock([self parseTokenResults:JSON]);
+        }
     };
     SMFullResponseFailureBlock failureHandler = ^void(NSURLRequest *req, NSHTTPURLResponse *response, NSError *error, id JSON) {
         self.refreshing = NO;
-        int statusCode = response.statusCode;
-        NSString *domain = HTTPErrorDomain;
-        if ([[JSON valueForKey:@"error_description"] isEqualToString:@"Temporary password reset required."]) {
-            statusCode = SMErrorTemporaryPasswordResetRequired;
-            domain = SMErrorDomain;
+        if (failureBlock) {
+            if (response == nil) {
+                NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
+                failureBlock(networkNotReachableError);
+            } else {
+                int statusCode = response.statusCode;
+                NSString *domain = HTTPErrorDomain;
+                if ([[JSON valueForKey:@"error_description"] isEqualToString:@"Temporary password reset required."]) {
+                    statusCode = SMErrorTemporaryPasswordResetRequired;
+                    domain = SMErrorDomain;
+                }
+                failureBlock([NSError errorWithDomain:domain code:statusCode userInfo:JSON]);
+            }
         }
-        failureBlock([NSError errorWithDomain:domain code:statusCode userInfo:JSON]);
     };
     AFJSONRequestOperation * op = [SMJSONRequestOperation JSONRequestOperationWithRequest:request success:successHandler failure:failureHandler];
     [self.tokenClient enqueueHTTPRequestOperation:op];

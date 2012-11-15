@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 #import "SMResponseBlocks.h"
+#import "AFHTTPClient.h"
 
 @class SMRequestOptions;
 @class SMDataStore;

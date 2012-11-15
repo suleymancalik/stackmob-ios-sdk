@@ -15,7 +15,6 @@
  */
 
 #import "SMIntegrationTestHelpers.h"
-#import "AFJSONUtilities.h"
 
 static NSMutableDictionary *_insertedObjects; 
 // schema name -> array of dictionaries representing parsed objects, with uuid in schema_id field
@@ -42,6 +41,15 @@ void synchronousQuery(SMDataStore *sm, SMQuery *query, SynchronousQueryBlock blo
     NSDictionary *credentials = [NSDictionary dictionaryWithContentsOfURL:credentialsURL];
     NSString *publicKey = [credentials objectForKey:@"PublicKey"];
     return [[SMClient alloc] initWithAPIVersion:SM_TEST_API_VERSION publicKey:publicKey];
+}
+
++ (SMPushClient *)defaultPushClient
+{
+    NSURL *credentialsURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"StackMobCredentials" withExtension:@"plist"];
+    NSDictionary *credentials = [NSDictionary dictionaryWithContentsOfURL:credentialsURL];
+    NSString *publicKey = [credentials objectForKey:@"PublicKey"];
+    NSString *privateKey = [credentials objectForKey:@"PrivateKey"];
+    return [[SMPushClient alloc] initWithAPIVersion:SM_TEST_API_VERSION publicKey:publicKey privateKey:privateKey];
 }
 
 + (SMDataStore *)dataStore {
@@ -99,7 +107,8 @@ void synchronousQuery(SMDataStore *sm, SMQuery *query, SynchronousQueryBlock blo
     NSURL *fixtureFileURL = [bundle URLForResource:fixtureName withExtension:@"json"];
     NSData *fixtureData = [NSData dataWithContentsOfURL:fixtureFileURL];
     NSError *error = nil;
-    NSArray *objToInsert = (NSArray *)AFJSONDecode(fixtureData, &error);
+    
+    NSArray *objToInsert = (NSArray *)[NSJSONSerialization JSONObjectWithData:fixtureData options:0 error:&error];
     
     SMDataStore *smClient = [SMIntegrationTestHelpers dataStore];
     __block NSMutableArray *insertedObjectsForFixture = [NSMutableArray array];

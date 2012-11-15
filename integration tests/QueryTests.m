@@ -31,6 +31,13 @@ NSArray *fixtureNames = [NSArray arrayWithObjects:
 
 describe(@"with a prepopulated database of people", ^{
     beforeAll(^{
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            double delayInSeconds = 2.0;
+            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+            dispatch_after(popTime, dispatch_get_current_queue(), ^{
+                syncReturn(semaphore);
+            });
+        });
         sm = [SMIntegrationTestHelpers dataStore];
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixtureNames];
     });
@@ -157,13 +164,15 @@ describe(@"with a prepopulated database of people", ^{
             query = [[SMQuery alloc] initWithSchema:@"blogposts"];
         });
         it(@"-fromIndex:toIndex", ^{
+            __block NSArray *expectedObjects = [NSArray arrayWithObjects:@"D", @"E", @"F", @"G", @"H", nil];
             [query fromIndex:4 toIndex:8];
+            [query orderByField:@"title" ascending:YES];
             synchronousQuery(sm, query, ^(NSArray *results) {
                 [[results should] haveCountOf:5];
                 NSArray *sortedResults = [results sortedArrayUsingDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES]]];
+                NSLog(@"sorted results: %@", sortedResults);
                 for (int i = 4; i <= 8; i++) {
-                    int postNumber = i + 1;
-                    [[[[sortedResults objectAtIndex:i-4] objectForKey:@"title"] should] equal:[NSString stringWithFormat:@"Post %d", postNumber]];
+                    [[[[sortedResults objectAtIndex:i-4] objectForKey:@"title"] should] equal:[NSString stringWithFormat:@"Post %@", [expectedObjects objectAtIndex:i-4]]];
                 }
             }, ^(NSError *error){
                 

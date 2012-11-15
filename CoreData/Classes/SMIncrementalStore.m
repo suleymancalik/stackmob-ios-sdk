@@ -37,9 +37,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 }
 
 @interface SMIncrementalStore () {
-    NSMutableDictionary *cache;
+    
 }
-
 
 @property (nonatomic, strong) SMDataStore *smDataStore;
 
@@ -59,12 +58,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 @synthesize smDataStore = _smDataStore;
 
-
 - (id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root configurationName:(NSString *)name URL:(NSURL *)url options:(NSDictionary *)options {
     
     self = [super initWithPersistentStoreCoordinator:root configurationName:name URL:url options:options];
     if (self) {
-        cache = [NSMutableDictionary dictionary];
         _smDataStore = [options objectForKey:SM_DataStoreKey];
     }
     return self;
@@ -184,8 +181,10 @@ You should implement this method conservatively, and expect that unknown request
 
 - (BOOL)handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
-    __block BOOL success = NO;
     if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be inserted are %@", truncateOutputIfExceedsMaxLogLength(insertedObjects))}
+
+    __block BOOL success = NO;
+    
     [insertedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             NSDictionary *serializedObjDict = [obj sm_dictionarySerialization];
@@ -193,7 +192,7 @@ You should implement this method conservatively, and expect that unknown request
             
             SMRequestOptions *options = [SMRequestOptions options];
             // If superclass is SMUserNSManagedObject, add password
-            if ([obj superclass]  == [SMUserManagedObject class]) {
+            if ([obj isKindOfClass:[SMUserManagedObject class]]) {
                 BOOL addPasswordSuccess = [self addPasswordToSerializedDictionary:&serializedObjDict originalObject:obj];
                 if (!addPasswordSuccess)
                 {
@@ -213,12 +212,10 @@ You should implement this method conservatively, and expect that unknown request
             
             [self.smDataStore createObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options onSuccess:^(NSDictionary *theObject, NSString *schema) {
                 if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schema); }
-                if ([obj superclass]  == [SMUserManagedObject class]) {
+                if ([obj isKindOfClass:[SMUserManagedObject class]]) {
                     [obj removePassword];
                 }
                 success = YES;
-                // TO-DO OFFLINE-SUPPORT
-                //[self cacheInsert:theObject forEntity:[obj entity] inContext:context];
                 syncReturn(semaphore);
             } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
                 if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to insert object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
@@ -227,6 +224,7 @@ You should implement this method conservatively, and expect that unknown request
                 *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
                 syncReturn(semaphore);
             }];
+            
         });
         if (success == NO)
             *stop = YES;
@@ -251,7 +249,6 @@ You should implement this method conservatively, and expect that unknown request
                     if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
                     success = YES;
                     // TO-DO OFFLINE-SUPPORT
-                    //[self cacheInsert:theObject forEntity:[obj entity] inContext:context];
                     syncReturn(semaphore);
                 } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
                     if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to insert object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
@@ -265,7 +262,6 @@ You should implement this method conservatively, and expect that unknown request
                     if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore updated object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
                     success = YES;
                     // TO-DO OFFLINE-SUPPORT
-                    //[self cacheInsert:theObject forEntity:[obj entity] inContext:context];
                     syncReturn(semaphore);
                 } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
                     if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to update object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
@@ -304,7 +300,6 @@ You should implement this method conservatively, and expect that unknown request
             }];
             if (success) {
                 // TO-DO OFFLINE-SUPPORT
-                //[self cachePurge:[obj objectID]];
             }
         });
         if (success == NO)
@@ -349,6 +344,7 @@ You should implement this method conservatively, and expect that unknown request
 
 - (id)fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
+    
     SMQuery *query = [SMIncrementalStore queryForFetchRequest:fetchRequest error:error];
 
     if (query == nil) {
@@ -363,23 +359,26 @@ You should implement this method conservatively, and expect that unknown request
     });
 
     return [resultsWithoutOID map:^(id item) {
-        // TO-DO OFFLINE-SUPPORT
-        //NSManagedObjectID *oid = [self cacheInsert:item forEntity:fetchRequest.entity inContext:context];
         NSString *primaryKeyField = nil;
         @try {
             primaryKeyField = [fetchRequest.entity sm_fieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
         }
         @catch (NSException *exception) {
-            if (NSClassFromString(fetchRequest.entityName) && [NSClassFromString(fetchRequest.entityName) superclass] == [SMUserManagedObject class]) {
-                primaryKeyField = [self.smDataStore.session userPrimaryKeyField];
-            }
+            primaryKeyField = [self.smDataStore.session userPrimaryKeyField];
         }
         id remoteID = [item objectForKey:primaryKeyField];
         if (!remoteID) {
             [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
         }
         NSManagedObjectID *oid = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
-        return [context objectWithID:oid];
+        NSManagedObject *object = [context objectWithID:oid];
+        
+        
+        // Populate the attributes of the object with the fetch data
+        [self populateManagedObject:object withItem:item fetchRequest:fetchRequest context:context];
+        
+        return object;
+        
     }];
 }
 
@@ -405,9 +404,6 @@ You should implement this method conservatively, and expect that unknown request
  If an object with object ID objectID cannot be found, the method should return nil and—if error is not NULL—create and return an appropriate error object in error.
  */
 
-// NOTE:
-// Basically, this resolves a fault into the actual materialized object.
-
 /*
  * Returns an incremental store node encapsulating the persistent external values of the object with a given object ID.
  The returned node should include all attributes values and may include to-one relationship values as instances of NSManagedObjectID.
@@ -418,8 +414,7 @@ You should implement this method conservatively, and expect that unknown request
                                                error:(NSError *__autoreleasing *)error {
     
     if (SM_CORE_DATA_DEBUG) { DLog(@"new values for object with id %@", [context objectWithID:objectID]); }
-    // TO DO OFFLINE SUPPORT
-    // NSDictionary *objectFields = [cache objectForKey:objectID];
+    
     // Make a GET call to SM and return the properties for the entity
     __block NSManagedObject *theObj = [context objectWithID:objectID];
     __block NSEntityDescription *objEntity = [theObj entity];
@@ -530,32 +525,6 @@ You should implement this method conservatively, and expect that unknown request
         }
     }
 
-        
-    // TO DO OFFLINE SUPPORT
-    /*
-    id theObject = [cache objectForKey:objectID];
-    if (!theObject) {
-        // add an error here if needed
-        return nil;
-    }
-    if ([relationship isToMany]) {
-
-        NSArray *relationshipInstances = [theObject valueForKey:[relationship name]];
-        
-        return relationshipInstances != nil ? relationshipInstances : [NSArray array];
-        
-    } else {
-        // to-one relationship
-        id relationshipInstance = [theObject valueForKey:[relationship name]];
-        
-        if (relationshipInstance == nil) {
-            return [NSNull null];
-        } else {
-            return relationshipInstance;
-        }
-    }
-     */
-
 }
 
 /*
@@ -589,87 +558,6 @@ You should implement this method conservatively, and expect that unknown request
 }
      
 #pragma mark - Object store
-/*
- To be used for offline support.  This method takes a dictionary object from a StackMob response and places it in a dictionary cache, where the key is the returned NSManagedObjectID.  All primary key and relationship fields have their string ID representations casted to instances of NSManagedObjectID so Core Data can reference the corresponding objects.
- */
-- (NSManagedObjectID *)cacheInsert:(NSDictionary *)values forEntity:(NSEntityDescription *)entityDescription inContext:(NSManagedObjectContext *)context {
-    if (SM_CORE_DATA_DEBUG) { DLog(); }
-    
-    // TO-DO: GET THE PRIMARY FIELD KEY VS REMOTE KEY
-    
-    NSString *remoteKey = [self remoteKeyForEntityName:entityDescription.name];
-    id remoteID = [values objectForKey:remoteKey];
-    
-    // Get an object ID from NSIncrementalStore
-    NSManagedObjectID *objectID = [self newObjectIDForEntity:entityDescription referenceObject:remoteID];
-    
-    // if the object exists in the cache already, remove it and insert the new version from the server
-    if ([cache objectForKey:objectID] != nil) {
-        [self cachePurge:objectID];
-    }
-    __block NSMutableDictionary *mutableValues = [NSMutableDictionary dictionary];;
-    [entityDescription.propertiesByName enumerateKeysAndObjectsUsingBlock:^(id propertyName, id property, BOOL *stopPropEnum) {
-        if ([property isKindOfClass:[NSAttributeDescription class]]) {
-            NSAttributeDescription *attributeDescription = (NSAttributeDescription *)property;
-            if (attributeDescription.attributeType != NSUndefinedAttributeType) {
-                id value = [values valueForKey:(NSString *)propertyName];
-                [mutableValues setObject:value forKey:propertyName];
-            }
-        }
-        else if ([property isKindOfClass:[NSRelationshipDescription class]]) {
-            NSRelationshipDescription *relationship = (NSRelationshipDescription *)property;
-            
-            // get the relationship contents for the property
-            id relationshipContents = [values valueForKey:propertyName];
-            if (relationshipContents) {
-                if ([relationship isToMany]) {
-                    NSMutableArray *relationshipIds = [NSMutableArray array];
-                    [(NSSet *)relationshipContents enumerateObjectsUsingBlock:^(id obj, BOOL *stopRelEnum) {
-                        
-                        // if obj is string (reference to id), cast to NSManagedObjectId
-                        if ([obj isKindOfClass:[NSString class]]) {
-                            NSEntityDescription *entityDescriptionForRelationship = [NSEntityDescription entityForName:[[relationship destinationEntity] name] inManagedObjectContext:context];
-                            NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:entityDescriptionForRelationship referenceObject:obj];
-                            [relationshipIds addObject:relationshipObjectID];
-                        }
-                        // else create the NSMangedObjectId from the primary key field
-                        else {
-                            NSEntityDescription *entityDescriptionForRelationship = [NSEntityDescription entityForName:[[obj entity] name] inManagedObjectContext:context];
-                            NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:entityDescriptionForRelationship referenceObject:[obj valueForKey:[obj primaryKeyField]]];
-                            [relationshipIds addObject:relationshipObjectID];
-                        }
-                    }];
-                    [mutableValues setObject:relationshipIds forKey:propertyName];
-                } else {
-                    NSEntityDescription *entityDescriptionForRelationship = [NSEntityDescription entityForName:[[property destinationEntity] name] inManagedObjectContext:context];
-                    
-                    // if relationshipContents is string (reference to id), cast to NSManagedObjectId
-                    if ([relationshipContents isKindOfClass:[NSString class]]) {
-                        NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:entityDescriptionForRelationship referenceObject:relationshipContents];
-                        [mutableValues setObject:relationshipObjectID forKey:propertyName];
-                    }
-                    // else create the NSMangedObjectId from the primary key field
-                    else {
-                        NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:entityDescriptionForRelationship referenceObject:[relationshipContents objectForKey:[self remoteKeyForEntityName:propertyName]]];
-                        [mutableValues setObject:relationshipObjectID forKey:propertyName];
-                    }
-                }
-            }
-            
-        }
-    }];
-    
-    [cache setObject:mutableValues forKey:objectID];
-    return objectID;
-}
-
-/*
- Removes an object from the cache.
- */
-- (void)cachePurge:(NSManagedObjectID *)objectID {
-    [cache removeObjectForKey:objectID];
-}
-
 - (NSString *)remoteKeyForEntityName:(NSString *)entityName {
     return [[entityName lowercaseString] stringByAppendingString:@"_id"];
 }
@@ -691,7 +579,6 @@ You should implement this method conservatively, and expect that unknown request
                 if (value != nil) {
                     if (attributeDescription.attributeType == NSDateAttributeType) {
                         NSDate *convertedDate = [NSDate dateWithTimeIntervalSince1970:[value doubleValue]];
-                        //NSDate *convertedDate = [NSDate dateWithString:value];
                         [serializedDictionary setObject:convertedDate forKey:propertyName];
                     } else {
                         [serializedDictionary setObject:value forKey:propertyName];
@@ -713,10 +600,33 @@ You should implement this method conservatively, and expect that unknown request
                 }
             }
             
-        }        
+        }       
     }];
     
     return serializedDictionary;
+}
+
+/*
+ Temporary method which replaces internal data of fetched objects with any changes made to objects on the server
+ */
+- (void)populateManagedObject:(NSManagedObject *)object withItem:(NSDictionary *)item fetchRequest:(NSFetchRequest *)fetchRequest context:(NSManagedObjectContext *)context
+{
+    NSDictionary *serializedDict = [self sm_responseSerializationForDictionary:item schemaEntityDescription:fetchRequest.entity managedObjectContext:context];
+    for (NSString *field in [serializedDict allKeys]) {
+        if ([[[fetchRequest.entity attributesByName] allKeys] indexOfObject:field] != NSNotFound) {
+            [object setPrimitiveValue:serializedDict[field] forKey:field];
+        } else if ([[[fetchRequest.entity relationshipsByName] allKeys] indexOfObject:field] != NSNotFound) {
+            NSRelationshipDescription *relationshipDescription = (NSRelationshipDescription *)[[fetchRequest.entity relationshipsByName] objectForKey:field];
+            // handle to-many
+            if ([relationshipDescription isToMany]) {
+                // let fault for now
+            } else {
+                // handle to-one
+                [object setPrimitiveValue:[context objectWithID:serializedDict[field]]  forKey:field];
+            }
+            
+        }
+    }
 }
 
 - (BOOL)addPasswordToSerializedDictionary:(NSDictionary **)originalDictionary originalObject:(SMUserManagedObject *)object

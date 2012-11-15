@@ -2,7 +2,7 @@
 //  Random.h
 //  stackmob-ios-sdk
 //
-//  Created by Matt Vaznaian on 10/25/12.
+//  Created by Matt Vaznaian on 11/1/12.
 //  Copyright (c) 2012 StackMob. All rights reserved.
 //
 
@@ -18,5 +18,6 @@
 @property (nonatomic, retain) NSString * server_id;
 @property (nonatomic, retain) NSDate * time;
 @property (nonatomic, retain) NSNumber * yearBorn;
+@property (nonatomic, retain) NSNumber * createddate;
 
 @end

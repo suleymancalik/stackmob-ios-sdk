@@ -2,7 +2,7 @@
 //  Random.m
 //  stackmob-ios-sdk
 //
-//  Created by Matt Vaznaian on 10/25/12.
+//  Created by Matt Vaznaian on 11/1/12.
 //  Copyright (c) 2012 StackMob. All rights reserved.
 //
 
@@ -17,5 +17,6 @@
 @dynamic server_id;
 @dynamic time;
 @dynamic yearBorn;
+@dynamic createddate;
 
 @end
