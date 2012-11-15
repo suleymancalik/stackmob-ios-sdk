@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
-		<title>SMBinaryDataConversion Class Reference</title>
+		<title>SMPushToken Class Reference</title>
 		<meta id="xcode-display" name="xcode-display" content="render"/>
 		<meta name="viewport" content="width=550" />
 		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
@@ -17,7 +17,7 @@
 			</div>
 			
 			<div id="title" role="banner">
-				<h1 class="hideInXcode">SMBinaryDataConversion Class Reference</h1>
+				<h1 class="hideInXcode">SMPushToken Class Reference</h1>
 			</div>
 			<ul id="headerButtons" role="toolbar">
 				<li id="toc_button">
@@ -40,11 +40,13 @@
 	
 	
 	
-	<option value="class_methods">Class Methods</option>
-	
-	<option value="//api/name/stringForBinaryData:name:contentType:">&nbsp;&nbsp;&nbsp;&nbsp;+ stringForBinaryData:name:contentType:</option>
 	
 	
+	<option value="instance_methods">Instance Methods</option>
+	
+	<option value="//api/name/initWithString:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithString:</option>
+	
+	<option value="//api/name/initWithString:type:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithString:type:</option>
 	
 	
 	
@@ -70,20 +72,22 @@
 
 
 
-<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#class_methods">Class Methods</a></span><ul>
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/stringForBinaryData:name:contentType:">stringForBinaryData:name:contentType:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithString:">initWithString:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithString:type:">initWithString:type:</a></span></li>
 	
 </ul></li>
-
-
 
 
 			</ul>
 		</nav>
 		<article>
 			<div id="contents" class="isShowingTOC" role="main">
-				<a title="SMBinaryDataConversion Class Reference" name="top"></a>
+				<a title="SMPushToken Class Reference" name="top"></a>
 				<div class="main-navigation navigation-top">
 					<ul>
 	<li><a href="../index.html">Index</a></li>
@@ -92,7 +96,7 @@
 				</div>
 				<div id="header">
 					<div class="section-header">
-						<h1 class="title title-header">SMBinaryDataConversion Class Reference</h1>
+						<h1 class="title title-header">SMPushToken Class Reference</h1>
 					</div>		
 				</div>
 				<div id="container">	
@@ -103,7 +107,7 @@
 	<td class="specification-value">NSObject</td>
 </tr><tr>
 	<td class="specification-title">Declared in</td>
-	<td class="specification-value">SMBinaryDataConversion.h<br />SMBinaryDataConversion.m</td>
+	<td class="specification-value">SMPushToken.h<br />SMPushToken.m</td>
 </tr>
 						</tbody></table></div>
 					
@@ -113,34 +117,9 @@
 					<div class="section section-overview">
 						<a title="Overview" name="overview"></a>
 						<h2 class="subtitle subtitle-overview">Overview</h2>
-						<p><code>SMBinaryDataConversion</code> offers a class method <a href="#//api/name/stringForBinaryData:name:contentType:">stringForBinaryData:name:contentType:</a> to decode binary data into a string.  This is then used to send to StackMob as the value for a field with type Binary Data.  The contents of the string will be parsed and the content will be stored on s3.  StackMob will then store the public url as the value.  A call to <code>refreshObject:mergeChanges:</code> on the managed object context will update the in-memory value to the url in the persistent store.</p>
+						<p>Represents the info needed to register a device for push with StackMob</p>
 
-<h2>Example s3 Integration</h2>
-
-<p>Once you have your content in <code>NSData</code> form, pass it to the <a href="#//api/name/stringForBinaryData:name:contentType:">stringForBinaryData:name:contentType:</a> method.</p>
-
-<pre><code>NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-NSString* pathToImageFile = [bundle pathForResource:@"coolPic" ofType:@"jpg"];
-NSData *theData = [NSData dataWithContentsOfFile:pathToImageFile];
-
-NSString *picData = [SMBinaryDataConversion stringForBinaryData:theData name:@"whateverNameYouWant" contentType:@"image/jpg"];
-</code></pre>
-
-<p>You can now set the string value, save the managed object context, and refresh your in-memory copy of the object to grab the url pointing to your data.</p>
-
-<pre><code>[newManagedObject setValue:picData forKey:@"pic"];
-
-NSError *error = nil;
-// context is your managed object context
-if (![context save:&amp;error]) {
-NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-abort();
-} else {
-[context refreshObject:newManagedObject mergeChanges:YES];
-}
-</code></pre>
-
-<p><code>[newManagedObject valueForKey:@"pic"]</code> now returns the s3 url for the data.</p><div class="note"><p><strong>Note:</strong> Binary Data fields are not inferred. You must edit the schema on the StackMob website and add a new field of type Binary Data that has the same name as the string attribute in your Xcode data model.  This must be done before you persist any data to avoid inferring a field with type string.</p></div>
+<p>This corresponds to what&rsquo;s sored about each token on server: token string paired with a platform and some supplemental information.</p><div class="note"><p><strong>Note:</strong> In most cases you&rsquo;ll want to just use the device token string you get from apple directly rather than using one of these.</p></div>
 					</div>
 					
 					
@@ -158,8 +137,15 @@ abort();
 						<ul class="task-list">
 							<li>
 	<span class="tooltip">
-		<code><a href="#//api/name/stringForBinaryData:name:contentType:">+&nbsp;stringForBinaryData:name:contentType:</a></code>
-		<span class="tooltip"><p>Returns a string version of binary data used by StackMob to upload content to s3.</p></span>
+		<code><a href="#//api/name/initWithString:">&ndash;&nbsp;initWithString:</a></code>
+		<span class="tooltip"><p>Initialize with a device token string. Assumes the type is ios</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/initWithString:type:">&ndash;&nbsp;initWithString:type:</a></code>
+		<span class="tooltip"><p>Initialize with a device token string and a type.</p></span>
 	</span>
 	
 	
@@ -174,23 +160,25 @@ abort();
 					
 					
 					
+					
+					
 					<div class="section section-methods">
-						<a title="Class Methods" name="class_methods"></a>
-						<h2 class="subtitle subtitle-methods">Class Methods</h2>
+						<a title="Instance Methods" name="instance_methods"></a>
+						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
 						
 						<div class="section-method">
-	<a name="//api/name/stringForBinaryData:name:contentType:" title="stringForBinaryData:name:contentType:"></a>
-	<h3 class="subsubtitle method-title">stringForBinaryData:name:contentType:</h3>
+	<a name="//api/name/initWithString:" title="initWithString:"></a>
+	<h3 class="subsubtitle method-title">initWithString:</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Returns a string version of binary data used by StackMob to upload content to s3.</p>
+		<p>Initialize with a device token string. Assumes the type is ios</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>+ (NSString *)stringForBinaryData:(NSData *)<em>data</em> name:(NSString *)<em>name</em> contentType:(NSString *)<em>contentType</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (id)initWithString:(NSString *)<em>tokenString</em></code></div>
 
     
 	
@@ -198,28 +186,13 @@ abort();
 		<h4 class="method-subtitle parameter-title">Parameters</h4>
 		
 		<dl class="argument-def parameter-def">
-			<dt><em>data</em></dt>
-			<dd><p>The actual content in <code>NSData</code> form.</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>name</em></dt>
-			<dd><p>A name for the content.  This can be any arbitrary name.</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>contentType</em></dt>
-			<dd><p>The content type of the data. See <a href="http://en.wikipedia.org/wiki/Internet%5fmedia%5ftype">Internet Media Type</a> for a full list.</p></dd>
+			<dt><em>tokenString</em></dt>
+			<dd><p>The device token string.</p></dd>
 		</dl>
 		
 	</div>
 	
 	
-	
-	<div class="method-subsection return">
-		<h4 class="method-subtitle parameter-title">Return Value</h4>
-		<p>A string formatted for StackMob to persist data to s3.</p>
-	</div>
 	
 	
 	
@@ -233,15 +206,64 @@ abort();
 	
 	<div class="method-subsection declared-in-section">
 		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">SMBinaryDataConversion.h</code><br />
+		<code class="declared-in-ref">SMPushToken.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/initWithString:type:" title="initWithString:type:"></a>
+	<h3 class="subsubtitle method-title">initWithString:type:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Initialize with a device token string and a type.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (id)initWithString:(NSString *)<em>tokenString</em> type:(NSString *)<em>type</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>tokenString</em></dt>
+			<dd><p>The device token string.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>type</em></dt>
+			<dd><p>The platform the token is for. Should be one of ios, android, or androidgcm</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPushToken.h</code><br />
 	</div>				
 	
 	
 </div>
 						
 					</div>
-					
-					
 					
 					
 				</div>

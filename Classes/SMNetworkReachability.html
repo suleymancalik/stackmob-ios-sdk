@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
-		<title>NSEntityDescription(StackMobSerialization) Category Reference</title>
+		<title>SMNetworkReachability Class Reference</title>
 		<meta id="xcode-display" name="xcode-display" content="render"/>
 		<meta name="viewport" content="width=550" />
 		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
@@ -17,7 +17,7 @@
 			</div>
 			
 			<div id="title" role="banner">
-				<h1 class="hideInXcode">NSEntityDescription(StackMobSerialization) Category Reference</h1>
+				<h1 class="hideInXcode">SMNetworkReachability Class Reference</h1>
 			</div>
 			<ul id="headerButtons" role="toolbar">
 				<li id="toc_button">
@@ -44,13 +44,11 @@
 	
 	<option value="instance_methods">Instance Methods</option>
 	
-	<option value="//api/name/primaryKeyField">&nbsp;&nbsp;&nbsp;&nbsp;- primaryKeyField</option>
+	<option value="//api/name/currentNetworkStatus">&nbsp;&nbsp;&nbsp;&nbsp;- currentNetworkStatus</option>
 	
-	<option value="//api/name/sm_fieldNameForProperty:">&nbsp;&nbsp;&nbsp;&nbsp;- sm_fieldNameForProperty:</option>
+	<option value="//api/name/init">&nbsp;&nbsp;&nbsp;&nbsp;- init</option>
 	
-	<option value="//api/name/sm_propertyForField:">&nbsp;&nbsp;&nbsp;&nbsp;- sm_propertyForField:</option>
-	
-	<option value="//api/name/sm_schema">&nbsp;&nbsp;&nbsp;&nbsp;- sm_schema</option>
+	<option value="//api/name/setNetworkStatusChangeBlock:">&nbsp;&nbsp;&nbsp;&nbsp;- setNetworkStatusChangeBlock:</option>
 	
 	
 	
@@ -80,13 +78,11 @@
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/primaryKeyField">primaryKeyField</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/currentNetworkStatus">currentNetworkStatus</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_fieldNameForProperty:">sm_fieldNameForProperty:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/init">init</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_propertyForField:">sm_propertyForField:</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_schema">sm_schema</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setNetworkStatusChangeBlock:">setNetworkStatusChangeBlock:</a></span></li>
 	
 </ul></li>
 
@@ -95,7 +91,7 @@
 		</nav>
 		<article>
 			<div id="contents" class="isShowingTOC" role="main">
-				<a title="NSEntityDescription(StackMobSerialization) Category Reference" name="top"></a>
+				<a title="SMNetworkReachability Class Reference" name="top"></a>
 				<div class="main-navigation navigation-top">
 					<ul>
 	<li><a href="../index.html">Index</a></li>
@@ -104,15 +100,18 @@
 				</div>
 				<div id="header">
 					<div class="section-header">
-						<h1 class="title title-header">NSEntityDescription(StackMobSerialization) Category Reference</h1>
+						<h1 class="title title-header">SMNetworkReachability Class Reference</h1>
 					</div>		
 				</div>
 				<div id="container">	
 					
 					<div class="section section-specification"><table cellspacing="0"><tbody>
 						<tr>
+	<td class="specification-title">Inherits from</td>
+	<td class="specification-value">AFHTTPClient</td>
+</tr><tr>
 	<td class="specification-title">Declared in</td>
-	<td class="specification-value">NSEntityDescription+StackMobSerialization.h<br />NSEntityDescription+StackMobSerialization.m</td>
+	<td class="specification-value">SMNetworkReachability.h<br />SMNetworkReachability.m</td>
 </tr>
 						</tbody></table></div>
 					
@@ -122,7 +121,82 @@
 					<div class="section section-overview">
 						<a title="Overview" name="overview"></a>
 						<h2 class="subtitle subtitle-overview">Overview</h2>
-						<p>The primary purpose for this category is use the information and methods provided by an <code>NSEntityDescription</code> to return StackMob equivalent descriptions of schemas and fields.  This is useful when we have an entity description for entity Person and we want to translate that into the schema for StackMob, or for creating relationship headers needed when posting objects with nested relationship objects.</p>
+						<p><code>SMNetworkReachability</code> provides an interface to monitor the network reachability from the device to StackMob.</p>
+
+<p>Network reachability checks are already built into the SDK.  When the network is not reachable and a request is made, an error with domain SMError and status code -105 (SMNetworkNotReachable) will be returned.</p>
+
+<p>An instance of <code>SMNetworkReachability</code> is created during the initialization of an <code>SMUserSession</code>, accessible by the <code>networkMonitor</code> property.</p>
+
+<p>Thus, assuming you have an instance of <code>SMClient</code> called <code>client</code>, you can access the <code>SMNetworkReachability</code> instance with <code>client.session.networkMonitor</code>.</p>
+
+<h2>Checking the Current Network Status</h2>
+
+<p>To manually check the current network status, use the <a href="#//api/name/currentNetworkStatus">currentNetworkStatus</a> method.</p>
+
+<p>This method will return an SMNetworkStatus, defined as:</p>
+
+<pre><code>    typedef enum {
+        Unknown = -1,
+        NotReachable  = 0,
+        Reachable = 1,
+    } SMNetworkStatus;
+</code></pre>
+
+<ul>
+<li>Reachable &ndash; the device has a network connection and can successfully reach StackMob.</li>
+<li>Not Reachable &ndash; StackMob is not reachable either because there is no network connection on the device or the service is down.</li>
+<li>Unknown &ndash; Typically this status arises during in-between times of network connection initialization.</li>
+</ul>
+
+
+<p>An example of testing reachability before sending a request would look like this:</p>
+
+<pre><code>    if ([client.session.networkMonitor currentNetworkStatus] == Reachable) {
+        // send request
+    }
+</code></pre>
+
+<p>You can also handle each state case by case in a switch statement:</p>
+
+<pre><code>    switch([client.session.networkMonitor currentNetworkStatus]) {
+        case  Reachable:
+            // do Reachable stuff
+            break;
+        case NotReachable:
+            // do NotReachable stuff
+            break;
+        case Unknown:
+            // do Unknown stuff
+            break;
+        default:
+            break;
+    }
+</code></pre>
+
+<h2>Registering For Network Status Change Notifications</h2>
+
+<p>You can register to receive notifications when the network status changes by simply adding an observer for the notification name <code>SMNetworkStatusDidChangeNotification</code>.  The notification will have a <code>userInfo</code> dictionary containing one entry with key <code>SMCurrentNetworkStatusKey</code> and <code>NSNumber</code> representing the <code>SMNetworkStatus</code> value.</p>
+
+<p>In order to access the value of <code>SMCurrentNetworkStatusKey</code> in a format for comparing to specific states or use in a switch statement, retrieve the intValue like this:</p>
+
+<pre><code>    if ([[[notification userInfo] objectForKey:SMCurrentNetworkStatusKey] intValue] == Reachable) {
+        // do Reachable stuff
+    }
+</code></pre>
+
+<p><strong>Important:</strong> Remember to remove your notification observer before the application terminates.</p>
+
+<h2>Executing a Block Whenever the Network Status Changes</h2>
+
+<p>You also have the option of setting a block that will be executed every time the network status changes.  To do this, use the <a href="#//api/name/setNetworkStatusChangeBlock:">setNetworkStatusChangeBlock:</a> method like this:</p>
+
+<pre><code>    [client.session.networkMonitor setNetworkStatusChangeBlock:^(SMNetworkStatus status){
+
+        // maybe log some stuff
+        // maybe notify some objects
+
+    }];
+</code></pre>
 					</div>
 					
 					
@@ -140,29 +214,22 @@
 						<ul class="task-list">
 							<li>
 	<span class="tooltip">
-		<code><a href="#//api/name/sm_schema">&ndash;&nbsp;sm_schema</a></code>
-		<span class="tooltip"><p>Returns the StackMob equivalent schema for the entity name.</p></span>
+		<code><a href="#//api/name/init">&ndash;&nbsp;init</a></code>
+		<span class="tooltip"><p>Initializes an instance of <code>SMNetworkReachability</code> which can be used to monitor the network reachability from the device to StackMob.</p></span>
 	</span>
 	
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/primaryKeyField">&ndash;&nbsp;primaryKeyField</a></code>
-		<span class="tooltip"><p>Returns the primary key field name for this entity.</p></span>
+		<code><a href="#//api/name/currentNetworkStatus">&ndash;&nbsp;currentNetworkStatus</a></code>
+		<span class="tooltip"><p>The current status of the device&rsquo;s network connection and reachability to StackMob.</p></span>
 	</span>
 	
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/sm_fieldNameForProperty:">&ndash;&nbsp;sm_fieldNameForProperty:</a></code>
-		<span class="tooltip"><p>Given a property description, returns the equivalent field name on StackMob.</p></span>
-	</span>
-	
-	
-</li><li>
-	<span class="tooltip">
-		<code><a href="#//api/name/sm_propertyForField:">&ndash;&nbsp;sm_propertyForField:</a></code>
-		<span class="tooltip"><p>Given a StackMob field name, returns the equivalent <code>NSPropertyDescription</code> for the Core Data attribute or relationship.</p></span>
+		<code><a href="#//api/name/setNetworkStatusChangeBlock:">&ndash;&nbsp;setNetworkStatusChangeBlock:</a></code>
+		<span class="tooltip"><p>Provide a block to execute whenever there is a change in network reachability.</p></span>
 	</span>
 	
 	
@@ -184,31 +251,31 @@
 						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
 						
 						<div class="section-method">
-	<a name="//api/name/primaryKeyField" title="primaryKeyField"></a>
-	<h3 class="subsubtitle method-title">primaryKeyField</h3>
+	<a name="//api/name/currentNetworkStatus" title="currentNetworkStatus"></a>
+	<h3 class="subsubtitle method-title">currentNetworkStatus</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Returns the primary key field name for this entity.</p>
+		<p>The current status of the device&rsquo;s network connection and reachability to StackMob.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (NSString *)primaryKeyField</code></div>
+	<div class="method-subsection method-declaration"><code>- (SMNetworkStatus)currentNetworkStatus</code></div>
 
     
 	
 	
 	
-	
-	
-	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>lowercaseEntityNameId or lowercaseEntityName_id is returned, if found as an attribute.</p><div class="note"><p><strong>Note:</strong> If lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity&rsquo;s attributes, a <code>SMExceptionIncompatibleObject</code> exception is thrown.</p></div>
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Reachable if the device has a network connection and can successfully reach StackMob, NotReachable if StackMob is not reachable either because there is no network connection on the device or the service is down, Unknown during in-between times of network connection initialization.</p>
 	</div>
+	
+	
+	
+	
 	
 	
 	
@@ -218,25 +285,66 @@
 	
 	<div class="method-subsection declared-in-section">
 		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">NSEntityDescription+StackMobSerialization.h</code><br />
+		<code class="declared-in-ref">SMNetworkReachability.h</code><br />
 	</div>				
 	
 	
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/sm_fieldNameForProperty:" title="sm_fieldNameForProperty:"></a>
-	<h3 class="subsubtitle method-title">sm_fieldNameForProperty:</h3>
+	<a name="//api/name/init" title="init"></a>
+	<h3 class="subsubtitle method-title">init</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Given a property description, returns the equivalent field name on StackMob.</p>
+		<p>Initializes an instance of <code>SMNetworkReachability</code> which can be used to monitor the network reachability from the device to StackMob.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (NSString *)sm_fieldNameForProperty:(NSPropertyDescription *)<em>property</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (id)init</code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>A new instance of <code>SMNetworkReachability</code>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMNetworkReachability.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setNetworkStatusChangeBlock:" title="setNetworkStatusChangeBlock:"></a>
+	<h3 class="subsubtitle method-title">setNetworkStatusChangeBlock:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Provide a block to execute whenever there is a change in network reachability.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)setNetworkStatusChangeBlock:(void ( ^ ) ( SMNetworkStatus status ))<em>block</em></code></div>
 
     
 	
@@ -244,75 +352,14 @@
 		<h4 class="method-subtitle parameter-title">Parameters</h4>
 		
 		<dl class="argument-def parameter-def">
-			<dt><em>property</em></dt>
-			<dd><p>The description of an entity&rsquo;s property.</p></dd>
+			<dt><em>block</em></dt>
+			<dd><p>The block to execute when the network status changes.</p></dd>
 		</dl>
 		
 	</div>
 	
 	
 	
-	<div class="method-subsection return">
-		<h4 class="method-subtitle parameter-title">Return Value</h4>
-		<p>The StackMob field name for that property.</p>
-	</div>
-	
-	
-	
-	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<div class="note"><p><strong>Note:</strong> An <code>SMExceptionIncompatibleObject</code> exception is thrown if the field name matches multiple properties.</p></div>
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">NSEntityDescription+StackMobSerialization.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/sm_propertyForField:" title="sm_propertyForField:"></a>
-	<h3 class="subsubtitle method-title">sm_propertyForField:</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Given a StackMob field name, returns the equivalent <code>NSPropertyDescription</code> for the Core Data attribute or relationship.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>- (NSPropertyDescription *)sm_propertyForField:(NSString *)<em>fieldName</em></code></div>
-
-    
-	
-	<div class="method-subsection arguments-section parameters">
-		<h4 class="method-subtitle parameter-title">Parameters</h4>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>fieldName</em></dt>
-			<dd><p>The field name from StackMob.</p></dd>
-		</dl>
-		
-	</div>
-	
-	
-	
-	<div class="method-subsection return">
-		<h4 class="method-subtitle parameter-title">Return Value</h4>
-		<p>An <code>NSPropertyDescription</code> for the equivalent Core Data attribute or relationship, if one exists.</p>
-	</div>
-	
 	
 	
 	
@@ -325,43 +372,7 @@
 	
 	<div class="method-subsection declared-in-section">
 		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">NSEntityDescription+StackMobSerialization.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/sm_schema" title="sm_schema"></a>
-	<h3 class="subsubtitle method-title">sm_schema</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Returns the StackMob equivalent schema for the entity name.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>- (NSString *)sm_schema</code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">NSEntityDescription+StackMobSerialization.h</code><br />
+		<code class="declared-in-ref">SMNetworkReachability.h</code><br />
 	</div>				
 	
 	

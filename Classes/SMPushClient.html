@@ -1,0 +1,1027 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
+		<title>SMPushClient Class Reference</title>
+		<meta id="xcode-display" name="xcode-display" content="render"/>
+		<meta name="viewport" content="width=550" />
+		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
+		<link rel="stylesheet" type="text/css" media="print" href="../css/stylesPrint.css" />
+		<meta name="generator" content="appledoc 2.0.5 (build 789)" />
+	</head>
+	<body>
+		<header id="top_header">
+			<div id="library" class="hideInXcode">
+				<h1><a id="libraryTitle" href="../index.html">StackMob iOS SDK </a></h1>
+				<a id="developerHome" href="../index.html">StackMob</a>
+			</div>
+			
+			<div id="title" role="banner">
+				<h1 class="hideInXcode">SMPushClient Class Reference</h1>
+			</div>
+			<ul id="headerButtons" role="toolbar">
+				<li id="toc_button">
+					<button aria-label="Show Table of Contents" role="checkbox" class="open" id="table_of_contents"><span class="disclosure"></span>Table of Contents</button>
+				</li>
+				<li id="jumpto_button" role="navigation">
+					<select id="jumpTo">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+	
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<option value="instance_methods">Instance Methods</option>
+	
+	<option value="//api/name/broadcastMessage:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- broadcastMessage:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/deleteToken:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- deleteToken:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/getTokensForUsers:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- getTokensForUsers:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/initWithAPIVersion:publicKey:privateKey:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAPIVersion:publicKey:privateKey:</option>
+	
+	<option value="//api/name/initWithAPIVersion:publicKey:privateKey:pushHost:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAPIVersion:publicKey:privateKey:pushHost:</option>
+	
+	<option value="//api/name/registerDeviceToken:withUser:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- registerDeviceToken:withUser:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/registerDeviceToken:withUser:overwrite:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- registerDeviceToken:withUser:overwrite:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/sendMessage:toTokens:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- sendMessage:toTokens:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/sendMessage:toUsers:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- sendMessage:toUsers:onSuccess:onFailure:</option>
+	
+	
+	
+</select>
+				</li>
+			</ul>
+		</header>
+		<nav id="tocContainer" class="isShowingTOC">
+			<ul id="toc" role="tree">
+				
+<li role="treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#overview">Overview</a></span></li>
+
+
+
+
+<li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Initialize">Initialize</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Registering a Device Token">Registering a Device Token</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Sending Push Notifications">Sending Push Notifications</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Retrieving Tokens For Users">Retrieving Tokens For Users</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Deleting a Device Token">Deleting a Device Token</a></span></li>
+	
+</ul></li>
+
+
+
+
+
+
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/broadcastMessage:onSuccess:onFailure:">broadcastMessage:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/deleteToken:onSuccess:onFailure:">deleteToken:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/getTokensForUsers:onSuccess:onFailure:">getTokensForUsers:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithAPIVersion:publicKey:privateKey:">initWithAPIVersion:publicKey:privateKey:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithAPIVersion:publicKey:privateKey:pushHost:">initWithAPIVersion:publicKey:privateKey:pushHost:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/registerDeviceToken:withUser:onSuccess:onFailure:">registerDeviceToken:withUser:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/registerDeviceToken:withUser:overwrite:onSuccess:onFailure:">registerDeviceToken:withUser:overwrite:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sendMessage:toTokens:onSuccess:onFailure:">sendMessage:toTokens:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sendMessage:toUsers:onSuccess:onFailure:">sendMessage:toUsers:onSuccess:onFailure:</a></span></li>
+	
+</ul></li>
+
+
+			</ul>
+		</nav>
+		<article>
+			<div id="contents" class="isShowingTOC" role="main">
+				<a title="SMPushClient Class Reference" name="top"></a>
+				<div class="main-navigation navigation-top">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="header">
+					<div class="section-header">
+						<h1 class="title title-header">SMPushClient Class Reference</h1>
+					</div>		
+				</div>
+				<div id="container">	
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<td class="specification-title">Inherits from</td>
+	<td class="specification-value">NSObject</td>
+</tr><tr>
+	<td class="specification-title">Declared in</td>
+	<td class="specification-value">SMPushClient.h<br />SMPushClient.m</td>
+</tr>
+						</tbody></table></div>
+					
+					
+					
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>An <code>SMPushClient</code> provides a high level interface to interacting with StackMob&rsquo;s push service. A new client must be given an API Version and OAuth credentials in order to communicate with your StackMob application.</p>
+
+<p><code>SMPushClient</code> sets default values for other configuration settings which may be set as necessary by your application.</p>
+
+<p><code>SMPushClient</code> exposes a defaultClient for applications which use a globally available client to share configuration settings.</p>
+
+<p>Include <code>#import "StackMobPush.h"</code> in your application files to gain access to <code>SMPushClient</code> and <a href="../Classes/SMPushToken.html">SMPushToken</a> methods.</p>
+
+<h2>Setting Up A Basic Push Application</h2>
+
+<h3>Download and Import the SDK</h3>
+
+<p>Push Notification support comes built into the iOS SDK, which can be downloaded from the <a href="https://developer.stackmob.com/sdk">SDK Downloads Page</a>.</p>
+
+<h4>If you will only be using StackMob for Push Notifications:</h4>
+
+<p>Download the standalone version which <strong>only</strong> includes push support:</p>
+
+<p>You can download and include a static library of the push SDK or use CocoaPods to install it.</p>
+
+<p><a href="https://github.com/downloads/stackmob/stackmob-ios-push-sdk/stackmob-ios-push-sdk-v1.0.2.zip">Download the Static Library zip</a>, then unzip and copy the entire folder into your XCode project.</p>
+
+<p>To include the StackMob Push SDK into your application using Cocoapods, add <strong>pod &lsquo;StackMobPush&rsquo;, &lsquo;1.0.2&rsquo;</strong> to your Podfile and re-install your Pods.</p>
+
+<h3>Upload your certs to StackMob</h3>
+
+<p>You can do this by reading through the <a href="https://developer.stackmob.com/tutorials/ios/Push-Notifications">Push Notifications tutorial</a> on StackMob.</p>
+
+<h3>Get a device token and initialize your push client</h3>
+
+<p>Set up an iOS app to register for remote notifications by calling <code>registerForRemoteNotificationTypes</code> when your app launches, most likely in <code>application:didFinishLaunchingWithOptions:</code>.  Also initialize a push client.</p>
+
+<pre><code>// In application:didFinishLaunchingWithOptions:
+
+// Assuming you declared the variable `SMPushClient *pushclient;`
+// Public and private keys refer to your StackMob app's credentials.  Get them from the __Manage App Info__ link in the left column on the Dashboard
+pushClient = [[SMPushClient alloc] initWithAPIVersion:@"0" publicKey:@"publicKey" privateKey:@"privateKey"];
+
+[[UIApplication sharedApplication] registerForRemoteNotificationTypes:
+    (UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound)];
+</code></pre>
+
+<p>Next, implement the method <code>application:didRegisterForRemoteNotificationsWithDeviceToken:</code> which will be called when your app successfully registers with APNS.</p>
+
+<pre><code>- (void)application:(UIApplication *)app didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    NSString *token = [[deviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"&lt;&gt;"]];
+    token = [[token componentsSeparatedByString:@" "] componentsJoinedByString:@""];
+    // Persist your user's accessToken here if you need
+
+    // the user parameter is simply an arbitrary string to help you map a name to the device token
+    [pushClient registerDeviceToken:token withUser:@"randomuser" onSuccess:createdSuccessBlock onFailure:createdFailureBlock];
+}
+</code></pre>
+
+<h3>Send push messages</h3>
+
+<p>You are now ready to broadcast messages!  You can use any of the following methods to send push notifications:</p>
+
+<ul>
+<li>broadcastMessage:onSuccess:onFailure:</li>
+<li>sendMessage:toUsers:onSuccess:onFailure:</li>
+<li>sendMessage:toTokens:onSuccess:onFailure:</li>
+</ul>
+
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						<h2 class="subtitle subtitle-tasks">Tasks</h2>
+						
+						
+						<a title="Initialize" name="task_Initialize"></a>
+						<h3 class="subsubtitle task-title">Initialize</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/initWithAPIVersion:publicKey:privateKey:">&ndash;&nbsp;initWithAPIVersion:publicKey:privateKey:</a></code>
+		<span class="tooltip"><p>Initialize with only the most basic parameters and defaults for the rest.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/initWithAPIVersion:publicKey:privateKey:pushHost:">&ndash;&nbsp;initWithAPIVersion:publicKey:privateKey:pushHost:</a></code>
+		<span class="tooltip"><p>Initialize specifying all parameters.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Registering a Device Token" name="task_Registering a Device Token"></a>
+						<h3 class="subsubtitle task-title">Registering a Device Token</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/registerDeviceToken:withUser:onSuccess:onFailure:">&ndash;&nbsp;registerDeviceToken:withUser:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Register a device token for push notifications.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/registerDeviceToken:withUser:overwrite:onSuccess:onFailure:">&ndash;&nbsp;registerDeviceToken:withUser:overwrite:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Register a device token for push notifications.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Sending Push Notifications" name="task_Sending Push Notifications"></a>
+						<h3 class="subsubtitle task-title">Sending Push Notifications</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/broadcastMessage:onSuccess:onFailure:">&ndash;&nbsp;broadcastMessage:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Broadcast a message to all registered devices for this app.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/sendMessage:toUsers:onSuccess:onFailure:">&ndash;&nbsp;sendMessage:toUsers:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Send a message to a particular set of users</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/sendMessage:toTokens:onSuccess:onFailure:">&ndash;&nbsp;sendMessage:toTokens:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Send a message to specific tokens.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Retrieving Tokens For Users" name="task_Retrieving Tokens For Users"></a>
+						<h3 class="subsubtitle task-title">Retrieving Tokens For Users</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/getTokensForUsers:onSuccess:onFailure:">&ndash;&nbsp;getTokensForUsers:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Get the tokens registered for the given users.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Deleting a Device Token" name="task_Deleting a Device Token"></a>
+						<h3 class="subsubtitle task-title">Deleting a Device Token</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/deleteToken:onSuccess:onFailure:">&ndash;&nbsp;deleteToken:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Deletes the token from StackMob&rsquo;s server.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+					</div>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Instance Methods" name="instance_methods"></a>
+						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/broadcastMessage:onSuccess:onFailure:" title="broadcastMessage:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">broadcastMessage:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Broadcast a message to all registered devices for this app.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)broadcastMessage:(NSDictionary *)<em>message</em> onSuccess:(SMSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>message</em></dt>
+			<dd><p>The message to send. See <a href="http://developer.apple.com/library/mac/#documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/ApplePushService/ApplePushService.html">Apple&rsquo;s docs</a> for details on format.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p>The block to call on success</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p>The block to call on failure</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The message will be sent to all users on all platforms.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPushClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/deleteToken:onSuccess:onFailure:" title="deleteToken:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">deleteToken:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Deletes the token from StackMob&rsquo;s server.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)deleteToken:(id)<em>token</em> onSuccess:(SMSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>token</em></dt>
+			<dd><p>A token represented by either a device token string or an SMPushToken object.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p>The block to call on success.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p>The block to call on failure.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPushClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/getTokensForUsers:onSuccess:onFailure:" title="getTokensForUsers:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">getTokensForUsers:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Get the tokens registered for the given users.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)getTokensForUsers:(NSArray *)<em>users</em> onSuccess:(SMResultSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>users</em></dt>
+			<dd><p>An array of username strings to query.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p>The block to call on success.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p>The block to call on failure.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If successful the onSuccess block will be called with an NSDictionary mapping username strings to NSArrays of SMPushToken objects.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPushClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/initWithAPIVersion:publicKey:privateKey:" title="initWithAPIVersion:publicKey:privateKey:"></a>
+	<h3 class="subsubtitle method-title">initWithAPIVersion:publicKey:privateKey:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Initialize with only the most basic parameters and defaults for the rest.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (id)initWithAPIVersion:(NSString *)<em>appAPIVersion</em> publicKey:(NSString *)<em>publicKey</em> privateKey:(NSString *)<em>privateKey</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>appAPIVersion</em></dt>
+			<dd><p>The API version of your StackMob application which this client instance should use.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>publicKey</em></dt>
+			<dd><p>Your StackMob application&rsquo;s OAuth publicKey.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>privateKey</em></dt>
+			<dd><p>Your StackMob application&rsquo;s OAuth privateKey.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPushClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/initWithAPIVersion:publicKey:privateKey:pushHost:" title="initWithAPIVersion:publicKey:privateKey:pushHost:"></a>
+	<h3 class="subsubtitle method-title">initWithAPIVersion:publicKey:privateKey:pushHost:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Initialize specifying all parameters.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (id)initWithAPIVersion:(NSString *)<em>appAPIVersion</em> publicKey:(NSString *)<em>publicKey</em> privateKey:(NSString *)<em>privateKey</em> pushHost:(NSString *)<em>host</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>appAPIVersion</em></dt>
+			<dd><p>The API version of your StackMob application which this client instance should use.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>publicKey</em></dt>
+			<dd><p>Your StackMob application&rsquo;s OAuth publicKey.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>privateKey</em></dt>
+			<dd><p>Your StackMob application&rsquo;s OAuth privateKey.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>host</em></dt>
+			<dd><p>The url of StackMob&rsquo;s push server</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPushClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/registerDeviceToken:withUser:onSuccess:onFailure:" title="registerDeviceToken:withUser:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">registerDeviceToken:withUser:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Register a device token for push notifications.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)registerDeviceToken:(id)<em>token</em> withUser:(NSString *)<em>username</em> onSuccess:(SMSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>token</em></dt>
+			<dd><p>The device token for this device.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>username</em></dt>
+			<dd><p>A name to be associated with the device token.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p>The block to call on success.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p>The block to call on failure.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Device tokens must be registered before they can be pushed to. Each token is associated with a username on the server, and this can be used to simplify pushing to users on multiple devices and platforms via sendMessage:toUsers:onSuccess:onFailure:. The username can correspond to a regular StackMob username, but it doesn&rsquo;t have to. You can also ignore usernames altogether by specifying an arbitrary value and working entirely with tokens. This call will overwrite existing tokens.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPushClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/registerDeviceToken:withUser:overwrite:onSuccess:onFailure:" title="registerDeviceToken:withUser:overwrite:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">registerDeviceToken:withUser:overwrite:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Register a device token for push notifications.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)registerDeviceToken:(id)<em>token</em> withUser:(NSString *)<em>username</em> overwrite:(BOOL)<em>overwrite</em> onSuccess:(SMSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>token</em></dt>
+			<dd><p>The device token for this device.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>username</em></dt>
+			<dd><p>A name to be associated with the device token.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>overwrite</em></dt>
+			<dd><p>When set registering an existing token will succeed.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p>The block to call on success.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p>The block to call on failure.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Device tokens must be registered before they can be pushed to. Each token is associated with a username on the server, and this can be used to simplify pushing to users on multiple devices and platforms via sendMessage:toUsers:onSuccess:onFailure:. The username can correspond to a regular StackMob username, but it doesn&rsquo;t have to. You can also ignore usernames altogether by specifying an arbitrary value and working entirely with tokens. This call will fail if the token is already registered unless the overwrite flag is set.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPushClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/sendMessage:toTokens:onSuccess:onFailure:" title="sendMessage:toTokens:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">sendMessage:toTokens:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Send a message to specific tokens.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)sendMessage:(NSDictionary *)<em>message</em> toTokens:(NSArray *)<em>tokens</em> onSuccess:(SMSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>message</em></dt>
+			<dd><p>The message to send. See <a href="http://developer.apple.com/library/mac/#documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/ApplePushService/ApplePushService.html">Apple&rsquo;s docs</a> for details on format.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>tokens</em></dt>
+			<dd><p>An array containing either device token strings or SMPushToken objects to push to.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p>The block to call on success.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p>The block to call on failure.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The tokens must have been registered with StackMob by registerDeviceToken:withUser:onSuccess:onFailure:</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPushClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/sendMessage:toUsers:onSuccess:onFailure:" title="sendMessage:toUsers:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">sendMessage:toUsers:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Send a message to a particular set of users</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)sendMessage:(NSDictionary *)<em>message</em> toUsers:(NSArray *)<em>users</em> onSuccess:(SMSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>message</em></dt>
+			<dd><p>The message to send. See <a href="http://developer.apple.com/library/mac/#documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/ApplePushService/ApplePushService.html">Apple&rsquo;s docs</a> for details on format.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>users</em></dt>
+			<dd><p>An array of username strings to push to.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p>The block to call on success.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p>The block to call on failure.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The users must have been previously registered by registerDeviceToken:withUser:onSuccess:onFailure:</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPushClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+				</div>
+				<div class="main-navigation navigation-bottom">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="footer">
+					<hr />
+					<div class="footer-copyright">
+						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-11-15)</span><br />
+						
+						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
+						
+					</div>
+				</div>
+			</div>
+		</article>
+		<script type="text/javascript">
+			function jumpToChange()
+			{
+				window.location.hash = this.options[this.selectedIndex].value;
+			}
+			
+			function toggleTOC()
+			{
+				var contents = document.getElementById('contents');
+				var tocContainer = document.getElementById('tocContainer');
+				
+				if (this.getAttribute('class') == 'open')
+				{
+					this.setAttribute('class', '');
+					contents.setAttribute('class', '');
+					tocContainer.setAttribute('class', '');
+					
+					window.name = "hideTOC";
+				}
+				else
+				{
+					this.setAttribute('class', 'open');
+					contents.setAttribute('class', 'isShowingTOC');
+					tocContainer.setAttribute('class', 'isShowingTOC');
+					
+					window.name = "";
+				}
+				return false;
+			}
+			
+			function toggleTOCEntryChildren(e)
+			{
+				e.stopPropagation();
+				var currentClass = this.getAttribute('class');
+				if (currentClass == 'children') {
+					this.setAttribute('class', 'children open');
+				}
+				else if (currentClass == 'children open') {
+					this.setAttribute('class', 'children');
+				}
+				return false;
+			}
+			
+			function tocEntryClick(e)
+			{
+				e.stopPropagation();
+				return true;
+			}
+			
+			function init()
+			{
+				var selectElement = document.getElementById('jumpTo');
+				selectElement.addEventListener('change', jumpToChange, false);
+				
+				var tocButton = document.getElementById('table_of_contents');
+				tocButton.addEventListener('click', toggleTOC, false);
+				
+				var taskTreeItem = document.getElementById('task_treeitem');
+				if (taskTreeItem.getElementsByTagName('li').length > 0)
+				{
+					taskTreeItem.setAttribute('class', 'children');
+					taskTreeItem.firstChild.setAttribute('class', 'disclosure');
+				}
+				
+				var tocList = document.getElementById('toc');
+				
+				var tocEntries = tocList.getElementsByTagName('li');
+				for (var i = 0; i < tocEntries.length; i++) {
+					tocEntries[i].addEventListener('click', toggleTOCEntryChildren, false);
+				}
+				
+				var tocLinks = tocList.getElementsByTagName('a');
+				for (var i = 0; i < tocLinks.length; i++) {
+					tocLinks[i].addEventListener('click', tocEntryClick, false);
+				}
+				
+				if (window.name == "hideTOC") {
+					toggleTOC.call(tocButton);
+				}
+			}
+			
+			window.onload = init;
+			
+			// If showing in Xcode, hide the TOC and Header
+			if (navigator.userAgent.match(/xcode/i)) {
+				document.getElementById("contents").className = "hideInXcode"
+				document.getElementById("tocContainer").className = "hideInXcode"
+				document.getElementById("top_header").className = "hideInXcode"
+			}
+			
+		</script>
+	</body>
+</html>
