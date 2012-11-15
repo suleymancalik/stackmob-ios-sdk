@@ -31,8 +31,6 @@ The biggest difference between the new and the current SDKs is our use of Core D
 
 That being said, we understand that Core Data is not suitable for every application, which is why we still expose the complete REST based API for making create, read, update and delete calls and performing queries on your database.
 
-We've also separated our Push Notification API into a separate SDK. For more information, see the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/Classes/SMPushClient.html).
-
 <br/>
 ### Why base the new SDK on Core Data? 
 Our number one goal is to create a better experience. Core Data allows us to place a familiar wrapper around StackMob REST calls and Datastore API. iOS developers can leverage their existing knowledge of Core Data to quickly integrate StackMob into their applications.  For those interested in sticking to the REST-based way of making requests, we provide the full Datastore API as well.
