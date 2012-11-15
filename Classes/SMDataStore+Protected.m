@@ -133,7 +133,7 @@
             failureBlock(error, theObjectId, schema);
         }
     } else {
-        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:theObjectId];
+        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"GET" path:path parameters:parameters];
         [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
             [request setValue:headerValue forHTTPHeaderField:headerField]; 
@@ -204,6 +204,14 @@
         [[self.session oauthClientWithHTTPS:FALSE] enqueueHTTPRequestOperation:op];
     }
     
+}
+
+- (NSString *)URLEncodedStringFromValue:(NSString *)value
+{
+    static NSString * const kAFCharactersToBeEscaped = @":/.?&=;+!@#$()~[]";
+    //static NSString * const kAFCharactersToLeaveUnescaped = @"[]";
+    
+	return (__bridge_transfer  NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (__bridge CFStringRef)value, nil, (__bridge CFStringRef)kAFCharactersToBeEscaped, CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
 }
 
 

@@ -246,4 +246,58 @@ describe(@"CRUD", ^{
     });
 });
 
+describe(@"read value containing special chartacters", ^{
+    __block SMClient *client = nil;
+    __block NSString *objectId = @"matt+ma[t]t@matt.com";
+    __block NSString *primaryKey = @"blog_id";
+    __block NSString *schemaName = @"blog";
+    __block NSString *fieldKey = @"blogname";
+    __block NSString *fieldValue = @"coolblog";
+    beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            NSDictionary *createDict = [NSDictionary dictionaryWithObjectsAndKeys:objectId, primaryKey, fieldValue, fieldKey, nil];
+            [[client dataStore] createObject:createDict inSchema:schemaName onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                [[[theObject objectForKey:fieldKey] should] equal:fieldValue];
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                [theError shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+    });
+    afterEach(^{
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [[client dataStore] deleteObjectId:objectId inSchema:schemaName onSuccess:^(NSString *theObjectId, NSString *schema) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                [theError shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+    });
+    it(@"reads and updates the value with special characters", ^{
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [[client dataStore] readObjectWithId:objectId inSchema:schemaName onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                [[[theObject objectForKey:fieldKey] should] equal:fieldValue];
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                [theError shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            NSDictionary *updateDict = [NSDictionary dictionaryWithObjectsAndKeys:@"c[ool]$blog", fieldKey, nil];
+            [[client dataStore] updateObjectWithId:objectId inSchema:schemaName update:updateDict onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                [[[theObject objectForKey:fieldKey] should] equal:@"c[ool]$blog"];
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                [theError shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+    });
+    
+});
+
 SPEC_END

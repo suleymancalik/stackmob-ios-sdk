@@ -7,6 +7,7 @@
 * Integrate Push Notifications into core SDK.  Separate Push SDK still exists for those using StackMob only for push notifications.
 * Expose [SMNetworkReachability](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMNetworkReachability.html) interface for developers to manually monitor network status changes.
 * Requests will return SMError with code -105 (SMNetworkNotReachable) when device has no network connection.
+* Now dependent on SystemConfiguration and MobileCoreServices frameworks, so make sure to add them to your project.
 
 **Fixes**
 

@@ -63,5 +63,7 @@
 
 - (void)queueRequest:(NSURLRequest *)request options:(SMRequestOptions *)options onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure;
 
+- (NSString *)URLEncodedStringFromValue:(NSString *)value;
+
 
 @end
