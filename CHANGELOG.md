@@ -1,6 +1,6 @@
 <h2>StackMob iOS SDK Change Log</h2>
 
-<h3>v1.1.3 - Nov 15, 2012</h3>
+<h3>v1.1.3 - Nov 16, 2012</h3>
 
 **Features**
 

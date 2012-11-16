@@ -184,11 +184,11 @@
 		DEBBBCBE15CC441900650D75 /* NSArray+Enumerable.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBA15CC441900650D75 /* NSArray+Enumerable.m */; };
 		DEBBBCBF15CC441900650D75 /* Synchronization.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCBB15CC441900650D75 /* Synchronization.h */; };
 		DEBBBCC015CC441900650D75 /* Synchronization.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBC15CC441900650D75 /* Synchronization.m */; };
-		DED7D2701655721600FBAF06 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
-		DED7D2711655721900FBAF06 /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
-		DED7D2721655721D00FBAF06 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
 		DED7D2A81655749900FBAF06 /* SMNetworkReachability.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE079B9A16499B0900C8AAA0 /* SMNetworkReachability.h */; };
 		DED7D2A91655749900FBAF06 /* SystemInformation.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DEA9ED94164B2BAB006B7326 /* SystemInformation.h */; };
+		DED7D3D61655CDD000FBAF06 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
+		DED7D3D71655CDD500FBAF06 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
+		DED7D3D81655CE1000FBAF06 /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
 		DEDD40451629224E00F5C8E0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE64D61B1623BAE800237570 /* Security.framework */; };
 		DEDD40471629225500F5C8E0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE64D61B1623BAE800237570 /* Security.framework */; };
 		DEDDE19B15DD8D3A0055FAFF /* NSArray+Enumerable.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = DEBBBCB915CC441900650D75 /* NSArray+Enumerable.h */; };
@@ -1185,9 +1185,9 @@
 				DEB8F7D116523FE700813B3E /* SMNetworkReachabilitySpec.m in Sources */,
 				DEB8F7D21652411100813B3E /* SMPushClientIntegrationSpec.m in Sources */,
 				DEF82E051654983900664A1A /* CRUDTests.m in Sources */,
-				DED7D2701655721600FBAF06 /* SMClientIntegrationSpec.m in Sources */,
-				DED7D2711655721900FBAF06 /* QueryTests.m in Sources */,
-				DED7D2721655721D00FBAF06 /* SMCusCodeReqIntegrationSpec.m in Sources */,
+				DED7D3D61655CDD000FBAF06 /* SMClientIntegrationSpec.m in Sources */,
+				DED7D3D71655CDD500FBAF06 /* SMCusCodeReqIntegrationSpec.m in Sources */,
+				DED7D3D81655CE1000FBAF06 /* QueryTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
