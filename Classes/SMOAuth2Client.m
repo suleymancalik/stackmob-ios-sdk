@@ -73,10 +73,6 @@
     [request setValue:acceptHeader forHTTPHeaderField:@"Accept"];
     [request setValue:self.publicKey forHTTPHeaderField:@"X-StackMob-API-Key"];
     [request setValue:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, smDeviceModel(), smSystemVersion(), [[NSLocale currentLocale] localeIdentifier]] forHTTPHeaderField:@"User-Agent"];
-
-    [options.headers enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        [request setValue:(NSString *)obj forHTTPHeaderField:(NSString *)key];
-    }];
 	
     if ([aRequest.queryStringParameters count] > 0) {
         url = [NSURL URLWithString:[[url absoluteString] stringByAppendingFormat:[aRequest.method rangeOfString:@"?"].location == NSNotFound ? @"?%@" : @"&%@", [aRequest.queryStringParameters componentsJoinedByString:@"&"]]];

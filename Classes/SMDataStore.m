@@ -71,9 +71,6 @@
         }
         
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"POST" path:theSchema parameters:theObject];
-        [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
-            [request setValue:headerValue forHTTPHeaderField:headerField]; 
-        }];
         SMFullResponseSuccessBlock urlSuccessBlock = [self SMFullResponseSuccessBlockForSchema:schema withSuccessBlock:successBlock];
         SMFullResponseFailureBlock urlFailureBlock = [self SMFullResponseFailureBlockForObject:theObject ofSchema:schema withFailureBlock:failureBlock];
         [self queueRequest:request options:options onSuccess:urlSuccessBlock onFailure:urlFailureBlock];
@@ -108,11 +105,7 @@
     } else {
         NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
         
-        NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"PUT" path:path parameters:updatedFields]; 
-        [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
-            [request setValue:headerValue forHTTPHeaderField:headerField]; 
-        }];
-        
+        NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"PUT" path:path parameters:updatedFields];
 
         SMFullResponseSuccessBlock urlSuccessBlock = [self SMFullResponseSuccessBlockForSchema:schema withSuccessBlock:successBlock];
         SMFullResponseFailureBlock urlFailureBlock = [self SMFullResponseFailureBlockForObject:updatedFields ofSchema:schema withFailureBlock:failureBlock];
@@ -158,10 +151,6 @@
         NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
 
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"DELETE" path:path parameters:nil];
-        [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
-            [request setValue:headerValue forHTTPHeaderField:headerField]; 
-        }];
-        
         SMFullResponseSuccessBlock urlSuccessBlock = [self SMFullResponseSuccessBlockForObjectId:theObjectId ofSchema:schema withSuccessBlock:successBlock];
         SMFullResponseFailureBlock urlFailureBlock = [self SMFullResponseFailureBlockForObjectId:theObjectId ofSchema:schema withFailureBlock:failureBlock];
         [self queueRequest:request options:options onSuccess:urlSuccessBlock onFailure:urlFailureBlock];
