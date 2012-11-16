@@ -399,5 +399,110 @@ describe(@"read value containing special chartacters in schema with permissions"
     
 });
 
+describe(@"setExpandDepth", ^{
+    __block SMClient *client = nil;
+    beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+    });
+    it(@"Works with 1-1 read", ^{
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            SMRequestOptions *options = [SMRequestOptions optionsWithExpandDepth:1];
+            [[client dataStore] readObjectWithId:@"1234" inSchema:@"expanddepthtest" options:options onSuccess:^(NSDictionary *theObject, NSString *schema)
+             {
+                 [[theValue([[[theObject objectForKey:@"child"] class] isSubclassOfClass:[NSDictionary class]]) should] beYes];
+                 [[[[theObject objectForKey:@"child"] objectForKey:@"name"] should] equal:@"bob"];
+                 syncReturn(semaphore);
+             } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                 [theError shouldBeNil];
+                 syncReturn(semaphore);
+             }];
+        });
+    });
+    
+     it(@"Works with 1-many read", ^{
+         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+             SMRequestOptions *options = [SMRequestOptions optionsWithExpandDepth:1];
+             [[client dataStore] readObjectWithId:@"5678" inSchema:@"expanddepthtest" options:options onSuccess:^(NSDictionary *theObject, NSString *schema)
+             {
+                NSLog(@"the object is %@", theObject);
+                 [[theValue([[theObject objectForKey:@"children"] count]) should] equal:theValue(3)];
+                 [[theValue([[[theObject objectForKey:@"children"] class] isSubclassOfClass:[NSArray class]]) should] beYes];
+                 [[theValue([[[[theObject objectForKey:@"children"] objectAtIndex:0] class] isSubclassOfClass:[NSDictionary class]]) should] beYes];
+                 syncReturn(semaphore);
+             } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                 [theError shouldBeNil];
+                 syncReturn(semaphore);
+             }];
+         });
+     });
+     
+    
+     it(@"Works with 1-1 and 1-many general queries", ^{
+         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+             SMQuery *query = [[SMQuery alloc] initWithSchema:@"expanddepthtest"];
+             SMRequestOptions *options = [SMRequestOptions optionsWithExpandDepth:1];
+             [[client dataStore] performQuery:query options:options onSuccess:^(NSArray *results)
+             {
+                 for(NSDictionary *dictionary in results) {
+                     if([dictionary objectForKey:@"child"]){
+                         [[theValue([[[dictionary objectForKey:@"child"] class] isSubclassOfClass:[NSDictionary class]]) should] beYes];
+                         [[[[dictionary objectForKey:@"child"] objectForKey:@"name"] should] equal:@"bob"];
+                         
+                     }
+                     else if ([dictionary objectForKey:@"children"]){
+                         [[theValue([[dictionary objectForKey:@"children"] count]) should] equal:theValue(3)];
+                         [[theValue([[[dictionary objectForKey:@"children"] class] isSubclassOfClass:[NSArray class]]) should] beYes];
+                         [[theValue([[[[dictionary objectForKey:@"children"] objectAtIndex:0] class] isSubclassOfClass:[NSDictionary class]]) should] beYes];
+                     }
+                 }
+                  syncReturn(semaphore);
+             } onFailure:^(NSError *error) {
+                 
+                  [error shouldBeNil];
+                  syncReturn(semaphore);
+             }];
+         });
+     });
+     it(@"Works with 1-1 query", ^{
+         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+             SMQuery *query = [[SMQuery alloc] initWithSchema:@"expanddepthtest"];
+             [query where:@"expanddepthtest_id" isEqualTo:@"1234"];
+             SMRequestOptions *options = [SMRequestOptions optionsWithExpandDepth:1];
+             [[client dataStore] performQuery:query options:options onSuccess:^(NSArray *results)
+              {
+                  NSDictionary *dictionary = [results objectAtIndex:0];
+                  [[theValue([[[dictionary objectForKey:@"child"] class] isSubclassOfClass:[NSDictionary class]]) should] beYes];
+                  [[[[dictionary objectForKey:@"child"] objectForKey:@"name"] should] equal:@"bob"];
+                  syncReturn(semaphore);
+              } onFailure:^(NSError *error) {
+                  
+                  [error shouldBeNil];
+                  syncReturn(semaphore);
+              }];
+         });
+     });
+    it(@"Works with 1-many query", ^{
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            SMQuery *query = [[SMQuery alloc] initWithSchema:@"expanddepthtest"];
+            [query where:@"expanddepthtest_id" isEqualTo:@"5678"];
+            SMRequestOptions *options = [SMRequestOptions optionsWithExpandDepth:1];
+            [[client dataStore] performQuery:query options:options onSuccess:^(NSArray *results)
+             {
+                 NSDictionary *dictionary = [results objectAtIndex:0];
+                 [[theValue([[dictionary objectForKey:@"children"] count]) should] equal:theValue(3)];
+                 [[theValue([[[dictionary objectForKey:@"children"] class] isSubclassOfClass:[NSArray class]]) should] beYes];
+                 [[theValue([[[[dictionary objectForKey:@"children"] objectAtIndex:0] class] isSubclassOfClass:[NSDictionary class]]) should] beYes];
+                 syncReturn(semaphore);
+             } onFailure:^(NSError *error) {
+                 
+                 [error shouldBeNil];
+                 syncReturn(semaphore);
+             }];
+        });
+    });
+    
+    
+});
+
 
 SPEC_END
