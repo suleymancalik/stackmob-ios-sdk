@@ -1,6 +1,6 @@
 <h2>StackMob iOS SDK Change Log</h2>
 
-<h3>v1.1.3 - Nov 16, 2012</h3>
+<h3>v1.1.3 - Nov 20, 2012</h3>
 
 **Features**
 
@@ -14,6 +14,7 @@
 * Support nil success and failure blocks.
 * Update to Core Data fetch algorithm to populate internal storage with retrieved attribute values.
 * URL encode primary key values on read/update/delete to support special characters.
+* Add expand depth support for queries.
 
 <h3>v1.1.2 - Oct 29, 2012</h3>
 

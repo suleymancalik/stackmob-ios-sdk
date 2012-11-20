@@ -77,13 +77,23 @@
     };
 }
 
+- (SMFullResponseSuccessBlock)SMFullResponseSuccessBlockForQuerySuccessBlock:(SMResultsSuccessBlock)successBlock
+{
+    return ^void(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
+    {
+        if (successBlock) {
+            successBlock((NSArray *)JSON);
+        }
+    };
+}
+
 
 - (SMFullResponseFailureBlock)SMFullResponseFailureBlockForObject:(NSDictionary *)theObject ofSchema:(NSString *)schema withFailureBlock:(SMDataStoreFailureBlock)failureBlock
 {
     return ^void(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
     {
         if (failureBlock) {
-            response == nil? failureBlock(error, theObject, schema) : failureBlock([self errorFromResponse:response JSON:JSON], theObject, schema);
+            response == nil ? failureBlock(error, theObject, schema) : failureBlock([self errorFromResponse:response JSON:JSON], theObject, schema);
         }
     };
 }

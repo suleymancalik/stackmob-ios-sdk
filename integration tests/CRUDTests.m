@@ -504,5 +504,4 @@ describe(@"setExpandDepth", ^{
     
 });
 
-
 SPEC_END

@@ -179,16 +179,9 @@
 {
     NSMutableURLRequest *request = [self requestFromQuery:query options:options];
     
-    SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *successRequest, NSHTTPURLResponse *response, id JSON) {
-        if (successBlock) {
-            successBlock((NSArray *)JSON);
-        }
-    };
-    SMFullResponseFailureBlock urlFailureBlock = ^(NSURLRequest *failedRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
-        if (failureBlock) {
-            failureBlock(error);
-        }
-    };
+    SMFullResponseSuccessBlock urlSuccessBlock = [self SMFullResponseSuccessBlockForQuerySuccessBlock:successBlock];
+    SMFullResponseFailureBlock urlFailureBlock = [self SMFullResponseFailureBlockForFailureBlock:failureBlock];
+    
     [self queueRequest:request options:options onSuccess:urlSuccessBlock onFailure:urlFailureBlock];
 }
 
