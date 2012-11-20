@@ -1,5 +1,21 @@
 <h2>StackMob iOS SDK Change Log</h2>
 
+<h3>v1.1.3 - Nov 20, 2012</h3>
+
+**Features**
+
+* Integrate Push Notifications into core SDK.  Separate Push SDK still exists for those using StackMob only for push notifications.
+* Expose [SMNetworkReachability](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMNetworkReachability.html) interface for developers to manually monitor network status changes.
+* Requests will return SMError with code -105 (SMNetworkNotReachable) when device has no network connection.
+* Now dependent on SystemConfiguration and MobileCoreServices frameworks, make sure to add them to the "Link Binary With Libraries" section of your target's Build Phases as well as import them somewhere in your project (such as your .pch file).
+
+**Fixes**
+
+* Support nil success and failure blocks.
+* Update to Core Data fetch algorithm to populate internal storage with retrieved attribute values.
+* URL encode primary key values on read/update/delete to support special characters.
+* Add expand depth support for queries.
+
 <h3>v1.1.2 - Oct 29, 2012</h3>
 
 **Features**

@@ -32,7 +32,7 @@
  
  ### Download and Import the SDK ###
  
- Push Notification support comes built into the iOS SDK, which you can download from the [SDK Downloads Page](https://developer.stackmob.com/sdk) if you haven't already. 
+ Push Notification support comes built into the iOS SDK, which can be downloaded from the [SDK Downloads Page](https://developer.stackmob.com/sdk). 
  
  #### If you will only be using StackMob for Push Notifications: ####
  
@@ -40,9 +40,9 @@
  
  You can download and include a static library of the push SDK or use CocoaPods to install it.
  
- [Download the Static Library zip](https://github.com/downloads/stackmob/stackmob-ios-push-sdk/stackmob-ios-push-sdk-v1.0.1.zip), then unzip and copy the entire folder into your XCode project.
+ [Download the Static Library zip](https://github.com/downloads/stackmob/stackmob-ios-push-sdk/stackmob-ios-push-sdk-v1.0.2.zip), then unzip and copy the entire folder into your XCode project.
  
- To include the StackMob Push SDK into your application using Cocoapods, add **pod 'StackMobPush', '1.0.1'** to your Podfile and re-install your Pods.
+ To include the StackMob Push SDK into your application using Cocoapods, add **pod 'StackMobPush', '1.0.2'** to your Podfile and re-install your Pods.
  
  ### Upload your certs to StackMob ###
  
