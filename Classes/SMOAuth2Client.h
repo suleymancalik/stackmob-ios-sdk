@@ -71,8 +71,9 @@
  Sets the Authorization header of the request using the client's credentials and a MAC header algorithm.
  
  @param request An instance of `NSMutableURLRequest` to be signed with this client's credentials.
+ @param path The encoded path to use for signing.
  */
-- (void)signRequest:(NSMutableURLRequest *)request;
+- (void)signRequest:(NSMutableURLRequest *)request path:(NSString *)path;
 
 /**
  Returns whether the client has non-nil values for both the accessToken and macKey.

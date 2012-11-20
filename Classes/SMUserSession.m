@@ -176,7 +176,7 @@
 {
     NSMutableURLRequest *newRequest = [request mutableCopy];
     //Both have the same credentials so it doesn't matter which we use here
-    [self.regularOAuthClient signRequest:newRequest];
+    [self.regularOAuthClient signRequest:newRequest path:[[request URL] path]];
     return newRequest;
 }
 
