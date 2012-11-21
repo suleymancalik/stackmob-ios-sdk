@@ -1,6 +1,6 @@
 # Welcome to the docs for the StackMob iOS SDK!
 
-### Current Version: 1.1.2
+### Current Version: 1.1.3
 
 ### Jump To:
 <a href="#overview">Overview</a>
@@ -30,8 +30,6 @@ The goal of the iOS SDK is to provide the best experience possible for developin
 The biggest difference between the new and the current SDKs is our use of Core Data as a foundation for the new SDK. We believe Core Data is a powerful approach for integrating StackMob’s REST based API into an iOS application.
 
 That being said, we understand that Core Data is not suitable for every application, which is why we still expose the complete REST based API for making create, read, update and delete calls and performing queries on your database.
-
-We've also separated our Push Notification API into a separate SDK. For more information, see the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/Classes/SMPushClient.html).
 
 <br/>
 ### Why base the new SDK on Core Data? 
@@ -139,9 +137,18 @@ For more information see **The User Schema** and **User Authentication** section
 
 ### Push Notifications
 
-Push Notification support has been moved into a separate SDK.  Check out the [iOS Push SDK Reference](http://stackmob.github.com/stackmob-ios-push-sdk/Classes/SMPushClient.html) to get started with push.
+Push Notification support comes built into the iOS SDK, which can be downloaded from the [SDK Downloads Page](https://developer.stackmob.com/sdk). 
+ 
+If you will only be using StackMob for Push Notifications, you can [download the standalone version](https://github.com/downloads/stackmob/stackmob-ios-push-sdk/stackmob-ios-push-sdk-v1.0.2.zip) which **only** includes push support.
+
+All the details on how to set up your application for push can be found in the [iOS Push Notifications Tutorial](https://developer.stackmob.com/tutorials/ios/Push-Notifications).
 
 <br/>
+
+### Checking Network Reachability
+
+While the SDK has built in support for returning errors when there is no network connection, SMNetworkReachability provides an interface for developers to manually check if the device is connected to the network and can in turn reach StackMob.  All the details, including how to subscribe to notifications and set blocks to be executed when the network status changes, can be found in the [SMNetworkReachability class reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMNetworkReachability.html).
+
 ### Debugging
 
 The iOS SDK gives developers access to two global variables that will enable additional logging statements when using the Core Data integration:

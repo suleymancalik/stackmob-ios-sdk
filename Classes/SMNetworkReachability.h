@@ -29,7 +29,7 @@ typedef enum {
 /**
  `SMNetworkReachability` provides an interface to monitor the network reachability from the device to StackMob.
  
- The SDK uses this interface internally to check for network reachability when sending requests.  When the network is not reachable and a request is made, an error with status code -105 (SMNetworkNotReachable) will be returned.
+ Network reachability checks are already built into the SDK.  When the network is not reachable and a request is made, an error with domain SMError and status code -105 (SMNetworkNotReachable) will be returned.
  
  An instance of `SMNetworkReachability` is created during the initialization of an `SMUserSession`, accessible by the `networkMonitor` property.
  

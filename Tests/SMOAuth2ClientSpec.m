@@ -133,7 +133,7 @@ describe(@"-customCodeRequest:options", ^{
             aRequest = [dataStore.session.regularOAuthClient customCodeRequest:request options:[SMRequestOptions optionsWithHeaders:[NSDictionary dictionaryWithObject:@"blah" forKey:@"newHeader"]]];
             [aRequest shouldNotBeNil];
             
-            [[theValue([[aRequest allHTTPHeaderFields] count]) should] equal:theValue(4)];
+            [[theValue([[aRequest allHTTPHeaderFields] count]) should] equal:theValue(3)];
             
             NSData *theData = [aRequest HTTPBody];
             NSString *decodedString = [[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding];
@@ -153,7 +153,7 @@ describe(@"-customCodeRequest:options", ^{
             aRequest = [dataStore.session.regularOAuthClient customCodeRequest:request options:[SMRequestOptions optionsWithHeaders:[NSDictionary dictionaryWithObject:@"blah" forKey:@"newHeader"]]];
             [aRequest shouldNotBeNil];
             
-            [[theValue([[aRequest allHTTPHeaderFields] count]) should] equal:theValue(4)];
+            [[theValue([[aRequest allHTTPHeaderFields] count]) should] equal:theValue(3)];
             
             NSData *theData = [aRequest HTTPBody];
             NSString *decodedString = [[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding];

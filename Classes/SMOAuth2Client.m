@@ -58,7 +58,7 @@
     if ([method isEqualToString:@"POST"] || [method isEqualToString:@"PUT"]) {
         [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     }
-    [self signRequest:request];
+    [self signRequest:request path:[NSString stringWithFormat:@"/%@", path]];
     return request;
 }
 
@@ -73,10 +73,6 @@
     [request setValue:acceptHeader forHTTPHeaderField:@"Accept"];
     [request setValue:self.publicKey forHTTPHeaderField:@"X-StackMob-API-Key"];
     [request setValue:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, smDeviceModel(), smSystemVersion(), [[NSLocale currentLocale] localeIdentifier]] forHTTPHeaderField:@"User-Agent"];
-
-    [options.headers enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        [request setValue:(NSString *)obj forHTTPHeaderField:(NSString *)key];
-    }];
 	
     if ([aRequest.queryStringParameters count] > 0) {
         url = [NSURL URLWithString:[[url absoluteString] stringByAppendingFormat:[aRequest.method rangeOfString:@"?"].location == NSNotFound ? @"?%@" : @"&%@", [aRequest.queryStringParameters componentsJoinedByString:@"&"]]];
@@ -87,15 +83,15 @@
         [request setHTTPBody:[aRequest.requestBody dataUsingEncoding:NSUTF8StringEncoding]];
     }
     
-    [self signRequest:request];
+    [self signRequest:request path:[[request URL] path]];
     return request;
 }
 
-- (void)signRequest:(NSMutableURLRequest *)request
+- (void)signRequest:(NSMutableURLRequest *)request path:(NSString *)path
 {
     if ([self hasValidCredentials]) {
         NSString *queryString = [[[request URL] query] length] == 0 ? @"" : [NSString stringWithFormat:@"?%@", [[request URL] query]];
-        NSString *pathAndQuery = [NSString stringWithFormat:@"%@%@", [[request URL] path], queryString];
+        NSString *pathAndQuery = [NSString stringWithFormat:@"%@%@", path, queryString];
         NSString *macHeader = [self createMACHeaderForHttpMethod:[request HTTPMethod] path:pathAndQuery];
         [request setValue:macHeader forHTTPHeaderField:@"Authorization"];
     }
