@@ -41,6 +41,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 }
 
 @property (nonatomic, strong) SMDataStore *smDataStore;
+@property (nonatomic, strong) NSManagedObjectContext *localManagedObjectContext;
+@property (nonatomic, strong) NSPersistentStoreCoordinator *localPersistentStoreCoordinator;
+@property (nonatomic, strong) NSManagedObjectModel *localManagedObjectModel;
 
 - (id)handleSaveRequest:(NSPersistentStoreRequest *)request 
             withContext:(NSManagedObjectContext *)context 
@@ -52,17 +55,25 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (NSDictionary *)sm_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context;
 
+- (void)configureCache;
+- (NSURL *)getStoreURL;
+- (void)createStoreURLPathIfNeeded:(NSURL *)storeURL;
+
 @end
 
 @implementation SMIncrementalStore
 
 @synthesize smDataStore = _smDataStore;
+@synthesize localManagedObjectModel = _localManagedObjectModel;
+@synthesize localManagedObjectContext = _localManagedObjectContext;
+@synthesize localPersistentStoreCoordinator = _localPersistentStoreCoordinator;
 
 - (id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root configurationName:(NSString *)name URL:(NSURL *)url options:(NSDictionary *)options {
     
     self = [super initWithPersistentStoreCoordinator:root configurationName:name URL:url options:options];
     if (self) {
         _smDataStore = [options objectForKey:SM_DataStoreKey];
+        [self configureCache];
     }
     return self;
 }
@@ -345,41 +356,55 @@ You should implement this method conservatively, and expect that unknown request
 - (id)fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     
-    SMQuery *query = [SMIncrementalStore queryForFetchRequest:fetchRequest error:error];
-
-    if (query == nil) {
-        return nil;
+    // if we are online, perform query on stackmob, save results in LC, return
+    if ([self.smDataStore.session.networkMonitor currentNetworkStatus] == Reachable) {
+        
+        SMQuery *query = [SMIncrementalStore queryForFetchRequest:fetchRequest error:error];
+        
+        if (query == nil) {
+            return nil;
+        }
+        
+        __block id resultsWithoutOID;
+        synchronousQuery(self.smDataStore, query, ^(NSArray *results) {
+            resultsWithoutOID = results;
+        }, ^(NSError *theError) {
+            *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
+        });
+        
+        NSArray *results = [resultsWithoutOID map:^(id item) {
+            NSString *primaryKeyField = nil;
+            @try {
+                primaryKeyField = [fetchRequest.entity sm_fieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
+            }
+            @catch (NSException *exception) {
+                primaryKeyField = [self.smDataStore.session userPrimaryKeyField];
+            }
+            id remoteID = [item objectForKey:primaryKeyField];
+            if (!remoteID) {
+                [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
+            }
+            NSManagedObjectID *oid = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
+            NSManagedObject *object = [context objectWithID:oid];
+            
+            
+            // Populate the attributes of the object with the fetch data
+            [self populateManagedObject:object withItem:item fetchRequest:fetchRequest context:context];
+            
+            // add object to LC
+            
+            return object;
+            
+        }];
+        
+        // Save LC if has changes
+        
+        return results;
+    } else {
+        // if we are offline, perform fetch request on LC, return
+        return [NSArray array];
+        
     }
-    
-    __block id resultsWithoutOID;
-    synchronousQuery(self.smDataStore, query, ^(NSArray *results) {
-        resultsWithoutOID = results;
-    }, ^(NSError *theError) {
-        *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
-    });
-
-    return [resultsWithoutOID map:^(id item) {
-        NSString *primaryKeyField = nil;
-        @try {
-            primaryKeyField = [fetchRequest.entity sm_fieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
-        }
-        @catch (NSException *exception) {
-            primaryKeyField = [self.smDataStore.session userPrimaryKeyField];
-        }
-        id remoteID = [item objectForKey:primaryKeyField];
-        if (!remoteID) {
-            [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
-        }
-        NSManagedObjectID *oid = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
-        NSManagedObject *object = [context objectWithID:oid];
-        
-        
-        // Populate the attributes of the object with the fetch data
-        [self populateManagedObject:object withItem:item fetchRequest:fetchRequest context:context];
-        
-        return object;
-        
-    }];
 }
 
 // Returns NSArray<NSManagedObjectID>
@@ -561,6 +586,109 @@ You should implement this method conservatively, and expect that unknown request
 - (NSString *)remoteKeyForEntityName:(NSString *)entityName {
     return [[entityName lowercaseString] stringByAppendingString:@"_id"];
 }
+
+#pragma mark - Local Cache
+
+- (void)configureCache
+{
+    _localManagedObjectModel = self.localManagedObjectModel;
+    _localManagedObjectContext = self.localManagedObjectContext;
+    _localPersistentStoreCoordinator = self.localPersistentStoreCoordinator;
+    
+}
+
+- (NSManagedObjectModel *)localManagedObjectModel
+{
+    if (_localManagedObjectModel == nil) {
+        _localManagedObjectModel = self.persistentStoreCoordinator.managedObjectModel;
+    }
+    
+    return _localManagedObjectModel;
+}
+
+- (NSManagedObjectContext *)localManagedObjectContext
+{
+    if (_localManagedObjectContext == nil) {
+        _localManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        [_localManagedObjectContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
+        [_localManagedObjectContext setPersistentStoreCoordinator:self.localPersistentStoreCoordinator];
+    }
+    
+    return _localManagedObjectContext;
+    
+}
+
+- (NSPersistentStoreCoordinator *)localPersistentStoreCoordinator
+{
+    if (_localPersistentStoreCoordinator == nil) {
+        
+        _localPersistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.localManagedObjectModel];
+        
+        NSURL *storeURL = [self getStoreURL];
+        [self createStoreURLPathIfNeeded:storeURL];
+        
+        NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSMigratePersistentStoresAutomaticallyOption, [NSNumber numberWithBool:YES], NSInferMappingModelAutomaticallyOption, nil];
+        
+        NSError *error = nil;
+        [_localPersistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error];
+        
+        if (error != nil) {
+            [NSException raise:SMExceptionAddPersistentStore format:@"Error creating sqlite persistent store: %@", error];
+        }
+        
+    }
+    
+    return _localPersistentStoreCoordinator;
+}
+
+- (NSURL *)getStoreURL
+{
+    NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+    NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
+    
+    NSString *defaultName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(id)kCFBundleNameKey];
+    if (defaultName == nil)
+    {
+        defaultName = @"CoreDataStore";
+    }
+    if (![defaultName hasSuffix:@"sqlite"])
+    {
+        defaultName = [defaultName stringByAppendingPathExtension:@"sqlite"];
+    }
+    
+    NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
+    
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    
+    for (NSString *path in paths)
+    {
+        NSString *filepath = [path stringByAppendingPathComponent:defaultName];
+        if ([fm fileExistsAtPath:filepath])
+        {
+            return [NSURL fileURLWithPath:filepath];
+        }
+        
+    }
+    
+    return [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+}
+
+- (void)createStoreURLPathIfNeeded:(NSURL *)storeURL
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSURL *pathToStore = [storeURL URLByDeletingLastPathComponent];
+    
+    NSError *error = nil;
+    BOOL pathWasCreated = [fileManager createDirectoryAtPath:[pathToStore path] withIntermediateDirectories:YES attributes:nil error:&error];
+    
+    if (!pathWasCreated) {
+        [NSException raise:SMExceptionAddPersistentStore format:@"Error creating sqlite persistent store: %@", error];
+    }
+    
+}
+
+#pragma mark - Internal Methods
 
 /*
  Returns a dictionary that has extra fields from StackMob that aren't present as attributes or relationships in the Core Data representation stripped out.  Examples may be StackMob added createddate or lastmoddate.
