@@ -504,7 +504,7 @@ static SMClient *defaultClient = nil;
             failureBlock(error);
         }
     } else {
-        NSDictionary *args = [NSDictionary dictionaryWithObject:message forKey:@"message"];
+        NSDictionary *args = [NSDictionary dictionaryWithObject:message forKey:@"tw_st"];
         
         [self.dataStore readObjectWithId:@"twitterStatusUpdate" inSchema:self.userSchema parameters:args options:[SMRequestOptions options] onSuccess:^(NSDictionary *theObject, NSString *schema) {
             if (successBlock) {
