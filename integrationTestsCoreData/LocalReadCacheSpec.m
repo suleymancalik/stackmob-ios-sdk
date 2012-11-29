@@ -229,7 +229,7 @@ describe(@"CoreDataFetchRequest", ^{
         });
     });
     */
-    
+    /*
     describe(@"relationships and in memory", ^{
         it(@"should handle correctly for relationships as well", ^{
             
@@ -358,7 +358,7 @@ describe(@"CoreDataFetchRequest", ^{
             
         });
     });
-    
+    */
 
     /*
     describe(@"same tests pass when moc is reset each time", ^{
@@ -492,6 +492,83 @@ describe(@"CoreDataFetchRequest", ^{
         });
     });
      */
+    describe(@"newValuesForRelationship offline testing", ^{
+        /*
+        it(@"to-one null relationship returns null", ^{
+            __block NSManagedObject *jonObject = nil;
+            // go online
+            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+            
+            // fetch new object, which will fault
+            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
+                [[theValue([results count]) should] equal:theValue(1)];
+                jonObject = [results objectAtIndex:0];
+                NSManagedObject *nullSuperpower = [jonObject valueForKey:@"superpower"];
+                [nullSuperpower shouldBeNil];
+            }];
+        });
+         */
+        it(@"to-one relationship returns properly", ^{
+            __block NSString *firstName = nil;
+            __block NSString *personId = nil;
+            __block NSManagedObject *jonObject = nil;
+            __block NSString *superpowerId = nil;
+            // go online
+            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+            
+            // fetch new object, which will fault
+            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
+                [[theValue([results count]) should] equal:theValue(1)];
+                jonObject = [results objectAtIndex:0];
+                NSManagedObject *nullSuperpower = [jonObject valueForKey:@"superpower"];
+                [nullSuperpower shouldBeNil];
+            }];
+
+            // add some related objects
+            NSManagedObject *superpower = [NSEntityDescription insertNewObjectForEntityForName:@"Superpower" inManagedObjectContext:moc];
+            superpowerId = [superpower assignObjectId];
+            [superpower setValue:superpowerId forKey:[superpower primaryKeyField]];
+            [superpower setValue:@"superpower" forKey:@"name"];
+            
+            // save them to the server
+            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+                [error shouldBeNil];
+            }];
+            
+            // relate and save
+            [jonObject setValue:superpower forKey:@"superpower"];
+            
+            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+                [error shouldBeNil];
+            }];
+            
+            [moc reset];
+            
+            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
+                [[theValue([results count]) should] equal:theValue(1)];
+                jonObject = [results objectAtIndex:0];
+            }];
+            
+            [[client.session.networkMonitor stubAndReturn:theValue(0)] currentNetworkStatus];
+            
+            NSManagedObject *jonSuperpower = [jonObject valueForKey:@"superpower"];
+            NSString *jonSuperpowerID = [jonSuperpower valueForKey:@"superpower_id"];
+            NSString *jonSuperpowerName = [jonSuperpower valueForKey:@"name"];
+            [[jonSuperpowerName should] equal:@"superpower"];
+            
+            
+            /*
+             NSManagedObject *interest1 = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
+             [interest1 setValue:[interest1 assignObjectId] forKey:[interest1 primaryKeyField]];
+             [interest1 setValue:@"interest1" forKey:@"name"];
+             
+             NSManagedObject *interest2 = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
+             [interest2 setValue:[interest2 assignObjectId] forKey:[interest2 primaryKeyField]];
+             [interest2 setValue:@"interest2" forKey:@"name"];
+             */
+            //[jonObject setValue:[NSSet setWithObjects:interest1, interest2, nil] forKey:@"interests"];
+        });
+    });
 });
 
 

@@ -465,6 +465,7 @@ You should implement this method conservatively, and expect that unknown request
                         // to-one
                         // translate smid to cache id and store
                         NSManagedObject *setObject = [self getCacheObjectForRemoteID:[self referenceObjectForObjectID:propertyValueFromSerializedDict] entityName:[[property destinationEntity] name]];
+                        //[setObject setValue:[self referenceObjectForObjectID:propertyValueFromSerializedDict] forKey:[setObject primaryKeyField]];
                         [cacheObject setValue:setObject forKey:propertyName];
                     }
                 } else {
@@ -589,7 +590,11 @@ You should implement this method conservatively, and expect that unknown request
         }
         
         // Pull object from cache
-        NSManagedObject *objectFromCache = [self.localManagedObjectContext objectWithID:cacheObjectId];
+        NSManagedObject *objectFromCache = [self.localManagedObjectContext objectRegisteredForID:cacheObjectId];
+        
+        if (!objectFromCache) {
+            
+        }
         
         // Create dictionary of keys and values for incremental store node
         NSMutableDictionary *dictionaryOfObject = [NSMutableDictionary dictionary];
@@ -666,9 +671,77 @@ You should implement this method conservatively, and expect that unknown request
     if (SM_CORE_DATA_DEBUG) { DLog(@"new value for relationship %@ for object with id %@", relationship, objectID); }
     
     __block NSManagedObject *theObj = [context objectWithID:objectID];
+    __block NSString *objStringId = [self referenceObjectForObjectID:objectID];
+    
+    // Is the object is fulfilling a fault, it has been fetched an placed in the local cache - grab values from there
+    if ([theObj isFault]) {
+        NSString *cacheReferenceId = [[NSUserDefaults standardUserDefaults] objectForKey:objStringId];
+        NSManagedObjectID *cacheObjectId = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceId]];
+        
+        if (!cacheObjectId) {
+            if (NULL != error) {
+                *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorCacheIDNotFound userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"No cache ID was found for the provided object ID: %@", objectID], NSLocalizedDescriptionKey, nil]];
+                *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+            }
+            return nil;
+        }
+        
+        // Pull object from cache
+        NSManagedObject *objectFromCache = [self.localManagedObjectContext objectWithID:cacheObjectId];
+        
+        // Get primary key field of relationship
+        NSString *primaryKeyField = nil;
+        @try {
+            primaryKeyField = [[relationship destinationEntity] primaryKeyField];
+        }
+        @catch (NSException *exception) {
+            primaryKeyField = [self.smDataStore.session userPrimaryKeyField];
+        }
+        
+        if ([relationship isToMany]) {
+            
+        } else {
+            // to-one: pull related object from cache
+            // relationship value should be the cache object reference for the related objecdt
+            NSManagedObject *relationshipValue = [objectFromCache valueForKey:[relationship name]];
+            if (!relationshipValue) {
+                return [NSNull null];
+            } else {
+                // get remoteID for object in context
+                id relatedObjectRemoteID = [relationshipValue valueForKey:primaryKeyField];
+                
+                // TODO if there is no primary key id, this was just a reference and we need to retreive online, if possible
+                if (!relatedObjectRemoteID) {
+                    NSLog(@"fix this");
+                }
+                
+                // TODO otherwise, use relatedObjectRemoteID to create MOID return it
+                NSManagedObjectID *oid = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:relatedObjectRemoteID];
+                
+                // TODO investigate object that is returned, possibly use objectREgistered and error is object is nil
+                NSManagedObject *object = [context objectWithID:oid];
+                NSLog(@"object is %@", object);
+                
+                
+                return oid;
+            }
+        }
+    }
+    
+    // If the object is not faulted, a call to save has been made and we need to retreive an up-to-date copy from the server.
+    
+    // If the network is not reachable, error and return
+    if ([self.smDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
+        if (NULL != error) {
+            *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The network is not reachable", NSLocalizedDescriptionKey, nil]];
+            *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+        }
+        return nil;
+    }
+    
+    
     __block NSEntityDescription *objEntity = [theObj entity];
     __block NSString *schemaName = [[objEntity name] lowercaseString];
-    __block NSString *objStringId = [self referenceObjectForObjectID:objectID];
     __block BOOL success = NO;
     __block NSDictionary *objDict;
 
