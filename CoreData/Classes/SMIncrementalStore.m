@@ -163,6 +163,16 @@ You should implement this method conservatively, and expect that unknown request
             withContext:(NSManagedObjectContext *)context 
                   error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
+    
+    // If network is not reachable, error and return
+    if ([self.smDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
+        if (NULL != error) {
+            *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The network is not reachable", NSLocalizedDescriptionKey, nil]];
+            *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+        }
+        return nil;
+    }
+    
     NSSaveChangesRequest *saveRequest = [[NSSaveChangesRequest alloc] initWithInsertedObjects:[context insertedObjects] updatedObjects:[context updatedObjects] deletedObjects:[context deletedObjects] lockedObjects:nil];
     
     NSSet *insertedObjects = [saveRequest insertedObjects];
@@ -366,13 +376,20 @@ You should implement this method conservatively, and expect that unknown request
             return nil;
         }
         
-        __block id resultsWithoutOID;
+        __block NSArray *resultsWithoutOID;
         // execute query on StackMob
         synchronousQuery(self.smDataStore, query, ^(NSArray *results) {
             resultsWithoutOID = results;
         }, ^(NSError *theError) {
-            *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
+            if (NULL != error) {
+                *error = [[NSError alloc] initWithDomain:[theError domain] code:[theError code] userInfo:[theError userInfo]];
+                *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+            }
         });
+        
+        if (*error != nil) {
+            return nil;
+        }
         
         // For each result of the fetch
         NSArray *results = [resultsWithoutOID map:^(id item) {
@@ -426,21 +443,8 @@ You should implement this method conservatively, and expect that unknown request
             }
             
             // see if the object already exists in LC, otherwise add it
-            // TODO implement mapping table rather than execute fetch
-            /*
-            NSError *cacheRequestError = nil;
-            NSFetchRequest *cacheRequest = [[NSFetchRequest alloc] initWithEntityName:fetchRequest.entityName];
-            [cacheRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", primaryKeyField, remoteID]];
-            NSArray *localCacheObject = [self.localManagedObjectContext executeFetchRequest:cacheRequest error:&cacheRequestError];
-             
-             NSManagedObject *cacheObject = nil;
-             // TODO Error handling for count > 1
-             if ([localCacheObject count] > 0) {
-             cacheObject = [localCacheObject objectAtIndex:0];
-             } else {
-             cacheObject = [NSEntityDescription insertNewObjectForEntityForName:[[object entity] name] inManagedObjectContext:self.localManagedObjectContext];
-             }
-             */
+            
+            // TODO do not use user defaults... store in a document or something
             
             NSManagedObject *cacheObject = [self getCacheObjectForRemoteID:remoteID entityName:[[object entity] name]];
             
@@ -559,12 +563,8 @@ You should implement this method conservatively, and expect that unknown request
  The returned node should include all attributes values and may include to-one relationship values as instances of NSManagedObjectID.
  
  If an object with object ID objectID cannot be found, the method should return nil and—if error is not NULL—create and return an appropriate error object in error.
- */
-
-/*
- * Returns an incremental store node encapsulating the persistent external values of the object with a given object ID.
- The returned node should include all attributes values and may include to-one relationship values as instances of NSManagedObjectID.
-    
+ 
+ This method is used in 2 scenarios: When an object is fulfilling a fault, and before a save on updated objects to grab a copy from the server for merge conflict purposes.
  */
 - (NSIncrementalStoreNode *)newValuesForObjectWithID:(NSManagedObjectID *)objectID
                                          withContext:(NSManagedObjectContext *)context 
@@ -572,15 +572,54 @@ You should implement this method conservatively, and expect that unknown request
     
     if (SM_CORE_DATA_DEBUG) { DLog(@"new values for object with id %@", [context objectWithID:objectID]); }
     
-    // Make a GET call to SM and return the properties for the entity
     __block NSManagedObject *theObj = [context objectWithID:objectID];
+    __block NSString *objStringId = [self referenceObjectForObjectID:objectID];
+    
+    // Is the object is fulfilling a fault, it has been fetched an placed in the local cache - grab values from there
+    if ([theObj isFault]) {
+        NSString *cacheReferenceId = [[NSUserDefaults standardUserDefaults] objectForKey:objStringId];
+        NSManagedObjectID *cacheObjectId = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceId]];
+    
+        if (!cacheObjectId) {
+            if (NULL != error) {
+                *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorCacheIDNotFound userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"No cache ID was found for the provided object ID: %@", objectID], NSLocalizedDescriptionKey, nil]];
+                *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+            }
+            return nil;
+        }
+        
+        // Pull object from cache
+        NSManagedObject *objectFromCache = [self.localManagedObjectContext objectWithID:cacheObjectId];
+        
+        // Create dictionary of keys and values for incremental store node
+        NSMutableDictionary *dictionaryOfObject = [NSMutableDictionary dictionary];
+        
+        [[objectFromCache dictionaryWithValuesForKeys:[[[objectFromCache entity] attributesByName] allKeys]] enumerateKeysAndObjectsUsingBlock:^(id attributeName, id attributeValue, BOOL *stop) {
+            if (attributeValue != [NSNull null]) {
+                [dictionaryOfObject setObject:attributeValue forKey:attributeName];
+            }
+        }];
+        
+        NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID withValues:dictionaryOfObject version:1];
+        
+        return node;
+    }
+    
+    // If the object is not faulted, a call to save has been made and we need to retreive an up-to-date copy from the server.
+    
+    // If the network is not reachable, error and return
+    if ([self.smDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
+        if (NULL != error) {
+            *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The network is not reachable", NSLocalizedDescriptionKey, nil]];
+            *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+        }
+        return nil;
+    }
+    
     __block NSEntityDescription *objEntity = [theObj entity];
     __block NSString *schemaName = [[objEntity name] lowercaseString];
-    __block NSString *objStringId = [self referenceObjectForObjectID:objectID];
     __block BOOL success = NO;
     __block NSDictionary *objectFields;
-    
-    
     
     syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
         [self.smDataStore readObjectWithId:objStringId inSchema:schemaName onSuccess:^(NSDictionary *theObject, NSString *schema) {
@@ -602,10 +641,11 @@ You should implement this method conservatively, and expect that unknown request
     if (!success) {
         return nil;
     }
-
+    
     NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID withValues:objectFields version:1];
     
     return node;
+
 }
 
 /*

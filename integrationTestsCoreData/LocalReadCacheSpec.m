@@ -53,6 +53,7 @@ describe(@"CoreDataFetchRequest", ^{
     });
     afterEach(^{
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+        
         // delete sqlite db for fresh restart
         NSURL *sqliteDBURL = [NSURL URLWithString:@"file://localhost/Users/mattvaz/Library/Application%20Support/iPhone%20Simulator/6.0/Library/Application%20Support/CoreDataStore.sqlite"];
         NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -231,6 +232,7 @@ describe(@"CoreDataFetchRequest", ^{
     
     describe(@"relationships and in memory", ^{
         it(@"should handle correctly for relationships as well", ^{
+            
             NSURL *sqliteDBURL = [NSURL URLWithString:@"file://localhost/Users/mattvaz/Library/Application%20Support/iPhone%20Simulator/6.0/Library/Application%20Support/CoreDataStore.sqlite"];
             NSFileManager *fileManager = [NSFileManager defaultManager];
             
@@ -308,6 +310,7 @@ describe(@"CoreDataFetchRequest", ^{
             __block NSString *smFirstName = nil;
             
             // fetch object from stackmob
+            __block NSManagedObjectContext *mocToCompare = moc;
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Bob'"]] andBlock:^(NSArray *results, NSError *error) {
                 [[theValue([results count]) should] equal:theValue(1)];
                 
@@ -319,8 +322,8 @@ describe(@"CoreDataFetchRequest", ^{
                 NSSet *interestSet = [[results objectAtIndex:0] valueForKey:@"interests"];
                 NSManagedObject *firstInterest = [interestSet anyObject];
                 NSLog(@"firstInterest is %@", firstInterest);
-                
-                // TODO can we then update the related object?
+                NSManagedObjectContext *interestMOC = [firstInterest managedObjectContext];
+                [[interestMOC should] equal:mocToCompare];
             }];
             
             // reset memory
@@ -355,7 +358,8 @@ describe(@"CoreDataFetchRequest", ^{
             
         });
     });
-     
+    
+
     /*
     describe(@"same tests pass when moc is reset each time", ^{
         it(@"returned objects are saved into local cache without error", ^{
@@ -477,6 +481,14 @@ describe(@"CoreDataFetchRequest", ^{
                 NSManagedObject *tyObject = [results objectAtIndex:0];
                 [[[tyObject valueForKey:@"first_name"] should] equal:@"Ty"];
             }];
+        });
+    });
+     */
+    // TODO move this test
+    /*
+    describe(@"calls to save when not online", ^{
+        it(@"should fail with appropriate error", ^{
+            
         });
     });
      */
