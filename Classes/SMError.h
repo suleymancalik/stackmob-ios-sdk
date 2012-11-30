@@ -23,6 +23,7 @@ extern NSString *const HTTPErrorDomain;
 extern NSString *const SMExceptionIncompatibleObject;
 extern NSString *const SMExceptionUnknownSchema;
 extern NSString *const SMExceptionAddPersistentStore;
+extern NSString *const SMExceptionCannotFillRelationshipFault;
 
 typedef enum {
     //Special StackMob things
