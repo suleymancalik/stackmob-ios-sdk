@@ -40,7 +40,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
-@property (nonatomic, strong) SMDataStore *smDataStore;
+@property (nonatomic, strong) __block SMDataStore *smDataStore;
 @property (nonatomic, strong) NSManagedObjectContext *localManagedObjectContext;
 @property (nonatomic, strong) NSPersistentStoreCoordinator *localPersistentStoreCoordinator;
 @property (nonatomic, strong) NSManagedObjectModel *localManagedObjectModel;
@@ -50,17 +50,35 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             withContext:(NSManagedObjectContext *)context 
                   error:(NSError *__autoreleasing *)error;
 
+- (BOOL)SM_handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error;
+- (BOOL)SM_handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error;
+- (BOOL)SM_handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error;
+
 - (id)SM_handleFetchRequest:(NSPersistentStoreRequest *)request 
              withContext:(NSManagedObjectContext *)context 
                    error:(NSError *__autoreleasing *)error;
 
-- (NSDictionary *)SM_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context forFetchRequest:(BOOL)forFetchRequest;
+- (id)SM_fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error;
+- (id)SM_fetchObjectIDs:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error;
 
 - (void)SM_configureCache;
-- (NSURL *)SM_getStoreURL;
+- (NSURL *)SM_getStoreURLForCacheDatabase;
+- (NSURL *)SM_getStoreURLForCacheMapTable;
 - (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL;
+- (void)SM_saveCacheMap;
+- (void)SM_readCacheMap;
 
-// TODO add all method declarations
+- (id)SM_retrieveRelatedObjectForRelationship:(NSRelationshipDescription *)relationship parentObject:(NSManagedObject *)parentObject referenceID:(NSString *)referenceID context:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error;
+- (id)SM_retrieveAndCacheRelatedObjectForRelationship:(NSRelationshipDescription *)relationship parentObject:(NSManagedObject *)parentObject referenceID:(NSString *)referenceID context:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error;
+- (NSDictionary *)SM_retrieveAndSerializeObjectWithID:(NSString *)objectID entity:(NSEntityDescription *)entity context:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error;
+- (void)SM_populateManagedObject:(NSManagedObject *)object withDictionary:(NSDictionary *)dictionary entity:(NSEntityDescription *)entity;
+- (void)SM_populateCacheManagedObject:(NSManagedObject *)object withDictionary:(NSDictionary *)dictionary entity:(NSEntityDescription *)entity;
+- (NSManagedObject *)SM_cacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName;
+- (BOOL)SM_deleteCacheReferenceForObjectWithID:(NSString *)objectID;
+
+- (NSString *)SM_remoteKeyForEntityName:(NSString *)entityName;
+- (NSDictionary *)SM_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context forFetchRequest:(BOOL)forFetchRequest;
+- (BOOL)SM_addPasswordToSerializedDictionary:(NSDictionary **)originalDictionary originalObject:(SMUserManagedObject *)object;
 
 @end
 
@@ -523,7 +541,7 @@ You should implement this method conservatively, and expect that unknown request
     
     // If the object is fulfilling a fault, it has been fetched before and placed in the cache - grab values from there
     if ([sm_managedObject isFault]) {
-        NSString *cacheReferenceID = [[NSUserDefaults standardUserDefaults] objectForKey:sm_managedObjectReferenceID];
+        NSString *cacheReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
         NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
     
         if (!cacheObjectID) {
@@ -592,7 +610,7 @@ You should implement this method conservatively, and expect that unknown request
     
     // Is the object is fulfilling a fault, it has been fetched an placed in the local cache - grab values from there
     if ([sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
-        NSString *cacheReferenceID = [[NSUserDefaults standardUserDefaults] objectForKey:sm_managedObjectReferenceID];
+        NSString *cacheReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
         NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
         
         if (!cacheObjectID) {
@@ -631,16 +649,17 @@ You should implement this method conservatively, and expect that unknown request
                 if (!relatedObjectRemoteID) {
                     if ([self.smDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
                         *stop = YES;
-                        if (NULL != error) {
-                            NSLog(@"error != NULL");
-                        } else {
-                            NSLog(@"error == NULL");
-                        }
-                        // Throw an exception when no error is available to use
-                        // TODO is this the best we can do to alert the user?
+                        arrayToReturn = nil;
                         [NSException raise:SMExceptionCannotFillRelationshipFault format:@"Cannot fill relationship %@ fault for object ID %@, related object not cached and network is not reachable", [relationship name], objectID];
                         
-                        arrayToReturn = nil;
+                        /*
+                        if (NULL != error) {
+                            *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorCouldNotFillRelationshipFault userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"Cannot fill relationship %@ fault for object ID %@, related object not cached and network is not reachable", [relationship name], objectID], NSLocalizedDescriptionKey, nil]];
+                            *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+                        }
+                        
+                        
+                         */
                         
                     } else {
                         // Retreive object from server
@@ -656,6 +675,9 @@ You should implement this method conservatively, and expect that unknown request
                 
             }];
             
+            if (!arrayToReturn) {
+                return nil;
+            }
             return arrayToReturn;
             
         } else {
@@ -671,15 +693,16 @@ You should implement this method conservatively, and expect that unknown request
                 // If there is no primary key id, this was just a reference and we need to retreive online, if possible
                 if (!relatedObjectRemoteID) {
                     if ([self.smDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
-                        if (NULL != error) {
-                            *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Attempting to fill a fault for a related object that does not yet exist in the cache. The object cannot be fetched from the server because the network is not reachable", NSLocalizedDescriptionKey, nil]];
-                            *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
-                        } else {
-                            // Throw an exception when no error is available to use
-                            // TODO is this the best we can do to alert the user?
-                            [NSException raise:SMExceptionCannotFillRelationshipFault format:@"Cannot fill relationship %@ fault for object ID %@, related object not cached and network is not reachable", [relationship name], objectID];
-                        }
+                        
+                        [NSException raise:SMExceptionCannotFillRelationshipFault format:@"Cannot fill relationship %@ fault for object ID %@, related object not cached and network is not reachable", [relationship name], objectID];
                         return nil;
+                        
+                        /*
+                         if (NULL != error) {
+                         *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorCouldNotFillRelationshipFault userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"Cannot fill relationship %@ fault for object ID %@, related object not cached and network is not reachable", [relationship name], objectID], NSLocalizedDescriptionKey, nil]];
+                         *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+                         }
+                         */
                     }
                     
                     // Retreive object from server
@@ -746,7 +769,7 @@ You should implement this method conservatively, and expect that unknown request
     _localManagedObjectModel = self.localManagedObjectModel;
     _localManagedObjectContext = self.localManagedObjectContext;
     _localPersistentStoreCoordinator = self.localPersistentStoreCoordinator;
-    [self SM_readInMappingTable];
+    [self SM_readCacheMap];
     
 }
 
@@ -777,7 +800,7 @@ You should implement this method conservatively, and expect that unknown request
         
         _localPersistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.localManagedObjectModel];
         
-        NSURL *storeURL = [self SM_getStoreURL];
+        NSURL *storeURL = [self SM_getStoreURLForCacheDatabase];
         [self SM_createStoreURLPathIfNeeded:storeURL];
         
         NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSMigratePersistentStoresAutomaticallyOption, [NSNumber numberWithBool:YES], NSInferMappingModelAutomaticallyOption, nil];
@@ -794,7 +817,7 @@ You should implement this method conservatively, and expect that unknown request
     return _localPersistentStoreCoordinator;
 }
 
-- (NSURL *)SM_getStoreURL
+- (NSURL *)SM_getStoreURLForCacheDatabase
 {
     if (SM_CORE_DATA_DEBUG) {DLog()};
     
@@ -826,7 +849,36 @@ You should implement this method conservatively, and expect that unknown request
         
     }
     
-    return [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    return aURL;
+}
+
+- (NSURL *)SM_getStoreURLForCacheMapTable
+{
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
+    NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+    NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
+    
+    NSString *defaultName = @"CacheMap.plist";
+    
+    NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
+    
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    
+    for (NSString *path in paths)
+    {
+        NSString *filepath = [path stringByAppendingPathComponent:defaultName];
+        if ([fm fileExistsAtPath:filepath])
+        {
+            return [NSURL fileURLWithPath:filepath];
+        }
+        
+    }
+    
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    return aURL;
 }
 
 - (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL
@@ -845,39 +897,53 @@ You should implement this method conservatively, and expect that unknown request
     
 }
 
-- (void)SM_readInMappingTable
+- (void)SM_readCacheMap
 {
+    
     NSString *errorDesc = nil;
     NSPropertyListFormat format;
-    NSString *plistPath;
-    NSString *rootPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
-                                                              NSUserDomainMask, YES) objectAtIndex:0];
-    plistPath = [rootPath stringByAppendingPathComponent:@"MappingTable.plist"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:plistPath]) {
-        // Create the doc
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        BOOL fileWasCreated = [fileManager createFileAtPath:plistPath contents:nil attributes:nil];
+    NSURL *mapPath = [self SM_getStoreURLForCacheMapTable];
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[mapPath path]]) {
+        NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:[mapPath path]];
+        NSDictionary *temp = (NSDictionary *)[NSPropertyListSerialization
+                                              propertyListFromData:plistXML
+                                              mutabilityOption:NSPropertyListMutableContainersAndLeaves
+                                              format:&format
+                                              errorDescription:&errorDesc];
         
-        if (!fileWasCreated) {
-            [NSException raise:SMExceptionAddPersistentStore format:@"Error creating mapping table"];
+        if (!temp) {
+            [NSException raise:SMExceptionCacheError format:@"Error reading cachemap: %@, format: %d", errorDesc, format];
+        } else {
+            self.cacheMappingTable = [temp mutableCopy];
         }
-        
-    }
-    NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:plistPath];
-    NSDictionary *temp = (NSDictionary *)[NSPropertyListSerialization
-                                          propertyListFromData:plistXML
-                                          mutabilityOption:NSPropertyListMutableContainersAndLeaves
-                                          format:&format
-                                          errorDescription:&errorDesc];
-    if (!temp) {
-        self.cacheMappingTable = nil;
-        [NSException raise:SMExceptionAddPersistentStore format:@"Error reading plist: %@, format: %d", errorDesc, format];
     }
     
-    self.cacheMappingTable = [temp mutableCopy];
+    self.cacheMappingTable = [NSMutableDictionary dictionary];
     
     
     
+}
+
+- (void)SM_saveCacheMap
+{
+    NSString *errorDesc = nil;
+    NSError *error = nil;
+    NSURL *mapPath = [self SM_getStoreURLForCacheMapTable];
+    [self SM_createStoreURLPathIfNeeded:mapPath];
+    
+    NSData *mapData = [NSPropertyListSerialization dataFromPropertyList:self.cacheMappingTable
+                                                                 format:NSPropertyListXMLFormat_v1_0
+                                                         errorDescription:&errorDesc];
+    
+    if (!mapData) {
+        [NSException raise:SMExceptionCacheError format:@"Error serializing cachemap data with error description %@", errorDesc];
+    }
+    
+    BOOL successfulWrite = [mapData writeToFile:[mapPath path] options:NSDataWritingAtomic error:&error];
+    if (!successfulWrite) {
+        [NSException raise:SMExceptionCacheError format:@"Error saving cachemap data with error %@", error];
+    }
     
 }
 
@@ -989,7 +1055,6 @@ You should implement this method conservatively, and expect that unknown request
             if ([self.localManagedObjectContext hasChanges]) {
                 BOOL localCacheSaveSuccess = [self.localManagedObjectContext save:&cacheError];
                 if (!localCacheSaveSuccess) {
-                    // TODO If items are not successfully cached, will require server call to fill at future point.
                     // Should handle, but not primary focus of this method, only provides convenience for future calls.
                 }
             }
@@ -1130,20 +1195,21 @@ You should implement this method conservatively, and expect that unknown request
 }
 
 - (NSManagedObject *)SM_cacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName {
-    // TODO do not use user defaults... store in a document or something
     NSManagedObject *cacheObject = nil;
-    NSString *cacheReferenceId = [[NSUserDefaults standardUserDefaults] objectForKey:remoteID];
+    NSString *cacheReferenceId = [self.cacheMappingTable objectForKey:remoteID];
     if (cacheReferenceId) {
         NSManagedObjectID *cacheObjectId = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceId]];
-        // TODO consider registeredWithId?
         cacheObject = [self.localManagedObjectContext objectWithID:cacheObjectId];
     } else {
         cacheObject = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.localManagedObjectContext];
         NSError *permanentIdError = nil;
         [self.localManagedObjectContext obtainPermanentIDsForObjects:[NSArray arrayWithObject:cacheObject] error:&permanentIdError];
-        // TODO an error check for obtainID
-        [[NSUserDefaults standardUserDefaults] setObject:[[[cacheObject objectID] URIRepresentation] absoluteString] forKey:remoteID];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        // Sanity check
+        if (permanentIdError) {
+            [NSException raise:SMExceptionCacheError format:@"Could not obtain permanent IDs for objects %@ with error %@", cacheObject, permanentIdError];
+        }
+        [self.cacheMappingTable setObject:[[[cacheObject objectID] URIRepresentation] absoluteString] forKey:remoteID];
+        [self SM_saveCacheMap];
         DLog(@"Creating new cache object, %@", cacheObject);
     }
     
@@ -1153,7 +1219,7 @@ You should implement this method conservatively, and expect that unknown request
 - (BOOL)SM_deleteCacheReferenceForObjectWithID:(NSString *)objectID
 {
     BOOL success = YES;
-    NSString *cacheReferenceIDString = [[NSUserDefaults standardUserDefaults] objectForKey:objectID];
+    NSString *cacheReferenceIDString = [self.cacheMappingTable objectForKey:objectID];
     
     if (cacheReferenceIDString) {
         NSManagedObjectID *cacheObjectID = [self.localPersistentStoreCoordinator managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceIDString]];
@@ -1170,8 +1236,8 @@ You should implement this method conservatively, and expect that unknown request
             
             // Remove the entry from map table
             if (success) {
-                [[NSUserDefaults standardUserDefaults] removeObjectForKey:objectID];
-                [[NSUserDefaults standardUserDefaults] synchronize];
+                [self.cacheMappingTable removeObjectForKey:objectID];
+                [self SM_saveCacheMap];
             }
         }
     }

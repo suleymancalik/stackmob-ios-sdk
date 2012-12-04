@@ -21,7 +21,7 @@
 
 SPEC_BEGIN(LocalReadCacheSpec)
 
-/*
+
 describe(@"LocalReadCacheInitialization", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -37,7 +37,6 @@ describe(@"LocalReadCacheInitialization", ^{
 
     });
 });
- */
 
 describe(@"CoreDataFetchRequest", ^{
     __block SMClient *client = nil;
@@ -47,7 +46,6 @@ describe(@"CoreDataFetchRequest", ^{
     __block NSDictionary *fixtures;
     beforeEach(^{
         
-        // TODO delete this
         NSURL *sqliteDBURL = [NSURL URLWithString:@"file://localhost/Users/mattvaz/Library/Application%20Support/iPhone%20Simulator/6.0/Library/Application%20Support/CoreDataStore.sqlite"];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         
@@ -74,12 +72,10 @@ describe(@"CoreDataFetchRequest", ^{
             __block NSArray *lcResults = nil;
             [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 smResults = results;
             }];
             [[client.session.networkMonitor stubAndReturn:theValue(0)] currentNetworkStatus];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 lcResults = results;
             }];
             [[theValue([smResults count]) should] equal:theValue([lcResults count])];
@@ -111,12 +107,10 @@ describe(@"CoreDataFetchRequest", ^{
             // let's try again to see that fetching same objects multiple times is smooth
             [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 smResults = results;
             }];
             [[client.session.networkMonitor stubAndReturn:theValue(0)] currentNetworkStatus];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 lcResults = results;
             }];
             [[theValue([smResults count]) should] equal:theValue([lcResults count])];
@@ -149,9 +143,6 @@ describe(@"CoreDataFetchRequest", ^{
             [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
             NSManagedObject *object = [lcResults objectAtIndex:0];
             
-            // TODO get rid of log statements
-            NSLog(@"object moc is %@", [object managedObjectContext]);
-            NSLog(@"moc is %@", moc);
             [object setValue:@"Ty" forKey:@"first_name"];
             [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                 [error shouldBeNil];
@@ -160,7 +151,6 @@ describe(@"CoreDataFetchRequest", ^{
             // Should then be able to fetch updated object, go offline and fetch updated again
             NSPredicate *tyPredicate = [NSPredicate predicateWithFormat:@"first_name == 'Ty'"];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:tyPredicate] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 [[theValue([results count]) should] equal:theValue(1)];
                 NSManagedObject *tyObject = [results objectAtIndex:0];
                 [[[tyObject valueForKey:@"first_name"] should] equal:@"Ty"];
@@ -168,7 +158,6 @@ describe(@"CoreDataFetchRequest", ^{
             
             [[client.session.networkMonitor stubAndReturn:theValue(0)] currentNetworkStatus];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:tyPredicate] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 [[theValue([results count]) should] equal:theValue(1)];
                 NSManagedObject *tyObject = [results objectAtIndex:0];
                 [[[tyObject valueForKey:@"first_name"] should] equal:@"Ty"];
@@ -197,7 +186,6 @@ describe(@"CoreDataFetchRequest", ^{
             NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"Bob", @"first_name", nil];
             syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
                 [[client dataStore] updateObjectWithId:personId inSchema:@"person" update:dict onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                    NSLog(@"results: %@", theObject);
                     syncReturn(semaphore);
                 } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
                     [theError shouldBeNil];
@@ -232,7 +220,7 @@ describe(@"CoreDataFetchRequest", ^{
             
         });
     });
-     */
+    */
     /*
     describe(@"relationships and in memory", ^{
         it(@"should handle correctly for relationships as well", ^{
@@ -302,7 +290,6 @@ describe(@"CoreDataFetchRequest", ^{
             NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"Bob", @"first_name", nil];
             syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
                 [[client dataStore] updateObjectWithId:personId inSchema:@"person" update:dict onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                    NSLog(@"results: %@", theObject);
                     syncReturn(semaphore);
                 } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
                     [theError shouldBeNil];
@@ -313,22 +300,26 @@ describe(@"CoreDataFetchRequest", ^{
             
             __block NSString *smFirstName = nil;
             
+            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+            
             // fetch object from stackmob
+            __block NSManagedObject *object = nil;
             __block NSManagedObjectContext *mocToCompare = moc;
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Bob'"]] andBlock:^(NSArray *results, NSError *error) {
                 [[theValue([results count]) should] equal:theValue(1)];
-                
-                // this should be the in memory value
-                smFirstName = [[results objectAtIndex:0] valueForKey:@"first_name"];
-                NSManagedObject *superpowerFromPerson = [[results objectAtIndex:0] valueForKey:@"superpower"];
-                NSString *spID = [superpowerFromPerson valueForKey:@"superpower_id"];
-                [[spID should] equal:superpowerId];
-                NSSet *interestSet = [[results objectAtIndex:0] valueForKey:@"interests"];
-                NSManagedObject *firstInterest = [interestSet anyObject];
-                NSLog(@"firstInterest is %@", firstInterest);
-                NSManagedObjectContext *interestMOC = [firstInterest managedObjectContext];
-                [[interestMOC should] equal:mocToCompare];
+                object = [results objectAtIndex:0];
             }];
+            
+            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+            // this should be the in memory value
+            smFirstName = [object valueForKey:@"first_name"];
+            NSManagedObject *superpowerFromPerson = [object valueForKey:@"superpower"];
+            NSString *spID = [superpowerFromPerson valueForKey:@"superpower_id"];
+            [[spID should] equal:superpowerId];
+            NSSet *interestSet = [object valueForKey:@"interests"];
+            NSManagedObject *firstInterest = [interestSet anyObject];
+            NSManagedObjectContext *interestMOC = [firstInterest managedObjectContext];
+            [[interestMOC should] equal:mocToCompare];
             
             // reset memory
             [moc reset];
@@ -363,7 +354,6 @@ describe(@"CoreDataFetchRequest", ^{
         });
     });
     */
-
     /*
     describe(@"same tests pass when moc is reset each time", ^{
         it(@"returned objects are saved into local cache without error", ^{
@@ -503,7 +493,7 @@ describe(@"CoreDataFetchRequest", ^{
             }];
         });
         
-        it(@"to-one relationship fault fill without internet when related object has NOT been previously fetched returns exception", ^{
+        it(@"to-one relationship fault fill without internet when related object has NOT been previously fetched remains a fault", ^{
             __block NSManagedObject *jonObject = nil;
             __block NSString *superpowerId = nil;
             // go online
@@ -544,14 +534,10 @@ describe(@"CoreDataFetchRequest", ^{
             
             [[client.session.networkMonitor stubAndReturn:theValue(0)] currentNetworkStatus];
             
-            NSManagedObject *jonSuperpower = nil;
-            @try {
-                jonSuperpower = [jonObject valueForKey:@"superpower"];
-            }
-            @catch (NSException *exception) {
-                [[[exception name] should] equal:SMExceptionCannotFillRelationshipFault];
-            }
-            
+            NSError *anError = nil;
+            NSManagedObject *jonSuperpower = [jonObject valueForRelationshipKey:@"superpower" error:&anError];
+            [anError shouldNotBeNil];
+            [[theValue([anError code]) should] equal:theValue(SMErrorCouldNotFillRelationshipFault)];
             [jonSuperpower shouldBeNil];
             
             // delete objects
@@ -565,6 +551,7 @@ describe(@"CoreDataFetchRequest", ^{
                 [error shouldBeNil];
             }];
         });
+        /*
         it(@"to-one relationship fault fill without internet when related object has been previously fetched returns properly", ^{
             __block NSManagedObject *jonObject = nil;
             __block NSString *superpowerId = nil;
@@ -708,10 +695,11 @@ describe(@"CoreDataFetchRequest", ^{
                 [error shouldBeNil];
             }];
         });
-         
+         */
     });
-    /*
+    
     describe(@"newValuesForRelationship offline testing, To-Many", ^{
+        /*
         it(@"to-many null relationship returns empty set", ^{
             __block NSManagedObject *jonObject = nil;
             
@@ -725,7 +713,8 @@ describe(@"CoreDataFetchRequest", ^{
                 [[theValue([interestsSet count]) should] equal:theValue(0)];
             }];
         });
-        it(@"To-Many relationship fault fill without internet when related object has NOT been previously fetched returns exception", ^{
+         */
+        it(@"To-Many relationship fault fill without internet when related object has NOT been previously fetched remains a fault", ^{
             __block NSManagedObject *jonObject = nil;
             // go online
             [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
@@ -768,17 +757,12 @@ describe(@"CoreDataFetchRequest", ^{
             
             [[client.session.networkMonitor stubAndReturn:theValue(0)] currentNetworkStatus];
             
-            NSArray *jonInterests = nil;
+            NSSet *jonInterests = nil;
             //NSManagedObject *anInterest = nil;
-            @try {
-                jonInterests = [[jonObject valueForKey:@"interests"] allObjects];
-                //NSLog(@"anInterest is %@", anInterest);
-            }
-            @catch (NSException *exception) {
-                [[[exception name] should] equal:SMExceptionCannotFillRelationshipFault];
-            }
             
-            [jonInterests shouldBeNil];
+            jonInterests = [jonObject valueForKey:@"interests"];
+            
+            [[theValue([jonObject hasFaultForRelationshipNamed:@"interests"]) should] beYes];
             
             // delete objects
             [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
@@ -791,6 +775,7 @@ describe(@"CoreDataFetchRequest", ^{
                 [error shouldBeNil];
             }];
         });
+     /*
         it(@"To-Many relationship fault fill without internet when related object has been previously fetched returns properly", ^{
             __block NSManagedObject *jonObject = nil;
             // go online
@@ -864,6 +849,8 @@ describe(@"CoreDataFetchRequest", ^{
                 [error shouldBeNil];
             }];
         });
+     */
+        /*
         it(@"To-Many relationship fault fill with internet returns related object and caches correctly", ^{
             __block NSManagedObject *jonObject = nil;
             // go online
@@ -940,11 +927,12 @@ describe(@"CoreDataFetchRequest", ^{
                 [error shouldBeNil];
             }];
         });
-    });
      */
+    });
      
 });
 
+/*
 describe(@"purging the cache when objects are deleted", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -963,7 +951,7 @@ describe(@"purging the cache when objects are deleted", ^{
         SM_CORE_DATA_DEBUG = YES;
         fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
         fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
-        client = [SMIntegrationTestHelpers defaultClient];
+        client = [SMClient defaultClient];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
         moc = [cds managedObjectContext];
     });
@@ -1002,8 +990,42 @@ describe(@"purging the cache when objects are deleted", ^{
             [error shouldBeNil];
         }];
         
+        NSString *errorDesc = nil;
+        NSPropertyListFormat format;
+        NSURL *mapPath = nil;
+        NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+        NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+        NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
+        
+        NSString *defaultName = @"CacheMap.plist";
+        
+        NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
+        
+        NSFileManager *fm = [[NSFileManager alloc] init];
+        
+        for (NSString *path in paths)
+        {
+            NSString *filepath = [path stringByAppendingPathComponent:defaultName];
+            if ([fm fileExistsAtPath:filepath])
+            {
+                mapPath =  [NSURL fileURLWithPath:filepath];
+            }
+            
+        }
+        
+        mapPath = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+        
+        [[theValue([[NSFileManager defaultManager] fileExistsAtPath:[mapPath path]]) should] beYes];
+        
+        NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:[mapPath path]];
+        NSDictionary *temp = (NSDictionary *)[NSPropertyListSerialization
+                                              propertyListFromData:plistXML
+                                              mutabilityOption:NSPropertyListMutableContainersAndLeaves
+                                              format:&format
+                                              errorDescription:&errorDesc];
+        
         [array enumerateObjectsUsingBlock:^(id personID, NSUInteger idx, BOOL *stop) {
-            [[[NSUserDefaults standardUserDefaults] objectForKey:personID] shouldBeNil];
+            [[temp objectForKey:personID] shouldBeNil];
         }];
         
         // Go offline
@@ -1014,7 +1036,7 @@ describe(@"purging the cache when objects are deleted", ^{
         }];
     });
 });
-
+*/
 /*
 describe(@"calls to save when not online", ^{
     __block SMClient *client = nil;
@@ -1167,6 +1189,6 @@ describe(@"calls to save when not online", ^{
         }];
     });
 });
- */
+*/
 
 SPEC_END

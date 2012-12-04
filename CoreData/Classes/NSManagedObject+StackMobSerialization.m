@@ -207,4 +207,22 @@
     *objectDictionary = dictionaryToReturn;
 }
 
+- (id)valueForRelationshipKey:(NSString *)key error:(NSError *__autoreleasing*)error
+{
+    id result = nil;
+    @try {
+        result = [self valueForKey:key];
+    }
+    @catch (NSException *exception) {
+        if ([exception name] == SMExceptionCannotFillRelationshipFault && NULL != error) {
+            *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorCouldNotFillRelationshipFault userInfo:[NSDictionary dictionaryWithObject:[exception reason] forKey:NSLocalizedDescriptionKey]];
+        }
+            
+            return nil;
+    }
+    
+    return result;
+    
+}
+
 @end

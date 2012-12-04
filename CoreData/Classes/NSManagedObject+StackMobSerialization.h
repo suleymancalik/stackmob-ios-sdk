@@ -62,4 +62,9 @@
  */
 - (NSDictionary *)sm_dictionarySerialization;
 
+/**
+ 
+ */
+- (id)valueForRelationshipKey:(NSString *)key error:(NSError *__autoreleasing*)error;
+
 @end

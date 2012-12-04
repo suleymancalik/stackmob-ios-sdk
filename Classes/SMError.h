@@ -24,6 +24,7 @@ extern NSString *const SMExceptionIncompatibleObject;
 extern NSString *const SMExceptionUnknownSchema;
 extern NSString *const SMExceptionAddPersistentStore;
 extern NSString *const SMExceptionCannotFillRelationshipFault;
+extern NSString *const SMExceptionCacheError;
 
 typedef enum {
     //Special StackMob things
@@ -34,6 +35,7 @@ typedef enum {
     SMErrorPasswordForUserObjectNotFound = -104,
     SMErrorNetworkNotReachable = -105,
     SMErrorCacheIDNotFound = -106,
+    SMErrorCouldNotFillRelationshipFault = -107,
     //Success messages. These shouldn't normally be encountered
     SMErrorOK = 200,
     SMErrorCreated = 201,

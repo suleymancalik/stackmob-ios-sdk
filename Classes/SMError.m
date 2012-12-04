@@ -22,3 +22,4 @@ NSString *const SMExceptionIncompatibleObject = @"SMExceptionIncompatibleObject"
 NSString *const SMExceptionUnknownSchema = @"SMExceptionUnknownSchema";
 NSString *const SMExceptionAddPersistentStore = @"SMExceptionAddPersistentStore";
 NSString *const SMExceptionCannotFillRelationshipFault = @"SMExceptionCannotFillRelationshipFault";
+NSString *const SMExceptionCacheError = @"SMExceptionCacheError";
