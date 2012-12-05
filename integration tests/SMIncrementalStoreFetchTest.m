@@ -28,13 +28,18 @@ describe(@"with fixtures", ^{
     __block NSDictionary *fixtures;
     
     __block NSManagedObjectContext *moc;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
     __block NSPredicate *predicate;
     [SMCoreDataIntegrationTestHelpers registerForMOCNotificationsWithContext:[SMCoreDataIntegrationTestHelpers moc]];
     
     beforeEach(^{
         fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
         fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        client = [SMIntegrationTestHelpers defaultClient];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
     });
     
     afterEach(^{
@@ -359,13 +364,16 @@ describe(@"with fixtures", ^{
 describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^{
     __block NSManagedObjectContext *moc = nil;
     __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
     __block User3 *user1 = nil;
     __block User3 *user2 = nil;
     __block User3 *user3 = nil;
     beforeEach(^{
         // create a bunch of users
-        moc = [SMCoreDataIntegrationTestHelpers moc];
         client = [SMIntegrationTestHelpers defaultClient];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         
         user1 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] insertIntoManagedObjectContext:moc];
         [user1 setUsername:[NSString stringWithFormat:@"matt%d", arc4random() / 10000]];

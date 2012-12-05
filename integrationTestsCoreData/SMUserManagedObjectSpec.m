@@ -28,10 +28,13 @@ describe(@"SMUserManagedObject", ^{
     __block SMClient *client = nil;
     __block NSManagedObjectContext *moc = nil;
     __block User3 *person = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
         [client setUserSchema:@"user3"];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         // tests save here
         person = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
         [person setUsername:@"bob"];
@@ -88,12 +91,15 @@ describe(@"can set a client with different password field name and everything st
     __block SMClient *client = nil;
     __block NSManagedObjectContext *moc = nil;
     __block User4 *person = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
         [client setUserSchema:@"User4"];
         [client setUserPrimaryKeyField:@"theuser"];
         [client setUserPasswordField:@"thepassword"];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         // tests save here
         person = [NSEntityDescription insertNewObjectForEntityForName:@"User4" inManagedObjectContext:moc];
         [person setTheuser:@"bob"];
@@ -123,10 +129,13 @@ describe(@"creating and saving two users should not conflict with each other", ^
     __block NSManagedObjectContext *moc = nil;
     __block User3 *person1 = nil;
     __block User3 *person2 = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
         [client setUserSchema:@"User3"];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         // tests save here
         person1 = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
         [person1 setUsername:@"bob"];
@@ -212,10 +221,13 @@ describe(@"should be able to create a user, relate to other object, and save eve
     __block NSManagedObjectContext *moc = nil;
     __block User3 *person = nil;
     __block NSManagedObject *todo = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
         [client setUserSchema:@"User3"];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         // tests save here
         person = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
         [person setUsername:@"bob"];
@@ -262,10 +274,13 @@ describe(@"userPrimaryKeyField works", ^{
     __block SMClient *client = nil;
     __block NSManagedObjectContext *moc = nil;
     __block User3 *user3 = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
         [client setUserSchema:@"User3"];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
     });
     afterEach(^{
         [moc deleteObject:user3];
@@ -311,10 +326,13 @@ describe(@"testing someting", ^{
     __block User3 *ardoObject = nil;
     __block User3 *failObject = nil;
     __block User3 *successObject = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
         [client setUserSchema:@"User3"];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
     });
     afterEach(^{
         [moc deleteObject:ardoObject];

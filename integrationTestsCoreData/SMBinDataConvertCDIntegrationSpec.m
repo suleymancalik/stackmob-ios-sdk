@@ -28,14 +28,14 @@ SPEC_BEGIN(SMBinDataConvertCDIntegrationSpec)
 describe(@"SMBinDataConvertCDIntegration", ^{
     __block NSManagedObjectContext *moc = nil;
     __block Superpower *superpower = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
-        /*
-        mom = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]];
         client = [SMIntegrationTestHelpers defaultClient];
-        coreDataStore = [client coreDataStoreWithManagedObjectModel:mom];
-        moc = [coreDataStore managedObjectContext];
-        */
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        [client setUserSchema:@"user3"];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
     });
     describe(@"should successfully set binary data when translated to string", ^{
         __block NSString *dataString = nil;

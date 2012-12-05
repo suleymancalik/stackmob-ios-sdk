@@ -31,6 +31,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 @synthesize stackMobMOM = _stackMobMOM;
 @synthesize stackMobPSC = _stackMobPSC;
 @synthesize stackMobMOC = _stackMobMOC;
+@synthesize client = _client;
 
 + (SMCoreDataIntegrationTestHelpers *)singleton {
     if (_singletonInstance == nil) {
@@ -182,6 +183,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 
 - (NSPersistentStoreCoordinator *)stackMobPSC {
     if (_stackMobPSC == nil) {
+        self.client = [SMIntegrationTestHelpers defaultClient];
         [NSPersistentStoreCoordinator registerStoreClass:[SMIncrementalStore class] forStoreType:SMIncrementalStoreType];
         _stackMobPSC = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.stackMobMOM];
         NSError *error;
@@ -189,7 +191,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
         [_stackMobPSC addPersistentStoreWithType:SMIncrementalStoreType
                                    configuration:nil 
                                              URL:nil
-                                         options:[NSDictionary dictionaryWithObject:[[SMIntegrationTestHelpers defaultClient] dataStore] forKey:SM_DataStoreKey] 
+                                         options:[NSDictionary dictionaryWithObject:self.client.dataStore forKey:SM_DataStoreKey]
                                            error:&error];
         if (error != nil) {
             DLog(@"Error: %@", error);

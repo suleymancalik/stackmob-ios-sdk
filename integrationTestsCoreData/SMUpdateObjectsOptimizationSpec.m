@@ -25,14 +25,20 @@ SPEC_BEGIN(SMUpdateObjectsOptimizationSpec)
 describe(@"updating an object only persists changed fields", ^{
     __block NSManagedObjectContext *moc = nil;
     __block Person *person = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        client = [SMIntegrationTestHelpers defaultClient];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
         [person setValue:@"bob" forKey:@"first_name"];
         [person setValue:@"jean" forKey:@"first_name"];
         [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
         NSDictionary *personDict = [person sm_dictionarySerialization];
         [[theValue([[[personDict objectForKey:@"SerializedDict"] allKeys] count]) should] equal:theValue(2)];
+        
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             [error shouldBeNil];
         }];

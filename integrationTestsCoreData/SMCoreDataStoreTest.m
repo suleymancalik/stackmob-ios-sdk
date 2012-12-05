@@ -41,7 +41,8 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
     });
     describe(@"with a managedObjectContext from SMCoreDataStore", ^{
         beforeEach(^{
-            moc = [coreDataStore managedObjectContext]; 
+            moc = [coreDataStore managedObjectContext];
+            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         });
         describe(@"inserting an object", ^{
             __block NSManagedObject *aPerson = nil;

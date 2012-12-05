@@ -24,21 +24,29 @@
 
 SPEC_BEGIN(SMIncrementalStoreTest)
 
+
 describe(@"with fixtures", ^{
     __block NSArray *fixturesToLoad;
     __block NSDictionary *fixtures;
     
     __block NSManagedObjectContext *moc;
-    [SMCoreDataIntegrationTestHelpers registerForMOCNotificationsWithContext:moc];
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    
     
     beforeEach(^{
         fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
         fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        client = [SMIntegrationTestHelpers defaultClient];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers registerForMOCNotificationsWithContext:moc];
     });
     
     afterEach(^{
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+        [SMCoreDataIntegrationTestHelpers removeObserversrForMOCNotificationsWithContext:moc];
     });
     
     
@@ -639,9 +647,14 @@ describe(@"with fixtures", ^{
 
 describe(@"Testing CRUD on an entity with camelCase property names", ^{
     __block NSManagedObjectContext *moc = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
     __block NSManagedObject *camelCaseObject = nil;
     beforeEach(^{
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        client = [SMIntegrationTestHelpers defaultClient];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         camelCaseObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
         [camelCaseObject setValue:@"new" forKey:@"name"];
         [camelCaseObject setValue:@"1234" forKey:@"server_id"];
@@ -751,20 +764,15 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
 
 describe(@"test camel case with relationships", ^{
     __block NSManagedObjectContext *moc = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
     __block NSManagedObject *todo = nil;
     __block NSManagedObject *category = nil;
     beforeEach(^{
-        moc = [SMCoreDataIntegrationTestHelpers moc];
-    });
-    afterEach(^{
-        [moc deleteObject:todo];
-        [moc deleteObject:category];
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-        }];
+        client = [SMIntegrationTestHelpers defaultClient];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
     });
     it(@"Should pass for one-to-one", ^{
         todo = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
@@ -797,16 +805,30 @@ describe(@"test camel case with relationships", ^{
         else {
             DLog(@"You created a relationship between the Todo and Category Object!");
         }
+        
+        [moc deleteObject:todo];
+        [moc deleteObject:category];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *saveError) {
+            if (saveError != nil) {
+                DLog(@"Error userInfo is %@", [saveError userInfo]);
+                [saveError shouldBeNil];
+            }
+        }];
     });
 });
 
 describe(@"Updating existing object relationship fields to nil", ^{
     __block NSManagedObjectContext *moc = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
     __block Person *person = nil;
     __block Superpower *superpower = nil;
     __block NSManagedObject *interest = nil;
     beforeEach(^{
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        client = [SMIntegrationTestHelpers defaultClient];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
     });
     it(@"passes for one-to-one", ^{
         // create person and superpower
@@ -923,8 +945,13 @@ describe(@"can update a field to null", ^{
     __block NSManagedObjectContext *moc = nil;
     __block Person *person = nil;
     __block Superpower *superpower = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        client = [SMIntegrationTestHelpers defaultClient];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds managedObjectContext];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         person = nil;
         superpower = nil;
     });

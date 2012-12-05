@@ -26,6 +26,7 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 @property (readonly, strong, nonatomic) NSManagedObjectModel *stackMobMOM;
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *stackMobPSC;
 @property (readonly, strong, nonatomic) NSManagedObjectContext *stackMobMOC;
+@property (nonatomic, strong) SMClient *client;
 
 + (NSManagedObjectContext *)moc;
 + (NSEntityDescription *)entityForName:(NSString *)entityName;
