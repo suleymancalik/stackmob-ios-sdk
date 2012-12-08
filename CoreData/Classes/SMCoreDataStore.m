@@ -48,11 +48,14 @@
         _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
         
         NSError *error = nil;
+        NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [NSNumber numberWithBool:YES], NSMigratePersistentStoresAutomaticallyOption,
+                                 [NSNumber numberWithBool:YES], NSInferMappingModelAutomaticallyOption, self, SM_DataStoreKey, nil];
         [_persistentStoreCoordinator addPersistentStoreWithType:SMIncrementalStoreType
-                                   configuration:nil 
-                                             URL:nil
-                                            options:[NSDictionary dictionaryWithObject:self forKey:SM_DataStoreKey] 
-                                           error:&error];
+                                                  configuration:nil
+                                                            URL:nil
+                                                        options:options
+                                                          error:&error];
         if (error != nil) {
             [NSException raise:SMExceptionAddPersistentStore format:@"Error creating incremental persistent store: %@", error];
         }

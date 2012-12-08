@@ -43,6 +43,7 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 + (void)MOCDidChange:(NSNotification *)notification;
 + (void)MOCDidSave:(NSNotification *)notification;
 + (void)MOCWillSave:(NSNotification *)notification;
++ (void)removeSQLiteDatabase;
 
 @end
 

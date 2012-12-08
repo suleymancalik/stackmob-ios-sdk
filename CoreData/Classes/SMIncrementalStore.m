@@ -1173,8 +1173,12 @@ You should implement this method conservatively, and expect that unknown request
                     [object setPrimitiveValue:relatedObjects forKey:propertyName];
                 }
             } else {
-                NSManagedObject *toOneObject = [[object managedObjectContext] objectWithID:dictionary[propertyName]];
-                [object setPrimitiveValue:toOneObject forKey:propertyName];
+                if (dictionary[propertyName] == [NSNull null]) {
+                    [object setPrimitiveValue:nil forKey:propertyName];
+                } else {
+                    NSManagedObject *toOneObject = [[object managedObjectContext] objectWithID:dictionary[propertyName]];
+                    [object setPrimitiveValue:toOneObject forKey:propertyName];
+                }
             }
         }
     }];
@@ -1187,7 +1191,9 @@ You should implement this method conservatively, and expect that unknown request
     
     [[entity propertiesByName] enumerateKeysAndObjectsUsingBlock:^(id propertyName, id property, BOOL *stop) {
         id propertyValueFromSerializedDict = [dictionary objectForKey:propertyName];
-        if (propertyValueFromSerializedDict) {
+        if (propertyValueFromSerializedDict == [NSNull null]) {
+            [object setValue:nil forKey:propertyName];
+        } else if (propertyValueFromSerializedDict) {
             if ([property isKindOfClass:[NSAttributeDescription class]]) {
                 [object setValue:propertyValueFromSerializedDict forKey:propertyName];
             } else if ([(NSRelationshipDescription *)property isToMany]) {
@@ -1313,29 +1319,33 @@ You should implement this method conservatively, and expect that unknown request
         NSRelationshipDescription *relationshipDescription = (NSRelationshipDescription *)relationshipValue;
         // get the relationship contents for the property
         id relationshipContents = [theObject valueForKey:[entityDescription sm_fieldNameForProperty:relationshipDescription]];
-        if (relationshipContents) {
-            if (![relationshipDescription isToMany]) {
+        if (![relationshipDescription isToMany]) {
+            if (relationshipContents) {
                 NSEntityDescription *entityDescriptionForRelationship = [NSEntityDescription entityForName:[[relationshipValue destinationEntity] name] inManagedObjectContext:context];
                 if ([relationshipContents isKindOfClass:[NSString class]]) {
                     NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:entityDescriptionForRelationship referenceObject:relationshipContents];
                     [serializedDictionary setObject:relationshipObjectID forKey:relationshipName];
                 }
-            } else if (includeRelationships) {
-                // to many relationship
-                if (![relationshipContents isKindOfClass:[NSArray class]]) {
-                    [NSException raise:SMExceptionIncompatibleObject format:@"Relationship contents should be an array for a to-many relationship. The relationship passed has contents that are of class type %@. Confirm that this relationship was meant to be to-many.", [relationshipContents class]];
-                }
-                NSMutableArray *relatedObjects = [NSMutableArray array];
-                [(NSSet *)relationshipContents enumerateObjectsUsingBlock:^(id stringIdReference, BOOL *stopEnumOfRelatedObjects) {
-                    NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationshipDescription destinationEntity] referenceObject:stringIdReference];
-                    [relatedObjects addObject:relationshipObjectID];
-                }];
-                [serializedDictionary setObject:[NSSet setWithArray:relatedObjects] forKey:relationshipName];
+            } else {
+                [serializedDictionary setObject:[NSNull null] forKey:relationshipName];
             }
+        } else if (relationshipContents && includeRelationships) {
+            // to many relationship
+            if (![relationshipContents isKindOfClass:[NSArray class]]) {
+                [NSException raise:SMExceptionIncompatibleObject format:@"Relationship contents should be an array for a to-many relationship. The relationship passed has contents that are of class type %@. Confirm that this relationship was meant to be to-many.", [relationshipContents class]];
+            }
+            NSMutableArray *relatedObjects = [NSMutableArray array];
+            [(NSSet *)relationshipContents enumerateObjectsUsingBlock:^(id stringIdReference, BOOL *stopEnumOfRelatedObjects) {
+                NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationshipDescription destinationEntity] referenceObject:stringIdReference];
+                [relatedObjects addObject:relationshipObjectID];
+            }];
+            [serializedDictionary setObject:[NSSet setWithArray:relatedObjects] forKey:relationshipName];
         }
     }];
     
-    return serializedDictionary;
+    DLog(@"read object from server is %@", theObject);
+    DLog(@"serialized dictionary to return is %@", serializedDictionary);
+    return [NSDictionary dictionaryWithDictionary:serializedDictionary];
 }
 
 - (BOOL)SM_addPasswordToSerializedDictionary:(NSDictionary **)originalDictionary originalObject:(SMUserManagedObject *)object

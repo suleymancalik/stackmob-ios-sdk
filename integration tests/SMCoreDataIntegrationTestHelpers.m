@@ -40,6 +40,23 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return _singletonInstance;
 }
 
++ (void)removeSQLiteDatabase
+{
+    NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+    NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
+    NSString *defaultName = @"CoreDataStore.sqlite";
+    NSURL *sqliteDBURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if ([fileManager fileExistsAtPath:[sqliteDBURL path]]) {
+        NSError *sqliteDeleteError = nil;
+        BOOL sqliteDelete = [fileManager removeItemAtURL:sqliteDBURL error:&sqliteDeleteError];
+        if (!sqliteDelete) {
+            [NSException raise:@"SMCouldNotDeleteSQLiteDatabase" format:@""];
+        }
+    }
+}
+
 + (NSManagedObjectContext *)moc {
     return [[SMCoreDataIntegrationTestHelpers singleton] stackMobMOC];
 }
