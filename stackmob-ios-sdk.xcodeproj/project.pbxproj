@@ -172,11 +172,6 @@
 		DEB8F7AA1651DFAE00813B3E /* SMCoreDataStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC570FA15D065FC00D9E44E /* SMCoreDataStoreTest.m */; };
 		DEB8F7AB1651DFB200813B3E /* SMIncrementalStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A715CB5EA200E491C4 /* SMIncrementalStoreTest.m */; };
 		DEB8F7AC1651DFB500813B3E /* SMIncrementalStoreFetchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A615CB5EA200E491C4 /* SMIncrementalStoreFetchTest.m */; };
-		DEB94F10165B0E540030CE85 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
-		DEB94F11165B0E570030CE85 /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
-		DEB94F12165B0E5A0030CE85 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
-		DEB94F13165B0E5C0030CE85 /* SMPushClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED78164B1D43006B7326 /* SMPushClientIntegrationSpec.m */; };
-		DEB94F14165B0E5F0030CE85 /* SMNetworkReachabilitySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9EEBE164B4F24006B7326 /* SMNetworkReachabilitySpec.m */; };
 		DEBBBCAF15CC440600650D75 /* SMCoreDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCA515CC440600650D75 /* SMCoreDataStore.h */; };
 		DEBBBCB015CC440600650D75 /* SMCoreDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCA615CC440600650D75 /* SMCoreDataStore.m */; };
 		DEBBBCB115CC440600650D75 /* SMIncrementalStore+Query.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCA715CC440600650D75 /* SMIncrementalStore+Query.h */; };
@@ -395,7 +390,6 @@
 		DE64D61B1623BAE800237570 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		DE8D501A1636101E0067B1C2 /* SMRequestOptionsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMRequestOptionsSpec.m; sourceTree = "<group>"; };
 		DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		DE922800161E748300DA0D00 /* SMMultipleStoresSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMMultipleStoresSpec.m; sourceTree = "<group>"; };
 		DE9784A2163B5880001119D1 /* NSEntityDescription+StackMobSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSEntityDescription+StackMobSerialization.h"; sourceTree = "<group>"; };
 		DE9784A3163B5880001119D1 /* NSEntityDescription+StackMobSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSEntityDescription+StackMobSerialization.m"; sourceTree = "<group>"; };
 		DE9784A4163B5880001119D1 /* NSManagedObject+StackMobSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+StackMobSerialization.h"; sourceTree = "<group>"; };
@@ -740,7 +734,6 @@
 				DE0CC7A715CB5EA200E491C4 /* SMIncrementalStoreTest.m */,
 				DEC570FA15D065FC00D9E44E /* SMCoreDataStoreTest.m */,
 				DE05E19515E2C0BF00224E4E /* SMBinDataConvertCDIntegrationSpec.m */,
-				DE922800161E748300DA0D00 /* SMMultipleStoresSpec.m */,
 				DE64D6041623894600237570 /* SMUserManagedObjectSpec.m */,
 				1DF4D7EF1631EBF400875E0F /* CoreDataPropertyTypesSpec.m */,
 				DEE585271631F3C40009A1DE /* SMUpdateObjectsOptimizationSpec.m */,
@@ -1183,11 +1176,6 @@
 				DE0CC7B115CB605900E491C4 /* Superpower.m in Sources */,
 				DEF82E051654983900664A1A /* CRUDTests.m in Sources */,
 				1DDAE4691656EF15001DFAEF /* SMNetworkReachabilityHelper.m in Sources */,
-				DEB94F10165B0E540030CE85 /* SMClientIntegrationSpec.m in Sources */,
-				DEB94F11165B0E570030CE85 /* QueryTests.m in Sources */,
-				DEB94F12165B0E5A0030CE85 /* SMCusCodeReqIntegrationSpec.m in Sources */,
-				DEB94F13165B0E5C0030CE85 /* SMPushClientIntegrationSpec.m in Sources */,
-				DEB94F14165B0E5F0030CE85 /* SMNetworkReachabilitySpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
