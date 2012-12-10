@@ -121,7 +121,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 + (void)executeSynchronousSave:(NSManagedObjectContext *)moc withBlock:(SynchronousErrorBlock)block {
     DLog();
     [moc performBlockAndWait:^{
-        NSError *__autoreleasing anError = nil;
+        NSError *anError = nil;
         BOOL saveSuccess = [moc save:&anError];
         
         if (!saveSuccess) {

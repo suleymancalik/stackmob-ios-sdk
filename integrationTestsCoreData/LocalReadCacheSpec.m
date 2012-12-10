@@ -21,7 +21,7 @@
 
 SPEC_BEGIN(LocalReadCacheSpec)
 
-
+/*
 describe(@"LocalReadCacheInitialization", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -1210,6 +1210,48 @@ describe(@"calls to save when not online", ^{
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             [error shouldBeNil];
         }];
+    });
+});
+*/
+describe(@"returning proper errors from reads", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    beforeEach(^{
+        SM_CORE_DATA_DEBUG = YES;
+        client = [SMIntegrationTestHelpers defaultClient];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        moc = [cds managedObjectContext];
+    });
+    it(@"new values for object on save with a 401", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        
+        NSManagedObject *newMO = [NSEntityDescription insertNewObjectForEntityForName:@"Getpermission" inManagedObjectContext:moc];
+        [newMO setValue:[newMO assignObjectId] forKey:[newMO primaryKeyField]];
+        [newMO setValue:@"bob" forKey:@"name"];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        
+        [newMO setValue:@"jack" forKey:@"name"];
+        
+        __block NSError *anError = nil;
+        [moc performBlockAndWait:^{
+            BOOL savesuccess = [moc save:&anError];
+            if (!savesuccess) {
+                NSLog(@"error is %@", anError);
+            }
+        }];
+        
+        [moc deleteObject:newMO];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        
     });
 });
 

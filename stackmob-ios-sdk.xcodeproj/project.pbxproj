@@ -166,13 +166,6 @@
 		DEA9ED77164B1D19006B7326 /* SMPushClientSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED76164B1D19006B7326 /* SMPushClientSpec.m */; };
 		DEA9ED96164B2BAB006B7326 /* SystemInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = DEA9ED94164B2BAB006B7326 /* SystemInformation.h */; };
 		DEA9ED97164B2BAB006B7326 /* SystemInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED95164B2BAB006B7326 /* SystemInformation.m */; };
-		DEAFA0A51672D97400D87EDB /* SMUpdateObjectsOptimizationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE585271631F3C40009A1DE /* SMUpdateObjectsOptimizationSpec.m */; };
-		DEAFA0A61672D97900D87EDB /* CoreDataPropertyTypesSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DF4D7EF1631EBF400875E0F /* CoreDataPropertyTypesSpec.m */; };
-		DEAFA0A71672D97E00D87EDB /* SMBinDataConvertCDIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E19515E2C0BF00224E4E /* SMBinDataConvertCDIntegrationSpec.m */; };
-		DEAFA0A81672D98000D87EDB /* SMCoreDataStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC570FA15D065FC00D9E44E /* SMCoreDataStoreTest.m */; };
-		DEAFA0A91672D98300D87EDB /* SMIncrementalStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A715CB5EA200E491C4 /* SMIncrementalStoreTest.m */; };
-		DEAFA0AA1672D98600D87EDB /* SMIncrementalStoreFetchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A615CB5EA200E491C4 /* SMIncrementalStoreFetchTest.m */; };
-		DEAFA0AB1672DE1F00D87EDB /* SMUserManagedObjectSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE64D6041623894600237570 /* SMUserManagedObjectSpec.m */; };
 		DEB94F10165B0E540030CE85 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
 		DEB94F11165B0E570030CE85 /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
 		DEB94F12165B0E5A0030CE85 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
@@ -401,6 +394,7 @@
 		DE9784A3163B5880001119D1 /* NSEntityDescription+StackMobSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSEntityDescription+StackMobSerialization.m"; sourceTree = "<group>"; };
 		DE9784A4163B5880001119D1 /* NSManagedObject+StackMobSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+StackMobSerialization.h"; sourceTree = "<group>"; };
 		DE9784A5163B5880001119D1 /* NSManagedObject+StackMobSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+StackMobSerialization.m"; sourceTree = "<group>"; };
+		DEA6532A16766BB7005B72A5 /* SMCoreDataIntegrationTest 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SMCoreDataIntegrationTest 2.xcdatamodel"; sourceTree = "<group>"; };
 		DEA9ED62164B1CBF006B7326 /* SMOAuth1Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMOAuth1Client.h; sourceTree = "<group>"; };
 		DEA9ED63164B1CBF006B7326 /* SMOAuth1Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMOAuth1Client.m; sourceTree = "<group>"; };
 		DEA9ED64164B1CBF006B7326 /* SMPushClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMPushClient.h; sourceTree = "<group>"; };
@@ -1264,13 +1258,6 @@
 				DE0CC7D215CB6B3800E491C4 /* SMCoreDataIntegrationTestHelpers.m in Sources */,
 				DE64D608162389A600237570 /* Person.m in Sources */,
 				DE68E593166EF568004F9767 /* LocalReadCacheSpec.m in Sources */,
-				DEAFA0A51672D97400D87EDB /* SMUpdateObjectsOptimizationSpec.m in Sources */,
-				DEAFA0A61672D97900D87EDB /* CoreDataPropertyTypesSpec.m in Sources */,
-				DEAFA0A71672D97E00D87EDB /* SMBinDataConvertCDIntegrationSpec.m in Sources */,
-				DEAFA0A81672D98000D87EDB /* SMCoreDataStoreTest.m in Sources */,
-				DEAFA0A91672D98300D87EDB /* SMIncrementalStoreTest.m in Sources */,
-				DEAFA0AA1672D98600D87EDB /* SMIncrementalStoreFetchTest.m in Sources */,
-				DEAFA0AB1672DE1F00D87EDB /* SMUserManagedObjectSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1632,9 +1619,10 @@
 		DE0CC7A115CB5E0200E491C4 /* SMCoreDataIntegrationTest.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				DEA6532A16766BB7005B72A5 /* SMCoreDataIntegrationTest 2.xcdatamodel */,
 				DE0CC7A215CB5E0200E491C4 /* SMCoreDataIntegrationTest.xcdatamodel */,
 			);
-			currentVersion = DE0CC7A215CB5E0200E491C4 /* SMCoreDataIntegrationTest.xcdatamodel */;
+			currentVersion = DEA6532A16766BB7005B72A5 /* SMCoreDataIntegrationTest 2.xcdatamodel */;
 			path = SMCoreDataIntegrationTest.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
