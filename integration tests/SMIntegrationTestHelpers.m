@@ -40,7 +40,9 @@ void synchronousQuery(SMDataStore *sm, SMQuery *query, SynchronousQueryBlock blo
     NSURL *credentialsURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"StackMobCredentials" withExtension:@"plist"];
     NSDictionary *credentials = [NSDictionary dictionaryWithContentsOfURL:credentialsURL];
     NSString *publicKey = [credentials objectForKey:@"PublicKey"];
-    return [[SMClient alloc] initWithAPIVersion:SM_TEST_API_VERSION publicKey:publicKey];
+    SMClient *aClient = [[SMClient alloc] initWithAPIVersion:SM_TEST_API_VERSION publicKey:publicKey];
+    [NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:@"api.stackmob.com"];
+    return aClient;
 }
 
 + (SMPushClient *)defaultPushClient

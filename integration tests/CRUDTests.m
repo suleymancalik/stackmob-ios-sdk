@@ -23,7 +23,6 @@ describe(@"CRUD", ^{
     __block SMDataStore *dataStore = nil;
     beforeEach(^{
         dataStore = [SMIntegrationTestHelpers dataStore];
-        [NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:@"api.stackmob.com"];
     });
     it(@"should successfully create a Datastore", ^{
         [dataStore shouldNotBeNil];

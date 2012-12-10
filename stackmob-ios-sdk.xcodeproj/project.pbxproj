@@ -151,6 +151,11 @@
 		DE9784A9163B5880001119D1 /* NSManagedObject+StackMobSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9784A5163B5880001119D1 /* NSManagedObject+StackMobSerialization.m */; };
 		DE9784DC163B6A79001119D1 /* NSEntityDescription+StackMobSerialization.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE9784A2163B5880001119D1 /* NSEntityDescription+StackMobSerialization.h */; };
 		DE9784DD163B6A79001119D1 /* NSManagedObject+StackMobSerialization.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE9784A4163B5880001119D1 /* NSManagedObject+StackMobSerialization.h */; };
+		DEA653421676904A005B72A5 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
+		DEA6534316769090005B72A5 /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
+		DEA6534416769099005B72A5 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
+		DEA65345167690AC005B72A5 /* SMPushClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED78164B1D43006B7326 /* SMPushClientIntegrationSpec.m */; };
+		DEA65346167690B5005B72A5 /* SMNetworkReachabilitySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9EEBE164B4F24006B7326 /* SMNetworkReachabilitySpec.m */; };
 		DEA9ED69164B1CBF006B7326 /* SMOAuth1Client.h in Headers */ = {isa = PBXBuildFile; fileRef = DEA9ED62164B1CBF006B7326 /* SMOAuth1Client.h */; };
 		DEA9ED6A164B1CBF006B7326 /* SMOAuth1Client.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED63164B1CBF006B7326 /* SMOAuth1Client.m */; };
 		DEA9ED6B164B1CBF006B7326 /* SMPushClient.h in Headers */ = {isa = PBXBuildFile; fileRef = DEA9ED64164B1CBF006B7326 /* SMPushClient.h */; };
@@ -1178,6 +1183,11 @@
 				DE0CC7B115CB605900E491C4 /* Superpower.m in Sources */,
 				DEF82E051654983900664A1A /* CRUDTests.m in Sources */,
 				1DDAE4691656EF15001DFAEF /* SMNetworkReachabilityHelper.m in Sources */,
+				DEA653421676904A005B72A5 /* SMClientIntegrationSpec.m in Sources */,
+				DEA6534316769090005B72A5 /* QueryTests.m in Sources */,
+				DEA6534416769099005B72A5 /* SMCusCodeReqIntegrationSpec.m in Sources */,
+				DEA65345167690AC005B72A5 /* SMPushClientIntegrationSpec.m in Sources */,
+				DEA65346167690B5005B72A5 /* SMNetworkReachabilitySpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
