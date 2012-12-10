@@ -26,6 +26,10 @@
 
 #define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
+@interface NSURLRequest(Private)
++(void)setAllowsAnyHTTPSCertificate:(BOOL)inAllow forHost:(NSString *)inHost;
+@end
+
 @interface SMIntegrationTestHelpers : NSObject
 
 + (SMClient *)defaultClient;
