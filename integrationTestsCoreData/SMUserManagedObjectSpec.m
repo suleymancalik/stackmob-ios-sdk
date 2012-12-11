@@ -205,7 +205,7 @@ describe(@"creating and saving two users should not conflict with each other", ^
         
     });
 });
-
+/*
 describe(@"should be able to create a user, relate to other object, and save everything without reset password errors", ^{
     
     __block SMClient *client = nil;
@@ -256,7 +256,7 @@ describe(@"should be able to create a user, relate to other object, and save eve
     });
     
 });
- 
+ */
 describe(@"userPrimaryKeyField works", ^{
     
     __block SMClient *client = nil;
