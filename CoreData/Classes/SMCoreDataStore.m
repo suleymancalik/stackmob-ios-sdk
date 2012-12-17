@@ -21,6 +21,7 @@
 @interface SMCoreDataStore ()
 
 @property(nonatomic, readwrite, strong)NSManagedObjectModel *managedObjectModel;
+@property (nonatomic, strong) NSManagedObjectContext *privateContext;
 
 @end
 
@@ -29,6 +30,7 @@
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize managedObjectContext = _managedObjectContext;
+@synthesize privateContext = _privateContext;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
@@ -63,12 +65,22 @@
     
 }
 
+- (NSManagedObjectContext *)privateContext
+{
+    if (_privateContext == nil) {
+        _privateContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        [_privateContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
+        [_privateContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
+    }
+    return _privateContext;
+}
+
 - (NSManagedObjectContext *)managedObjectContext
 {
     if (_managedObjectContext == nil) {
-        _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
         [_managedObjectContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
-        [_managedObjectContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
+        [_managedObjectContext setParentContext:self.privateContext];
     }
     return _managedObjectContext;
 }

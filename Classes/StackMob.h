@@ -37,4 +37,5 @@
 #import "SMUserManagedObject.h"
 #import "NSManagedObject+StackMobSerialization.h"
 #import "NSEntityDescription+StackMobSerialization.h"
+#import "NSManagedObjectContext+Concurrency.h"
 #import "SMIncrementalStore+Query.h"
