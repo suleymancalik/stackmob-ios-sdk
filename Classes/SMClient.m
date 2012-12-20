@@ -168,7 +168,7 @@ static SMClient *defaultClient = nil;
         }
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:username, self.userPrimaryKeyField, password, self.userPasswordField, nil];
-        [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options onSuccess:successBlock onFailure:failureBlock]; 
+        [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
     }
 }
 
@@ -197,7 +197,7 @@ static SMClient *defaultClient = nil;
         NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:username, self.userPrimaryKeyField, 
                               tempPassword, self.userPasswordField, 
                               newPassword, @"new_password", nil];
-        [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options onSuccess:successBlock onFailure:failureBlock]; 
+        [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
     }
 }
 
@@ -373,7 +373,7 @@ static SMClient *defaultClient = nil;
         }
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:fbToken, FB_TOKEN_KEY, nil];
-        [self.session doTokenRequestWithEndpoint:@"facebookAccessToken" credentials:args options:options onSuccess:successBlock onFailure:failureBlock]; 
+        [self.session doTokenRequestWithEndpoint:@"facebookAccessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
     }
 }
 
@@ -490,7 +490,7 @@ static SMClient *defaultClient = nil;
         }
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:twitterToken, TW_TOKEN_KEY, twitterSecret, TW_SECRET_KEY, nil];
-        [self.session doTokenRequestWithEndpoint:@"twitterAccessToken" credentials:args options:options onSuccess:successBlock onFailure:failureBlock]; 
+        [self.session doTokenRequestWithEndpoint:@"twitterAccessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock]; 
     }
 }
 

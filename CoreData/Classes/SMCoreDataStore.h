@@ -39,7 +39,6 @@
  Uses the `NSManagedObjectModel` passed to the `coreDataStoreWithManagedObjectModel:` method in <SMClient>.
  */
 @property(nonatomic, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
-@property(nonatomic, strong) NSPersistentStoreCoordinator *localPersistentStoreCoordinator;
 
 /**
  An instance of `NSManagedObjectContext` set with this class's persistent store coordinator.
@@ -47,7 +46,6 @@
  This is the managed object context to use throughout your application.
  */
 @property(nonatomic, strong) NSManagedObjectContext *managedObjectContext;
-@property(nonatomic, strong) NSManagedObjectContext *localManagedObjectContext;
 
 
 ///-------------------------------

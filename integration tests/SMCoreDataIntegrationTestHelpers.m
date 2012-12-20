@@ -208,4 +208,61 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return _stackMobMOC;
 }
 
++ (BOOL)synchronousSaveInBackgroundWithContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error
+{
+    NSManagedObjectContext *mainContext = context;
+    NSManagedObjectContext *privateContext = mainContext.parentContext;
+    NSManagedObjectContext *temporaryContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    temporaryContext.parentContext = mainContext;
+    __block BOOL success = NO;
+    __block NSError *saveError = nil;
+    [temporaryContext performBlockAndWait:^{
+        // do something that takes some time asynchronously using the temp context
+        
+        // Save Temporary Context
+        if (![temporaryContext save:&saveError]) {
+            
+            
+        } else {
+            // Save Main Context
+            [mainContext performBlockAndWait:^{
+                
+                if (![mainContext save:&saveError]) {
+                    
+                    
+                } else {
+                    // Main Context should always have a private queue parent
+                    if (privateContext) {
+                        
+                        // Save Private Context to disk
+                        [privateContext performBlockAndWait:^{
+                            
+                            if (![privateContext save:&saveError]) {
+                                
+                                
+                                
+                            } else {
+                                
+                                success = YES;
+                                
+                            }
+                            
+                        }];
+                        
+                    }
+                }
+                
+            }];
+            
+        }
+        
+    }];
+    
+    if (saveError != nil) {
+        *error = saveError;
+    }
+    
+    return success;
+}
+
 @end

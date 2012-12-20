@@ -21,6 +21,8 @@
 #import "SMIncrementalStore.h"
 #import "StackMob.h"
 #import "KeychainWrapper.h"
+#import "SMDataStore+Protected.h"
+#import "AFHTTPClient.h"
 
 #define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
@@ -28,6 +30,25 @@ NSString *const SMIncrementalStoreType = @"SMIncrementalStore";
 NSString *const SM_DataStoreKey = @"SM_DataStoreKey";
 NSString *const StackMobRelationsKey = @"X-StackMob-Relations";
 NSString *const SerializedDictKey = @"SerializedDict";
+
+NSString *const SMInsertedObjectFailures = @"SMInsertedObjectFailures";
+NSString *const SMUpdatedObjectFailures = @"SMUpdatedObjectFailures";
+NSString *const SMDeletedObjectFailures = @"SMDeletedObjectFailures";
+
+NSString *const SMFailedManagedObjectID = @"SMFailedManagedObjectID";
+NSString *const SMFailedManagedObjectError = @"SMFailedManagedObjectError";
+
+// Internal
+
+NSString *const SMFailedRequestError = @"SMFailedRequestError";
+NSString *const SMFailedRequestObjectPrimaryKey = @"SMFailedRequestObjectPrimaryKey";
+NSString *const SMFailedRequestObjectEntity = @"SMFailedRequestObjectEntity";
+NSString *const SMFailedRequest = @"SMFailedRequest";
+NSString *const SMFailedRequestOptions = @"SMFailedRequestOptions";
+NSString *const SMFailedRequestSuccessBlock = @"SMFailedRequestSuccessBlock";
+NSString *const SMFailedRequestFailureBlock = @"SMFailedRequestFailureBlock";
+NSString *const SMFailedRequestOriginalSuccessBlock = @"SMFailedRequestOriginalSuccessBlock";
+
 
 BOOL SM_CORE_DATA_DEBUG = NO;
 unsigned int SM_MAX_LOG_LENGTH = 10000;
@@ -41,6 +62,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 }
 
 @property (nonatomic, strong) SMDataStore *smDataStore;
+@property (nonatomic) dispatch_queue_t callbackQueue;
+@property (nonatomic, strong) SMRequestOptions *globalOptions;
 
 - (id)handleSaveRequest:(NSPersistentStoreRequest *)request 
             withContext:(NSManagedObjectContext *)context 
@@ -57,12 +80,16 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 @implementation SMIncrementalStore
 
 @synthesize smDataStore = _smDataStore;
+@synthesize callbackQueue = _callbackQueue;
+@synthesize globalOptions = _globalOptions;
 
 - (id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root configurationName:(NSString *)name URL:(NSURL *)url options:(NSDictionary *)options {
     
     self = [super initWithPersistentStoreCoordinator:root configurationName:name URL:url options:options];
     if (self) {
         _smDataStore = [options objectForKey:SM_DataStoreKey];
+        _callbackQueue = dispatch_queue_create("Queue For Incremental Store Request Callbacks", NULL);
+        _globalOptions = [SMRequestOptions options];
     }
     return self;
 }
@@ -152,6 +179,10 @@ You should implement this method conservatively, and expect that unknown request
             withContext:(NSManagedObjectContext *)context 
                   error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
+    
+    // Reset options and failed operations queue
+    [self.globalOptions setTryRefreshToken:YES];
+    
     NSSaveChangesRequest *saveRequest = [[NSSaveChangesRequest alloc] initWithInsertedObjects:[context insertedObjects] updatedObjects:[context updatedObjects] deletedObjects:[context deletedObjects] lockedObjects:nil];
     
     NSSet *insertedObjects = [saveRequest insertedObjects];
@@ -180,28 +211,41 @@ You should implement this method conservatively, and expect that unknown request
 }
 
 - (BOOL)handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
+    
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be inserted are %@", truncateOutputIfExceedsMaxLogLength(insertedObjects))}
-
-    __block BOOL success = NO;
     
-    [insertedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            NSDictionary *serializedObjDict = [obj sm_dictionarySerialization];
-            NSString *schemaName = [obj sm_schema];
-            
-            SMRequestOptions *options = [SMRequestOptions options];
-            // If superclass is SMUserNSManagedObject, add password
-            if ([obj isKindOfClass:[SMUserManagedObject class]]) {
-                BOOL addPasswordSuccess = [self addPasswordToSerializedDictionary:&serializedObjDict originalObject:obj];
-                if (!addPasswordSuccess)
-                {
-                    *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorPasswordForUserObjectNotFound userInfo:nil];
-                    *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
-                    *stop = YES;
-                }
-                options.isSecure = YES;
+    __block BOOL success = YES;
+    
+    // create a group dispatch and queue
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_group_t group = dispatch_group_create();
+    
+    __block NSMutableArray *secureOperations = [NSMutableArray array];
+    __block NSMutableArray *regularOperations = [NSMutableArray array];
+    __block NSMutableArray *failedRequests = [NSMutableArray array];
+    __block NSMutableArray *failedRequestsWithUnauthorizedResponse = [NSMutableArray array];
+    
+    [insertedObjects enumerateObjectsUsingBlock:^(id managedObject, BOOL *stop) {
+        
+        NSDictionary *serializedObjDict = [managedObject sm_dictionarySerialization];
+        NSString *schemaName = [managedObject sm_schema];
+        __block NSString *insertedObjectID = [managedObject sm_objectId];
+        
+        SMRequestOptions *options = [SMRequestOptions options];
+        // If superclass is SMUserNSManagedObject, add password
+        if ([managedObject isKindOfClass:[SMUserManagedObject class]]) {
+            BOOL addPasswordSuccess = [self addPasswordToSerializedDictionary:&serializedObjDict originalObject:managedObject];
+            if (!addPasswordSuccess)
+            {
+                *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorPasswordForUserObjectNotFound userInfo:nil];
+                *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+                *stop = YES;
             }
+            options.isSecure = YES;
+        }
+        
+        if (!*stop) {
             if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)) }
             // add relationship headers if needed
             NSMutableDictionary *headerDict = [NSMutableDictionary dictionary];
@@ -210,27 +254,276 @@ You should implement this method conservatively, and expect that unknown request
                 [options setHeaders:headerDict];
             }
             
-            [self.smDataStore createObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schema); }
-                if ([obj isKindOfClass:[SMUserManagedObject class]]) {
-                    [obj removePassword];
+            SMResultSuccessBlock operationSuccesBlock = ^(NSDictionary *theObject){
+                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schemaName); }
+                if ([managedObject isKindOfClass:[SMUserManagedObject class]]) {
+                    [managedObject removePassword];
                 }
-                success = YES;
-                syncReturn(semaphore);
-            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to insert object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
-                if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
-                success = NO;
-                *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
-                syncReturn(semaphore);
-            }];
+
+            };
             
-        });
-        if (success == NO)
-            *stop = YES;
+            SMCoreDataSaveFailureBlock operationFailureBlock = ^(NSURLRequest *theRequest, NSError *theError, NSDictionary *theObject, SMRequestOptions *theOptions, SMResultSuccessBlock originalSuccessBlock){
+                
+                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to insert object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schemaName); }
+                if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
+                
+                NSDictionary *failedRequestDict = [NSDictionary dictionaryWithObjectsAndKeys:theRequest, SMFailedRequest, theError, SMFailedRequestError, insertedObjectID, SMFailedRequestObjectPrimaryKey, [managedObject entity], SMFailedRequestObjectEntity, theOptions, SMFailedRequestOptions, originalSuccessBlock, SMFailedRequestOriginalSuccessBlock, nil];
+                
+                // Add failed request to correct array
+                if ([theError code] == SMErrorUnauthorized) {
+                    [failedRequestsWithUnauthorizedResponse addObject:failedRequestDict];
+                } else {
+                    [failedRequests addObject:failedRequestDict];
+                }
+                
+            };
+            
+            AFJSONRequestOperation *op = [[self smDataStore] postOperationForObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
+        
+            options.isSecure ? [secureOperations addObject:op] : [regularOperations addObject:op];
+            
+        } else {
+            success = NO;
+        }
+        
     }];
+    
+    // TODO abstract everything below
+    
+    
+    // Refresh access token if needed
+    
+    if (self.smDataStore.session.refreshing) {
+        
+        [self waitForRefreshingWithTimeout:5];
+        
+    } else {
+        
+        [self.globalOptions setTryRefreshToken:NO];
+        dispatch_group_enter(group);
+        self.smDataStore.session.refreshing = YES;//Don't ever trigger two refreshToken calls
+        [self.smDataStore.session doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.smDataStore.session.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *userObject) {
+            dispatch_group_leave(group);
+        } onFailure:^(NSError *theError) {
+            success = NO;
+            if (error != NULL) {
+                NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:nil];
+                *error = (__bridge id)(__bridge_retained CFTypeRef)refreshError;
+            }
+            dispatch_group_leave(group);
+        }];
+        
+        
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    }
+    
+    if (self.smDataStore.session.refreshing) {
+        
+        success = NO;
+        if (error != NULL) {
+            NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
+            *error = (__bridge id)(__bridge_retained CFTypeRef)refreshError;
+        }
+        
+    }
+    
+    if (success) {
+        [self enqueueOperations:secureOperations  dispatchGroup:group completionBlockQueue:queue secure:YES];
+        [self enqueueOperations:regularOperations dispatchGroup:group completionBlockQueue:queue secure:NO];
+        
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+        
+        // If there were 401s, refresh token is valid, refresh token is present and token has expired, attempt refresh and reprocess
+        if ([failedRequestsWithUnauthorizedResponse count] > 0) {
+            
+            if (self.globalOptions.tryRefreshToken && self.smDataStore.session.refreshToken != nil && [self.smDataStore.session accessTokenHasExpired]) {
+                
+                // If we are refreshing, wait for refresh with 5 sec timeout
+                __block BOOL refreshSuccess = NO;
+                
+                if (self.smDataStore.session.refreshing) {
+                    
+                    [self waitForRefreshingWithTimeout:5];
+                    
+                } else {
+                    
+                    [self.globalOptions setTryRefreshToken:NO];
+                    dispatch_group_enter(group);
+                    self.smDataStore.session.refreshing = YES;//Don't ever trigger two refreshToken calls
+                    [self.smDataStore.session doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.smDataStore.session.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *userObject) {
+                        refreshSuccess = YES;
+                        dispatch_group_leave(group);
+                    } onFailure:^(NSError *theError) {
+                        refreshSuccess = NO;
+                        success = NO;
+                        [failedRequests addObjectsFromArray:failedRequestsWithUnauthorizedResponse];
+                        [self setErrorAndUserInfoWithFailedOperations:failedRequests errorCode:SMErrorRefreshTokenFailed error:error];
+                        dispatch_group_leave(group);
+                    }];
+                    
+                    
+                    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+                }
+                
+                if (self.smDataStore.session.refreshing) {
+                    
+                    refreshSuccess = NO;
+                    success = NO;
+                    [failedRequests addObjectsFromArray:failedRequestsWithUnauthorizedResponse];
+                    [self setErrorAndUserInfoWithFailedOperations:failedRequests errorCode:SMErrorRefreshTokenInProgress error:error];
+                    
+                } else {
+                    refreshSuccess = YES;
+                }
+                
+                if (refreshSuccess) {
+                    
+                    [secureOperations removeAllObjects];
+                    [regularOperations removeAllObjects];
+                    
+                    [failedRequestsWithUnauthorizedResponse enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                        SMRequestOptions *retryOptions = [obj objectForKey:SMFailedRequestOptions];
+                        
+                        SMFullResponseSuccessBlock retrySuccessBlock = [self.smDataStore SMFullResponseSuccessBlockForResultSuccessBlock:[obj objectForKey:SMFailedRequestOriginalSuccessBlock]];
+                        
+                        SMFullResponseFailureBlock retryFailureBlock = ^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *retryError, id JSON) {
+                            
+                            // TODO StackMobify error with the following block
+                            /*
+                             if (failureBlock) {
+                             response == nil ? failureBlock(request, error, theObject, options, originalSuccessBlock) : failureBlock(request, [self errorFromResponse:response JSON:JSON], theObject, options, originalSuccessBlock);
+                             }
+                             */
+                            NSDictionary *failedRequestDict = [NSDictionary dictionaryWithObjectsAndKeys:retryError, SMFailedRequestError, [obj objectForKey:SMFailedRequestObjectPrimaryKey], SMFailedRequestObjectPrimaryKey, [obj objectForKey:SMFailedRequestObjectEntity], SMFailedRequestObjectEntity, nil];
+                            [failedRequests addObject:failedRequestDict];
+                            
+                            
+                        };
+                        
+                        AFJSONRequestOperation *op = [self.smDataStore newOperationForRequest:[obj objectForKey:SMFailedRequest] options:[obj objectForKey:SMFailedRequestOptions] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:retrySuccessBlock onFailure:retryFailureBlock];
+                        
+                        retryOptions.isSecure ? [secureOperations addObject:op] : [regularOperations addObject:op];
+                    }];
+                    
+                    [self enqueueOperations:secureOperations  dispatchGroup:group completionBlockQueue:queue secure:YES];
+                    [self enqueueOperations:regularOperations dispatchGroup:group completionBlockQueue:queue secure:NO];
+                    
+                    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+                    
+                }
+                
+            } else {
+                [failedRequests addObjectsFromArray:failedRequestsWithUnauthorizedResponse];
+            }
+        }
+        
+        if ([failedRequests count] > 0) {
+            success = NO;
+            [self setErrorAndUserInfoWithFailedOperations:failedRequests errorCode:SMErrorCoreDataSave error:error];
+        }
+    }
+    
+    NSLog(@"done with all things");
+    
+    dispatch_release(group);
+    dispatch_release(queue);
     return success;
+    
 }
+
+- (BOOL)setErrorAndUserInfoWithFailedOperations:(NSMutableArray *)failedOperations errorCode:(int)errorCode error:(NSError *__autoreleasing*)error
+{
+    if (error != NULL) {
+        __block NSMutableArray *failedInsertedObjects = [NSMutableArray array];
+        [failedOperations enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            NSManagedObjectID *oid = [self newObjectIDForEntity:[obj objectForKey:SMFailedRequestObjectEntity] referenceObject:[obj objectForKey:SMFailedRequestObjectPrimaryKey]];
+            NSDictionary *failedObject = [NSDictionary dictionaryWithObjectsAndKeys:oid, SMFailedManagedObjectID, [obj objectForKey:SMFailedRequestError], SMFailedManagedObjectError, nil];
+            [failedInsertedObjects addObject:failedObject];
+        }];
+        NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:errorCode userInfo:[NSDictionary dictionaryWithObjectsAndKeys:failedInsertedObjects, SMInsertedObjectFailures, nil]];
+        *error = (__bridge id)(__bridge_retained CFTypeRef)refreshError;
+    }
+    [failedOperations removeAllObjects];
+    return YES;
+}
+
+- (void)waitForRefreshingWithTimeout:(int)timeout
+{
+    if (timeout == 0 || !self.smDataStore.session.refreshing) {
+        return;
+    }
+    
+    sleep(1);
+    
+    [self waitForRefreshingWithTimeout:(timeout - 1)];
+    
+}
+
+- (void)enqueueOperations:(NSArray *)ops dispatchGroup:(dispatch_group_t)group completionBlockQueue:(dispatch_queue_t)queue secure:(BOOL)isSecure
+{
+    if ([ops count] > 0) {
+        dispatch_group_enter(group);
+        [[[self.smDataStore session] oauthClientWithHTTPS:isSecure] enqueueBatchOfHTTPRequestOperations:ops completionBlockQueue:queue progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations) {
+            // TODO better progress block
+            NSLog(@"number of finished operations: %d", numberOfFinishedOperations);
+        } completionBlock:^(NSArray *operations) {
+            NSLog(@"finished");
+            dispatch_group_leave(group);
+        }];
+    }
+}
+
+/*
+typedef void (^AFCompletionBlock)(void);
+
+- (void)SM_enqueueBatchOfHTTPRequestOperations:(NSArray *)operations
+                              progressBlock:(void (^)(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations))progressBlock
+                            completionBlock:(void (^)(NSArray *operations))completionBlock
+{
+    __block dispatch_group_t dispatchGroup = dispatch_group_create();
+    NSBlockOperation *batchedOperation = [NSBlockOperation blockOperationWithBlock:^{
+        dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), ^{
+            if (completionBlock) {
+                completionBlock(operations);
+            }
+        });
+#if !OS_OBJECT_USE_OBJC
+        dispatch_release(dispatchGroup);
+#endif
+    }];
+    
+    for (AFHTTPRequestOperation *operation in operations) {
+        AFCompletionBlock originalCompletionBlock = [operation.completionBlock copy];
+        operation.completionBlock = ^{
+            dispatch_queue_t queue = operation.successCallbackQueue ?: dispatch_get_main_queue();
+            dispatch_group_async(dispatchGroup, queue, ^{
+                if (originalCompletionBlock) {
+                    originalCompletionBlock();
+                }
+                
+                __block NSUInteger numberOfFinishedOperations = 0;
+                [operations enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                    if ([(NSOperation *)obj isFinished]) {
+                        numberOfFinishedOperations++;
+                    }
+                }];
+                
+                if (progressBlock) {
+                    progressBlock(numberOfFinishedOperations, [operations count]);
+                }
+                
+                dispatch_group_leave(dispatchGroup);
+            });
+        };
+        
+        dispatch_group_enter(dispatchGroup);
+        [batchedOperation addDependency:operation];
+        
+        [self enqueueHTTPRequestOperation:operation];
+    }
+    [self.operationQueue addOperation:batchedOperation];
+}
+*/
 
 - (BOOL)handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }

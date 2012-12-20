@@ -99,7 +99,9 @@
  */
 - (void)doTokenRequestWithEndpoint:(NSString *)endpoint
                        credentials:(NSDictionary *)credentials
-                       options:(SMRequestOptions *)options
+                           options:(SMRequestOptions *)options
+              successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+              failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                          onSuccess:(void (^)(NSDictionary *userObject))successBlock
                          onFailure:(void (^)(NSError *theError))failureBlock;
 

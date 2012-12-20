@@ -10,7 +10,7 @@
 
 @implementation NSManagedObjectContext (Concurrency)
 
-- (void)saveContextOnSuccess:(void (^)())onSuccess onFailure:(void (^)(NSError *error))onFailure
+- (void)performSaveOnSuccess:(void (^)())onSuccess onFailure:(void (^)(NSError *error))onFailure
 {
     NSManagedObjectContext *mainContext = self;
     NSManagedObjectContext *privateContext = mainContext.parentContext;
@@ -76,12 +76,13 @@
             
         }
         
-        
-        
-        
-        
     }];
 
+}
+
+- (BOOL)performSaveAndWait:(NSError *__autoreleasing*)error
+{
+    return YES;
 }
 
 

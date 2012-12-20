@@ -11,7 +11,7 @@
 
 @interface NSManagedObjectContext (Concurrency)
 
-//- (void)save:(NSError *__autoreleasing *)error onSuccess:(void(^)())onSuccess onFailure:(SMFailureBlock)onFailure;
-- (void)saveContextOnSuccess:(void (^)())onSuccess onFailure:(void (^)(NSError *error))onFailure;
+- (void)performSaveOnSuccess:(void (^)())successBlock onFailure:(void (^)(NSError *error))failureBlock;
+- (BOOL)performSaveAndWait:(NSError *__autoreleasing*)error;
 
 @end

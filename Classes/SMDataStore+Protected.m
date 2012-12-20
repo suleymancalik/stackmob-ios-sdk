@@ -118,6 +118,16 @@
     };
 }
 
+- (SMFullResponseFailureBlock)SMFullResponseFailureBlockForObject:(NSDictionary *)theObject options:(SMRequestOptions *)options originalSuccessBlock:(SMResultSuccessBlock)originalSuccessBlock coreDataSaveFailureBlock:(SMCoreDataSaveFailureBlock)failureBlock
+{
+    return ^void(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
+    {
+        if (failureBlock) {
+            response == nil ? failureBlock(request, error, theObject, options, originalSuccessBlock) : failureBlock(request, [self errorFromResponse:response JSON:JSON], theObject, options, originalSuccessBlock);
+        }
+    };
+}
+
 - (int)countFromRangeHeader:(NSString *)rangeHeader results:(NSArray *)results
 {
     if (rangeHeader == nil) {
@@ -151,6 +161,25 @@
     }
 }
 
+/*
+ // TODO fix this
+- (void)refreshAndRetry:(NSURLRequest *)request options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue enqueueOperation:(BOOL)enqueueOperation onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock
+{
+    if (self.session.refreshing) {
+        NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
+        failureBlock(request, nil, error, nil);
+    } else {
+        __block SMRequestOptions *newOptions = [options copy];
+        [newOptions setTryRefreshToken:NO];
+        [self.session refreshTokenOnSuccess:^(NSDictionary *userObject) {
+            [self newOperationForRequest:[self.session signRequest:request] options:newOptions successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
+        } onFailure:^(NSError *theError) {
+            // TODO Error out here
+        }];
+    }
+}
+ */
+
 - (void)refreshAndRetry:(NSURLRequest *)request onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
 {
     if (self.session.refreshing) {
@@ -162,9 +191,67 @@
         [self.session refreshTokenOnSuccess:^(NSDictionary *userObject) {
             [self queueRequest:[self.session signRequest:request] options:options onSuccess:onSuccess onFailure:onFailure];
         } onFailure:^(NSError *theError) {
+            // TODO should we be attempting the request again after a failed refresh attempt
             [self queueRequest:[self.session signRequest:request] options:options onSuccess:onSuccess onFailure:onFailure];
         }];
     }
+}
+
+- (AFJSONRequestOperation *)newOperationForRequest:(NSURLRequest *)request options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock
+{
+    if (options.headers && [options.headers count] > 0) {
+        // Enumerate through options and add them to the request header.
+        NSMutableURLRequest *tempRequest = [request mutableCopy];
+        [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
+            [tempRequest setValue:headerValue forHTTPHeaderField:headerField];
+        }];
+        request = tempRequest;
+        
+        // Set the headers dictionary to empty, to prevent unnecessary enumeration during recursion.
+        options.headers = [NSDictionary dictionary];
+    }
+    
+    SMFullResponseFailureBlock retryBlock = ^(NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
+        if ([response statusCode] == SMErrorServiceUnavailable && options.numberOfRetries > 0) {
+            NSString *retryAfter = [[response allHeaderFields] valueForKey:@"Retry-After"];
+            if (retryAfter) {
+                [options setNumberOfRetries:(options.numberOfRetries - 1)];
+                double delayInSeconds = [retryAfter doubleValue];
+                dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+                dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                    if (options.retryBlock) {
+                        options.retryBlock(originalRequest, response, error, JSON, options, successBlock, failureBlock);
+                    } else {
+                        [self queueRequest:[self.session signRequest:originalRequest] options:options onSuccess:successBlock onFailure:failureBlock];
+                    }
+                });
+            } else {
+                if (failureBlock) {
+                    failureBlock(originalRequest, response, error, JSON);
+                }
+            }
+        } else if ([error domain] == NSURLErrorDomain && [error code] == -1009) {
+            if (failureBlock) {
+                NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
+                failureBlock(originalRequest, response, networkNotReachableError, JSON);
+            }
+        } else {
+            if (failureBlock) {
+                failureBlock(originalRequest, response, error, JSON);
+            }
+        }
+    };
+    
+    AFJSONRequestOperation *op = [SMJSONRequestOperation JSONRequestOperationWithRequest:request success:successBlock failure:retryBlock];
+    if (successCallbackQueue) {
+        [op setSuccessCallbackQueue:successCallbackQueue];
+    }
+    if (failureCallbackQueue) {
+        [op setFailureCallbackQueue:failureCallbackQueue];
+    }
+    
+    return op;
+    
 }
 
 - (void)queueRequest:(NSURLRequest *)request options:(SMRequestOptions *)options onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
@@ -221,7 +308,7 @@
         };
         
         AFJSONRequestOperation *op = [SMJSONRequestOperation JSONRequestOperationWithRequest:request success:onSuccess failure:retryBlock];
-        [[self.session oauthClientWithHTTPS:FALSE] enqueueHTTPRequestOperation:op];
+        [[self.session oauthClientWithHTTPS:options.isSecure] enqueueHTTPRequestOperation:op];
     }
     
 }
@@ -229,9 +316,33 @@
 - (NSString *)URLEncodedStringFromValue:(NSString *)value
 {
     static NSString * const kAFCharactersToBeEscaped = @":/.?&=;+!@#$()~[]";
-    //static NSString * const kAFCharactersToLeaveUnescaped = @"[]";
     
 	return (__bridge_transfer  NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (__bridge CFStringRef)value, nil, (__bridge CFStringRef)kAFCharactersToBeEscaped, CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
+}
+
+// Operational methods
+
+- (AFJSONRequestOperation *)postOperationForObject:(NSDictionary *)theObject inSchema:(NSString *)schema options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMCoreDataSaveFailureBlock)failureBlock
+{
+    
+    if (theObject == nil || schema == nil) {
+        if (failureBlock) {
+            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:nil];
+            failureBlock(nil, error, theObject, options, nil);
+        }
+        return nil;
+    } else {
+        NSString *theSchema = schema;
+        if ([schema rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]].location == NSNotFound) {
+            // lowercase the schema for StackMob
+            theSchema = [theSchema lowercaseString];
+        }
+        
+        NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"POST" path:theSchema parameters:theObject];
+        SMFullResponseSuccessBlock urlSuccessBlock = [self SMFullResponseSuccessBlockForResultSuccessBlock:successBlock];
+        SMFullResponseFailureBlock urlFailureBlock = [self SMFullResponseFailureBlockForObject:theObject options:options originalSuccessBlock:successBlock coreDataSaveFailureBlock:failureBlock];
+        return [self newOperationForRequest:request options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:urlSuccessBlock onFailure:urlFailureBlock];
+    }
 }
 
 
