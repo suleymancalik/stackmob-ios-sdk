@@ -57,6 +57,7 @@
 
 - (SMFullResponseFailureBlock)SMFullResponseFailureBlockForFailureBlock:(SMFailureBlock)failureBlock;
 
+- (NSError *)errorFromResponse:(NSHTTPURLResponse *)response JSON:(id)JSON;
 
 - (int)countFromRangeHeader:(NSString *)rangeHeader results:(NSArray *)results;
 

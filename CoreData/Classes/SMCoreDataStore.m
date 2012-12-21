@@ -51,10 +51,10 @@
         
         NSError *error = nil;
         [_persistentStoreCoordinator addPersistentStoreWithType:SMIncrementalStoreType
-                                   configuration:nil 
-                                             URL:nil
-                                            options:[NSDictionary dictionaryWithObject:self forKey:SM_DataStoreKey] 
-                                           error:&error];
+                                                  configuration:nil 
+                                                            URL:[NSURL URLWithString:SMIncrementalStoreType]
+                                                        options:[NSDictionary dictionaryWithObject:self forKey:SM_DataStoreKey] 
+                                                          error:&error];
         if (error != nil) {
             [NSException raise:SMExceptionAddPersistentStore format:@"Error creating incremental persistent store: %@", error];
         }

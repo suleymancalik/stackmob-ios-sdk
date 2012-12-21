@@ -130,4 +130,6 @@
  */
 - (NSURLRequest *)signRequest:(NSURLRequest *)request;
 
+- (BOOL)eligibleForTokenRefresh:(SMRequestOptions *)options;
+
 @end

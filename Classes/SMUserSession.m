@@ -189,5 +189,10 @@
     return newRequest;
 }
 
+- (BOOL)eligibleForTokenRefresh:(SMRequestOptions *)options
+{
+    return options.tryRefreshToken && self.refreshToken != nil && [self accessTokenHasExpired];
+}
+
 
 @end

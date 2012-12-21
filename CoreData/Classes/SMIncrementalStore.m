@@ -75,6 +75,14 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (NSDictionary *)sm_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context;
 
+- (void)SM_enqueueOperations:(NSArray *)ops dispatchGroup:(dispatch_group_t)group completionBlockQueue:(dispatch_queue_t)queue secure:(BOOL)isSecure;
+
+- (BOOL)SM_setErrorAndUserInfoWithFailedOperations:(NSMutableArray *)failedOperations errorCode:(int)errorCode error:(NSError *__autoreleasing*)error;
+
+- (void)SM_waitForRefreshingWithTimeout:(int)timeout;
+
+- (BOOL)SM_doTokenRefreshIfNeededWithGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue error:(NSError *__autoreleasing*)error;
+
 @end
 
 @implementation SMIncrementalStore
@@ -228,6 +236,8 @@ You should implement this method conservatively, and expect that unknown request
     
     [insertedObjects enumerateObjectsUsingBlock:^(id managedObject, BOOL *stop) {
         
+        // Create operation for inserted object
+        
         NSDictionary *serializedObjDict = [managedObject sm_dictionarySerialization];
         NSString *schemaName = [managedObject sm_schema];
         __block NSString *insertedObjectID = [managedObject sm_objectId];
@@ -288,62 +298,27 @@ You should implement this method conservatively, and expect that unknown request
         
     }];
     
-    // TODO abstract everything below
     
-    
-    // Refresh access token if needed
-    
-    if (self.smDataStore.session.refreshing) {
-        
-        [self waitForRefreshingWithTimeout:5];
-        
-    } else {
-        
-        [self.globalOptions setTryRefreshToken:NO];
-        dispatch_group_enter(group);
-        self.smDataStore.session.refreshing = YES;//Don't ever trigger two refreshToken calls
-        [self.smDataStore.session doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.smDataStore.session.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *userObject) {
-            dispatch_group_leave(group);
-        } onFailure:^(NSError *theError) {
-            success = NO;
-            if (error != NULL) {
-                NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:nil];
-                *error = (__bridge id)(__bridge_retained CFTypeRef)refreshError;
-            }
-            dispatch_group_leave(group);
-        }];
-        
-        
-        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-    }
-    
-    if (self.smDataStore.session.refreshing) {
-        
-        success = NO;
-        if (error != NULL) {
-            NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
-            *error = (__bridge id)(__bridge_retained CFTypeRef)refreshError;
-        }
-        
-    }
+    // Refresh access token if needed before initial enqueue of operations
+    success = [self SM_doTokenRefreshIfNeededWithGroup:group queue:queue error:error];
     
     if (success) {
-        [self enqueueOperations:secureOperations  dispatchGroup:group completionBlockQueue:queue secure:YES];
-        [self enqueueOperations:regularOperations dispatchGroup:group completionBlockQueue:queue secure:NO];
+        [self SM_enqueueOperations:secureOperations  dispatchGroup:group completionBlockQueue:queue secure:YES];
+        [self SM_enqueueOperations:regularOperations dispatchGroup:group completionBlockQueue:queue secure:NO];
         
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // If there were 401s, refresh token is valid, refresh token is present and token has expired, attempt refresh and reprocess
         if ([failedRequestsWithUnauthorizedResponse count] > 0) {
             
-            if (self.globalOptions.tryRefreshToken && self.smDataStore.session.refreshToken != nil && [self.smDataStore.session accessTokenHasExpired]) {
+            if ([self.smDataStore.session eligibleForTokenRefresh:self.globalOptions]) {
                 
                 // If we are refreshing, wait for refresh with 5 sec timeout
                 __block BOOL refreshSuccess = NO;
                 
                 if (self.smDataStore.session.refreshing) {
                     
-                    [self waitForRefreshingWithTimeout:5];
+                    [self SM_waitForRefreshingWithTimeout:5];
                     
                 } else {
                     
@@ -357,7 +332,7 @@ You should implement this method conservatively, and expect that unknown request
                         refreshSuccess = NO;
                         success = NO;
                         [failedRequests addObjectsFromArray:failedRequestsWithUnauthorizedResponse];
-                        [self setErrorAndUserInfoWithFailedOperations:failedRequests errorCode:SMErrorRefreshTokenFailed error:error];
+                        [self SM_setErrorAndUserInfoWithFailedOperations:failedRequests errorCode:SMErrorRefreshTokenFailed error:error];
                         dispatch_group_leave(group);
                     }];
                     
@@ -370,13 +345,15 @@ You should implement this method conservatively, and expect that unknown request
                     refreshSuccess = NO;
                     success = NO;
                     [failedRequests addObjectsFromArray:failedRequestsWithUnauthorizedResponse];
-                    [self setErrorAndUserInfoWithFailedOperations:failedRequests errorCode:SMErrorRefreshTokenInProgress error:error];
+                    [self SM_setErrorAndUserInfoWithFailedOperations:failedRequests errorCode:SMErrorRefreshTokenInProgress error:error];
                     
                 } else {
                     refreshSuccess = YES;
                 }
                 
                 if (refreshSuccess) {
+                    
+                    // Retry Failed Requests
                     
                     [secureOperations removeAllObjects];
                     [regularOperations removeAllObjects];
@@ -388,15 +365,8 @@ You should implement this method conservatively, and expect that unknown request
                         
                         SMFullResponseFailureBlock retryFailureBlock = ^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *retryError, id JSON) {
                             
-                            // TODO StackMobify error with the following block
-                            /*
-                             if (failureBlock) {
-                             response == nil ? failureBlock(request, error, theObject, options, originalSuccessBlock) : failureBlock(request, [self errorFromResponse:response JSON:JSON], theObject, options, originalSuccessBlock);
-                             }
-                             */
-                            NSDictionary *failedRequestDict = [NSDictionary dictionaryWithObjectsAndKeys:retryError, SMFailedRequestError, [obj objectForKey:SMFailedRequestObjectPrimaryKey], SMFailedRequestObjectPrimaryKey, [obj objectForKey:SMFailedRequestObjectEntity], SMFailedRequestObjectEntity, nil];
+                            NSDictionary *failedRequestDict = [NSDictionary dictionaryWithObjectsAndKeys:[self.smDataStore errorFromResponse:response JSON:JSON], SMFailedRequestError, [obj objectForKey:SMFailedRequestObjectPrimaryKey], SMFailedRequestObjectPrimaryKey, [obj objectForKey:SMFailedRequestObjectEntity], SMFailedRequestObjectEntity, nil];
                             [failedRequests addObject:failedRequestDict];
-                            
                             
                         };
                         
@@ -405,8 +375,8 @@ You should implement this method conservatively, and expect that unknown request
                         retryOptions.isSecure ? [secureOperations addObject:op] : [regularOperations addObject:op];
                     }];
                     
-                    [self enqueueOperations:secureOperations  dispatchGroup:group completionBlockQueue:queue secure:YES];
-                    [self enqueueOperations:regularOperations dispatchGroup:group completionBlockQueue:queue secure:NO];
+                    [self SM_enqueueOperations:secureOperations  dispatchGroup:group completionBlockQueue:queue secure:YES];
+                    [self SM_enqueueOperations:regularOperations dispatchGroup:group completionBlockQueue:queue secure:NO];
                     
                     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
                     
@@ -417,13 +387,12 @@ You should implement this method conservatively, and expect that unknown request
             }
         }
         
+        // Error if any failed requests have made it to this point
         if ([failedRequests count] > 0) {
             success = NO;
-            [self setErrorAndUserInfoWithFailedOperations:failedRequests errorCode:SMErrorCoreDataSave error:error];
+            [self SM_setErrorAndUserInfoWithFailedOperations:failedRequests errorCode:SMErrorCoreDataSave error:error];
         }
     }
-    
-    NSLog(@"done with all things");
     
     dispatch_release(group);
     dispatch_release(queue);
@@ -431,7 +400,7 @@ You should implement this method conservatively, and expect that unknown request
     
 }
 
-- (BOOL)setErrorAndUserInfoWithFailedOperations:(NSMutableArray *)failedOperations errorCode:(int)errorCode error:(NSError *__autoreleasing*)error
+- (BOOL)SM_setErrorAndUserInfoWithFailedOperations:(NSMutableArray *)failedOperations errorCode:(int)errorCode error:(NSError *__autoreleasing*)error
 {
     if (error != NULL) {
         __block NSMutableArray *failedInsertedObjects = [NSMutableArray array];
@@ -447,7 +416,7 @@ You should implement this method conservatively, and expect that unknown request
     return YES;
 }
 
-- (void)waitForRefreshingWithTimeout:(int)timeout
+- (void)SM_waitForRefreshingWithTimeout:(int)timeout
 {
     if (timeout == 0 || !self.smDataStore.session.refreshing) {
         return;
@@ -455,75 +424,65 @@ You should implement this method conservatively, and expect that unknown request
     
     sleep(1);
     
-    [self waitForRefreshingWithTimeout:(timeout - 1)];
+    [self SM_waitForRefreshingWithTimeout:(timeout - 1)];
     
 }
 
-- (void)enqueueOperations:(NSArray *)ops dispatchGroup:(dispatch_group_t)group completionBlockQueue:(dispatch_queue_t)queue secure:(BOOL)isSecure
+- (void)SM_enqueueOperations:(NSArray *)ops dispatchGroup:(dispatch_group_t)group completionBlockQueue:(dispatch_queue_t)queue secure:(BOOL)isSecure
 {
     if ([ops count] > 0) {
         dispatch_group_enter(group);
         [[[self.smDataStore session] oauthClientWithHTTPS:isSecure] enqueueBatchOfHTTPRequestOperations:ops completionBlockQueue:queue progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations) {
-            // TODO better progress block
-            NSLog(@"number of finished operations: %d", numberOfFinishedOperations);
+            
         } completionBlock:^(NSArray *operations) {
-            NSLog(@"finished");
             dispatch_group_leave(group);
         }];
     }
 }
 
-/*
-typedef void (^AFCompletionBlock)(void);
-
-- (void)SM_enqueueBatchOfHTTPRequestOperations:(NSArray *)operations
-                              progressBlock:(void (^)(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations))progressBlock
-                            completionBlock:(void (^)(NSArray *operations))completionBlock
+- (BOOL)SM_doTokenRefreshIfNeededWithGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue error:(NSError *__autoreleasing*)error
 {
-    __block dispatch_group_t dispatchGroup = dispatch_group_create();
-    NSBlockOperation *batchedOperation = [NSBlockOperation blockOperationWithBlock:^{
-        dispatch_group_notify(dispatchGroup, dispatch_get_main_queue(), ^{
-            if (completionBlock) {
-                completionBlock(operations);
+    __block BOOL success = YES;
+    if ([self.smDataStore.session eligibleForTokenRefresh:self.globalOptions]) {
+        
+        if (self.smDataStore.session.refreshing) {
+            
+            [self SM_waitForRefreshingWithTimeout:5];
+            
+        } else {
+            
+            [self.globalOptions setTryRefreshToken:NO];
+            dispatch_group_enter(group);
+            self.smDataStore.session.refreshing = YES;//Don't ever trigger two refreshToken calls
+            [self.smDataStore.session doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.smDataStore.session.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *userObject) {
+                dispatch_group_leave(group);
+            } onFailure:^(NSError *theError) {
+                success = NO;
+                if (error != NULL) {
+                    NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:nil];
+                    *error = (__bridge id)(__bridge_retained CFTypeRef)refreshError;
+                }
+                dispatch_group_leave(group);
+            }];
+            
+            
+            dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+        }
+        
+        if (self.smDataStore.session.refreshing) {
+            
+            success = NO;
+            if (error != NULL) {
+                NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
+                *error = (__bridge id)(__bridge_retained CFTypeRef)refreshError;
             }
-        });
-#if !OS_OBJECT_USE_OBJC
-        dispatch_release(dispatchGroup);
-#endif
-    }];
-    
-    for (AFHTTPRequestOperation *operation in operations) {
-        AFCompletionBlock originalCompletionBlock = [operation.completionBlock copy];
-        operation.completionBlock = ^{
-            dispatch_queue_t queue = operation.successCallbackQueue ?: dispatch_get_main_queue();
-            dispatch_group_async(dispatchGroup, queue, ^{
-                if (originalCompletionBlock) {
-                    originalCompletionBlock();
-                }
-                
-                __block NSUInteger numberOfFinishedOperations = 0;
-                [operations enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                    if ([(NSOperation *)obj isFinished]) {
-                        numberOfFinishedOperations++;
-                    }
-                }];
-                
-                if (progressBlock) {
-                    progressBlock(numberOfFinishedOperations, [operations count]);
-                }
-                
-                dispatch_group_leave(dispatchGroup);
-            });
-        };
+            
+        }
         
-        dispatch_group_enter(dispatchGroup);
-        [batchedOperation addDependency:operation];
-        
-        [self enqueueHTTPRequestOperation:operation];
     }
-    [self.operationQueue addOperation:batchedOperation];
+    
+    return success;
 }
-*/
 
 - (BOOL)handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
