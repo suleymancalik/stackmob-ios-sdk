@@ -21,18 +21,19 @@
 
 SPEC_BEGIN(IncrementalStoreBatchOperationsSpec)
 
-describe(@"Inserting many objects works fine", ^{
+
+describe(@"Inserting/Updating/Deleting many objects works fine", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
     __block NSManagedObjectContext *moc = nil;
     __block NSMutableArray *arrayOfObjects = nil;
     
-    beforeEach(^{
+    beforeAll(^{
         client = [SMIntegrationTestHelpers defaultClient];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
         arrayOfObjects = [NSMutableArray array];
         for (int i=0; i < 30; i++) {
             NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
@@ -42,26 +43,84 @@ describe(@"Inserting many objects works fine", ^{
             [arrayOfObjects addObject:newManagedObject];
         }
     });
-    afterEach(^{
+    afterAll(^{
         for (NSManagedObject *obj in arrayOfObjects) {
             [moc deleteObject:obj];
         }
         __block NSError *error = nil;
-        BOOL saveSuccess = [SMCoreDataIntegrationTestHelpers synchronousSaveInBackgroundWithContext:moc error:&error];
+        BOOL saveSuccess = [moc saveAndWait:&error];
         [[theValue(saveSuccess) should] beYes];
         [arrayOfObjects removeAllObjects];
         
     });
-    it(@"saves without error", ^{
+    it(@"inserts without error", ^{
         __block BOOL saveSuccess = NO;
         __block NSError *error = nil;
-        saveSuccess = [SMCoreDataIntegrationTestHelpers synchronousSaveInBackgroundWithContext:moc error:&error];
+        
+        saveSuccess = [moc saveAndWait:&error];
         [[theValue(saveSuccess) should] beYes];
 
         
     });
+    it(@"updates without error", ^{
+        __block BOOL saveSuccess = NO;
+        __block NSError *error = nil;
+        
+        for (unsigned int i=0; i < [arrayOfObjects count]; i++) {
+            [[arrayOfObjects objectAtIndex:i] setValue:@"jack" forKey:@"title"];
+        }
+        
+        saveSuccess = [moc saveAndWait:&error];
+        [[theValue(saveSuccess) should] beYes];
+    });
 });
 
+
+describe(@"fetching runs in the background", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    __block NSMutableArray *arrayOfObjects = nil;
+    
+    beforeAll(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
+        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        moc = [cds contextForCurrentThread];
+        arrayOfObjects = [NSMutableArray array];
+        for (int i=0; i < 30; i++) {
+            NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
+            [newManagedObject setValue:@"bob" forKey:@"title"];
+            [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]];
+            
+            [arrayOfObjects addObject:newManagedObject];
+        }
+        __block BOOL saveSuccess = NO;
+        __block NSError *error = nil;
+        
+        saveSuccess = [moc saveAndWait:&error];
+        [[theValue(saveSuccess) should] beYes];
+    });
+    afterAll(^{
+        for (NSManagedObject *obj in arrayOfObjects) {
+            [moc deleteObject:obj];
+        }
+        __block NSError *error = nil;
+        BOOL saveSuccess = [moc saveAndWait:&error];
+        [[theValue(saveSuccess) should] beYes];
+        [arrayOfObjects removeAllObjects];
+        
+    });
+    it(@"fetches, async method", ^{
+        
+    });
+    it(@"fetches, sync method", ^{
+        
+    });
+     
+
+});
 
 describe(@"With a non-401 error", ^{
     __block SMClient *client = nil;
@@ -73,7 +132,7 @@ describe(@"With a non-401 error", ^{
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
         
         if ([client isLoggedIn]) {
             syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
@@ -102,14 +161,15 @@ describe(@"With a non-401 error", ^{
         [newManagedObject setValue:@"bob" forKey:@"title"];
         [newManagedObject setValue:@"primarykey" forKey:[newManagedObject primaryKeyField]];
         NSError *error = nil;
-        BOOL success = [SMCoreDataIntegrationTestHelpers synchronousSaveInBackgroundWithContext:moc error:&error];
+        BOOL success = [moc saveAndWait:&error];
         [[theValue(success) should] beYes];
         
+        // Produce a 409
         NSManagedObject *secondManagedObject = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
         [secondManagedObject setValue:@"bob" forKey:@"title"];
         [secondManagedObject setValue:@"primarykey" forKey:[secondManagedObject primaryKeyField]];
         
-        success = [SMCoreDataIntegrationTestHelpers synchronousSaveInBackgroundWithContext:moc error:&error];
+        success = [moc saveAndWait:&error];
         [[theValue(success) should] beNo];
         NSArray *failedInsertedObjects = [[error userInfo] objectForKey:SMInsertedObjectFailures];
         
@@ -119,9 +179,6 @@ describe(@"With a non-401 error", ^{
         NSError *failedError = [dict objectForKey:SMFailedManagedObjectError];
         [[theValue([failedError code]) should] equal:theValue(SMErrorConflict)];
         NSLog(@"Error is %@", [error userInfo]);
-        
-        
-        
         
     });
 
@@ -140,7 +197,7 @@ describe(@"With 401s", ^{
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
         
         if ([client isLoggedIn]) {
             syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
@@ -166,7 +223,7 @@ describe(@"With 401s", ^{
         [[client.dataStore.session.regularOAuthClient should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
         
         NSError *error = nil;
-        BOOL success = [SMCoreDataIntegrationTestHelpers synchronousSaveInBackgroundWithContext:moc error:&error];
+        BOOL success = [moc saveAndWait:&error];
         
         [[theValue(success) should] beNo];
         NSArray *failedInsertedObjects = [[error userInfo] objectForKey:SMInsertedObjectFailures];
@@ -189,7 +246,7 @@ describe(@"With 401s", ^{
         [[client.dataStore.session stubAndReturn:theValue(YES)] accessTokenHasExpired];
         [[client.dataStore.session stubAndReturn:theValue(NO)] refreshing];
         
-        BOOL success = [SMCoreDataIntegrationTestHelpers synchronousSaveInBackgroundWithContext:moc error:&error];
+        BOOL success = [moc saveAndWait:&error];
         
         [[theValue(success) should] beNo];
         [[theValue([error code]) should] equal:theValue(SMErrorRefreshTokenFailed)];
@@ -210,7 +267,7 @@ describe(@"401s requiring logins", ^{
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [client loginWithUsername:@"dude" password:@"sweet" onSuccess:^(NSDictionary *result) {
@@ -252,7 +309,7 @@ describe(@"401s requiring logins", ^{
         
         [[client.dataStore.session.regularOAuthClient should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
         NSError *error = nil;
-        BOOL success = [SMCoreDataIntegrationTestHelpers synchronousSaveInBackgroundWithContext:moc error:&error];
+        BOOL success = [moc saveAndWait:&error];
         
         [[theValue(success) should] beNo];
         [[theValue([error code]) should] equal:theValue(SMErrorCoreDataSave)];
@@ -277,7 +334,7 @@ describe(@"timeouts with refreshing", ^{
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
         
         
     });
@@ -291,7 +348,7 @@ describe(@"timeouts with refreshing", ^{
         [[client.dataStore.session stubAndReturn:theValue(YES)] refreshing];
         
         NSError *error = nil;
-        BOOL success = [SMCoreDataIntegrationTestHelpers synchronousSaveInBackgroundWithContext:moc error:&error];
+        BOOL success = [moc saveAndWait:&error];
         
         [[theValue(success) should] beNo];
         [[theValue([error code]) should] equal:theValue(SMErrorRefreshTokenInProgress)];
@@ -311,7 +368,7 @@ describe(@"With 401s and other errors", ^{
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [client loginWithUsername:@"dude" password:@"sweet" onSuccess:^(NSDictionary *result) {
@@ -328,7 +385,7 @@ describe(@"With 401s and other errors", ^{
         [todo setValue:@"primarykey" forKey:[todo primaryKeyField]];
         
         NSError *error = nil;
-        BOOL success = [SMCoreDataIntegrationTestHelpers synchronousSaveInBackgroundWithContext:moc error:&error];
+        BOOL success = [moc saveAndWait:&error];
         [[theValue(success) should] beYes];
         
         
@@ -376,7 +433,7 @@ describe(@"With 401s and other errors", ^{
         [[client.dataStore.session.regularOAuthClient should] receive:@selector(enqueueHTTPRequestOperation:) withCount:3];
         
         NSError *error = nil;
-        BOOL success = [SMCoreDataIntegrationTestHelpers synchronousSaveInBackgroundWithContext:moc error:&error];
+        BOOL success = [moc saveAndWait:&error];
         [[theValue(success) should] beNo];
         
         // Test failure
@@ -393,6 +450,102 @@ describe(@"With 401s and other errors", ^{
         
     });
     
+});
+
+
+describe(@"async save method tests", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    __block NSMutableArray *arrayOfObjects = nil;
+    
+    beforeAll(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
+        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        moc = [cds contextForCurrentThread];
+        arrayOfObjects = [NSMutableArray array];
+        for (int i=0; i < 30; i++) {
+            NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
+            [newManagedObject setValue:@"bob" forKey:@"title"];
+            [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]];
+            
+            [arrayOfObjects addObject:newManagedObject];
+        }
+    });
+    
+    afterAll(^{
+        __block BOOL saveSucess = NO;
+        NSMutableArray *objectIDS = [NSMutableArray array];
+        for (NSManagedObject *obj in arrayOfObjects) {
+            [objectIDS addObject:[obj valueForKey:@"todoId"]];
+        }
+        
+        for (NSString *objID in objectIDS) {
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [client.dataStore deleteObjectId:objID inSchema:@"todo" onSuccess:^(NSString *theObjectId, NSString *schema) {
+                    saveSucess = YES;
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                    saveSucess = NO;
+                    syncReturn(semaphore);
+                }];
+            });
+            [[theValue(saveSucess) should] beYes];
+        }
+        
+        /*
+        for (NSManagedObject *obj in arrayOfObjects) {
+            [moc deleteObject:obj];
+        }
+        __block BOOL saveSuccess = NO;
+        dispatch_group_enter(group);
+        [moc saveWithSuccessCallbackQueue:queue failureCallbackQueue:queue onSuccess:^{
+            saveSuccess = YES;
+            dispatch_group_leave(group);
+        } onFailure:^(NSError *error) {
+            dispatch_group_leave(group);
+        }];
+        
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+         
+        [[theValue(saveSuccess) should] beYes];
+        [arrayOfObjects removeAllObjects];
+         */
+        
+    });
+    it(@"inserts without error", ^{
+        __block BOOL saveSuccess = NO;
+        dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
+        
+        /*
+        dispatch_group_t group = dispatch_group_create();
+        
+        dispatch_group_enter(group);
+        [moc saveWithSuccessCallbackQueue:queue failureCallbackQueue:queue onSuccess:^{
+            saveSuccess = YES;
+            dispatch_group_leave(group);
+        } onFailure:^(NSError *error) {
+            dispatch_group_leave(group);
+        }];
+        
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+        */
+        
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [moc saveWithSuccessCallbackQueue:queue failureCallbackQueue:queue onSuccess:^{
+                saveSuccess = YES;
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                syncReturn(semaphore);
+            }];
+        });
+        
+                
+        [[theValue(saveSuccess) should] beYes];
+    });
+
 });
 
 SPEC_END

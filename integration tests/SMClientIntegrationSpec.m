@@ -680,7 +680,7 @@ describe(@"basic login/logout works as it should", ^{
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
     });
     it(@"login/logout", ^{
         // login

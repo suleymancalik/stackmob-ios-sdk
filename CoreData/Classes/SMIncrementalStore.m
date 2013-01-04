@@ -83,6 +83,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_doTokenRefreshIfNeededWithGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue error:(NSError *__autoreleasing*)error;
 
+- (BOOL)SM_enqueueRegularOperations:(NSMutableArray *)regularOperations secureOperations:(NSMutableArray *)secureOperations withGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue refreshAndRetryUnauthorizedRequests:(NSMutableArray *)failedRequestsWithUnauthorizedResponse failedRequests:(NSMutableArray *)failedRequests error:(NSError *__autoreleasing*)error;
+
 @end
 
 @implementation SMIncrementalStore
@@ -298,9 +300,162 @@ You should implement this method conservatively, and expect that unknown request
         
     }];
     
+    success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests error:error];
     
+    dispatch_release(group);
+    dispatch_release(queue);
+    return success;
+    
+}
+
+- (BOOL)handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
+    
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
+    if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be updated are %@", truncateOutputIfExceedsMaxLogLength(updatedObjects)); }
+    __block BOOL success = YES;
+    
+    // create a group dispatch and queue
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_group_t group = dispatch_group_create();
+    
+    __block NSMutableArray *secureOperations = [NSMutableArray array];
+    __block NSMutableArray *regularOperations = [NSMutableArray array];
+    __block NSMutableArray *failedRequests = [NSMutableArray array];
+    __block NSMutableArray *failedRequestsWithUnauthorizedResponse = [NSMutableArray array];
+    
+    [updatedObjects enumerateObjectsUsingBlock:^(id managedObject, BOOL *stop) {
+        
+        // Create operation for updated object
+        
+        NSDictionary *serializedObjDict = [managedObject sm_dictionarySerialization];
+        NSString *schemaName = [managedObject sm_schema];
+        __block NSString *updatedObjectID = [managedObject sm_objectId];
+        __block SMRequestOptions *options = [SMRequestOptions options];
+        
+        if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)); }
+        
+        // Create success/failure blocks
+        SMResultSuccessBlock operationSuccesBlock = ^(NSDictionary *theObject){
+            if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore updated object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schemaName); }
+            
+        };
+        
+        SMCoreDataSaveFailureBlock operationFailureBlock = ^(NSURLRequest *theRequest, NSError *theError, NSDictionary *theObject, SMRequestOptions *theOptions, SMResultSuccessBlock originalSuccessBlock){
+            
+            if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to update object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schemaName); }
+            if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
+            
+            NSDictionary *failedRequestDict = [NSDictionary dictionaryWithObjectsAndKeys:theRequest, SMFailedRequest, theError, SMFailedRequestError, updatedObjectID, SMFailedRequestObjectPrimaryKey, [managedObject entity], SMFailedRequestObjectEntity, theOptions, SMFailedRequestOptions, originalSuccessBlock, SMFailedRequestOriginalSuccessBlock, nil];
+            
+            // Add failed request to correct array
+            if ([theError code] == SMErrorUnauthorized) {
+                [failedRequestsWithUnauthorizedResponse addObject:failedRequestDict];
+            } else {
+                [failedRequests addObject:failedRequestDict];
+            }
+            
+        };
+        
+        // if there are relationships present in the update, send as a POST
+        AFJSONRequestOperation *op = nil;
+        if ([serializedObjDict objectForKey:StackMobRelationsKey]) {
+            
+            // add relationship headers if needed
+            NSMutableDictionary *headerDict = [NSMutableDictionary dictionary];
+            if ([serializedObjDict objectForKey:StackMobRelationsKey]) {
+                [headerDict setObject:[serializedObjDict objectForKey:StackMobRelationsKey] forKey:StackMobRelationsKey];
+                [options setHeaders:headerDict];
+            }
+            
+            op = [[self smDataStore] postOperationForObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
+            
+            
+        } else {
+            
+            op = [[self smDataStore] putOperationForObjectID:updatedObjectID inSchema:schemaName update:[serializedObjDict objectForKey:SerializedDictKey] options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
+            
+        }
+        
+        options.isSecure ? [secureOperations addObject:op] : [regularOperations addObject:op];
+        
+    }];
+    
+    success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests error:error];
+        
+    dispatch_release(group);
+    dispatch_release(queue);
+    return success;
+    
+}
+
+- (BOOL)handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
+    
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
+    if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be deleted are %@", truncateOutputIfExceedsMaxLogLength(deletedObjects)); }
+    
+    __block BOOL success = YES;
+    
+    // create a group dispatch and queue
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_group_t group = dispatch_group_create();
+    
+    __block NSMutableArray *secureOperations = [NSMutableArray array];
+    __block NSMutableArray *regularOperations = [NSMutableArray array];
+    __block NSMutableArray *failedRequests = [NSMutableArray array];
+    __block NSMutableArray *failedRequestsWithUnauthorizedResponse = [NSMutableArray array];
+    
+    [deletedObjects enumerateObjectsUsingBlock:^(id managedObject, BOOL *stop) {
+        
+        // Create operation for updated object
+        
+        NSDictionary *serializedObjDict = [managedObject sm_dictionarySerialization];
+        NSString *schemaName = [managedObject sm_schema];
+        __block NSString *deletedObjectID = [managedObject sm_objectId];
+        __block SMRequestOptions *options = [SMRequestOptions options];
+        
+        if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)); }
+        
+        // Create success/failure blocks
+        SMResultSuccessBlock operationSuccesBlock = ^(NSDictionary *theObject){
+            if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore updated object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schemaName); }
+            
+        };
+        
+        SMCoreDataSaveFailureBlock operationFailureBlock = ^(NSURLRequest *theRequest, NSError *theError, NSDictionary *theObject, SMRequestOptions *theOptions, SMResultSuccessBlock originalSuccessBlock){
+            
+            if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to update object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schemaName); }
+            if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
+            
+            NSDictionary *failedRequestDict = [NSDictionary dictionaryWithObjectsAndKeys:theRequest, SMFailedRequest, theError, SMFailedRequestError, deletedObjectID, SMFailedRequestObjectPrimaryKey, [managedObject entity], SMFailedRequestObjectEntity, theOptions, SMFailedRequestOptions, originalSuccessBlock, SMFailedRequestOriginalSuccessBlock, nil];
+            
+            // Add failed request to correct array
+            if ([theError code] == SMErrorUnauthorized) {
+                [failedRequestsWithUnauthorizedResponse addObject:failedRequestDict];
+            } else {
+                [failedRequests addObject:failedRequestDict];
+            }
+            
+        };
+        
+        // if there are relationships present in the update, send as a POST
+        AFJSONRequestOperation *op = [[self smDataStore] deleteOperationForObjectID:deletedObjectID inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
+        
+        options.isSecure ? [secureOperations addObject:op] : [regularOperations addObject:op];
+        
+    }];
+    
+    success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests error:error];
+    
+    dispatch_release(group);
+    dispatch_release(queue);
+    return success;
+    
+}
+
+- (BOOL)SM_enqueueRegularOperations:(NSMutableArray *)regularOperations secureOperations:(NSMutableArray *)secureOperations withGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue refreshAndRetryUnauthorizedRequests:(NSMutableArray *)failedRequestsWithUnauthorizedResponse failedRequests:(NSMutableArray *)failedRequests error:(NSError *__autoreleasing*)error
+{
     // Refresh access token if needed before initial enqueue of operations
-    success = [self SM_doTokenRefreshIfNeededWithGroup:group queue:queue error:error];
+    __block BOOL success = [self SM_doTokenRefreshIfNeededWithGroup:group queue:queue error:error];
     
     if (success) {
         [self SM_enqueueOperations:secureOperations  dispatchGroup:group completionBlockQueue:queue secure:YES];
@@ -394,11 +549,10 @@ You should implement this method conservatively, and expect that unknown request
         }
     }
     
-    dispatch_release(group);
-    dispatch_release(queue);
     return success;
-    
+
 }
+
 
 - (BOOL)SM_setErrorAndUserInfoWithFailedOperations:(NSMutableArray *)failedOperations errorCode:(int)errorCode error:(NSError *__autoreleasing*)error
 {
@@ -481,82 +635,6 @@ You should implement this method conservatively, and expect that unknown request
         
     }
     
-    return success;
-}
-
-- (BOOL)handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
-    if (SM_CORE_DATA_DEBUG) { DLog(); }
-    __block BOOL success = NO;
-    if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be updated are %@", truncateOutputIfExceedsMaxLogLength(updatedObjects)); }
-    [updatedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            
-            NSDictionary *serializedObjDict = [obj sm_dictionarySerialization];
-            NSString *schemaName = [obj sm_schema];
-            if (SM_CORE_DATA_DEBUG) { DLog(@"serialized object is %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)); }
-            // if there are relationships present in the update, send as a POST
-            if ([serializedObjDict objectForKey:StackMobRelationsKey]) {
-                NSDictionary *headerDict = [NSDictionary dictionaryWithObject:[serializedObjDict objectForKey:StackMobRelationsKey] forKey:StackMobRelationsKey];
-                [self.smDataStore createObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:[SMRequestOptions optionsWithHeaders:headerDict] onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                    if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
-                    success = YES;
-                    // TO-DO OFFLINE-SUPPORT
-                    syncReturn(semaphore);
-                } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                    if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to insert object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
-                    if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
-                    success = NO;
-                    *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
-                    syncReturn(semaphore);
-                }];
-            } else {
-                [self.smDataStore updateObjectWithId:[obj sm_objectId] inSchema:schemaName update:[serializedObjDict objectForKey:SerializedDictKey] onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                    if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore updated object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
-                    success = YES;
-                    // TO-DO OFFLINE-SUPPORT
-                    syncReturn(semaphore);
-                } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                    if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to update object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject), schema); }
-                    if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
-                    success = NO;
-                    *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
-                    syncReturn(semaphore);
-                }];
-            }
-            
-        });
-        if (success == NO)
-            *stop = YES;
-    }];
-    return success;
-}
-
-- (BOOL)handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
-    if (SM_CORE_DATA_DEBUG) { DLog(); }
-    __block BOOL success = NO;
-        if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be deleted are %@", truncateOutputIfExceedsMaxLogLength(deletedObjects)); }
-    [deletedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {        
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            NSString *schemaName = [obj sm_schema];
-            NSString *uuid = [obj sm_objectId];
-            [self.smDataStore deleteObjectId:uuid inSchema:schemaName onSuccess:^(NSString *theObjectId, NSString *schema) {
-                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore deleted object with id %@ on schema %@", theObjectId, schema); }
-                success = YES;
-                syncReturn(semaphore);
-            } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
-                if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore failed to delete object with id %@ on schema %@", theObjectId, schema); }
-                    if (SM_CORE_DATA_DEBUG) { DLog(@"the error userInfo is %@", [theError userInfo]); }
-                success = NO;
-                *error = (__bridge id)(__bridge_retained CFTypeRef)theError;
-                syncReturn(semaphore);
-            }];
-            if (success) {
-                // TO-DO OFFLINE-SUPPORT
-            }
-        });
-        if (success == NO)
-            *stop = YES;
-    }];
     return success;
 }
 

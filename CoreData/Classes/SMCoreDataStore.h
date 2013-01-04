@@ -23,7 +23,7 @@
  
  ## Using SMCoreDataStore ##
  
- With your `SMCoreDataStore` object you can retrieve a managed object context configured with a `SMIncrementalStore` as it's persistent store to allow communication to StackMob from Core Data.  This instance of `NSManagedObjectContext` should be used throughout the duration of your application by being passed to each controller's separate `NSManagedObjectContext` instance.
+ With your `SMCoreDataStore` object you can retrieve a managed object context configured with a `SMIncrementalStore` as it's persistent store to allow communication to StackMob from Core Data.  Obtain a managed object context for your thread using <contextForCurrentThread>.  When saving or fetching from the context, use methods from the NSManagedObjectContext+Concurrency category to ensure proper asynchronous saving and fetching off of the main thread.
  
  @note You should not have to initialize an instance of this class directly.  Instead, initialize an instance of <SMClient> and use the method <coreDataStoreWithManagedObjectModel:> to retrieve an instance completely configured and ready to communicate to StackMob.
  */
@@ -41,11 +41,18 @@
 @property(nonatomic, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 
 /**
- An instance of `NSManagedObjectContext` set with this class's persistent store coordinator.
+ An instance of `NSManagedObjectContext` set to use on the main thread.
  
- This is the managed object context to use throughout your application.
+ This managed object context has a private queue parent context set to ensure proper parent/child asynchronous saving.  The persistent store coordinator is set on the parent context. Merge policy is set to NSMergeByPropertyObjectTrumpMergePolicy.
  */
-@property(nonatomic, strong) NSManagedObjectContext *managedObjectContext;
+@property (nonatomic, strong) NSManagedObjectContext *mainThreadContext;
+
+/**
+ An instance of `NSManagedObjectContext` set to use on the main thread.
+ 
+ This property is deprecated. Use <contextForCurrentThread> to obtain a properly initialized managed object context.
+ */
+@property (nonatomic, strong) NSManagedObjectContext *managedObjectContext __deprecated;
 
 
 ///-------------------------------
@@ -61,40 +68,19 @@
  */
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel;
 
-/*
-// Tentative API for saving and fetching:
+///-------------------------------
+/// @name Obtaining a Managed Object Context
+///-------------------------------
 
-typedef enum {
-    SMStackMobPersistentStore,
-    SMLocalPersistentStore
-} SMPersistentStore;
-
-//Fetch
-
-// Will fetch based on settings
-- (NSArray *)executeFetchRequest:(NSFetchRequest *)request error:(NSError **)error;
-
-
-- (NSArray *)executeFetchRequest:(NSFetchRequest *)request onStore:(SMPersistentStore)store error:(NSError **)error;
-
-- (void)setDefaultStoreToFetchFrom:(SMPersistentStore)store;
-- (void)setShouldFetchFromStackMobIfReachable:(BOOL)value;
-
-// Save
-
-- (void)performBlock;
-- (void)performBlockAndWait;
-
-- (void)performBlockInBackground;
-- (void)performBlockInBackgroundAndWait;
-
-- (void)performBlock:(void(^)()) inContext:(NSManagedObjectContext *)context synchronous:(BOOL)value;
-
-// whether or not data should be persisted locally.
-- (void)shouldSaveDataLocally:(BOOL)value;
-
-- (void)setShouldFillFaultsFromLocalCache:(BOOL)value;
-*/
+/**
+ Returns an initialized context for the current thread.
+ 
+ Merge policy is set to NSMergeByPropertyObjectTrumpMergePolicy.
+ 
+ If the current thread is the main thread, returns a context initialized with a NSMainQueueConcurrencyType.  Otherwise, returns a context initialized with a NSPrivateQueueConcurrencyType, with the mainThreadContext as its parent.
+ 
+ */
+- (NSManagedObjectContext *)contextForCurrentThread;
 
 
 @end

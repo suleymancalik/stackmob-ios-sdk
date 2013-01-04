@@ -10,23 +10,43 @@
 
 @implementation NSManagedObjectContext (Concurrency)
 
-- (void)performSaveOnSuccess:(void (^)())onSuccess onFailure:(void (^)(NSError *error))onFailure
+- (void)saveOnSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
-    NSManagedObjectContext *mainContext = self;
+    [self saveWithSuccessCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)saveWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    NSManagedObjectContext *mainContext = nil;
+    NSManagedObjectContext *temporaryContext = nil;
+    if ([self concurrencyType] == NSMainQueueConcurrencyType) {
+        mainContext = self;
+        temporaryContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        temporaryContext.parentContext = mainContext;
+    } else {
+        temporaryContext = self;
+        mainContext = temporaryContext.parentContext;
+    }
+    
+    
     NSManagedObjectContext *privateContext = mainContext.parentContext;
-    NSManagedObjectContext *temporaryContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    temporaryContext.parentContext = mainContext;
+    
+    // Error checks
+    if ([mainContext concurrencyType] != NSMainQueueConcurrencyType) {
+        [NSException raise:SMExceptionIncompatibleObject format:@"Method saveAndWait: main context should be of type NSMainQueueConcurrencyType"];
+    } else if (!privateContext) {
+        [NSException raise:SMExceptionIncompatibleObject format:@"Method saveAndWait: main context should have parent with set persistent store coordinator"];
+    }
     
     [temporaryContext performBlock:^{
-        // do something that takes some time asynchronously using the temp context
         
         __block NSError *saveError;
         // Save Temporary Context
         if (![temporaryContext save:&saveError]) {
             
-            if (onFailure) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    onFailure(saveError);;
+            if (failureBlock) {
+                dispatch_async(failureCallbackQueue, ^{
+                    failureBlock(saveError);
                 });
             }
             
@@ -36,9 +56,9 @@
                 
                 if (![mainContext save:&saveError]) {
                     
-                    if (onFailure) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            onFailure(saveError);;
+                    if (failureBlock) {
+                        dispatch_async(failureCallbackQueue, ^{
+                            failureBlock(saveError);
                         });
                     }
                     
@@ -51,17 +71,17 @@
                             
                             if (![privateContext save:&saveError]) {
                                 
-                                if (onFailure) {
-                                    dispatch_async(dispatch_get_main_queue(), ^{
-                                        onFailure(saveError);;
+                                if (failureBlock) {
+                                    dispatch_async(failureCallbackQueue, ^{
+                                        failureBlock(saveError);
                                     });
                                 }
                                 
                             } else {
                                 // Dispatch success block to main thread
-                                if (onSuccess) {
-                                    dispatch_async(dispatch_get_main_queue(), ^{
-                                        onSuccess();
+                                if (successBlock) {
+                                    dispatch_async(successCallbackQueue, ^{
+                                        successBlock();
                                     });
                                 }
                                 
@@ -77,12 +97,95 @@
         }
         
     }];
-
 }
 
-- (BOOL)performSaveAndWait:(NSError *__autoreleasing*)error
+
+
+- (BOOL)saveAndWait:(NSError *__autoreleasing*)error
 {
-    return YES;
+    NSManagedObjectContext *mainContext = nil;
+    NSManagedObjectContext *temporaryContext = nil;
+    if ([self concurrencyType] == NSMainQueueConcurrencyType) {
+        mainContext = self;
+        temporaryContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        temporaryContext.parentContext = mainContext;
+    } else {
+        temporaryContext = self;
+        mainContext = temporaryContext.parentContext;
+    }
+    
+    
+    NSManagedObjectContext *privateContext = mainContext.parentContext;
+    
+    // Error checks
+    if ([mainContext concurrencyType] != NSMainQueueConcurrencyType) {
+        [NSException raise:SMExceptionIncompatibleObject format:@"Method saveAndWait: main context should be of type NSMainQueueConcurrencyType"];
+    } else if (!privateContext) {
+        [NSException raise:SMExceptionIncompatibleObject format:@"Method saveAndWait: main context should have parent with set persistent store coordinator"];
+    }
+    
+    __block BOOL success = NO;
+    __block NSError *saveError = nil;
+    [temporaryContext performBlockAndWait:^{
+        
+        // Save Temporary Context
+        if ([temporaryContext save:&saveError]) {
+            
+            // Save Main Context
+            [mainContext performBlockAndWait:^{
+                
+                if ([mainContext save:&saveError]) {
+                    
+                    // Save Private Context to disk
+                    [privateContext performBlockAndWait:^{
+                        
+                        if ([privateContext save:&saveError]) {
+                            
+                            success = YES;
+                        }
+                        
+                    }];
+                    
+                }
+                
+            }];
+            
+        }
+        
+    }];
+    
+    if (saveError != nil && error != NULL) {
+        *error = saveError;
+    }
+    
+    return success;
+}
+
+- (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request error:(NSError *__autoreleasing *)error
+{
+    NSManagedObjectContext *mainContext = self;
+    //NSManagedObjectContext *privateContext = mainContext.parentContext;
+    NSManagedObjectContext *temporaryContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    temporaryContext.parentContext = mainContext;
+    __block NSError *fetchError = nil;
+    __block NSArray *results = nil;
+    
+    
+    [mainContext performBlockAndWait:^{
+        results = [mainContext executeFetchRequest:request error:&fetchError];
+    }];
+    
+    if (fetchError != nil && error != NULL) {
+        *error = fetchError;
+        return nil;
+    }
+    
+    return results;
+}
+
+- (void)executeFetchRequest:(NSFetchRequest *)request onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    // TODO fill in
 }
 
 

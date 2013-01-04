@@ -43,7 +43,6 @@
 @property (nonatomic, copy) NSDate *expiration;
 @property (nonatomic, copy) NSString *refreshToken;
 @property (atomic) BOOL refreshing;
-@property (nonatomic, copy) NSString *oauthStorageKey;
 
 /**
  Internal method used by `SMUserSession` to check if the expiration date on the current access token has expired.

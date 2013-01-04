@@ -24,6 +24,12 @@
 #define MAC_KEY @"mac_key"
 #define REFRESH_TOKEN @"refresh_token"
 
+@interface SMUserSession ()
+
+@property (nonatomic, copy) NSString *oauthStorageKey;
+
+@end
+
 
 @implementation SMUserSession
 
@@ -62,7 +68,8 @@
         self.userPrimaryKeyField = userPrimaryKeyField;
         self.userPasswordField = userPasswordField;
         self.refreshing = NO;
-        self.oauthStorageKey = [NSString stringWithFormat:@"%@.oauth", publicKey];
+        
+        self.oauthStorageKey = [NSString stringWithFormat:@"%@.%@.oauth", [[NSBundle bundleForClass:[self class]] bundleIdentifier], publicKey];
         [self saveAccessTokenInfo:[[NSUserDefaults standardUserDefaults] dictionaryForKey:self.oauthStorageKey]];
         
     }
@@ -184,7 +191,7 @@
 - (NSURLRequest *) signRequest:(NSURLRequest *)request
 {
     NSMutableURLRequest *newRequest = [request mutableCopy];
-    //Both have the same credentials so it doesn't matter which we use here
+    // Both requests have the same credentials so it doesn't matter which we use here
     [self.regularOAuthClient signRequest:newRequest path:[[request URL] path]];
     return newRequest;
 }
