@@ -66,7 +66,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 @property (nonatomic, strong) NSPersistentStoreCoordinator *localPersistentStoreCoordinator;
 @property (nonatomic, strong) NSManagedObjectModel *localManagedObjectModel;
 @property (nonatomic, strong) NSMutableDictionary *cacheMappingTable;
-@property (nonatomic, strong) SMDataStore *smDataStore;
 @property (nonatomic) dispatch_queue_t callbackQueue;
 @property (nonatomic, strong) SMRequestOptions *globalOptions;
 
@@ -125,6 +124,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_enqueueRegularOperations:(NSMutableArray *)regularOperations secureOperations:(NSMutableArray *)secureOperations withGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue refreshAndRetryUnauthorizedRequests:(NSMutableArray *)failedRequestsWithUnauthorizedResponse failedRequests:(NSMutableArray *)failedRequests error:(NSError *__autoreleasing*)error;
 
+- (void)handleWillSave:(NSNotification *)notification;
+- (void)handleDidSave:(NSNotification *)notification;
+@property (nonatomic) BOOL isSaving;
+
 @end
 
 @implementation SMIncrementalStore
@@ -136,6 +139,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 @synthesize cacheMappingTable = _cacheMappingTable;
 @synthesize callbackQueue = _callbackQueue;
 @synthesize globalOptions = _globalOptions;
+@synthesize isSaving = _isSaving;
 
 - (id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root configurationName:(NSString *)name URL:(NSURL *)url options:(NSDictionary *)options {
     
@@ -145,8 +149,21 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         _callbackQueue = dispatch_queue_create("Queue For Incremental Store Request Callbacks", NULL);
         _globalOptions = [SMRequestOptions options];
         [self SM_configureCache];
+        self.isSaving = NO;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleWillSave:) name:NSManagedObjectContextWillSaveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleDidSave:) name:NSManagedObjectContextDidSaveNotification object:nil];
     }
     return self;
+}
+
+- (void)handleWillSave:(NSNotification *)notification
+{
+    self.isSaving = YES;
+}
+
+- (void)handleDidSave:(NSNotification *)notification
+{
+    self.isSaving = NO;
 }
 
 /*
@@ -304,7 +321,7 @@ You should implement this method conservatively, and expect that unknown request
         SMRequestOptions *options = [SMRequestOptions options];
         // If superclass is SMUserNSManagedObject, add password
         if ([managedObject isKindOfClass:[SMUserManagedObject class]]) {
-            BOOL addPasswordSuccess = [self addPasswordToSerializedDictionary:&serializedObjDict originalObject:managedObject];
+            BOOL addPasswordSuccess = [self SM_addPasswordToSerializedDictionary:&serializedObjDict originalObject:managedObject];
             if (!addPasswordSuccess)
             {
                 *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorPasswordForUserObjectNotFound userInfo:nil];
@@ -869,7 +886,7 @@ You should implement this method conservatively, and expect that unknown request
     __block NSManagedObject *sm_managedObject = [context objectWithID:objectID];
     __block NSString *sm_managedObjectReferenceID = [self referenceObjectForObjectID:objectID];
     
-    // If the object is fulfilling a fault, it has been fetched before and placed in the cache - grab values from there
+    
     if ([sm_managedObject isFault]) {
         NSString *cacheReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
         NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
@@ -922,13 +939,19 @@ You should implement this method conservatively, and expect that unknown request
     
     // If the object is not faulted, a call to save has been made and we need to retreive an up-to-date copy from the server.
     
-    // TODO context <--> cache vs. context <--> sever
+    NSDictionary *serializedObjectDictionary = nil;
     
-    NSDictionary *serializedObjectDictionary = [self SM_retrieveAndSerializeObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:[SMRequestOptions options] context:context includeRelationships:NO error:error];
-    
-    if (!serializedObjectDictionary) {
-        return nil;
+    // If the context's merge policy is that client wins, we do not need to make a network call to retreive persisted values.
+    if ([context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
+        serializedObjectDictionary = [NSDictionary dictionary];
+    } else {
+        serializedObjectDictionary = [self SM_retrieveAndSerializeObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:[SMRequestOptions options] context:context includeRelationships:NO error:error];
+        
+        if (!serializedObjectDictionary) {
+            return nil;
+        }
     }
+    
     
     NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDictionary version:1];
     
@@ -981,7 +1004,6 @@ You should implement this method conservatively, and expect that unknown request
     __block NSManagedObject *sm_managedObject = [context objectWithID:objectID];
     __block NSString *sm_managedObjectReferenceID = [self referenceObjectForObjectID:objectID];
     
-    // Is the object is fulfilling a fault, it has been fetched an placed in the local cache - grab values from there
     if ([sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
         NSString *cacheReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
         NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
@@ -1076,10 +1098,21 @@ You should implement this method conservatively, and expect that unknown request
     
     // If the object is not faulted, a call to save has been made and we need to retreive an up-to-date copy from the server.
     
-    // TODO context <--> cache vs. context <--> sever
+    id result = nil;
     
-    // Retreive object from server
-    id result = [self SM_retrieveRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID context:context error:error];
+    // If the context's merge policy is that client wins, we do not need to make a network call to retreive persisted values.
+    if ([context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
+        if ([relationship isToMany]) {
+            result = [NSArray array];
+        } else {
+            result = [NSNull null];
+        }
+    } else {
+        // Retreive object from server
+        result = [self SM_retrieveRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID context:context error:error];
+    }
+    
+    
     return result;
     
 }

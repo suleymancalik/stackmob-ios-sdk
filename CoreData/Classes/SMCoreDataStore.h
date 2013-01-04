@@ -82,5 +82,15 @@
  */
 - (NSManagedObjectContext *)contextForCurrentThread;
 
+/**
+ Sets the merge policy that is set by default to any context returned from <contextForCurrentThread>.
+ 
+ If apply is YES, sets the merge policy of mainThreadContext and its private parent context to mergePolicy.
+ 
+ @param mergePolicy The default merge policy to use going forward.
+ @param apply Whether or not to set mergePolicy as the merge policy for the existing mainThreadContext and its private parent context.
+ */
+- (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply;
+
 
 @end

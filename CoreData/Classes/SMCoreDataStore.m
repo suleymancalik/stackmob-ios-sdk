@@ -24,6 +24,7 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 
 @property(nonatomic, readwrite, strong)NSManagedObjectModel *managedObjectModel;
 @property (nonatomic, strong) NSManagedObjectContext *privateContext;
+@property (nonatomic, strong) id defaultMergePolicy;
 
 - (NSManagedObjectContext *)newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
 
@@ -36,12 +37,14 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize mainThreadContext = _mainThreadContext;
 @synthesize privateContext = _privateContext;
+@synthesize defaultMergePolicy = _defaultMergePolicy;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
     self = [super initWithAPIVersion:apiVersion session:session];
     if (self) {
         _managedObjectModel = managedObjectModel;
+        _defaultMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
     }
     
     return self;
@@ -77,13 +80,12 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 {
     if (_privateContext == nil) {
         _privateContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        [_privateContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
+        [_privateContext setMergePolicy:self.defaultMergePolicy];
         [_privateContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
     }
     return _privateContext;
 }
 
-// TODO mark deprecated
 - (NSManagedObjectContext *)managedObjectContext
 {
     if (_managedObjectContext == nil) {
@@ -98,7 +100,7 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 {
     if (_mainThreadContext == nil) {
         _mainThreadContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-        [_mainThreadContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
+        [_mainThreadContext setMergePolicy:self.defaultMergePolicy];
         [_mainThreadContext setParentContext:self.privateContext];
     }
     return _mainThreadContext;
@@ -107,7 +109,7 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 - (NSManagedObjectContext *)newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent
 {
     NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    [context setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
+    [context setMergePolicy:self.defaultMergePolicy];
     [context setParentContext:parent];
     
     return context;
@@ -130,6 +132,19 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 		}
 		return threadContext;
 	}
+}
+
+- (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply
+{
+    if (mergePolicy != self.defaultMergePolicy) {
+        
+        self.defaultMergePolicy = mergePolicy;
+        
+        if (apply) {
+            [self.mainThreadContext setMergePolicy:mergePolicy];
+            [self.privateContext setMergePolicy:mergePolicy];
+        }
+    }
 }
 
 @end
