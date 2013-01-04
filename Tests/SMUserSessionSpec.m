@@ -126,7 +126,7 @@ describe(@"perform an access token request", ^{
     it(@"should create a request", ^{
         NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"foo", @"bar", @"mac", @"token_type", @"hmac-sha-1", @"mac_algorithm", nil];
         [[[userSession.tokenClient should] receive] requestWithMethod:@"POST" path:@"user/endpoint" parameters:dict];
-        [userSession doTokenRequestWithEndpoint:@"endpoint" credentials:[NSDictionary dictionaryWithObjectsAndKeys:@"foo", @"bar", nil] options:[SMRequestOptions options] onSuccess:^(NSDictionary *data) {} onFailure:^(NSError * error) {}];
+        [userSession doTokenRequestWithEndpoint:@"endpoint" credentials:[NSDictionary dictionaryWithObjectsAndKeys:@"foo", @"bar", nil] options:[SMRequestOptions options] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *data) {} onFailure:^(NSError * error) {}];
     });
     
     
@@ -134,7 +134,7 @@ describe(@"perform an access token request", ^{
         AFJSONRequestOperation *operation = [[AFJSONRequestOperation alloc] init];
         [[[SMJSONRequestOperation should] receiveAndReturn:operation] JSONRequestOperationWithRequest:[KWAny any] success:[KWAny any] failure:[KWAny any]];
         [[[userSession.tokenClient should] receive] enqueueHTTPRequestOperation:operation];
-        [userSession doTokenRequestWithEndpoint:@"endpoint" credentials:[NSDictionary dictionaryWithObjectsAndKeys:@"foo", @"bar", nil] options:[SMRequestOptions options] onSuccess:^(NSDictionary *data) {} onFailure:^(NSError * error) {}];
+        [userSession doTokenRequestWithEndpoint:@"endpoint" credentials:[NSDictionary dictionaryWithObjectsAndKeys:@"foo", @"bar", nil] options:[SMRequestOptions options] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *data) {} onFailure:^(NSError * error) {}];
     });
     
 });

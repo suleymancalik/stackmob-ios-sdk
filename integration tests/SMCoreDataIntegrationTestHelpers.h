@@ -42,6 +42,7 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 + (void)MOCDidChange:(NSNotification *)notification;
 + (void)MOCDidSave:(NSNotification *)notification;
 + (void)MOCWillSave:(NSNotification *)notification;
++ (BOOL)synchronousSaveInBackgroundWithContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error;
 
 @end
 

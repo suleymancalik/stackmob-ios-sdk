@@ -43,7 +43,6 @@
 @property (nonatomic, copy) NSDate *expiration;
 @property (nonatomic, copy) NSString *refreshToken;
 @property (atomic) BOOL refreshing;
-@property (nonatomic, copy) NSString *oauthStorageKey;
 
 /**
  Internal method used by `SMUserSession` to check if the expiration date on the current access token has expired.
@@ -99,7 +98,9 @@
  */
 - (void)doTokenRequestWithEndpoint:(NSString *)endpoint
                        credentials:(NSDictionary *)credentials
-                       options:(SMRequestOptions *)options
+                           options:(SMRequestOptions *)options
+              successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+              failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                          onSuccess:(void (^)(NSDictionary *userObject))successBlock
                          onFailure:(void (^)(NSError *theError))failureBlock;
 
@@ -127,5 +128,7 @@
  @return The signed request.
  */
 - (NSURLRequest *)signRequest:(NSURLRequest *)request;
+
+- (BOOL)eligibleForTokenRefresh:(SMRequestOptions *)options;
 
 @end

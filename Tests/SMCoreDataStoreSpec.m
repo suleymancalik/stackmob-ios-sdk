@@ -57,9 +57,14 @@ describe(@"SMCoreDataStore", ^{
             });
             context(@"-managedObjectContext", ^{
                 it(@"returns a MOC hooked up to SM", ^{
-                    NSManagedObjectContext *aContext = [coreDataStore managedObjectContext];
+                    NSManagedObjectContext *aContext = [coreDataStore contextForCurrentThread];
                     [aContext shouldNotBeNil];
-                    [[theValue([aContext concurrencyType]) should] equal:theValue(NSPrivateQueueConcurrencyType)];
+                    if ([NSThread isMainThread]) {
+                        [[theValue([aContext concurrencyType]) should] equal:theValue(NSMainQueueConcurrencyType)];
+                    } else {
+                        [[theValue([aContext concurrencyType]) should] equal:theValue(NSPrivateQueueConcurrencyType)];
+                    }
+                    
                 });
             });
             context(@"-persistentStoreCoordinator", ^{
@@ -71,7 +76,7 @@ describe(@"SMCoreDataStore", ^{
 
         });
         describe(@"after initializing, can set merge policy", ^{
-            NSManagedObjectContext *theContext = [coreDataStore managedObjectContext];
+            NSManagedObjectContext *theContext = [coreDataStore contextForCurrentThread];
             [theContext shouldNotBeNil];
             [theContext setMergePolicy:NSMergeByPropertyStoreTrumpMergePolicy];
             [[theValue([theContext mergePolicy]) should] equal:theValue(NSMergeByPropertyStoreTrumpMergePolicy)];

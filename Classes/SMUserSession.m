@@ -24,6 +24,12 @@
 #define MAC_KEY @"mac_key"
 #define REFRESH_TOKEN @"refresh_token"
 
+@interface SMUserSession ()
+
+@property (nonatomic, copy) NSString *oauthStorageKey;
+
+@end
+
 
 @implementation SMUserSession
 
@@ -62,7 +68,8 @@
         self.userPrimaryKeyField = userPrimaryKeyField;
         self.userPasswordField = userPasswordField;
         self.refreshing = NO;
-        self.oauthStorageKey = [NSString stringWithFormat:@"%@.oauth", publicKey];
+        
+        self.oauthStorageKey = [NSString stringWithFormat:@"%@.%@.oauth", [[NSBundle bundleForClass:[self class]] bundleIdentifier], publicKey];
         [self saveAccessTokenInfo:[[NSUserDefaults standardUserDefaults] dictionaryForKey:self.oauthStorageKey]];
         
     }
@@ -102,14 +109,16 @@
         }
     } else {
         self.refreshing = YES;//Don't ever trigger two refreshToken calls
-        [self doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] onSuccess:successBlock onFailure:failureBlock];
+        [self doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
     }
     
 }
 
 - (void)doTokenRequestWithEndpoint:(NSString *)endpoint
                        credentials:(NSDictionary *)credentials 
-                       options:(SMRequestOptions *)options
+                           options:(SMRequestOptions *)options
+              successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+              failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                          onSuccess:(void (^)(NSDictionary *userObject))successBlock
                          onFailure:(void (^)(NSError *theError))failureBlock
 {
@@ -144,6 +153,12 @@
         }
     };
     AFJSONRequestOperation * op = [SMJSONRequestOperation JSONRequestOperationWithRequest:request success:successHandler failure:failureHandler];
+    if (successCallbackQueue) {
+        [op setSuccessCallbackQueue:successCallbackQueue];
+    }
+    if (failureCallbackQueue) {
+        [op setFailureCallbackQueue:failureCallbackQueue];
+    }
     [self.tokenClient enqueueHTTPRequestOperation:op];
 }
 
@@ -151,7 +166,8 @@
 {
     NSMutableDictionary *resultsToSave = [result mutableCopy];
     NSNumber *expires = [result valueForKey:EXPIRES_IN];
-    [resultsToSave setObject:[NSDate dateWithTimeIntervalSinceNow:expires.intValue] forKey:EXPIRES_IN];
+    NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:[expires doubleValue]];
+    [resultsToSave setObject:expirationDate forKey:EXPIRES_IN];
     [self saveAccessTokenInfo:resultsToSave];
     [[NSUserDefaults standardUserDefaults] setObject:resultsToSave forKey:self.oauthStorageKey];
     return [[result valueForKey:@"stackmob"] valueForKey:@"user"];   
@@ -175,9 +191,14 @@
 - (NSURLRequest *) signRequest:(NSURLRequest *)request
 {
     NSMutableURLRequest *newRequest = [request mutableCopy];
-    //Both have the same credentials so it doesn't matter which we use here
+    // Both requests have the same credentials so it doesn't matter which we use here
     [self.regularOAuthClient signRequest:newRequest path:[[request URL] path]];
     return newRequest;
+}
+
+- (BOOL)eligibleForTokenRefresh:(SMRequestOptions *)options
+{
+    return options.tryRefreshToken && self.refreshToken != nil && [self accessTokenHasExpired];
 }
 
 

@@ -32,6 +32,8 @@ typedef enum {
     SMErrorRefreshTokenInProgress = -103,
     SMErrorPasswordForUserObjectNotFound = -104,
     SMErrorNetworkNotReachable = -105,
+    SMErrorCoreDataSave = -106,
+    SMErrorRefreshTokenFailed = -107,
     //Success messages. These shouldn't normally be encountered
     SMErrorOK = 200,
     SMErrorCreated = 201,

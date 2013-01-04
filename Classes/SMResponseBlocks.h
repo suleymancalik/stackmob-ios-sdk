@@ -100,3 +100,5 @@ typedef void (^SMCountSuccessBlock)(NSNumber *count);
  */
 typedef void (^SMFailureRetryBlock)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON, SMRequestOptions *options, SMFullResponseSuccessBlock successBlock, SMFullResponseFailureBlock failureBlock);
 
+typedef void (^SMCoreDataSaveFailureBlock)(NSURLRequest *theRequest, NSError *theError, NSDictionary *theObject, SMRequestOptions *theOptions, SMResultSuccessBlock originalSuccessBlock);
+
