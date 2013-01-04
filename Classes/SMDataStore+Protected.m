@@ -229,7 +229,6 @@
 - (NSString *)URLEncodedStringFromValue:(NSString *)value
 {
     static NSString * const kAFCharactersToBeEscaped = @":/.?&=;+!@#$()~[]";
-    //static NSString * const kAFCharactersToLeaveUnescaped = @"[]";
     
 	return (__bridge_transfer  NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (__bridge CFStringRef)value, nil, (__bridge CFStringRef)kAFCharactersToBeEscaped, CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
 }
