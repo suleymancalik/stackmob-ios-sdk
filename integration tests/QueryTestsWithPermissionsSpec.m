@@ -17,16 +17,17 @@
 #import <Kiwi/Kiwi.h>
 #import "SMIntegrationTestHelpers.h"
 
-SPEC_BEGIN(QueryTests)
+SPEC_BEGIN(QueryTestsWithPermissionsSpec)
 
 __block SMDataStore *sm;
 __block SMQuery *query;
 __block NSDictionary *fixtures;
+__block SMClient *client;
 
 NSArray *fixtureNames = [NSArray arrayWithObjects:
-                         @"people",
-                         @"blogposts",
-                         @"places", 
+                         @"peoplepermissions",
+                         @"blogpostspermissions",
+                         @"placespermissions",
                          nil];
 
 describe(@"with a prepopulated database of people", ^{
@@ -38,12 +39,41 @@ describe(@"with a prepopulated database of people", ^{
                 syncReturn(semaphore);
             });
         });
-        sm = [SMIntegrationTestHelpers dataStore];
+        client = [SMIntegrationTestHelpers defaultClient];
+        sm = [client dataStore];
+        
+        // Log in user
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [client loginWithUsername:@"dude" password:@"sweet" onSuccess:^(NSDictionary *result) {
+                NSLog(@"Logged In, %@", result);
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                [error shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixtureNames];
+    });
+    
+    afterAll(^{
+        // Logout
+        
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [client logoutOnSuccess:^(NSDictionary *result) {
+                NSLog(@"Logged out");
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                [error shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        
     });
     
     beforeEach(^{
         fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixtureNames];
+        [fixtures shouldNotBeNil];
     });
     
     afterEach(^{
@@ -52,10 +82,7 @@ describe(@"with a prepopulated database of people", ^{
     
     describe(@"-query with initWithSchema", ^{
         beforeEach(^{
-            query = [[SMQuery alloc] initWithSchema:@"people"];
-        });
-        afterEach(^{
-            query = nil;
+            query = [[SMQuery alloc] initWithSchema:@"peoplepermissions"];
         });
         it(@"works", ^{
             [query where:@"last_name" isEqualTo:@"Vaznaian"];
@@ -67,12 +94,10 @@ describe(@"with a prepopulated database of people", ^{
         });
     });
     
+    
     describe(@"where clauses", ^{
         beforeEach(^{
-            query = [[SMQuery alloc] initWithSchema:@"people"];
-        });
-        afterEach(^{
-            query = nil;
+            query = [[SMQuery alloc] initWithSchema:@"peoplepermissions"];
         });
         it(@"-where:isEqualTo", ^{
             [query where:@"last_name" isEqualTo:@"Williams"];
@@ -152,7 +177,7 @@ describe(@"with a prepopulated database of people", ^{
     
     describe(@"multiple where clauses per query", ^{
         beforeEach(^{
-            query = [[SMQuery alloc] initWithSchema:@"people"];
+            query = [[SMQuery alloc] initWithSchema:@"peoplepermissions"];
         });
         afterEach(^{
             query = nil;
@@ -171,10 +196,7 @@ describe(@"with a prepopulated database of people", ^{
     
     describe(@"pagination and limit", ^{
         beforeEach(^{
-            query = [[SMQuery alloc] initWithSchema:@"blogposts"];
-        });
-        afterEach(^{
-            query = nil;
+            query = [[SMQuery alloc] initWithSchema:@"blogpostspermissions"];
         });
         it(@"-fromIndex:toIndex", ^{
             __block NSArray *expectedObjects = [NSArray arrayWithObjects:@"D", @"E", @"F", @"G", @"H", nil];
@@ -203,13 +225,10 @@ describe(@"with a prepopulated database of people", ^{
     
     describe(@"ordering", ^{
         beforeEach(^{
-            query = [[SMQuery alloc] initWithSchema:@"people"];
-        });
-        afterEach(^{
-            query = nil;
+            query = [[SMQuery alloc] initWithSchema:@"peoplepermissions"];
         });
         it(@"defaults to getting all the matches (i.e.  no 'where')", ^{
-            query = [[SMQuery alloc] initWithSchema:@"blogposts"];
+            query = [[SMQuery alloc] initWithSchema:@"blogpostspermissions"];
             synchronousQuery(sm, query, ^(NSArray *results) {
                 [[results should] haveCountOf:15];
             }, ^(NSError *error){
@@ -226,7 +245,7 @@ describe(@"with a prepopulated database of people", ^{
                 }, ^(NSError *error){
                     [error shouldBeNil];
                 });
-            });    
+            });
         });
         describe(@"when the intent is to sort by multiple fields", ^{
             it(@"-orderByField", ^{
@@ -248,10 +267,7 @@ describe(@"with a prepopulated database of people", ^{
         CLLocationCoordinate2D azerbaijan = CLLocationCoordinate2DMake(40.338170, 48.065186);
         
         beforeEach(^{
-            query = [[SMQuery alloc] initWithSchema:@"places"];
-        });
-        afterEach(^{
-            query = nil;
+            query = [[SMQuery alloc] initWithSchema:@"placespermissions"];
         });
         describe(@"-where:near", ^{
             beforeEach(^{
@@ -309,6 +325,7 @@ describe(@"with a prepopulated database of people", ^{
             });
         });
     });
+    
 });
 
 SPEC_END

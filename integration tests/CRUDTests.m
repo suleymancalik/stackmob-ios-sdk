@@ -23,6 +23,7 @@ describe(@"CRUD", ^{
     __block SMDataStore *dataStore = nil;
     beforeEach(^{
         dataStore = [SMIntegrationTestHelpers dataStore];
+        [NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:@"api.stackmob.com"];
     });
     it(@"should successfully create a Datastore", ^{
         [dataStore shouldNotBeNil];
@@ -248,7 +249,7 @@ describe(@"CRUD", ^{
 
 describe(@"read value containing special chartacters", ^{
     __block SMClient *client = nil;
-    __block NSString *objectId = @"matt+ma[t]t@matt.com";
+    __block NSString *objectId = @"matt+matt@matt.com";
     __block NSString *primaryKey = @"blog_id";
     __block NSString *schemaName = @"blog";
     __block NSString *fieldKey = @"blogname";
@@ -287,9 +288,9 @@ describe(@"read value containing special chartacters", ^{
             }];
         });
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            NSDictionary *updateDict = [NSDictionary dictionaryWithObjectsAndKeys:@"c[ool]$blog", fieldKey, nil];
+            NSDictionary *updateDict = [NSDictionary dictionaryWithObjectsAndKeys:@"c*oo^l$blog", fieldKey, nil];
             [[client dataStore] updateObjectWithId:objectId inSchema:schemaName update:updateDict onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                [[[theObject objectForKey:fieldKey] should] equal:@"c[ool]$blog"];
+                [[[theObject objectForKey:fieldKey] should] equal:@"c*oo^l$blog"];
                 syncReturn(semaphore);
             } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
                 [theError shouldBeNil];
@@ -386,9 +387,9 @@ describe(@"read value containing special chartacters in schema with permissions"
             }];
         });
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            NSDictionary *updateDict = [NSDictionary dictionaryWithObjectsAndKeys:@"c[ool]$blog", fieldKey, nil];
+            NSDictionary *updateDict = [NSDictionary dictionaryWithObjectsAndKeys:@"c*ool$blog", fieldKey, nil];
             [[client dataStore] updateObjectWithId:objectId inSchema:schemaName update:updateDict onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                [[[theObject objectForKey:fieldKey] should] equal:@"c[ool]$blog"];
+                [[[theObject objectForKey:fieldKey] should] equal:@"c*ool$blog"];
                 syncReturn(semaphore);
             } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
                 [theError shouldBeNil];

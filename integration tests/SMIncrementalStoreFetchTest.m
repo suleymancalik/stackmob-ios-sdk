@@ -89,7 +89,6 @@ describe(@"with fixtures", ^{
             });
         });
     });
-    
     describe(@"sorting", ^{
         __block NSFetchRequest *fetchRequest;
         __block NSArray *sortDescriptors;

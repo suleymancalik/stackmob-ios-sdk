@@ -35,7 +35,7 @@ describe(@"SMRelationshipHeaders", ^{
         
         SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
         SMCoreDataStore *cds = [client coreDataStoreWithManagedObjectModel:mom];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
     });
     
     afterEach(^{

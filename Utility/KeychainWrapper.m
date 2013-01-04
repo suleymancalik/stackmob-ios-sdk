@@ -85,13 +85,13 @@
     
     // Add.
     OSStatus status = SecItemAdd((__bridge CFDictionaryRef)dictionary, NULL);
-    
     // If the addition was successful, return. Otherwise, attempt to update existing key or quit (return NO).
     if (status == errSecSuccess) {
         return YES;
     } else if (status == errSecDuplicateItem){
         return [self updateKeychainValue:value forIdentifier:identifier];
     } else {
+        [NSException raise:@"KEYCHAINERROR" format:@"With status of %d", (int)status];
         return NO;
     }
 }

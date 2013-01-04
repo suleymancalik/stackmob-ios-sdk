@@ -15,6 +15,7 @@
  */
 
 #import "SMNetworkReachabilityHelper.h"
+#import "SMIntegrationTestHelpers.h"
 
 @implementation SMNetworkReachabilityHelper
 
@@ -28,6 +29,7 @@
         NSDictionary *credentials = [NSDictionary dictionaryWithContentsOfURL:credentialsURL];
         NSString *publicKey = [credentials objectForKey:@"PublicKey"];
         self.client =  [[SMClient alloc] initWithAPIVersion:@"0" publicKey:publicKey];
+        [NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:@"api.stackmob.com"];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkDidChange:) name:SMNetworkStatusDidChangeNotification object:nil];
     }
     
