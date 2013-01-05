@@ -161,31 +161,76 @@
     return success;
 }
 
-- (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request error:(NSError *__autoreleasing *)error
-{
-    NSManagedObjectContext *mainContext = self;
-    //NSManagedObjectContext *privateContext = mainContext.parentContext;
-    NSManagedObjectContext *temporaryContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    temporaryContext.parentContext = mainContext;
-    __block NSError *fetchError = nil;
-    __block NSArray *results = nil;
-    
-    
-    [mainContext performBlockAndWait:^{
-        results = [mainContext executeFetchRequest:request error:&fetchError];
-    }];
-    
-    if (fetchError != nil && error != NULL) {
-        *error = fetchError;
-        return nil;
-    }
-    
-    return results;
-}
-
 - (void)executeFetchRequest:(NSFetchRequest *)request onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
-    // TODO fill in
+    [self executeFetchRequest:request successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)executeFetchRequest:(NSFetchRequest *)request successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    dispatch_queue_t aQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
+    
+    // Error checks
+    if ([mainContext concurrencyType] != NSMainQueueConcurrencyType) {
+        [NSException raise:SMExceptionIncompatibleObject format:@"Method saveAndWait: main context should be of type NSMainQueueConcurrencyType"];
+    }
+    
+    dispatch_async(aQueue, ^{
+        NSError *fetchError = nil;
+        NSManagedObjectContext *backgroundContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        [backgroundContext setPersistentStoreCoordinator:mainContext.parentContext.persistentStoreCoordinator];
+        [backgroundContext setMergePolicy:[mainContext mergePolicy]];
+        NSFetchRequest *fetchCopy = [request copy];
+        [fetchCopy setResultType:NSManagedObjectIDResultType];
+        
+        NSArray *resultsOfFetch = [backgroundContext executeFetchRequest:fetchCopy error:&fetchError];
+        if (fetchError) {
+            if (failureBlock) {
+                dispatch_async(failureCallbackQueue, ^{
+                    failureBlock(fetchError);
+                });
+            }
+        } else {
+            if (successBlock) {
+                dispatch_async(successCallbackQueue, ^{
+                    successBlock(resultsOfFetch);
+                });
+            }
+        }
+    });
+    
+}
+
+- (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request error:(NSError *__autoreleasing *)error
+{
+    dispatch_queue_t aQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
+    
+    // Error checks
+    if ([mainContext concurrencyType] != NSMainQueueConcurrencyType) {
+        [NSException raise:SMExceptionIncompatibleObject format:@"Method saveAndWait: main context should be of type NSMainQueueConcurrencyType"];
+    }
+    
+    __block NSArray *resultsOfFetch = nil;
+    __block NSError *fetchError = nil;
+    
+    dispatch_sync(aQueue, ^{
+        NSManagedObjectContext *backgroundContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        [backgroundContext setPersistentStoreCoordinator:mainContext.parentContext.persistentStoreCoordinator];
+        [backgroundContext setMergePolicy:[mainContext mergePolicy]];
+        NSFetchRequest *fetchCopy = [request copy];
+        [fetchCopy setResultType:NSManagedObjectIDResultType];
+        
+        resultsOfFetch = [backgroundContext executeFetchRequest:fetchCopy error:&fetchError];
+    });
+    
+    if (fetchError && error != NULL) {
+        *error = fetchError;
+    }
+    
+    return resultsOfFetch;
+    
 }
 
 

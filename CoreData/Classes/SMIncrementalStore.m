@@ -764,15 +764,27 @@ You should implement this method conservatively, and expect that unknown request
         }
         
         __block NSArray *resultsWithoutOID;
-        // Execute query on StackMob
-        synchronousQuery(self.smDataStore, query, ^(NSArray *results) {
+        
+        // replace this query
+        // create a group dispatch and queue
+        dispatch_queue_t queue = dispatch_queue_create("fetchqueue", NULL);
+        dispatch_group_t group = dispatch_group_create();
+        
+        dispatch_group_enter(group);
+        [self.smDataStore performQuery:query options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSArray *results) {
             resultsWithoutOID = results;
-        }, ^(NSError *theError) {
-            if (NULL != error) {
-                *error = [[NSError alloc] initWithDomain:[theError domain] code:[theError code] userInfo:[theError userInfo]];
-                *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+            dispatch_group_leave(group);
+        } onFailure:^(NSError *queryError) {
+            if (error != NULL) {
+                *error = queryError;
             }
-        });
+            dispatch_group_leave(group);
+        }];
+        
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+        
+        dispatch_release(queue);
+        dispatch_release(group);
         
         if (*error != nil) {
             return nil;

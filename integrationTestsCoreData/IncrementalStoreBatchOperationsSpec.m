@@ -21,7 +21,7 @@
 
 SPEC_BEGIN(IncrementalStoreBatchOperationsSpec)
 
-
+/*
 describe(@"Inserting/Updating/Deleting many objects works fine", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -80,8 +80,8 @@ describe(@"Inserting/Updating/Deleting many objects works fine", ^{
         
     });
 });
+*/
 
-/*
 describe(@"fetching runs in the background", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -90,6 +90,7 @@ describe(@"fetching runs in the background", ^{
     
     beforeAll(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
@@ -109,6 +110,7 @@ describe(@"fetching runs in the background", ^{
         [[theValue(saveSuccess) should] beYes];
     });
     afterAll(^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         for (NSManagedObject *obj in arrayOfObjects) {
             [moc deleteObject:obj];
         }
@@ -119,15 +121,17 @@ describe(@"fetching runs in the background", ^{
         
     });
     it(@"fetches, async method", ^{
-        
-    });
-    it(@"fetches, sync method", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        NSError *error = nil;
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
+        NSArray *results = [moc executeFetchRequest:fetch error:&error];
+        NSLog(@"results are %@", results);
         
     });
      
 
 });
-
+/*
 describe(@"With a non-401 error", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
