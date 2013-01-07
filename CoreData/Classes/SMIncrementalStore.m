@@ -836,6 +836,11 @@ You should implement this method conservatively, and expect that unknown request
         // Network is not reachable, perform fetch request on Cache
         NSArray *localCacheResults = [self.localManagedObjectContext executeFetchRequest:fetchRequest error:error];
        
+        // Error check
+        if (*error != nil) {
+            return nil;
+        }
+        
         // Return results translated to StackMob equivalent managed object IDs
         NSString *primaryKeyField = nil;
         @try {
@@ -865,8 +870,15 @@ You should implement this method conservatively, and expect that unknown request
 // Returns NSArray<NSManagedObjectID>
 - (id)SM_fetchObjectIDs:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
+    NSFetchRequest *fetchCopy = [fetchRequest copy];
+    [fetchCopy setResultType:NSManagedObjectResultType];
+    NSArray *objects = [self SM_fetchObjects:fetchCopy withContext:context error:error];
     
-    NSArray *objects = [self SM_fetchObjects:fetchRequest withContext:context error:error];
+    // Error check
+    if (*error != nil) {
+        return nil;
+    }
+    
     return [objects map:^(id item) {
         return [item objectID];
     }];

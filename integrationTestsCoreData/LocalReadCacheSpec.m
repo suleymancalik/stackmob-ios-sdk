@@ -946,7 +946,7 @@ describe(@"CoreDataFetchRequest", ^{
      
 });
 
-
+/*
 describe(@"purging the cache when objects are deleted", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -1212,7 +1212,7 @@ describe(@"calls to save when not online", ^{
         }];
     });
 });
-
+*/
 /*
 describe(@"returning proper errors from reads", ^{
     __block SMClient *client = nil;

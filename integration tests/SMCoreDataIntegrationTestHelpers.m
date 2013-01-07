@@ -111,15 +111,28 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 
 + (void)executeSynchronousFetch:(NSManagedObjectContext *)moc withRequest:(NSFetchRequest *)fetchRequest andBlock:(SynchronousFetchBlock)block {
     DLog();
+    NSError *error = nil;
+    NSArray *results = [moc executeFetchRequestAndWait:fetchRequest error:&error];
+    block(results, error);
+    /*
     [moc performBlockAndWait:^{
         NSError *error = nil;
         NSArray *results = [moc executeFetchRequest:fetchRequest error:&error];
         block(results, error);
     }];
+     */
 }
 
 + (void)executeSynchronousSave:(NSManagedObjectContext *)moc withBlock:(SynchronousErrorBlock)block {
     DLog();
+    NSError *anError = nil;
+    BOOL saveSuccess = [moc saveAndWait:&anError];
+    
+    if (!saveSuccess) {
+        DLog(@"save error is %@", [anError description]);
+    }
+    block(anError);
+    /*
     [moc performBlockAndWait:^{
         NSError *anError = nil;
         BOOL saveSuccess = [moc save:&anError];
@@ -129,10 +142,21 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
         }
         block(anError);
     }];
+     */
 }
 
 + (void)executeSynchronousUpdate:(NSManagedObjectContext *)moc withObject:(NSManagedObjectID *)objectID andBlock:(SynchronousErrorBlock)block {
     DLog();
+    NSError *__autoreleasing anError = nil;
+    NSManagedObject *toUpdate = [moc objectWithID:objectID];
+    [toUpdate setValue:[NSNumber numberWithInt:20] forKey:@"armor_class"];
+    BOOL success = [moc saveAndWait:&anError];
+    if (!success) {
+        DLog(@"save error is %@", [anError description]);
+    }
+    block(anError);
+    
+    /*
     [moc performBlockAndWait:^{
         NSError *__autoreleasing anError = nil;
         NSManagedObject *toUpdate = [moc objectWithID:objectID];
@@ -143,10 +167,20 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
         }
         block(anError);
     }];
+     */
 }
 
 + (void)executeSynchronousDelete:(NSManagedObjectContext *)moc withObject:(NSManagedObjectID *)objectID andBlock:(SynchronousErrorBlock)block {
     DLog();
+    NSError *__autoreleasing anError = nil;
+    NSManagedObject *toDelete = [moc objectWithID:objectID];
+    [moc deleteObject:toDelete];
+    BOOL success = [moc saveAndWait:&anError];
+    if (!success) {
+        DLog(@"save error is %@", [anError description]);
+    }
+    block(anError);
+    /*
     [moc performBlockAndWait:^{
         NSError *__autoreleasing anError = nil;
         NSManagedObject *toDelete = [moc objectWithID:objectID];
@@ -157,6 +191,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
         }
         block(anError);
     }];
+     */
 }
 
 

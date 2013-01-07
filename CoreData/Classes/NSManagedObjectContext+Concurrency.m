@@ -178,9 +178,9 @@
     
     dispatch_async(aQueue, ^{
         NSError *fetchError = nil;
-        NSManagedObjectContext *backgroundContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        [backgroundContext setPersistentStoreCoordinator:mainContext.parentContext.persistentStoreCoordinator];
-        [backgroundContext setMergePolicy:[mainContext mergePolicy]];
+        NSManagedObjectContext *backgroundContext = mainContext.parentContext;//[[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        //[backgroundContext setPersistentStoreCoordinator:mainContext.parentContext.persistentStoreCoordinator];
+        //[backgroundContext setMergePolicy:[mainContext mergePolicy]];
         NSFetchRequest *fetchCopy = [request copy];
         [fetchCopy setResultType:NSManagedObjectIDResultType];
         
@@ -193,6 +193,7 @@
             }
         } else {
             if (successBlock) {
+                // TODO return managed objects instead of ids
                 dispatch_async(successCallbackQueue, ^{
                     successBlock(resultsOfFetch);
                 });
@@ -216,22 +217,30 @@
     __block NSError *fetchError = nil;
     
     dispatch_sync(queue, ^{
-        NSManagedObjectContext *backgroundContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        [backgroundContext setPersistentStoreCoordinator:mainContext.parentContext.persistentStoreCoordinator];
-        [backgroundContext setMergePolicy:[mainContext mergePolicy]];
+        NSManagedObjectContext *backgroundContext = mainContext.parentContext;//[[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        //[backgroundContext setPersistentStoreCoordinator:mainContext.parentContext.persistentStoreCoordinator];
+        //[backgroundContext setMergePolicy:[mainContext mergePolicy]];
         NSFetchRequest *fetchCopy = [request copy];
         [fetchCopy setResultType:NSManagedObjectIDResultType];
         
         resultsOfFetch = [backgroundContext executeFetchRequest:fetchCopy error:&fetchError];
     });
-    
+    NSManagedObjectID *theID = [resultsOfFetch objectAtIndex:0];
+    NSLog(@"id is %@", theID);
+    NSManagedObject *ob = [mainContext.parentContext objectWithID:[resultsOfFetch objectAtIndex:0]];
+    NSLog(@"ob is %@", ob);
     if (fetchError && error != NULL) {
         *error = fetchError;
+        return nil;
     }
 
     dispatch_release(queue);
     
-    return resultsOfFetch;
+    return [resultsOfFetch map:^id(id item) {
+        NSManagedObject *obj = [self objectWithID:item];
+        [self refreshObject:obj mergeChanges:YES];
+        return obj;
+    }];
     
 }
 
