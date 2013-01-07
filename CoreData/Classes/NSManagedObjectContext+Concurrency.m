@@ -204,7 +204,7 @@
 
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request error:(NSError *__autoreleasing *)error
 {
-    dispatch_queue_t aQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
     
     // Error checks
@@ -215,7 +215,7 @@
     __block NSArray *resultsOfFetch = nil;
     __block NSError *fetchError = nil;
     
-    dispatch_sync(aQueue, ^{
+    dispatch_sync(queue, ^{
         NSManagedObjectContext *backgroundContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         [backgroundContext setPersistentStoreCoordinator:mainContext.parentContext.persistentStoreCoordinator];
         [backgroundContext setMergePolicy:[mainContext mergePolicy]];
@@ -228,6 +228,8 @@
     if (fetchError && error != NULL) {
         *error = fetchError;
     }
+
+    dispatch_release(queue);
     
     return resultsOfFetch;
     

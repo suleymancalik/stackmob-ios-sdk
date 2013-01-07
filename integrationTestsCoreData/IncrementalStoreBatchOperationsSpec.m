@@ -21,7 +21,7 @@
 
 SPEC_BEGIN(IncrementalStoreBatchOperationsSpec)
 
-/*
+
 describe(@"Inserting/Updating/Deleting many objects works fine", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -80,7 +80,6 @@ describe(@"Inserting/Updating/Deleting many objects works fine", ^{
         
     });
 });
-*/
 
 describe(@"fetching runs in the background", ^{
     __block SMClient *client = nil;
@@ -120,18 +119,36 @@ describe(@"fetching runs in the background", ^{
         [arrayOfObjects removeAllObjects];
         
     });
-    it(@"fetches, async method", ^{
+    it(@"fetches, sync method", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSError *error = nil;
         NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
-        NSArray *results = [moc executeFetchRequest:fetch error:&error];
-        NSLog(@"results are %@", results);
+        NSArray *results = [moc executeFetchRequestAndWait:fetch error:&error];
+        [results shouldNotBeNil];
+        [error shouldBeNil];
+        
+    });
+    it(@"fetches, async method", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        dispatch_group_t group = dispatch_group_create();
+        dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
+        dispatch_group_enter(group);
+        [moc executeFetchRequest:fetch successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSArray *results) {
+            [results shouldNotBeNil];
+            dispatch_group_leave(group);
+        } onFailure:^(NSError *error) {
+            [error shouldBeNil];
+            dispatch_group_leave(group);
+        }];
+        
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
     });
      
 
 });
-/*
+
 describe(@"With a non-401 error", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -139,6 +156,7 @@ describe(@"With a non-401 error", ^{
     
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
@@ -157,6 +175,7 @@ describe(@"With a non-401 error", ^{
         }
     });
     afterEach(^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [[client dataStore] deleteObjectId:@"primarykey" inSchema:@"todo" onSuccess:^(NSString *theObjectId, NSString *schema) {
                 syncReturn(semaphore);
@@ -167,6 +186,7 @@ describe(@"With a non-401 error", ^{
         });
     });
     it(@"General Error should return", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
         [newManagedObject setValue:@"bob" forKey:@"title"];
         [newManagedObject setValue:@"primarykey" forKey:[newManagedObject primaryKeyField]];
@@ -204,6 +224,7 @@ describe(@"With 401s", ^{
     
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
@@ -226,6 +247,7 @@ describe(@"With 401s", ^{
     });
     
     it(@"Not logged in, 401 should get added to failed operations and show up in error", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:@"Oauth2test" inManagedObjectContext:moc];
         [newManagedObject setValue:@"bob" forKey:@"name"];
         [newManagedObject setValue:@"primarykey" forKey:[newManagedObject primaryKeyField]];
@@ -247,6 +269,7 @@ describe(@"With 401s", ^{
     });
     
     it(@"Failed refresh before requests are attemtped should error appropriately", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:@"Oauth2test" inManagedObjectContext:moc];
         [newManagedObject setValue:@"bob" forKey:@"name"];
         [newManagedObject setValue:@"primarykey" forKey:[newManagedObject primaryKeyField]];
@@ -274,6 +297,7 @@ describe(@"401s requiring logins", ^{
     
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
@@ -292,6 +316,7 @@ describe(@"401s requiring logins", ^{
         
     });
     afterEach(^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         if ([client isLoggedIn]) {
             syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
                 [client logoutOnSuccess:^(NSDictionary *result) {
@@ -306,7 +331,7 @@ describe(@"401s requiring logins", ^{
     });
     it(@"After successful refresh, should send out requests again", ^{
         
-                
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:@"Oauth2test" inManagedObjectContext:moc];
         [newManagedObject setValue:@"bob" forKey:@"name"];
         [newManagedObject setValue:@"primarykey" forKey:[newManagedObject primaryKeyField]];
@@ -341,6 +366,7 @@ describe(@"timeouts with refreshing", ^{
     
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
@@ -349,6 +375,7 @@ describe(@"timeouts with refreshing", ^{
         
     });
     it(@"waits 5 seconds and fails", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:@"Oauth2test" inManagedObjectContext:moc];
         [newManagedObject setValue:@"bob" forKey:@"name"];
         [newManagedObject setValue:@"primarykey" forKey:[newManagedObject primaryKeyField]];
@@ -375,6 +402,7 @@ describe(@"With 401s and other errors", ^{
     
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
@@ -401,6 +429,7 @@ describe(@"With 401s and other errors", ^{
         
     });
     afterEach(^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [[client dataStore] deleteObjectId:@"primarykey" inSchema:@"todo" onSuccess:^(NSString *theObjectId, NSString *schema) {
                 syncReturn(semaphore);
@@ -424,7 +453,7 @@ describe(@"With 401s and other errors", ^{
         
     });
     it(@"Only 401s should be refreshed if possible", ^{
-        
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         // Set up scenario
         [[client.dataStore.session stubAndReturn:theValue(YES)] accessTokenHasExpired];
         [[client.dataStore.session stubAndReturn:theValue(NO)] refreshing];
@@ -461,8 +490,8 @@ describe(@"With 401s and other errors", ^{
     });
     
 });
-*/
 
+/*
 describe(@"async save method tests", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -505,7 +534,7 @@ describe(@"async save method tests", ^{
             [[theValue(saveSucess) should] beYes];
         }
         
-        /*
+        
         for (NSManagedObject *obj in arrayOfObjects) {
             [moc deleteObject:obj];
         }
@@ -522,14 +551,12 @@ describe(@"async save method tests", ^{
          
         [[theValue(saveSuccess) should] beYes];
         [arrayOfObjects removeAllObjects];
-         */
+         
         
     });
     it(@"inserts without error", ^{
         __block BOOL saveSuccess = NO;
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
-        
-        /*
         dispatch_group_t group = dispatch_group_create();
         
         dispatch_group_enter(group);
@@ -540,8 +567,9 @@ describe(@"async save method tests", ^{
             dispatch_group_leave(group);
         }];
         
+        
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-        */
+        
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveWithSuccessCallbackQueue:queue failureCallbackQueue:queue onSuccess:^{
@@ -557,5 +585,6 @@ describe(@"async save method tests", ^{
     });
 
 });
+*/
 
 SPEC_END

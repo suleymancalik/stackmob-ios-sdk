@@ -21,7 +21,7 @@
 
 SPEC_BEGIN(LocalReadCacheSpec)
 
-/*
+
 describe(@"LocalReadCacheInitialization", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -36,7 +36,7 @@ describe(@"LocalReadCacheInitialization", ^{
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
         cds = [client coreDataStoreWithManagedObjectModel:aModel];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
 
     });
 });
@@ -68,7 +68,7 @@ describe(@"CoreDataFetchRequest", ^{
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
         cds = [client coreDataStoreWithManagedObjectModel:aModel];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
     });
     afterEach(^{
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
@@ -973,7 +973,7 @@ describe(@"purging the cache when objects are deleted", ^{
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
         cds = [client coreDataStoreWithManagedObjectModel:aModel];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
     });
     it(@"Should clear the cache of the object", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
@@ -1069,7 +1069,7 @@ describe(@"calls to save when not online", ^{
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
         cds = [client coreDataStoreWithManagedObjectModel:aModel];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
     });
     it(@"should fail with appropriate error during insert", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(0)] currentNetworkStatus];
@@ -1212,7 +1212,8 @@ describe(@"calls to save when not online", ^{
         }];
     });
 });
-*/
+
+/*
 describe(@"returning proper errors from reads", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -1254,6 +1255,7 @@ describe(@"returning proper errors from reads", ^{
         
     });
 });
+ */
 
 
 SPEC_END

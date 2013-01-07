@@ -765,9 +765,8 @@ You should implement this method conservatively, and expect that unknown request
         
         __block NSArray *resultsWithoutOID;
         
-        // replace this query
         // create a group dispatch and queue
-        dispatch_queue_t queue = dispatch_queue_create("fetchqueue", NULL);
+        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
         dispatch_group_t group = dispatch_group_create();
         
         dispatch_group_enter(group);
@@ -1382,27 +1381,36 @@ You should implement this method conservatively, and expect that unknown request
     __block BOOL readSuccess = NO;
     __block NSDictionary *objectFromServer;
     __block NSError *blockError = nil;
-    syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-        [self.smDataStore readObjectWithId:objectID inSchema:schemaName options:options onSuccess:^(NSDictionary *theObject, NSString *schema) {
-            objectFromServer = theObject;
-            readSuccess = YES;
-            syncReturn(semaphore);
-        } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
-            if (SM_CORE_DATA_DEBUG) { DLog(@"Could not read the object with objectId %@ and error userInfo %@", theObjectId, [theError userInfo]); }
-            readSuccess = NO;
-            blockError = theError;
-            syncReturn(semaphore);
-        }];
-    });
+    
+    // create a group dispatch and queue
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_group_t group = dispatch_group_create();
+    
+    dispatch_group_enter(group);
+    [self.smDataStore readObjectWithId:objectID inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *theObject, NSString *schema) {
+        objectFromServer = theObject;
+        readSuccess = YES;
+        dispatch_group_leave(group);
+    } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+        if (SM_CORE_DATA_DEBUG) { DLog(@"Could not read the object with objectId %@ and error userInfo %@", theObjectId, [theError userInfo]); }
+        readSuccess = NO;
+        blockError = theError;
+        dispatch_group_leave(group);
+    }];
+    
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     
     if (!readSuccess) {
         if (NULL != error) {
-            // TO DO provide sm specific error
+            // TODO provide sm specific error
             *error = [[NSError alloc] initWithDomain:[blockError domain] code:[blockError code] userInfo:[blockError userInfo]];
             *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
         }
         return nil;
     }
+    
+    dispatch_release(group);
+    dispatch_release(queue);
     
     return objectFromServer;
 

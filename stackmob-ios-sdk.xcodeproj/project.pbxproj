@@ -130,7 +130,6 @@
 		DE1BDE3B1682C151009282BA /* blogpostspermissions.json in Resources */ = {isa = PBXBuildFile; fileRef = DE1BDE341682C111009282BA /* blogpostspermissions.json */; };
 		DE360C2D16431D5A00C31A55 /* Random.h in Headers */ = {isa = PBXBuildFile; fileRef = DE360C2B16431D5A00C31A55 /* Random.h */; };
 		DE360C2E16431D5A00C31A55 /* Random.m in Sources */ = {isa = PBXBuildFile; fileRef = DE360C2C16431D5A00C31A55 /* Random.m */; };
-		DE3AE1271681034E000B2E80 /* IncrementalStoreBatchOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0837A5167FE65B00872116 /* IncrementalStoreBatchOperationsSpec.m */; };
 		DE3AE12A16810FAC000B2E80 /* AFHTTPClient+StackMob.h in Headers */ = {isa = PBXBuildFile; fileRef = DE3AE12816810FAC000B2E80 /* AFHTTPClient+StackMob.h */; };
 		DE3AE12B16810FAC000B2E80 /* AFHTTPClient+StackMob.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3AE12916810FAC000B2E80 /* AFHTTPClient+StackMob.m */; };
 		DE64D6011623777900237570 /* SMUserManagedObject.h in Headers */ = {isa = PBXBuildFile; fileRef = DE64D5FF1623777900237570 /* SMUserManagedObject.h */; };
@@ -190,6 +189,7 @@
 		DEBBBCBE15CC441900650D75 /* NSArray+Enumerable.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBA15CC441900650D75 /* NSArray+Enumerable.m */; };
 		DEBBBCBF15CC441900650D75 /* Synchronization.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCBB15CC441900650D75 /* Synchronization.h */; };
 		DEBBBCC015CC441900650D75 /* Synchronization.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBC15CC441900650D75 /* Synchronization.m */; };
+		DEC5F9C0169B55E500A44722 /* LocalReadCacheSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE96D84E165DA06500303710 /* LocalReadCacheSpec.m */; };
 		DED7D2A81655749900FBAF06 /* SMNetworkReachability.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE079B9A16499B0900C8AAA0 /* SMNetworkReachability.h */; };
 		DED7D2A91655749900FBAF06 /* SystemInformation.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DEA9ED94164B2BAB006B7326 /* SystemInformation.h */; };
 		DEDD40451629224E00F5C8E0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE64D61B1623BAE800237570 /* Security.framework */; };
@@ -1305,7 +1305,7 @@
 				DE0CC7CF15CB6B1F00E491C4 /* SMIntegrationTestHelpers.m in Sources */,
 				DE0CC7D215CB6B3800E491C4 /* SMCoreDataIntegrationTestHelpers.m in Sources */,
 				DE64D608162389A600237570 /* Person.m in Sources */,
-				DE3AE1271681034E000B2E80 /* IncrementalStoreBatchOperationsSpec.m in Sources */,
+				DEC5F9C0169B55E500A44722 /* LocalReadCacheSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
