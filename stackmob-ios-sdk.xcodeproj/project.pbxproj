@@ -190,6 +190,8 @@
 		DEBBBCBF15CC441900650D75 /* Synchronization.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCBB15CC441900650D75 /* Synchronization.h */; };
 		DEBBBCC015CC441900650D75 /* Synchronization.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBC15CC441900650D75 /* Synchronization.m */; };
 		DEC5F9C0169B55E500A44722 /* LocalReadCacheSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE96D84E165DA06500303710 /* LocalReadCacheSpec.m */; };
+		DEC5F9FA169B979B00A44722 /* SMIncrementalStoreNode.h in Headers */ = {isa = PBXBuildFile; fileRef = DEC5F9F8169B979B00A44722 /* SMIncrementalStoreNode.h */; };
+		DEC5F9FB169B979B00A44722 /* SMIncrementalStoreNode.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC5F9F9169B979B00A44722 /* SMIncrementalStoreNode.m */; };
 		DED7D2A81655749900FBAF06 /* SMNetworkReachability.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE079B9A16499B0900C8AAA0 /* SMNetworkReachability.h */; };
 		DED7D2A91655749900FBAF06 /* SystemInformation.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DEA9ED94164B2BAB006B7326 /* SystemInformation.h */; };
 		DEDD40451629224E00F5C8E0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE64D61B1623BAE800237570 /* Security.framework */; };
@@ -449,6 +451,8 @@
 		DEBBBCBB15CC441900650D75 /* Synchronization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Synchronization.h; sourceTree = "<group>"; };
 		DEBBBCBC15CC441900650D75 /* Synchronization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Synchronization.m; sourceTree = "<group>"; };
 		DEC570FA15D065FC00D9E44E /* SMCoreDataStoreTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMCoreDataStoreTest.m; sourceTree = "<group>"; };
+		DEC5F9F8169B979B00A44722 /* SMIncrementalStoreNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMIncrementalStoreNode.h; sourceTree = "<group>"; };
+		DEC5F9F9169B979B00A44722 /* SMIncrementalStoreNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMIncrementalStoreNode.m; sourceTree = "<group>"; };
 		DEE18F59160A611E00BDCCC6 /* SMRelationshipHeadersSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMRelationshipHeadersSpec.m; sourceTree = "<group>"; };
 		DEE585271631F3C40009A1DE /* SMUpdateObjectsOptimizationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMUpdateObjectsOptimizationSpec.m; sourceTree = "<group>"; };
 		DEF756B41624918E006FD554 /* KeychainWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeychainWrapper.h; sourceTree = "<group>"; };
@@ -817,6 +821,8 @@
 				DE08372F167FA1F600872116 /* NSManagedObjectContext+Concurrency.m */,
 				DE3AE12816810FAC000B2E80 /* AFHTTPClient+StackMob.h */,
 				DE3AE12916810FAC000B2E80 /* AFHTTPClient+StackMob.m */,
+				DEC5F9F8169B979B00A44722 /* SMIncrementalStoreNode.h */,
+				DEC5F9F9169B979B00A44722 /* SMIncrementalStoreNode.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -882,6 +888,7 @@
 				DEA9ED96164B2BAB006B7326 /* SystemInformation.h in Headers */,
 				DE083730167FA1F600872116 /* NSManagedObjectContext+Concurrency.h in Headers */,
 				DE3AE12A16810FAC000B2E80 /* AFHTTPClient+StackMob.h in Headers */,
+				DEC5F9FA169B979B00A44722 /* SMIncrementalStoreNode.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1268,6 +1275,7 @@
 				DEA9ED97164B2BAB006B7326 /* SystemInformation.m in Sources */,
 				DE083731167FA1F600872116 /* NSManagedObjectContext+Concurrency.m in Sources */,
 				DE3AE12B16810FAC000B2E80 /* AFHTTPClient+StackMob.m in Sources */,
+				DEC5F9FB169B979B00A44722 /* SMIncrementalStoreNode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

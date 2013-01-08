@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-#import "AFHTTPClient.h"
+#import "SMIncrementalStoreNode.h"
 
-@interface AFHTTPClient (StackMob)
+@implementation SMIncrementalStoreNode
 
-- (void)enqueueBatchOfHTTPRequestOperations:(NSArray *)operations
-                       completionBlockQueue:(dispatch_queue_t)queue
-                              progressBlock:(void (^)(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations))progressBlock
-                            completionBlock:(void (^)(NSArray *operations))completionBlock;
+- (id)valueForUndefinedKey:(NSString *)key
+{
+    NSManagedObjectID *theID = [self objectID];
+    NSPersistentStoreCoordinator *psc = [[theID persistentStore] persistentStoreCoordinator];
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    [context setPersistentStoreCoordinator:psc];
+    NSManagedObject *theObj = [context objectWithID:theID];
+    id theValue = [theObj valueForKey:key];
+    
+    return theValue;
+}
 
 @end

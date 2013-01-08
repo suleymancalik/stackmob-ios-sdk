@@ -35,6 +35,8 @@
  */
 - (NSString *)primaryKeyField;
 
+- (NSString *)sm_primaryKeyField;
+
 /**
  Given a property description, returns the equivalent field name on StackMob.
  

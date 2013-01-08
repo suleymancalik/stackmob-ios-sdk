@@ -21,7 +21,7 @@
 
 SPEC_BEGIN(LocalReadCacheSpec)
 
-
+/*
 describe(@"LocalReadCacheInitialization", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -534,6 +534,7 @@ describe(@"CoreDataFetchRequest", ^{
             }];
             
             [moc reset];
+            [moc.parentContext reset];
             
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
                 [[theValue([results count]) should] equal:theValue(1)];
@@ -546,10 +547,10 @@ describe(@"CoreDataFetchRequest", ^{
             [[name should] equal:@"Jon"];
             NSError *anError = nil;
             NSManagedObject *jonSuperpower = [jonObject valueForRelationshipKey:@"superpower" error:&anError];
-            // TODO fix these tests
-            //[anError shouldNotBeNil];
-            //[[theValue([anError code]) should] equal:theValue(SMErrorCouldNotFillRelationshipFault)];
-            [jonSuperpower shouldBeNil];
+            
+            [anError shouldNotBeNil];
+            [[theValue([anError code]) should] equal:theValue(SMErrorCouldNotFillRelationshipFault)];
+            [jonSuperpower shouldNotBeNil];
             
             // delete objects
             [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
@@ -945,7 +946,7 @@ describe(@"CoreDataFetchRequest", ^{
     });
      
 });
-
+*/
 /*
 describe(@"purging the cache when objects are deleted", ^{
     __block SMClient *client = nil;
@@ -1056,7 +1057,7 @@ describe(@"purging the cache when objects are deleted", ^{
         }];
     });
 });
-
+*/
 
 describe(@"calls to save when not online", ^{
     __block SMClient *client = nil;
@@ -1212,8 +1213,8 @@ describe(@"calls to save when not online", ^{
         }];
     });
 });
-*/
-/*
+
+
 describe(@"returning proper errors from reads", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -1225,7 +1226,7 @@ describe(@"returning proper errors from reads", ^{
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
         cds = [client coreDataStoreWithManagedObjectModel:aModel];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
     });
     it(@"new values for object on save with a 401", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
@@ -1255,7 +1256,6 @@ describe(@"returning proper errors from reads", ^{
         
     });
 });
- */
 
 
 SPEC_END

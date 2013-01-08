@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-#import "AFHTTPClient.h"
+#import <CoreData/CoreData.h>
 
-@interface AFHTTPClient (StackMob)
+@interface SMIncrementalStoreNode : NSIncrementalStoreNode
 
-- (void)enqueueBatchOfHTTPRequestOperations:(NSArray *)operations
-                       completionBlockQueue:(dispatch_queue_t)queue
-                              progressBlock:(void (^)(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations))progressBlock
-                            completionBlock:(void (^)(NSArray *operations))completionBlock;
+- (id)valueForUndefinedKey:(NSString *)key;
 
 @end

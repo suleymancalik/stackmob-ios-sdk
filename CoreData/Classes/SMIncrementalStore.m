@@ -23,6 +23,7 @@
 #import "KeychainWrapper.h"
 #import "SMDataStore+Protected.h"
 #import "AFHTTPClient.h"
+#import "SMIncrementalStoreNode.h"
 
 #define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
@@ -108,7 +109,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (void)SM_populateCacheManagedObject:(NSManagedObject *)object withDictionary:(NSDictionary *)dictionary entity:(NSEntityDescription *)entity;
 
 - (BOOL)SM_saveCache:(NSError *__autoreleasing*)error;
-- (BOOL)SM_deleteCacheReferenceForObjectWithID:(NSString *)objectID;
+- (BOOL)SM_purgeCacheObjectWithID:(NSString *)objectID;
 
 - (NSString *)SM_remoteKeyForEntityName:(NSString *)entityName;
 - (NSDictionary *)SM_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context includeRelationships:(BOOL)includeRelationships;
@@ -491,7 +492,10 @@ You should implement this method conservatively, and expect that unknown request
         
         // Create success/failure blocks
         SMResultSuccessBlock operationSuccesBlock = ^(NSDictionary *theObject){
-            if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore updated object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schemaName); }
+            if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore deleted object %@ on schema %@", deletedObjectID , schemaName); }
+            
+            // Purge cache of object
+            [self SM_purgeCacheObjectWithID:deletedObjectID];
             
         };
         
@@ -915,10 +919,11 @@ You should implement this method conservatively, and expect that unknown request
         NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
     
         if (!cacheObjectID) {
-            // Scenario: Got here because object was refreshed and is now a fault, but was never cahced in the first place.  Grab from the server if possible.
+            // Scenario: Got here because object was refreshed and is now a fault, but was never cached in the first place.  Grab from the server if possible.
             if ([self.smDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
+                [NSException raise:SMExceptionCacheError format:@"blah"];
                 if (NULL != error) {
-                    *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorCacheIDNotFound userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"No cache ID was found for the provided object ID: %@", objectID], NSLocalizedDescriptionKey, nil]];
+                    *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"No cache ID was found for the provided object ID: %@ and the network is not reachable", objectID], NSLocalizedDescriptionKey, nil]];
                     *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
                 }
                 return nil;
@@ -934,7 +939,7 @@ You should implement this method conservatively, and expect that unknown request
             
             NSDictionary *serializedObjectDict = [self SM_responseSerializationForDictionary:objectFromServer schemaEntityDescription:[sm_managedObject entity] managedObjectContext:context includeRelationships:NO];
             
-            NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDict version:1];
+            SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDict version:1];
             
             return node;
             
@@ -955,7 +960,7 @@ You should implement this method conservatively, and expect that unknown request
             }
         }];
         
-        NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID withValues:dictionaryRepresentationOfCacheObject version:1];
+        SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:dictionaryRepresentationOfCacheObject version:1];
         
         return node;
     }
@@ -966,7 +971,19 @@ You should implement this method conservatively, and expect that unknown request
     
     // If the context's merge policy is that client wins, we do not need to make a network call to retreive persisted values.
     if ([context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
-        serializedObjectDictionary = [NSDictionary dictionary];
+        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[sm_managedObject dictionaryWithValuesForKeys:[[[sm_managedObject entity] attributesByName] allKeys]]];
+        NSDictionary *relationships = [[sm_managedObject entity] relationshipsByName];
+        [relationships enumerateKeysAndObjectsUsingBlock:^(id relationshipName, id relationshipDescription, BOOL *stop) {
+            if (![relationshipDescription isToMany]) {
+                if ([sm_managedObject valueForKey:relationshipName] != nil) {
+                    [dict setObject:[[sm_managedObject valueForKey:relationshipName] objectID] forKey:relationshipName];
+                } else {
+                    [dict setObject:[NSNull null] forKey:relationshipName];
+                }
+                
+            }
+        }];
+        serializedObjectDictionary = [NSDictionary dictionaryWithDictionary:dict];
     } else {
         serializedObjectDictionary = [self SM_retrieveAndSerializeObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:[SMRequestOptions options] context:context includeRelationships:NO error:error];
         
@@ -976,7 +993,7 @@ You should implement this method conservatively, and expect that unknown request
     }
     
     
-    NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDictionary version:1];
+    SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDictionary version:1];
     
     return node;
 
@@ -1492,7 +1509,7 @@ You should implement this method conservatively, and expect that unknown request
             }
             __block NSMutableArray *arrayToReturn = [NSMutableArray array];
             [(NSArray *)relationshipContents enumerateObjectsUsingBlock:^(id expandedObject, NSUInteger idx, BOOL *stop) {
-                NSString *relatedObjectPrimaryKey = [expandedObject objectForKey:[[relationship destinationEntity] primaryKeyField]];
+                NSString *relatedObjectPrimaryKey = [expandedObject objectForKey:[[relationship destinationEntity] sm_primaryKeyField]];
                 NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:relatedObjectPrimaryKey];
                 [arrayToReturn addObject:relationshipObjectID];
                 
@@ -1644,7 +1661,7 @@ You should implement this method conservatively, and expect that unknown request
     return YES;
 }
 
-- (BOOL)SM_deleteCacheReferenceForObjectWithID:(NSString *)objectID
+- (BOOL)SM_purgeCacheObjectWithID:(NSString *)objectID
 {
     BOOL success = YES;
     NSString *cacheReferenceIDString = [self.cacheMappingTable objectForKey:objectID];

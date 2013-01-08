@@ -1,10 +1,18 @@
-//
-//  NSManagedObjectContext+Concurrency.m
-//  stackmob-ios-sdk
-//
-//  Created by Matt Vaznaian on 12/17/12.
-//  Copyright (c) 2012 StackMob. All rights reserved.
-//
+/*
+ * Copyright 2012 StackMob
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #import "NSManagedObjectContext+Concurrency.h"
 
@@ -217,18 +225,13 @@
     __block NSError *fetchError = nil;
     
     dispatch_sync(queue, ^{
-        NSManagedObjectContext *backgroundContext = mainContext.parentContext;//[[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        //[backgroundContext setPersistentStoreCoordinator:mainContext.parentContext.persistentStoreCoordinator];
-        //[backgroundContext setMergePolicy:[mainContext mergePolicy]];
+        NSManagedObjectContext *backgroundContext = mainContext.parentContext;
         NSFetchRequest *fetchCopy = [request copy];
         [fetchCopy setResultType:NSManagedObjectIDResultType];
         
         resultsOfFetch = [backgroundContext executeFetchRequest:fetchCopy error:&fetchError];
     });
-    NSManagedObjectID *theID = [resultsOfFetch objectAtIndex:0];
-    NSLog(@"id is %@", theID);
-    NSManagedObject *ob = [mainContext.parentContext objectWithID:[resultsOfFetch objectAtIndex:0]];
-    NSLog(@"ob is %@", ob);
+    
     if (fetchError && error != NULL) {
         *error = fetchError;
         return nil;
@@ -237,9 +240,9 @@
     dispatch_release(queue);
     
     return [resultsOfFetch map:^id(id item) {
-        NSManagedObject *obj = [self objectWithID:item];
-        [self refreshObject:obj mergeChanges:YES];
-        return obj;
+        NSManagedObject *objectFromCurrentContext = [self objectWithID:item];
+        [self refreshObject:objectFromCurrentContext mergeChanges:YES];
+        return objectFromCurrentContext;
     }];
     
 }
