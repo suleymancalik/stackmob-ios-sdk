@@ -131,4 +131,9 @@
 
 - (BOOL)eligibleForTokenRefresh:(SMRequestOptions *)options;
 
+@property (nonatomic, strong) NSMutableDictionary *userIdentifierMap;
+
+- (void)SM_readUserIdentifierMap;
+- (void)SM_saveUserIdentifierMap;
+
 @end

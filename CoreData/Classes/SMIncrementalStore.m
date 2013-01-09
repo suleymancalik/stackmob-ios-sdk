@@ -921,7 +921,6 @@ You should implement this method conservatively, and expect that unknown request
         if (!cacheObjectID) {
             // Scenario: Got here because object was refreshed and is now a fault, but was never cached in the first place.  Grab from the server if possible.
             if ([self.smDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
-                [NSException raise:SMExceptionCacheError format:@"blah"];
                 if (NULL != error) {
                     *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"No cache ID was found for the provided object ID: %@ and the network is not reachable", objectID], NSLocalizedDescriptionKey, nil]];
                     *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
@@ -934,8 +933,11 @@ You should implement this method conservatively, and expect that unknown request
                 return nil;
             }
             
-            [self SM_cacheObjectWithID:sm_managedObjectReferenceID values:objectFromServer entity:[sm_managedObject entity] context:context];
-            [self SM_saveCache:error];
+            // Only cache if we were filling a fault.
+            if (!self.isSaving) {
+                [self SM_cacheObjectWithID:sm_managedObjectReferenceID values:objectFromServer entity:[sm_managedObject entity] context:context];
+                [self SM_saveCache:error];
+            }
             
             NSDictionary *serializedObjectDict = [self SM_responseSerializationForDictionary:objectFromServer schemaEntityDescription:[sm_managedObject entity] managedObjectContext:context includeRelationships:NO];
             
@@ -965,11 +967,11 @@ You should implement this method conservatively, and expect that unknown request
         return node;
     }
     
-    // If the object is not faulted, a call to save has been made and we need to retreive an up-to-date copy from the server.
+    // If the object is not faulted, values are in memory but core data is requesting persisten store values.
     
     NSDictionary *serializedObjectDictionary = nil;
     
-    // If the context's merge policy is that client wins, we do not need to make a network call to retreive persisted values.
+    // If the context's merge policy is that in memory wins, we do not need to make a network call to retreive persisted values.
     if ([context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[sm_managedObject dictionaryWithValuesForKeys:[[[sm_managedObject entity] attributesByName] allKeys]]];
         NSDictionary *relationships = [[sm_managedObject entity] relationshipsByName];
@@ -1044,7 +1046,7 @@ You should implement this method conservatively, and expect that unknown request
     __block NSManagedObject *sm_managedObject = [context objectWithID:objectID];
     __block NSString *sm_managedObjectReferenceID = [self referenceObjectForObjectID:objectID];
     
-    if ([sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
+    if (!self.isSaving && [sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
         NSString *cacheReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
         NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
         
@@ -1136,7 +1138,7 @@ You should implement this method conservatively, and expect that unknown request
         }
     }
     
-    // If the object is not faulted, a call to save has been made and we need to retreive an up-to-date copy from the server.
+    // If the object is not faulted, core data is requesting values from persistent store and we need to retreive an up-to-date copy from the server.
     
     id result = nil;
     
@@ -1765,7 +1767,7 @@ You should implement this method conservatively, and expect that unknown request
     
     NSMutableDictionary *serializedDictCopy = [[*originalDictionary objectForKey:SerializedDictKey] mutableCopy];
     
-    NSString *passwordIdentifier = [object passwordIdentifier];
+    NSString *passwordIdentifier = [self.smDataStore.session.userIdentifierMap objectForKey:[object valueForKey:[object primaryKeyField]]];
     NSString *thePassword = [KeychainWrapper keychainStringFromMatchingIdentifier:passwordIdentifier];
     
     if (!thePassword) {

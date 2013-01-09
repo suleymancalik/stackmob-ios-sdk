@@ -40,7 +40,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return _singletonInstance;
 }
 
-+ (void)removeSQLiteDatabase
++ (void)removeSQLiteDatabaseAndMaps
 {
     NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
     NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
@@ -53,6 +53,26 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
         BOOL sqliteDelete = [fileManager removeItemAtURL:sqliteDBURL error:&sqliteDeleteError];
         if (!sqliteDelete) {
             [NSException raise:@"SMCouldNotDeleteSQLiteDatabase" format:@""];
+        }
+    }
+    
+    defaultName = @"UserIdentifierMap.plist";
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    if ([fileManager fileExistsAtPath:[aURL path]]) {
+        NSError *sqliteDeleteError = nil;
+        BOOL sqliteDelete = [fileManager removeItemAtURL:aURL error:&sqliteDeleteError];
+        if (!sqliteDelete) {
+            [NSException raise:@"SMCouldNotDeleteUserIdentifierMap" format:@""];
+        }
+    }
+    
+    defaultName = @"CacheMap.plist";
+    aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    if ([fileManager fileExistsAtPath:[aURL path]]) {
+        NSError *sqliteDeleteError = nil;
+        BOOL sqliteDelete = [fileManager removeItemAtURL:aURL error:&sqliteDeleteError];
+        if (!sqliteDelete) {
+            [NSException raise:@"SMCouldNotDeleteCacheMap" format:@""];
         }
     }
 }

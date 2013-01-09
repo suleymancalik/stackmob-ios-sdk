@@ -28,6 +28,9 @@
 
 @property (nonatomic, copy) NSString *oauthStorageKey;
 
+- (NSURL *)SM_getStoreURLForUserIdentifierTable;
+- (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL;
+
 @end
 
 
@@ -45,6 +48,7 @@
 @synthesize refreshing = _SM_refreshing;
 @synthesize oauthStorageKey = _SM_oauthStorageKey;
 @synthesize networkMonitor = _SM_networkMonitor;
+@synthesize userIdentifierMap = _SM_userIdentifierMap;
 
 - (id)initWithAPIVersion:(NSString *)version 
                  apiHost:(NSString *)apiHost 
@@ -71,6 +75,8 @@
         
         self.oauthStorageKey = [NSString stringWithFormat:@"%@.%@.oauth", [[NSBundle bundleForClass:[self class]] bundleIdentifier], publicKey];
         [self saveAccessTokenInfo:[[NSUserDefaults standardUserDefaults] dictionaryForKey:self.oauthStorageKey]];
+        
+        [self SM_readUserIdentifierMap];
         
     }
     
@@ -199,6 +205,98 @@
 - (BOOL)eligibleForTokenRefresh:(SMRequestOptions *)options
 {
     return options.tryRefreshToken && self.refreshToken != nil && [self accessTokenHasExpired];
+}
+
+- (NSURL *)SM_getStoreURLForUserIdentifierTable
+{
+    
+    NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+    NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
+    
+    NSString *defaultName = @"UserIdentifierMap.plist";
+    
+    NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
+    
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    
+    for (NSString *path in paths)
+    {
+        NSString *filepath = [path stringByAppendingPathComponent:defaultName];
+        if ([fm fileExistsAtPath:filepath])
+        {
+            return [NSURL fileURLWithPath:filepath];
+        }
+        
+    }
+    
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    return aURL;
+}
+
+- (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL
+{
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSURL *pathToStore = [storeURL URLByDeletingLastPathComponent];
+    
+    NSError *error = nil;
+    BOOL pathWasCreated = [fileManager createDirectoryAtPath:[pathToStore path] withIntermediateDirectories:YES attributes:nil error:&error];
+    
+    if (!pathWasCreated) {
+        [NSException raise:SMExceptionAddPersistentStore format:@"Error creating user identifier map: %@", error];
+    }
+    
+}
+
+- (void)SM_readUserIdentifierMap
+{
+    
+    NSString *errorDesc = nil;
+    NSPropertyListFormat format;
+    NSURL *mapPath = [self SM_getStoreURLForUserIdentifierTable];
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[mapPath path]]) {
+        NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:[mapPath path]];
+        NSDictionary *temp = (NSDictionary *)[NSPropertyListSerialization
+                                              propertyListFromData:plistXML
+                                              mutabilityOption:NSPropertyListMutableContainersAndLeaves
+                                              format:&format
+                                              errorDescription:&errorDesc];
+        
+        if (!temp) {
+            [NSException raise:SMExceptionCacheError format:@"Error reading user identifier: %@, format: %d", errorDesc, format];
+        } else {
+            self.userIdentifierMap = [temp mutableCopy];
+        }
+    }
+    
+    self.userIdentifierMap = [NSMutableDictionary dictionary];
+    
+    
+    
+}
+
+- (void)SM_saveUserIdentifierMap
+{
+    NSString *errorDesc = nil;
+    NSError *error = nil;
+    NSURL *mapPath = [self SM_getStoreURLForUserIdentifierTable];
+    [self SM_createStoreURLPathIfNeeded:mapPath];
+    
+    NSData *mapData = [NSPropertyListSerialization dataFromPropertyList:self.userIdentifierMap
+                                                                 format:NSPropertyListXMLFormat_v1_0
+                                                       errorDescription:&errorDesc];
+    
+    if (!mapData) {
+        [NSException raise:SMExceptionCacheError format:@"Error serializing user identifier data with error description %@", errorDesc];
+    }
+    
+    BOOL successfulWrite = [mapData writeToFile:[mapPath path] options:NSDataWritingAtomic error:&error];
+    if (!successfulWrite) {
+        [NSException raise:SMExceptionCacheError format:@"Error saving identifier data with error %@", error];
+    }
+    
 }
 
 

@@ -1214,7 +1214,7 @@ describe(@"calls to save when not online", ^{
     });
 });
 
-
+/*
 describe(@"returning proper errors from reads", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -1256,6 +1256,7 @@ describe(@"returning proper errors from reads", ^{
         
     });
 });
+ */
 
 
 SPEC_END
