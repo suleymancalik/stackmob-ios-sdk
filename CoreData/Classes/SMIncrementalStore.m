@@ -66,6 +66,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 @property (nonatomic, strong) NSManagedObjectContext *localManagedObjectContext;
 @property (nonatomic, strong) NSPersistentStoreCoordinator *localPersistentStoreCoordinator;
 @property (nonatomic, strong) NSManagedObjectModel *localManagedObjectModel;
+
+// Cache mapping table appears as Key: StackMob object ID, Value: 
 @property (nonatomic, strong) NSMutableDictionary *cacheMappingTable;
 @property (nonatomic) dispatch_queue_t callbackQueue;
 @property (nonatomic, strong) SMRequestOptions *globalOptions;
@@ -925,7 +927,9 @@ You should implement this method conservatively, and expect that unknown request
                     *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"No cache ID was found for the provided object ID: %@ and the network is not reachable", objectID], NSLocalizedDescriptionKey, nil]];
                     *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
                 }
-                return nil;
+                // fill blank node to return
+                SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:[NSDictionary dictionary] version:1];
+                return node;
             }
             
             NSDictionary *objectFromServer = [self SM_retrieveObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:[SMRequestOptions options] context:context error:error];
@@ -961,6 +965,19 @@ You should implement this method conservatively, and expect that unknown request
                 [dictionaryRepresentationOfCacheObject setObject:attributeValue forKey:attributeName];
             }
         }];
+        
+        [[objectFromCache dictionaryWithValuesForKeys:[[[objectFromCache entity] relationshipsByName] allKeys]] enumerateKeysAndObjectsUsingBlock:^(id relationshipName, id relationshipValue, BOOL *stop) {
+            if (![[[[objectFromCache entity] relationshipsByName] objectForKey:relationshipName] isToMany]) {
+                if (relationshipValue == [NSNull null] || relationshipValue == nil) {
+                    [dictionaryRepresentationOfCacheObject setObject:[NSNull null] forKey:relationshipName];
+                } else {
+                    NSString *cacheRelationshipID = [[[relationshipValue objectID] URIRepresentation] absoluteString];
+                    NSLog(@"cacheRelationshipID is %@", cacheRelationshipID);
+                    [dictionaryRepresentationOfCacheObject setObject:[relationshipValue objectID] forKey:relationshipName];
+                }
+            }
+        }];
+        
         
         SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:dictionaryRepresentationOfCacheObject version:1];
         
@@ -1639,6 +1656,7 @@ You should implement this method conservatively, and expect that unknown request
         if (permanentIdError) {
             [NSException raise:SMExceptionCacheError format:@"Could not obtain permanent IDs for objects %@ with error %@", cacheObject, permanentIdError];
         }
+        
         [self.cacheMappingTable setObject:[[[cacheObject objectID] URIRepresentation] absoluteString] forKey:remoteID];
         [self SM_saveCacheMap];
         DLog(@"Creating new cache object, %@", cacheObject);

@@ -21,7 +21,7 @@
 
 SPEC_BEGIN(LocalReadCacheSpec)
 
-/*
+
 describe(@"LocalReadCacheInitialization", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -946,7 +946,7 @@ describe(@"CoreDataFetchRequest", ^{
     });
      
 });
-*/
+
 /*
 describe(@"purging the cache when objects are deleted", ^{
     __block SMClient *client = nil;
@@ -1066,6 +1066,7 @@ describe(@"calls to save when not online", ^{
     beforeEach(^{
         SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
@@ -1115,6 +1116,7 @@ describe(@"calls to save when not online", ^{
             [error shouldBeNil];
         }];
     });
+    
     it(@"should fail with appropriate error during update with to-one", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         
@@ -1148,6 +1150,7 @@ describe(@"calls to save when not online", ^{
             [error shouldBeNil];
         }];
     });
+    
     it(@"should fail with appropriate error during update with to-many", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         
@@ -1212,6 +1215,7 @@ describe(@"calls to save when not online", ^{
             [error shouldBeNil];
         }];
     });
+     
 });
 
 /*

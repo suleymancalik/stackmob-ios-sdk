@@ -15,6 +15,7 @@
  */
 
 #import "NSManagedObjectContext+Concurrency.h"
+#import "SMClient.h"
 
 @implementation NSManagedObjectContext (Concurrency)
 
@@ -25,6 +26,15 @@
 
 - (void)saveWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
+    if ([[[[SMClient defaultClient] session] networkMonitor] currentNetworkStatus] != Reachable) {
+        if (failureBlock) {
+            dispatch_async(failureCallbackQueue, ^{
+                NSError *saveError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
+                failureBlock(saveError);
+            });
+        }
+    }
+    
     NSManagedObjectContext *mainContext = nil;
     NSManagedObjectContext *temporaryContext = nil;
     if ([self concurrencyType] == NSMainQueueConcurrencyType) {
@@ -111,6 +121,15 @@
 
 - (BOOL)saveAndWait:(NSError *__autoreleasing*)error
 {
+    if ([[[[SMClient defaultClient] session] networkMonitor] currentNetworkStatus] != Reachable) {
+        if (NULL != error) {
+            *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
+            *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+        }
+        return NO;
+    }
+    
+    
     NSManagedObjectContext *mainContext = nil;
     NSManagedObjectContext *temporaryContext = nil;
     if ([self concurrencyType] == NSMainQueueConcurrencyType) {
