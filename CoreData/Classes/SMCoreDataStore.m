@@ -17,14 +17,22 @@
 #import "SMCoreDataStore.h"
 #import "SMIncrementalStore.h"
 #import "SMError.h"
+#import "NSManagedObjectContext+Concurrency.h"
+
+#define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
 static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey";
+NSString *const SMEnableCacheNotification = @"SMEnableCacheNotification";
+NSString *const SMDisableCacheNotification = @"SMDisableCacheNotification";
+NSString *const SMCacheWasEnabledNotification = @"SMCacheWasEnabledNotification";
+NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotification";
 
 @interface SMCoreDataStore ()
 
 @property(nonatomic, readwrite, strong)NSManagedObjectModel *managedObjectModel;
 @property (nonatomic, strong) NSManagedObjectContext *privateContext;
 @property (nonatomic, strong) id defaultMergePolicy;
+@property (nonatomic) BOOL cacheIsActive;
 
 - (NSManagedObjectContext *)newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
 
@@ -38,6 +46,7 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 @synthesize mainThreadContext = _mainThreadContext;
 @synthesize privateContext = _privateContext;
 @synthesize defaultMergePolicy = _defaultMergePolicy;
+@synthesize cacheIsActive = _cacheIsActive;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
@@ -45,6 +54,7 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
     if (self) {
         _managedObjectModel = managedObjectModel;
         _defaultMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
+        self.cacheIsActive = NO;
     }
     
     return self;
@@ -102,6 +112,7 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
         _mainThreadContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
         [_mainThreadContext setMergePolicy:self.defaultMergePolicy];
         [_mainThreadContext setParentContext:self.privateContext];
+        [_mainThreadContext setContextShouldObtainPermanentIDsBeforeSaving];
     }
     return _mainThreadContext;
 }
@@ -111,6 +122,7 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
     NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     [context setMergePolicy:self.defaultMergePolicy];
     [context setParentContext:parent];
+    [context setContextShouldObtainPermanentIDsBeforeSaving];
     
     return context;
 }
@@ -145,6 +157,27 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
             [self.privateContext setMergePolicy:mergePolicy];
         }
     }
+}
+
+- (void)enableCache
+{
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
+    if (!self.cacheIsEnabled) {
+        self.cacheIsActive = YES;
+    }
+}
+
+- (void)disableCache
+{
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
+    if (self.cacheIsEnabled) {
+        self.cacheIsActive = NO;
+    }
+}
+
+- (BOOL)cacheIsEnabled
+{
+    return self.cacheIsActive;
 }
 
 @end

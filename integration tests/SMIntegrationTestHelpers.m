@@ -115,19 +115,26 @@ void synchronousQuery(SMDataStore *sm, SMQuery *query, SynchronousQueryBlock blo
     SMDataStore *smClient = [SMIntegrationTestHelpers dataStore];
     __block NSMutableArray *insertedObjectsForFixture = [NSMutableArray array];
     
+    dispatch_queue_t queue = dispatch_queue_create("fixtureQueue", NULL);
+    dispatch_group_t group = dispatch_group_create();
+    
     [objToInsert enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [smClient createObject:(NSDictionary *)obj inSchema:fixtureName onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                NSLog(@"Created object in schema %@:\n%@", schema, theObject);
-                [insertedObjectsForFixture addObject:theObject];
-                syncReturn(semaphore);
-            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                NSLog(@"Failed to create a new %@: %@", schema, theError);
-                syncReturn(semaphore);
-            }];
-        });
+        dispatch_group_enter(group);
+        [smClient createObject:(NSDictionary *)obj inSchema:fixtureName options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *theObject, NSString *schema) {
+            NSLog(@"Created object in schema %@:\n%@", schema, theObject);
+            [insertedObjectsForFixture addObject:theObject];
+            dispatch_group_leave(group);
+        } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+            NSLog(@"Failed to create a new %@: %@", schema, theError);
+            dispatch_group_leave(group);
+        }];
     }];
-     
+    
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    
+    dispatch_release(queue);
+    dispatch_release(group);
+    
     if ([_insertedObjects objectForKey:fixtureName] == nil) {
         [_insertedObjects setValue:[NSMutableArray array] forKey:fixtureName];
     }
@@ -140,18 +147,26 @@ void synchronousQuery(SMDataStore *sm, SMQuery *query, SynchronousQueryBlock blo
     SMDataStore *smClient = [SMIntegrationTestHelpers dataStore];
     NSString *idField = [NSString stringWithFormat:@"%@_id", fixtureName];
 
+    dispatch_queue_t queue = dispatch_queue_create("fixtureQueue", NULL);
+    dispatch_group_t group = dispatch_group_create();
+    
     [[_insertedObjects objectForKey:fixtureName] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            NSString *uuid = [(NSDictionary *)obj objectForKey:idField];
-            [smClient deleteObjectId:uuid inSchema:fixtureName onSuccess:^(NSString *theObjectId, NSString *schema) {
-                NSLog(@"Deleted %@ from schema %@", theObjectId, schema);
-                syncReturn(semaphore);
-            } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
-                NSLog(@"Failed to delete %@ from schema %@: %@", theObjectId, schema, theError);
-                syncReturn(semaphore);
-            }];
-        });
+        dispatch_group_enter(group);
+        NSString *uuid = [(NSDictionary *)obj objectForKey:idField];
+        [smClient deleteObjectId:uuid inSchema:fixtureName onSuccess:^(NSString *theObjectId, NSString *schema) {
+            NSLog(@"Deleted %@ from schema %@", theObjectId, schema);
+            dispatch_group_leave(group);
+        } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+            NSLog(@"Failed to delete %@ from schema %@: %@", theObjectId, schema, theError);
+            dispatch_group_leave(group);
+        }];
     }];
+    
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    
+    dispatch_release(queue);
+    dispatch_release(group);
+    
     [_insertedObjects removeObjectForKey:fixtureName];
 }
 

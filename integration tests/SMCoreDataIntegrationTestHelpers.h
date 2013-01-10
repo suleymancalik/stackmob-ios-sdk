@@ -44,7 +44,6 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 + (void)MOCDidSave:(NSNotification *)notification;
 + (void)MOCWillSave:(NSNotification *)notification;
 + (void)removeSQLiteDatabaseAndMaps;
-+ (BOOL)synchronousSaveInBackgroundWithContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error;
 
 @end
 

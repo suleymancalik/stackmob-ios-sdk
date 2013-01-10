@@ -32,14 +32,16 @@ describe(@"SMBinDataConvertCDIntegration", ^{
     __block SMCoreDataStore *cds = nil;
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [client setUserSchema:@"user3"];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
     });
     describe(@"should successfully set binary data when translated to string", ^{
         __block NSString *dataString = nil;
         beforeEach(^{
+             [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
             superpower = [NSEntityDescription insertNewObjectForEntityForName:@"Superpower" inManagedObjectContext:moc];
             NSError *error = nil;
             NSBundle *bundle = [NSBundle bundleForClass:[self class]];
@@ -53,6 +55,7 @@ describe(@"SMBinDataConvertCDIntegration", ^{
             [superpower setSuperpower_id:[superpower assignObjectId]];
         });
         it(@"should persist to StackMob and update after a refresh call", ^{
+             [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
             [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                 [error shouldBeNil];
                 [moc refreshObject:superpower mergeChanges:YES];
@@ -64,6 +67,7 @@ describe(@"SMBinDataConvertCDIntegration", ^{
             }];
         });
         it(@"should update the object successfully without overwriting the data", ^{
+             [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
             __block NSString *picURL = nil;
             [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                 [error shouldBeNil];

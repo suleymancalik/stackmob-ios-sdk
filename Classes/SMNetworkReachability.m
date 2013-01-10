@@ -15,6 +15,9 @@
  */
 
 #import "SMNetworkReachability.h"
+#import "SMIncrementalStore.h"
+
+#define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
 NSString * SMNetworkStatusDidChangeNotification = @"SMNetworkStatusDidChangeNotification";
 NSString * SMCurrentNetworkStatusKey = @"SMCurrentNetworkStatusKey";
@@ -75,6 +78,7 @@ typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
     
     if (self.networkStatus != notificationNetworkStatus) {
         self.networkStatus = notificationNetworkStatus;
+        if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Network reachability has changed to %d", notificationNetworkStatus)};
         if (self.localNetworkStatusBlock) {
             self.localNetworkStatusBlock(self.networkStatus);
         }

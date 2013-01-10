@@ -29,8 +29,9 @@ describe(@"updating an object only persists changed fields", ^{
     __block SMCoreDataStore *cds = nil;
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
-        moc = [cds managedObjectContext];
+        moc = [cds contextForCurrentThread];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
         [person setValue:@"bob" forKey:@"first_name"];
@@ -44,13 +45,14 @@ describe(@"updating an object only persists changed fields", ^{
         }];
     });
     afterEach(^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [moc deleteObject:person];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             [error shouldBeNil];
         }];
     });
     it(@"should only persist the updated fields", ^{
-        
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [person setValue:@"joe" forKey:@"first_name"];
         NSDictionary *personDict = [person sm_dictionarySerialization];
         [[[personDict objectForKey:@"SerializedDict"] objectForKey:@"first_name"] shouldNotBeNil];

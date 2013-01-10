@@ -16,6 +16,11 @@
 
 #import "SMDataStore.h"
 
+extern NSString *const SMEnableCacheNotification;
+extern NSString *const SMDisableCacheNotification;
+extern NSString *const SMCacheWasEnabledNotification;
+extern NSString *const SMCacheWasDisabledNotification;
+
 @class SMIncrementalStore;
 
 /**
@@ -91,6 +96,21 @@
  @param apply Whether or not to set mergePolicy as the merge policy for the existing mainThreadContext and its private parent context.
  */
 - (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply;
+
+/**
+ Turns the offline caching system on.
+ */
+- (void)enableCache;
+
+/**
+ Turns the offline caching system off.
+ */
+- (void)disableCache;
+
+/**
+ Returns whether the offline caching system if currently being used.
+ */
+- (BOOL)cacheIsEnabled;
 
 
 @end
