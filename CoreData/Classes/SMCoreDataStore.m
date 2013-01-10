@@ -17,13 +17,22 @@
 #import "SMCoreDataStore.h"
 #import "SMIncrementalStore.h"
 #import "SMError.h"
+#import "NSManagedObjectContext+Concurrency.h"
+
+#define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
 static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey";
+NSString *const SMEnableCacheNotification = @"SMEnableCacheNotification";
+NSString *const SMDisableCacheNotification = @"SMDisableCacheNotification";
+NSString *const SMCacheWasEnabledNotification = @"SMCacheWasEnabledNotification";
+NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotification";
 
 @interface SMCoreDataStore ()
 
 @property(nonatomic, readwrite, strong)NSManagedObjectModel *managedObjectModel;
 @property (nonatomic, strong) NSManagedObjectContext *privateContext;
+@property (nonatomic, strong) id defaultMergePolicy;
+@property (nonatomic) BOOL cacheIsActive;
 
 - (NSManagedObjectContext *)newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
 
@@ -36,12 +45,16 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize mainThreadContext = _mainThreadContext;
 @synthesize privateContext = _privateContext;
+@synthesize defaultMergePolicy = _defaultMergePolicy;
+@synthesize cacheIsActive = _cacheIsActive;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
     self = [super initWithAPIVersion:apiVersion session:session];
     if (self) {
         _managedObjectModel = managedObjectModel;
+        _defaultMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
+        self.cacheIsActive = NO;
     }
     
     return self;
@@ -55,10 +68,13 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
         _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
         
         NSError *error = nil;
+        NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [NSNumber numberWithBool:YES], NSMigratePersistentStoresAutomaticallyOption,
+                                 [NSNumber numberWithBool:YES], NSInferMappingModelAutomaticallyOption, self, SM_DataStoreKey, nil];
         [_persistentStoreCoordinator addPersistentStoreWithType:SMIncrementalStoreType
-                                                  configuration:nil 
-                                                            URL:[NSURL URLWithString:SMIncrementalStoreType]
-                                                        options:[NSDictionary dictionaryWithObject:self forKey:SM_DataStoreKey] 
+                                                  configuration:nil
+                                                            URL:nil
+                                                        options:options
                                                           error:&error];
         if (error != nil) {
             [NSException raise:SMExceptionAddPersistentStore format:@"Error creating incremental persistent store: %@", error];
@@ -74,13 +90,12 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 {
     if (_privateContext == nil) {
         _privateContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        [_privateContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
+        [_privateContext setMergePolicy:self.defaultMergePolicy];
         [_privateContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
     }
     return _privateContext;
 }
 
-// TODO mark deprecated
 - (NSManagedObjectContext *)managedObjectContext
 {
     if (_managedObjectContext == nil) {
@@ -95,8 +110,9 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 {
     if (_mainThreadContext == nil) {
         _mainThreadContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-        [_mainThreadContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
+        [_mainThreadContext setMergePolicy:self.defaultMergePolicy];
         [_mainThreadContext setParentContext:self.privateContext];
+        [_mainThreadContext setContextShouldObtainPermanentIDsBeforeSaving];
     }
     return _mainThreadContext;
 }
@@ -104,8 +120,9 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 - (NSManagedObjectContext *)newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent
 {
     NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    [context setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
+    [context setMergePolicy:self.defaultMergePolicy];
     [context setParentContext:parent];
+    [context setContextShouldObtainPermanentIDsBeforeSaving];
     
     return context;
 }
@@ -127,6 +144,40 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 		}
 		return threadContext;
 	}
+}
+
+- (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply
+{
+    if (mergePolicy != self.defaultMergePolicy) {
+        
+        self.defaultMergePolicy = mergePolicy;
+        
+        if (apply) {
+            [self.mainThreadContext setMergePolicy:mergePolicy];
+            [self.privateContext setMergePolicy:mergePolicy];
+        }
+    }
+}
+
+- (void)enableCache
+{
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
+    if (!self.cacheIsEnabled) {
+        self.cacheIsActive = YES;
+    }
+}
+
+- (void)disableCache
+{
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
+    if (self.cacheIsEnabled) {
+        self.cacheIsActive = NO;
+    }
+}
+
+- (BOOL)cacheIsEnabled
+{
+    return self.cacheIsActive;
 }
 
 @end

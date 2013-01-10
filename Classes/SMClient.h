@@ -159,6 +159,7 @@
  */
 @property(nonatomic, readonly, strong) SMUserSession * session;
 
+
 #pragma mark init
 ///-------------------------------
 /// @name Initialize

@@ -26,6 +26,7 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 @property (readonly, strong, nonatomic) NSManagedObjectModel *stackMobMOM;
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *stackMobPSC;
 @property (readonly, strong, nonatomic) NSManagedObjectContext *stackMobMOC;
+@property (nonatomic, strong) SMClient *client;
 
 + (NSManagedObjectContext *)moc;
 + (NSEntityDescription *)entityForName:(NSString *)entityName;
@@ -42,7 +43,7 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 + (void)MOCDidChange:(NSNotification *)notification;
 + (void)MOCDidSave:(NSNotification *)notification;
 + (void)MOCWillSave:(NSNotification *)notification;
-+ (BOOL)synchronousSaveInBackgroundWithContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error;
++ (void)removeSQLiteDatabaseAndMaps;
 
 @end
 

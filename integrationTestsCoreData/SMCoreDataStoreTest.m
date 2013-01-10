@@ -28,12 +28,13 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
     beforeEach(^{
         mom = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]];
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         coreDataStore = [client coreDataStoreWithManagedObjectModel:mom];
         
     });
     describe(@"obtaining a managedObjectContext hooked to SM", ^{
         beforeEach(^{
-            moc = [coreDataStore managedObjectContext];
+            moc = [coreDataStore contextForCurrentThread];
         });
         it(@"is not nil", ^{
             [moc shouldNotBeNil];
@@ -41,7 +42,8 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
     });
     describe(@"with a managedObjectContext from SMCoreDataStore", ^{
         beforeEach(^{
-            moc = [coreDataStore managedObjectContext]; 
+            moc = [coreDataStore contextForCurrentThread];
+            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         });
         describe(@"inserting an object", ^{
             __block NSManagedObject *aPerson = nil;
@@ -52,6 +54,7 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
                 [aPerson setValue:[aPerson assignObjectId] forKey:[aPerson primaryKeyField]];
             });
             afterEach(^{
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 [moc deleteObject:aPerson];
                 [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                     [error shouldBeNil]; 
@@ -61,6 +64,7 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
                 [[theValue([[moc insertedObjects] count]) should] beGreaterThan:theValue(0)];
             });
             it(@"a call to save should not fail", ^{
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                     [error shouldBeNil];
                     [[theValue([[moc insertedObjects] count]) should] equal:theValue(0)];
@@ -70,6 +74,7 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
         describe(@"read, update", ^{
             __block NSManagedObject *aPerson = nil;
             beforeEach(^{
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 aPerson = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
                 [aPerson setValue:@"the" forKey:@"first_name"];
                 [aPerson setValue:@"dude" forKey:@"last_name"];
@@ -79,12 +84,14 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
                 }];
             });
             afterEach(^{
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 [moc deleteObject:aPerson];
                 [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                     [error shouldBeNil]; 
                 }];
             });
             describe(@"reads the object", ^{
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"last_name = 'dude'"];
                 [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
@@ -94,6 +101,7 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
                 }];
             });
             describe(@"updates the object", ^{
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 [aPerson setValue:@"matt" forKey:@"first_name"];
                 [aPerson setValue:@"StackMob" forKey:@"company"];
                 [[theValue([[moc updatedObjects] count]) should] beGreaterThan:theValue(0)];
@@ -104,10 +112,12 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
             describe(@"after sending a request for a field that doesn't exist", ^{
                 __block NSFetchRequest *theRequest = nil;
                 beforeEach(^{
+                    [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"not_a_field = 'hello'"];
                     theRequest = [SMCoreDataIntegrationTestHelpers makeFavoriteFetchRequest:predicate];
                 });
                 it(@"the fetch request should fail, and the error should contain the info", ^{
+                    [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                     __block NSArray *results = nil;
                     [moc performBlockAndWait:^{
                         NSError *__autoreleasing error = nil;
@@ -125,14 +135,12 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
                     [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]];
                 });
                 it(@"a call to save: should fail, and the error should contain the info", ^{
+                    [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                     __block BOOL saveSuccess = NO;
-                    [moc performBlockAndWait:^{
-                        NSError *anError = nil;
-                        saveSuccess = [moc save:&anError];
-                        
-                        [anError shouldNotBeNil];
-                    }];
                     
+                    NSError *anError = nil;
+                    saveSuccess = [moc saveAndWait:&anError];
+                    [anError shouldNotBeNil];
                     [[theValue(saveSuccess) should] beNo];
                 });
             });

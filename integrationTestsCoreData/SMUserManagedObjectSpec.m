@@ -21,6 +21,7 @@
 #import "SMCoreDataIntegrationTestHelpers.h"
 #import "SMIntegrationTestHelpers.h"
 #import "KeychainWrapper.h"
+#import "StackMob.h"
 
 SPEC_BEGIN(SMUserManagedObjectSpec)
 
@@ -28,22 +29,20 @@ describe(@"SMUserManagedObject", ^{
     __block SMClient *client = nil;
     __block NSManagedObjectContext *moc = nil;
     __block User3 *person = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSString *passwordID = nil;
     beforeEach(^{
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        
         [client setUserSchema:@"user3"];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
-        // tests save here
-        person = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
-        [person setUsername:@"bob"];
-        [person setPassword:@"1234"];
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-            if (error != nil) {
-                NSLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-        }];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
     });
     afterEach(^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [moc deleteObject:person];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
@@ -52,50 +51,100 @@ describe(@"SMUserManagedObject", ^{
             }
         }];
     });
-    describe(@"Should save a person with a SMUserManagedObject subclass without a password attribute in Core Data", ^{
-        it(@"should have deleted the entry from the keychain", ^{
-            NSString *passwordIdentifier = [person passwordIdentifier];
-            
-            NSString *result = [KeychainWrapper keychainStringFromMatchingIdentifier:passwordIdentifier];
-            [result shouldBeNil];
+    it(@"should have deleted the entry from the keychain", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        // tests save here
+        NSEntityDescription *desc = [NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc];
+        person = [[User3 alloc] initWithEntity:desc client:client insertIntoManagedObjectContext:moc];
+        [person setUsername:@"bob"];
+        [person setPassword:@"1234"];
+        passwordID = [client.session.userIdentifierMap objectForKey:[person valueForKey:[person primaryKeyField]]];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        
+        NSString *passwordIDFromMap = [client.session.userIdentifierMap objectForKey:[person valueForKey:[person primaryKeyField]]];
+        [passwordIDFromMap shouldBeNil];
+        NSString *result = [KeychainWrapper keychainStringFromMatchingIdentifier:passwordID];
+        [result shouldBeNil];
+    });
+    
+    it(@"we can login successfully", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        // tests save here
+        NSEntityDescription *desc = [NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc];
+        person = [[User3 alloc] initWithEntity:desc client:client insertIntoManagedObjectContext:moc];
+        [person setUsername:@"bob"];
+        [person setPassword:@"1234"];
+        passwordID = [client.session.userIdentifierMap objectForKey:[person valueForKey:[person primaryKeyField]]];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        __block BOOL loginSuccess = NO;
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [client loginWithUsername:@"bob" password:@"1234" onSuccess:^(NSDictionary *result) {
+                loginSuccess = YES;
+                NSLog(@"you have logged in");
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                NSLog(@"error is %@", error);
+                syncReturn(semaphore);
+            }];
         });
-        it(@"we can login successfully", ^{
-            __block BOOL loginSuccess = NO;
-            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-                [client loginWithUsername:@"bob" password:@"1234" onSuccess:^(NSDictionary *result) {
-                    loginSuccess = YES;
-                    NSLog(@"you have logged in");
-                    syncReturn(semaphore);
-                } onFailure:^(NSError *error) {
-                    NSLog(@"error is %@", error);
-                    syncReturn(semaphore);
-                }];
-            });
-            [[theValue(loginSuccess) should] beYes];
-            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-                [client logoutOnSuccess:^(NSDictionary *result) {
-                    syncReturn(semaphore);
-                } onFailure:^(NSError *error) {
-                    [error shouldBeNil];
-                    syncReturn(semaphore);
-                }];
-            });
+        [[theValue(loginSuccess) should] beYes];
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [client logoutOnSuccess:^(NSDictionary *result) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                [error shouldBeNil];
+                syncReturn(semaphore);
+            }];
         });
     });
+     
+
 });
 
 describe(@"can set a client with different password field name and everything still works", ^{
     __block SMClient *client = nil;
     __block NSManagedObjectContext *moc = nil;
     __block User4 *person = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
+        SM_CORE_DATA_DEBUG = YES;
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds contextForCurrentThread];
+    });
+    afterEach(^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [moc deleteObject:person];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                NSLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    it(@"works", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [client setUserSchema:@"User4"];
         [client setUserPrimaryKeyField:@"theuser"];
         [client setUserPasswordField:@"thepassword"];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
         // tests save here
-        person = [NSEntityDescription insertNewObjectForEntityForName:@"User4" inManagedObjectContext:moc];
+        NSEntityDescription *desc = [NSEntityDescription entityForName:@"User4" inManagedObjectContext:moc];
+        person = [[User4 alloc] initWithEntity:desc client:client insertIntoManagedObjectContext:moc];
         [person setTheuser:@"bob"];
         [person setPassword:@"1234"];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -104,15 +153,7 @@ describe(@"can set a client with different password field name and everything st
                 [error shouldBeNil];
             }
         }];
-    });
-    afterEach(^{
-        [moc deleteObject:person];
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-            if (error != nil) {
-                NSLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-        }];
+        
     });
     
 });
@@ -123,18 +164,23 @@ describe(@"creating and saving two users should not conflict with each other", ^
     __block NSManagedObjectContext *moc = nil;
     __block User3 *person1 = nil;
     __block User3 *person2 = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [client setUserSchema:@"User3"];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         // tests save here
         person1 = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
         [person1 setUsername:@"bob"];
         [person1 setPassword:@"1234"];
         
         person2 = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
-        [person2 setPassword:@"4321"];
         [person2 setUsername:@"adam"];
+        [person2 setPassword:@"4321"];
     });
     afterEach(^{
         [moc deleteObject:person1];
@@ -147,6 +193,7 @@ describe(@"creating and saving two users should not conflict with each other", ^
         }];
     });
     it(@"should save successfully and we can log in person1", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
                 NSLog(@"Error userInfo is %@", [error userInfo]);
@@ -176,6 +223,7 @@ describe(@"creating and saving two users should not conflict with each other", ^
         
     });
     it(@"should save successfully and we can log in person2", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
                 NSLog(@"Error userInfo is %@", [error userInfo]);
@@ -205,17 +253,22 @@ describe(@"creating and saving two users should not conflict with each other", ^
         
     });
 });
-/*
+
 describe(@"should be able to create a user, relate to other object, and save everything without reset password errors", ^{
     
     __block SMClient *client = nil;
     __block NSManagedObjectContext *moc = nil;
     __block User3 *person = nil;
     __block NSManagedObject *todo = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [client setUserSchema:@"User3"];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         // tests save here
         person = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
         [person setUsername:@"bob"];
@@ -226,6 +279,7 @@ describe(@"should be able to create a user, relate to other object, and save eve
         [todo setValue:@"related to user3" forKey:@"title"];
     });
     afterEach(^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [moc deleteObject:person];
         [moc deleteObject:todo];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -236,6 +290,7 @@ describe(@"should be able to create a user, relate to other object, and save eve
         }];
     });
     it(@"should save before and after relation", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
                 NSLog(@"Error userInfo is %@", [error userInfo]);
@@ -256,18 +311,24 @@ describe(@"should be able to create a user, relate to other object, and save eve
     });
     
 });
- */
+
 describe(@"userPrimaryKeyField works", ^{
     
     __block SMClient *client = nil;
     __block NSManagedObjectContext *moc = nil;
     __block User3 *user3 = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [client setUserSchema:@"User3"];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
     });
     afterEach(^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [moc deleteObject:user3];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
@@ -311,12 +372,18 @@ describe(@"testing someting", ^{
     __block User3 *ardoObject = nil;
     __block User3 *failObject = nil;
     __block User3 *successObject = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [client setUserSchema:@"User3"];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
     });
     afterEach(^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [moc deleteObject:ardoObject];
         [moc deleteObject:successObject];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -328,6 +395,7 @@ describe(@"testing someting", ^{
     });
 
     it(@"should save", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSEntityDescription *entity = [NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc];
         ardoObject = [[User3 alloc] initWithEntity:entity insertIntoManagedObjectContext:moc];
         [ardoObject setUsername:@"ardo"];
@@ -346,12 +414,13 @@ describe(@"testing someting", ^{
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
+                NSString *passwordIdentifier = [client.session.userIdentifierMap objectForKey:[failObject valueForKey:[failObject primaryKeyField]]];
                 NSLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldNotBeNil];
-                NSString *result = [KeychainWrapper keychainStringFromMatchingIdentifier:[failObject passwordIdentifier]];
+                NSString *result = [KeychainWrapper keychainStringFromMatchingIdentifier:passwordIdentifier];
                 [result shouldNotBeNil];
                 [failObject removePassword];
-                result = [KeychainWrapper keychainStringFromMatchingIdentifier:[failObject passwordIdentifier]];
+                result = [KeychainWrapper keychainStringFromMatchingIdentifier:passwordIdentifier];
                 [result shouldBeNil];
                 [moc deleteObject:failObject];
             }

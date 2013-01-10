@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-#import "SMError.h"
+#import <CoreData/CoreData.h>
 
-NSString *const SMErrorDomain = @"SMError";
-NSString *const HTTPErrorDomain = @"HTTP";
-NSString *const SMExceptionIncompatibleObject = @"SMExceptionIncompatibleObject";
-NSString *const SMExceptionUnknownSchema = @"SMExceptionUnknownSchema";
-NSString *const SMExceptionAddPersistentStore = @"SMExceptionAddPersistentStore";
-NSString *const SMExceptionCannotFillRelationshipFault = @"SMExceptionCannotFillRelationshipFault";
-NSString *const SMExceptionCacheError = @"SMExceptionCacheError";
+@interface SMIncrementalStoreNode : NSIncrementalStoreNode
+
+- (id)valueForUndefinedKey:(NSString *)key;
+
+@end

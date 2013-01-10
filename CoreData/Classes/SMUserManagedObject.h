@@ -28,15 +28,6 @@
 @interface SMUserManagedObject : NSManagedObject
 
 ///-------------------------------
-/// @name Properties
-///-------------------------------
-
-/**
- A unique string used to retrieve the password when persisting to StackMob.
- */
-@property (nonatomic, readonly) NSString *passwordIdentifier;
-
-///-------------------------------
 /// @name Initialize
 ///-------------------------------
 

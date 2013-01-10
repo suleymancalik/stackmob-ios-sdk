@@ -35,6 +35,7 @@ static SMClient *defaultClient = nil;
 @property(nonatomic, readwrite, copy) NSString *publicKey;
 @property(nonatomic, readwrite, strong) SMUserSession * session;
 @property(nonatomic, readwrite, strong) SMCoreDataStore *coreDataStore;
+
 @end
 
 @implementation SMClient
@@ -90,6 +91,7 @@ static SMClient *defaultClient = nil;
         
         self.session = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion apiHost:apiHost publicKey:publicKey userSchema:userSchema userPrimaryKeyField:userPrimaryKeyField userPasswordField:userPasswordField];
         self.coreDataStore = nil;
+        
         
         if ([SMClient defaultClient] == nil)
         {

@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-#import "SMError.h"
+#import "SMIncrementalStoreNode.h"
 
-NSString *const SMErrorDomain = @"SMError";
-NSString *const HTTPErrorDomain = @"HTTP";
-NSString *const SMExceptionIncompatibleObject = @"SMExceptionIncompatibleObject";
-NSString *const SMExceptionUnknownSchema = @"SMExceptionUnknownSchema";
-NSString *const SMExceptionAddPersistentStore = @"SMExceptionAddPersistentStore";
-NSString *const SMExceptionCannotFillRelationshipFault = @"SMExceptionCannotFillRelationshipFault";
-NSString *const SMExceptionCacheError = @"SMExceptionCacheError";
+@implementation SMIncrementalStoreNode
+
+- (id)valueForUndefinedKey:(NSString *)key
+{
+    NSManagedObjectID *theID = [self objectID];
+    NSPersistentStoreCoordinator *psc = [[theID persistentStore] persistentStoreCoordinator];
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    [context setPersistentStoreCoordinator:psc];
+    NSManagedObject *theObj = [context objectWithID:theID];
+    id theValue = [theObj valueForKey:key];
+    
+    return theValue;
+}
+
+@end

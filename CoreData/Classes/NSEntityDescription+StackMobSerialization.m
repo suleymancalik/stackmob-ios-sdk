@@ -46,6 +46,11 @@
     return nil;
 }
 
+- (NSString *)sm_primaryKeyField
+{
+    return [self sm_fieldNameForProperty:[[self propertiesByName] objectForKey:[self primaryKeyField]]];
+}
+
 - (NSString *)sm_fieldNameForProperty:(NSPropertyDescription *)property 
 {
     NSCharacterSet *uppercaseSet = [NSCharacterSet uppercaseLetterCharacterSet];

@@ -17,16 +17,16 @@
 #import "SMUserManagedObject.h"
 #import "StackMob.h"
 #import "KeychainWrapper.h"
+#import "NSManagedObject+StackMobSerialization.h"
 
 @interface SMUserManagedObject ()
 
-@property (nonatomic, readwrite) NSString *passwordIdentifier;
 @property (nonatomic, readwrite) SMClient *client;
+
 @end
 
 @implementation SMUserManagedObject
 
-@synthesize passwordIdentifier = _passwordIdentifier;
 @synthesize client = _client;
 
 - (id)initWithEntity:(NSEntityDescription *)entity insertIntoManagedObjectContext:(NSManagedObjectContext *)context
@@ -55,15 +55,26 @@
     if (serviceName == nil) {
         serviceName = @"com.stackmob.passwordstore";
     }
-    self.passwordIdentifier = [[serviceName stringByAppendingPathExtension:[NSString stringWithFormat:@"%d", arc4random() / 1000]] stringByAppendingPathExtension:@"password"];
-    if (![KeychainWrapper createKeychainValue:value forIdentifier:self.passwordIdentifier]) {
+    NSString *passwordIdentifier = [[serviceName stringByAppendingPathExtension:[NSString stringWithFormat:@"%d", arc4random() / 1000]] stringByAppendingPathExtension:@"password"];
+    if (![KeychainWrapper createKeychainValue:value forIdentifier:passwordIdentifier]) {
         [NSException raise:@"SMKeychainSaveUnsuccessful" format:@"Password could not be saved to keychain"];
     }
+    
+    [self.client.session.userIdentifierMap setObject:passwordIdentifier forKey:[self valueForKey:[self primaryKeyField]]];
+    [self.client.session SM_saveUserIdentifierMap];
+    
 }
 
 - (void)removePassword
 {
-    [KeychainWrapper deleteItemFromKeychainWithIdentifier:[self passwordIdentifier]];
+    NSString *primaryKeyValue = [self valueForKey:[self primaryKeyField]];
+    NSString *passwordIdentifier = [self.client.session.userIdentifierMap objectForKey:primaryKeyValue];
+    if (passwordIdentifier) {
+        [self.client.session.userIdentifierMap removeObjectForKey:primaryKeyValue];
+        [KeychainWrapper deleteItemFromKeychainWithIdentifier:passwordIdentifier];
+        [self.client.session SM_saveUserIdentifierMap];
+    }
+    
 }
 
 
