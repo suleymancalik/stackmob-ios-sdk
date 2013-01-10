@@ -62,7 +62,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
-@property (nonatomic, strong) __block SMDataStore *smDataStore;
+@property (nonatomic, strong) __block SMCoreDataStore *coreDataStore;
 @property (nonatomic, strong) NSManagedObjectContext *localManagedObjectContext;
 @property (nonatomic, strong) NSPersistentStoreCoordinator *localPersistentStoreCoordinator;
 @property (nonatomic, strong) NSManagedObjectModel *localManagedObjectModel;
@@ -111,7 +111,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (void)SM_populateCacheManagedObject:(NSManagedObject *)object withDictionary:(NSDictionary *)dictionary entity:(NSEntityDescription *)entity;
 
 - (BOOL)SM_saveCache:(NSError *__autoreleasing*)error;
-- (BOOL)SM_purgeCacheObjectWithID:(NSString *)objectID;
+- (BOOL)SM_purgeObjectFromCacheWithID:(NSString *)objectID;
 
 - (NSString *)SM_remoteKeyForEntityName:(NSString *)entityName;
 - (NSDictionary *)SM_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context includeRelationships:(BOOL)includeRelationships;
@@ -129,13 +129,17 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)handleWillSave:(NSNotification *)notification;
 - (void)handleDidSave:(NSNotification *)notification;
+
+- (void)enableCache;
+- (void)disableCache;
+
 @property (nonatomic) BOOL isSaving;
 
 @end
 
 @implementation SMIncrementalStore
 
-@synthesize smDataStore = _smDataStore;
+@synthesize coreDataStore = _coreDataStore;
 @synthesize localManagedObjectModel = _localManagedObjectModel;
 @synthesize localManagedObjectContext = _localManagedObjectContext;
 @synthesize localPersistentStoreCoordinator = _localPersistentStoreCoordinator;
@@ -145,27 +149,53 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 @synthesize isSaving = _isSaving;
 
 - (id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root configurationName:(NSString *)name URL:(NSURL *)url options:(NSDictionary *)options {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
     
     self = [super initWithPersistentStoreCoordinator:root configurationName:name URL:url options:options];
     if (self) {
-        _smDataStore = [options objectForKey:SM_DataStoreKey];
+        _coreDataStore = [options objectForKey:SM_DataStoreKey];
         _callbackQueue = dispatch_queue_create("Queue For Incremental Store Request Callbacks", NULL);
         _globalOptions = [SMRequestOptions options];
-        [self SM_configureCache];
+        
         self.isSaving = NO;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleWillSave:) name:NSManagedObjectContextWillSaveNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleDidSave:) name:NSManagedObjectContextDidSaveNotification object:nil];
+        
+        [self enableCache];
+        
+        if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Incremental Store initialized and ready to go.")};
     }
     return self;
 }
 
+- (void)enableCache
+{
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
+    [self SM_configureCache];
+    if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Cache is ready for use.")};
+    
+}
+
+- (void)disableCache
+{
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
+    if ([self.localManagedObjectContext hasChanges]) {
+        NSError *error = nil;
+        [self SM_saveCache:&error];
+    }
+    [self SM_saveCacheMap];
+    if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Cache is inactive.")};
+}
+
 - (void)handleWillSave:(NSNotification *)notification
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
     self.isSaving = YES;
 }
 
 - (void)handleDidSave:(NSNotification *)notification
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
     self.isSaving = NO;
 }
 
@@ -260,7 +290,7 @@ You should implement this method conservatively, and expect that unknown request
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     
     // If network is not reachable, error and return
-    if ([self.smDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
+    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
         if (NULL != error) {
             *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The network is not reachable", NSLocalizedDescriptionKey, nil]];
             *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
@@ -305,7 +335,7 @@ You should implement this method conservatively, and expect that unknown request
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_queue_t queue = dispatch_queue_create("insertedObjectQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
@@ -367,7 +397,7 @@ You should implement this method conservatively, and expect that unknown request
                 
             };
             
-            AFJSONRequestOperation *op = [[self smDataStore] postOperationForObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
+            AFJSONRequestOperation *op = [[self coreDataStore] postOperationForObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
         
             options.isSecure ? [secureOperations addObject:op] : [regularOperations addObject:op];
             
@@ -392,7 +422,7 @@ You should implement this method conservatively, and expect that unknown request
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_queue_t queue = dispatch_queue_create("updatedObjectsQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
@@ -444,12 +474,12 @@ You should implement this method conservatively, and expect that unknown request
                 [options setHeaders:headerDict];
             }
             
-            op = [[self smDataStore] postOperationForObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
+            op = [[self coreDataStore] postOperationForObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
             
             
         } else {
             
-            op = [[self smDataStore] putOperationForObjectID:updatedObjectID inSchema:schemaName update:[serializedObjDict objectForKey:SerializedDictKey] options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
+            op = [[self coreDataStore] putOperationForObjectID:updatedObjectID inSchema:schemaName update:[serializedObjDict objectForKey:SerializedDictKey] options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
             
         }
         
@@ -473,13 +503,14 @@ You should implement this method conservatively, and expect that unknown request
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_queue_t queue = dispatch_queue_create("deletedObjectsQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
     __block NSMutableArray *regularOperations = [NSMutableArray array];
     __block NSMutableArray *failedRequests = [NSMutableArray array];
     __block NSMutableArray *failedRequestsWithUnauthorizedResponse = [NSMutableArray array];
+    __block NSMutableArray *deletedObjectIDs = [NSMutableArray array];
     
     [deletedObjects enumerateObjectsUsingBlock:^(id managedObject, BOOL *stop) {
         
@@ -497,7 +528,7 @@ You should implement this method conservatively, and expect that unknown request
             if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore deleted object %@ on schema %@", deletedObjectID , schemaName); }
             
             // Purge cache of object
-            [self SM_purgeCacheObjectWithID:deletedObjectID];
+            if ([self.coreDataStore cacheIsEnabled]) { [deletedObjectIDs addObject:deletedObjectID]; }
             
         };
         
@@ -518,13 +549,17 @@ You should implement this method conservatively, and expect that unknown request
         };
         
         // if there are relationships present in the update, send as a POST
-        AFJSONRequestOperation *op = [[self smDataStore] deleteOperationForObjectID:deletedObjectID inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
+        AFJSONRequestOperation *op = [[self coreDataStore] deleteOperationForObjectID:deletedObjectID inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
         
         options.isSecure ? [secureOperations addObject:op] : [regularOperations addObject:op];
         
     }];
     
     success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests error:error];
+    
+    if ([deletedObjectIDs count] > 0) {
+        [self SM_purgeObjectsFromCache:deletedObjectIDs];
+    }
     
     dispatch_release(group);
     dispatch_release(queue);
@@ -534,6 +569,8 @@ You should implement this method conservatively, and expect that unknown request
 
 - (BOOL)SM_enqueueRegularOperations:(NSMutableArray *)regularOperations secureOperations:(NSMutableArray *)secureOperations withGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue refreshAndRetryUnauthorizedRequests:(NSMutableArray *)failedRequestsWithUnauthorizedResponse failedRequests:(NSMutableArray *)failedRequests error:(NSError *__autoreleasing*)error
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
     // Refresh access token if needed before initial enqueue of operations
     __block BOOL success = [self SM_doTokenRefreshIfNeededWithGroup:group queue:queue error:error];
     
@@ -546,12 +583,12 @@ You should implement this method conservatively, and expect that unknown request
         // If there were 401s, refresh token is valid, refresh token is present and token has expired, attempt refresh and reprocess
         if ([failedRequestsWithUnauthorizedResponse count] > 0) {
             
-            if ([self.smDataStore.session eligibleForTokenRefresh:self.globalOptions]) {
+            if ([self.coreDataStore.session eligibleForTokenRefresh:self.globalOptions]) {
                 
                 // If we are refreshing, wait for refresh with 5 sec timeout
                 __block BOOL refreshSuccess = NO;
                 
-                if (self.smDataStore.session.refreshing) {
+                if (self.coreDataStore.session.refreshing) {
                     
                     [self SM_waitForRefreshingWithTimeout:5];
                     
@@ -559,8 +596,8 @@ You should implement this method conservatively, and expect that unknown request
                     
                     [self.globalOptions setTryRefreshToken:NO];
                     dispatch_group_enter(group);
-                    self.smDataStore.session.refreshing = YES;//Don't ever trigger two refreshToken calls
-                    [self.smDataStore.session doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.smDataStore.session.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *userObject) {
+                    self.coreDataStore.session.refreshing = YES;//Don't ever trigger two refreshToken calls
+                    [self.coreDataStore.session doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.coreDataStore.session.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *userObject) {
                         refreshSuccess = YES;
                         dispatch_group_leave(group);
                     } onFailure:^(NSError *theError) {
@@ -575,7 +612,7 @@ You should implement this method conservatively, and expect that unknown request
                     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
                 }
                 
-                if (self.smDataStore.session.refreshing) {
+                if (self.coreDataStore.session.refreshing) {
                     
                     refreshSuccess = NO;
                     success = NO;
@@ -596,16 +633,16 @@ You should implement this method conservatively, and expect that unknown request
                     [failedRequestsWithUnauthorizedResponse enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                         SMRequestOptions *retryOptions = [obj objectForKey:SMFailedRequestOptions];
                         
-                        SMFullResponseSuccessBlock retrySuccessBlock = [self.smDataStore SMFullResponseSuccessBlockForResultSuccessBlock:[obj objectForKey:SMFailedRequestOriginalSuccessBlock]];
+                        SMFullResponseSuccessBlock retrySuccessBlock = [self.coreDataStore SMFullResponseSuccessBlockForResultSuccessBlock:[obj objectForKey:SMFailedRequestOriginalSuccessBlock]];
                         
                         SMFullResponseFailureBlock retryFailureBlock = ^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *retryError, id JSON) {
                             
-                            NSDictionary *failedRequestDict = [NSDictionary dictionaryWithObjectsAndKeys:[self.smDataStore errorFromResponse:response JSON:JSON], SMFailedRequestError, [obj objectForKey:SMFailedRequestObjectPrimaryKey], SMFailedRequestObjectPrimaryKey, [obj objectForKey:SMFailedRequestObjectEntity], SMFailedRequestObjectEntity, nil];
+                            NSDictionary *failedRequestDict = [NSDictionary dictionaryWithObjectsAndKeys:[self.coreDataStore errorFromResponse:response JSON:JSON], SMFailedRequestError, [obj objectForKey:SMFailedRequestObjectPrimaryKey], SMFailedRequestObjectPrimaryKey, [obj objectForKey:SMFailedRequestObjectEntity], SMFailedRequestObjectEntity, nil];
                             [failedRequests addObject:failedRequestDict];
                             
                         };
                         
-                        AFJSONRequestOperation *op = [self.smDataStore newOperationForRequest:[obj objectForKey:SMFailedRequest] options:[obj objectForKey:SMFailedRequestOptions] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:retrySuccessBlock onFailure:retryFailureBlock];
+                        AFJSONRequestOperation *op = [self.coreDataStore newOperationForRequest:[obj objectForKey:SMFailedRequest] options:[obj objectForKey:SMFailedRequestOptions] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:retrySuccessBlock onFailure:retryFailureBlock];
                         
                         retryOptions.isSecure ? [secureOperations addObject:op] : [regularOperations addObject:op];
                     }];
@@ -636,6 +673,8 @@ You should implement this method conservatively, and expect that unknown request
 
 - (BOOL)SM_setErrorAndUserInfoWithFailedOperations:(NSMutableArray *)failedOperations errorCode:(int)errorCode error:(NSError *__autoreleasing*)error
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
     if (error != NULL) {
         __block NSMutableArray *failedInsertedObjects = [NSMutableArray array];
         [failedOperations enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -652,7 +691,9 @@ You should implement this method conservatively, and expect that unknown request
 
 - (void)SM_waitForRefreshingWithTimeout:(int)timeout
 {
-    if (timeout == 0 || !self.smDataStore.session.refreshing) {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
+    if (timeout == 0 || !self.coreDataStore.session.refreshing) {
         return;
     }
     
@@ -664,9 +705,11 @@ You should implement this method conservatively, and expect that unknown request
 
 - (void)SM_enqueueOperations:(NSArray *)ops dispatchGroup:(dispatch_group_t)group completionBlockQueue:(dispatch_queue_t)queue secure:(BOOL)isSecure
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
     if ([ops count] > 0) {
         dispatch_group_enter(group);
-        [[[self.smDataStore session] oauthClientWithHTTPS:isSecure] enqueueBatchOfHTTPRequestOperations:ops completionBlockQueue:queue progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations) {
+        [[[self.coreDataStore session] oauthClientWithHTTPS:isSecure] enqueueBatchOfHTTPRequestOperations:ops completionBlockQueue:queue progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations) {
             
         } completionBlock:^(NSArray *operations) {
             dispatch_group_leave(group);
@@ -676,10 +719,12 @@ You should implement this method conservatively, and expect that unknown request
 
 - (BOOL)SM_doTokenRefreshIfNeededWithGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue error:(NSError *__autoreleasing*)error
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
     __block BOOL success = YES;
-    if ([self.smDataStore.session eligibleForTokenRefresh:self.globalOptions]) {
+    if ([self.coreDataStore.session eligibleForTokenRefresh:self.globalOptions]) {
         
-        if (self.smDataStore.session.refreshing) {
+        if (self.coreDataStore.session.refreshing) {
             
             [self SM_waitForRefreshingWithTimeout:5];
             
@@ -687,8 +732,8 @@ You should implement this method conservatively, and expect that unknown request
             
             [self.globalOptions setTryRefreshToken:NO];
             dispatch_group_enter(group);
-            self.smDataStore.session.refreshing = YES;//Don't ever trigger two refreshToken calls
-            [self.smDataStore.session doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.smDataStore.session.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *userObject) {
+            self.coreDataStore.session.refreshing = YES;//Don't ever trigger two refreshToken calls
+            [self.coreDataStore.session doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.coreDataStore.session.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *userObject) {
                 dispatch_group_leave(group);
             } onFailure:^(NSError *theError) {
                 success = NO;
@@ -703,7 +748,7 @@ You should implement this method conservatively, and expect that unknown request
             dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         }
         
-        if (self.smDataStore.session.refreshing) {
+        if (self.coreDataStore.session.refreshing) {
             
             success = NO;
             if (error != NULL) {
@@ -760,28 +805,31 @@ You should implement this method conservatively, and expect that unknown request
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     
     // Network is reachable
-    if ([self.smDataStore.session.networkMonitor currentNetworkStatus] == Reachable) {
+    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] == Reachable) {
         
         // Build query for StackMob
         SMQuery *query = [SMIncrementalStore queryForFetchRequest:fetchRequest error:error];
         
         if (query == nil) {
+            if (error) {
+                *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+            }
             return nil;
         }
         
         __block NSArray *resultsWithoutOID;
         
         // create a group dispatch and queue
-        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+        dispatch_queue_t queue = dispatch_queue_create("fetchObjectsQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_group_t group = dispatch_group_create();
         
         dispatch_group_enter(group);
-        [self.smDataStore performQuery:query options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSArray *results) {
+        [self.coreDataStore performQuery:query options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSArray *results) {
             resultsWithoutOID = results;
             dispatch_group_leave(group);
         } onFailure:^(NSError *queryError) {
             if (error != NULL) {
-                *error = queryError;
+                *error = (__bridge id)(__bridge_retained CFTypeRef)queryError;
             }
             dispatch_group_leave(group);
         }];
@@ -802,7 +850,7 @@ You should implement this method conservatively, and expect that unknown request
             primaryKeyField = [fetchRequest.entity sm_fieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
         }
         @catch (NSException *exception) {
-            primaryKeyField = [self.smDataStore.session userPrimaryKeyField];
+            primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
         }
         
         // For each result of the fetch
@@ -823,61 +871,94 @@ You should implement this method conservatively, and expect that unknown request
                 [self SM_populateManagedObject:sm_managedObject withDictionary:serializedObjectDict entity:[sm_managedObject entity]];
             }
             
-            // Obtain cache object representation, or create if needed
-            NSManagedObject *cacheManagedObject = [self SM_retrieveCacheObjectForRemoteID:remoteID entityName:[[sm_managedObject entity] name]];
-            
-            [self SM_populateCacheManagedObject:cacheManagedObject withDictionary:serializedObjectDict entity:fetchRequest.entity];
-            
+            if ([self.coreDataStore cacheIsEnabled]) {
+                // Obtain cache object representation, or create if needed
+                NSManagedObject *cacheManagedObject = [self SM_retrieveCacheObjectForRemoteID:remoteID entityName:[[sm_managedObject entity] name]];
+                
+                [self SM_populateCacheManagedObject:cacheManagedObject withDictionary:serializedObjectDict entity:fetchRequest.entity];
+            }
             
             return sm_managedObject;
             
         }];
         
-        [self SM_saveCache:error];
+        if ([self.coreDataStore cacheIsEnabled]) { [self SM_saveCache:error]; }
         
         return results;
         
     } else {
         
-        // Network is not reachable, perform fetch request on Cache
-        NSArray *localCacheResults = [self.localManagedObjectContext executeFetchRequest:fetchRequest error:error];
-       
-        // Error check
-        if (*error != nil) {
+        if ([self.coreDataStore cacheIsEnabled]) {
+            // Network is not reachable, perform fetch request on Cache
+            __block NSArray *localCacheResults = nil;
+            __block NSError *localCacheError = nil;
+            [self.localManagedObjectContext performBlockAndWait:^{
+                localCacheResults = [self.localManagedObjectContext executeFetchRequest:fetchRequest error:&localCacheError];
+            }];
+            /*
+            dispatch_queue_t localCacheQueue = dispatch_queue_create("localCacheQueue", NULL);
+            dispatch_sync(localCacheQueue, ^{
+                
+            });
+            dispatch_release(localCacheQueue);
+             */
+            // Error check
+            if (localCacheError != nil) {
+                if (error != NULL) {
+                    *error = (__bridge id)(__bridge_retained CFTypeRef)localCacheError;
+                }
+                return nil;
+            }
+            
+            // Return results translated to StackMob equivalent managed object IDs
+            NSString *primaryKeyField = nil;
+            @try {
+                primaryKeyField = [fetchRequest.entity primaryKeyField];
+            }
+            @catch (NSException *exception) {
+                primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
+            }
+            
+            NSArray *results = [localCacheResults map:^id(id item) {
+                id remoteID = [item valueForKey:primaryKeyField];
+                if (!remoteID) {
+                    [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
+                }
+                NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
+                
+                // Allows us to always return object, faulted or not
+                NSManagedObject *sm_managedObject = [context objectWithID:sm_managedObjectID];
+                
+                return sm_managedObject;
+            }];
+            
+            return results;
+        } else {
+            
+            // Network not reachable + no cache active = Error out
+            if (error != NULL) {
+                NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Cannot perform fetch because the network is not reachable and no cache is active to perform fetch.", NSLocalizedDescriptionKey, nil]];
+                *error = (__bridge id)(__bridge_retained CFTypeRef)networkNotReachableError;
+            }
+            
             return nil;
         }
         
-        // Return results translated to StackMob equivalent managed object IDs
-        NSString *primaryKeyField = nil;
-        @try {
-            primaryKeyField = [fetchRequest.entity primaryKeyField];
-        }
-        @catch (NSException *exception) {
-            primaryKeyField = [self.smDataStore.session userPrimaryKeyField];
-        }
-        
-        NSArray *results = [localCacheResults map:^id(id item) {
-            id remoteID = [item valueForKey:primaryKeyField];
-            if (!remoteID) {
-                [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
-            }
-            NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
-            
-            // Allows us to always return object, faulted or not
-            NSManagedObject *sm_managedObject = [context objectWithID:sm_managedObjectID];
-            
-            return sm_managedObject;
-        }];
-        
-        return results;
     }
 }
 
 // Returns NSArray<NSManagedObjectID>
 - (id)SM_fetchObjectIDs:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
+    
     NSFetchRequest *fetchCopy = [fetchRequest copy];
+    
     [fetchCopy setResultType:NSManagedObjectResultType];
+    
+    if ([fetchRequest fetchBatchSize] > 0) {
+        [fetchCopy setFetchBatchSize:[fetchRequest fetchBatchSize]];
+    }
+    
     NSArray *objects = [self SM_fetchObjects:fetchCopy withContext:context error:error];
     
     // Error check
@@ -916,13 +997,13 @@ You should implement this method conservatively, and expect that unknown request
     __block NSString *sm_managedObjectReferenceID = [self referenceObjectForObjectID:objectID];
     
     
-    if ([sm_managedObject isFault]) {
+    if ([self.coreDataStore cacheIsEnabled] && [sm_managedObject isFault]) {
         NSString *cacheReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
         NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
     
         if (!cacheObjectID) {
             // Scenario: Got here because object was refreshed and is now a fault, but was never cached in the first place.  Grab from the server if possible.
-            if ([self.smDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
+            if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
                 if (NULL != error) {
                     *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"No cache ID was found for the provided object ID: %@ and the network is not reachable", objectID], NSLocalizedDescriptionKey, nil]];
                     *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
@@ -972,7 +1053,7 @@ You should implement this method conservatively, and expect that unknown request
                     [dictionaryRepresentationOfCacheObject setObject:[NSNull null] forKey:relationshipName];
                 } else {
                     NSString *cacheRelationshipID = [[[relationshipValue objectID] URIRepresentation] absoluteString];
-                    NSLog(@"cacheRelationshipID is %@", cacheRelationshipID);
+                    if (SM_CORE_DATA_DEBUG) { DLog(@"cacheRelationshipID is %@", cacheRelationshipID); }
                     [dictionaryRepresentationOfCacheObject setObject:[relationshipValue objectID] forKey:relationshipName];
                 }
             }
@@ -989,7 +1070,7 @@ You should implement this method conservatively, and expect that unknown request
     NSDictionary *serializedObjectDictionary = nil;
     
     // If the context's merge policy is that in memory wins, we do not need to make a network call to retreive persisted values.
-    if ([context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
+    if ([self.coreDataStore cacheIsEnabled] && [context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[sm_managedObject dictionaryWithValuesForKeys:[[[sm_managedObject entity] attributesByName] allKeys]]];
         NSDictionary *relationships = [[sm_managedObject entity] relationshipsByName];
         [relationships enumerateKeysAndObjectsUsingBlock:^(id relationshipName, id relationshipDescription, BOOL *stop) {
@@ -1034,6 +1115,7 @@ You should implement this method conservatively, and expect that unknown request
               forObjectWithID:(NSManagedObjectID *)objectID
                   withContext:(NSManagedObjectContext *)context
                         error:(NSError *__autoreleasing *)error {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
     
     id result = nil;
     @try {
@@ -1063,7 +1145,7 @@ You should implement this method conservatively, and expect that unknown request
     __block NSManagedObject *sm_managedObject = [context objectWithID:objectID];
     __block NSString *sm_managedObjectReferenceID = [self referenceObjectForObjectID:objectID];
     
-    if (!self.isSaving && [sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
+    if ([self.coreDataStore cacheIsEnabled] && !self.isSaving && [sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
         NSString *cacheReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
         NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
         
@@ -1084,7 +1166,7 @@ You should implement this method conservatively, and expect that unknown request
             primaryKeyField = [[relationship destinationEntity] primaryKeyField];
         }
         @catch (NSException *exception) {
-            primaryKeyField = [self.smDataStore.session userPrimaryKeyField];
+            primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
         }
         
         if ([relationship isToMany]) {
@@ -1101,7 +1183,7 @@ You should implement this method conservatively, and expect that unknown request
                 
                 // If there is no primary key id, this was just a reference and we need to retreive online, if possible
                 if (!relatedObjectRemoteID) {
-                    if ([self.smDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
+                    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
                         *stop = YES;
                         arrayToReturn = nil;
                         [NSException raise:SMExceptionCannotFillRelationshipFault format:@"Cannot fill relationship %@ fault for object ID %@, related object not cached and network is not reachable", [relationship name], objectID];
@@ -1137,7 +1219,7 @@ You should implement this method conservatively, and expect that unknown request
                 
                 // If there is no primary key id, this was just a reference and we need to retreive online, if possible
                 if (!relatedObjectRemoteID) {
-                    if ([self.smDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
+                    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
                         [NSException raise:SMExceptionCannotFillRelationshipFault format:@"Cannot fill relationship %@ fault for object ID %@, related object not cached and network is not reachable", [relationship name], objectID];
                          return nil;
                     }
@@ -1160,7 +1242,7 @@ You should implement this method conservatively, and expect that unknown request
     id result = nil;
     
     // If the context's merge policy is that client wins, we do not need to make a network call to retreive persisted values.
-    if ([context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
+    if ([self.coreDataStore cacheIsEnabled] && [context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
         if ([relationship isToMany]) {
             result = [NSArray array];
         } else {
@@ -1347,6 +1429,7 @@ You should implement this method conservatively, and expect that unknown request
 
 - (void)SM_readCacheMap
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
     
     NSString *errorDesc = nil;
     NSPropertyListFormat format;
@@ -1375,10 +1458,11 @@ You should implement this method conservatively, and expect that unknown request
 
 - (void)SM_saveCacheMap
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
     NSString *errorDesc = nil;
     NSError *error = nil;
     NSURL *mapPath = [self SM_getStoreURLForCacheMapTable];
-    [self SM_createStoreURLPathIfNeeded:mapPath];
     
     NSData *mapData = [NSPropertyListSerialization dataFromPropertyList:self.cacheMappingTable
                                                                  format:NSPropertyListXMLFormat_v1_0
@@ -1401,6 +1485,8 @@ You should implement this method conservatively, and expect that unknown request
 
 - (NSDictionary *)SM_retrieveAndSerializeObjectWithID:(NSString *)objectID entity:(NSEntityDescription *)entity options:(SMRequestOptions *)options context:(NSManagedObjectContext *)context includeRelationships:(BOOL)includeRelationships error:(NSError *__autoreleasing*)error
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
     NSDictionary *serializedObjectDictionary = nil;
     NSDictionary *objectFromServer = [self SM_retrieveObjectWithID:objectID entity:entity options:options context:context error:error];
     
@@ -1415,8 +1501,10 @@ You should implement this method conservatively, and expect that unknown request
 
 - (NSDictionary *)SM_retrieveObjectWithID:(NSString *)objectID entity:(NSEntityDescription *)entity options:(SMRequestOptions *)options context:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
     // If the network is not reachable, error and return
-    if ([self.smDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
+    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
         if (NULL != error) {
             *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The network is not reachable", NSLocalizedDescriptionKey, nil]];
             *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
@@ -1431,11 +1519,11 @@ You should implement this method conservatively, and expect that unknown request
     __block NSError *blockError = nil;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_queue_t queue = dispatch_queue_create("retreiveFromServerQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_group_t group = dispatch_group_create();
     
     dispatch_group_enter(group);
-    [self.smDataStore readObjectWithId:objectID inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *theObject, NSString *schema) {
+    [self.coreDataStore readObjectWithId:objectID inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *theObject, NSString *schema) {
         objectFromServer = theObject;
         readSuccess = YES;
         dispatch_group_leave(group);
@@ -1643,6 +1731,8 @@ You should implement this method conservatively, and expect that unknown request
 }
 
 - (NSManagedObject *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
     NSManagedObject *cacheObject = nil;
     NSString *cacheReferenceId = [self.cacheMappingTable objectForKey:remoteID];
     if (cacheReferenceId) {
@@ -1659,7 +1749,7 @@ You should implement this method conservatively, and expect that unknown request
         
         [self.cacheMappingTable setObject:[[[cacheObject objectID] URIRepresentation] absoluteString] forKey:remoteID];
         [self SM_saveCacheMap];
-        DLog(@"Creating new cache object, %@", cacheObject);
+        if (SM_CORE_DATA_DEBUG) { DLog(@"Creating new cache object, %@", cacheObject); }
     }
     
     return cacheObject;
@@ -1667,9 +1757,14 @@ You should implement this method conservatively, and expect that unknown request
 
 - (BOOL)SM_saveCache:(NSError *__autoreleasing*)error
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
     // Save Cache if has changes
     if ([self.localManagedObjectContext hasChanges]) {
-        BOOL localCacheSaveSuccess = [self.localManagedObjectContext save:error];
+        __block BOOL localCacheSaveSuccess;
+        [self.localManagedObjectContext performBlockAndWait:^{
+            localCacheSaveSuccess = [self.localManagedObjectContext save:error];
+        }];
         if (!localCacheSaveSuccess) {
             if (NULL != error) {
                 *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
@@ -1681,8 +1776,10 @@ You should implement this method conservatively, and expect that unknown request
     return YES;
 }
 
-- (BOOL)SM_purgeCacheObjectWithID:(NSString *)objectID
+- (BOOL)SM_purgeObjectFromCacheWithID:(NSString *)objectID
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
     BOOL success = YES;
     NSString *cacheReferenceIDString = [self.cacheMappingTable objectForKey:objectID];
     
@@ -1691,19 +1788,62 @@ You should implement this method conservatively, and expect that unknown request
         NSError *anError = nil;
         NSManagedObject *cacheObject = [self.localManagedObjectContext existingObjectWithID:cacheObjectID error:&anError];
         if (anError) {
-            DLog(@"Did not get cache object with error %@", anError);
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Did not get cache object with error %@", anError); }
             success = NO;
         } else {
             // Purge the cache
             [self.localManagedObjectContext deleteObject:cacheObject];
             
-            success = [self SM_saveCache:nil];
+            success = [self SM_saveCache:&anError];
             
             // Remove the entry from map table
             if (success) {
                 [self.cacheMappingTable removeObjectForKey:objectID];
                 [self SM_saveCacheMap];
+            } else {
+                if (SM_CORE_DATA_DEBUG) { DLog(@"Error saving cache: %@", anError); }
             }
+        }
+    }
+    
+    return success;
+}
+
+- (BOOL)SM_purgeObjectsFromCache:(NSArray *)arrayOfObjectIDs
+{
+    if (SM_CORE_DATA_DEBUG) {DLog()};
+    
+    __block BOOL success = YES;
+
+    [arrayOfObjectIDs enumerateObjectsUsingBlock:^(id objectID, NSUInteger idx, BOOL *stop) {
+        NSString *cacheReferenceIDString = [self.cacheMappingTable objectForKey:objectID];
+        if (cacheReferenceIDString) {
+            NSManagedObjectID *cacheObjectID = [self.localPersistentStoreCoordinator managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceIDString]];
+            NSError *anError = nil;
+            NSManagedObject *cacheObject = [self.localManagedObjectContext existingObjectWithID:cacheObjectID error:&anError];
+            if (anError) {
+                DLog(@"Did not get cache object with error %@", anError);
+                success = NO;
+                *stop = YES;
+            } else {
+                // delete object from cache
+                [self.localManagedObjectContext deleteObject:cacheObject];
+            }
+        }
+    }];
+    
+    if (success) {
+        NSError *anError = nil;
+        success = [self SM_saveCache:&anError];
+        
+        // Remove the entry from map table
+        if (success) {
+            [arrayOfObjectIDs enumerateObjectsUsingBlock:^(id objectID, NSUInteger idx, BOOL *stop) {
+                [self.cacheMappingTable removeObjectForKey:objectID];
+            }];
+            [self SM_saveCacheMap];
+        } else {
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Error saving cache: %@", anError); }
         }
     }
     
@@ -1772,8 +1912,11 @@ You should implement this method conservatively, and expect that unknown request
         }
     }];
     
-    DLog(@"read object from server is %@", theObject);
-    DLog(@"serialized dictionary to return is %@", serializedDictionary);
+    if (SM_CORE_DATA_DEBUG) {
+        DLog(@"read object from server is %@", theObject);
+        DLog(@"serialized dictionary to return is %@", serializedDictionary);
+    }
+
     return [NSDictionary dictionaryWithDictionary:serializedDictionary];
 }
 
@@ -1785,14 +1928,14 @@ You should implement this method conservatively, and expect that unknown request
     
     NSMutableDictionary *serializedDictCopy = [[*originalDictionary objectForKey:SerializedDictKey] mutableCopy];
     
-    NSString *passwordIdentifier = [self.smDataStore.session.userIdentifierMap objectForKey:[object valueForKey:[object primaryKeyField]]];
+    NSString *passwordIdentifier = [self.coreDataStore.session.userIdentifierMap objectForKey:[object valueForKey:[object primaryKeyField]]];
     NSString *thePassword = [KeychainWrapper keychainStringFromMatchingIdentifier:passwordIdentifier];
     
     if (!thePassword) {
         return NO;
     }
     
-    [serializedDictCopy setObject:thePassword forKey:[[[self smDataStore] session] userPasswordField]];
+    [serializedDictCopy setObject:thePassword forKey:[[[self coreDataStore] session] userPasswordField]];
     
     [dictionaryToReturn setObject:serializedDictCopy forKey:SerializedDictKey];
     

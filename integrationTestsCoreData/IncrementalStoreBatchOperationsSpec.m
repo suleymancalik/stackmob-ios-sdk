@@ -30,6 +30,7 @@ describe(@"Inserting/Updating/Deleting many objects works fine", ^{
     
     beforeAll(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
@@ -89,6 +90,7 @@ describe(@"fetching runs in the background", ^{
     
     beforeAll(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
@@ -156,6 +158,7 @@ describe(@"With a non-401 error", ^{
     
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
@@ -224,6 +227,7 @@ describe(@"With 401s", ^{
     
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
@@ -297,6 +301,7 @@ describe(@"401s requiring logins", ^{
     
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
@@ -366,6 +371,7 @@ describe(@"timeouts with refreshing", ^{
     
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
@@ -402,6 +408,7 @@ describe(@"With 401s and other errors", ^{
     
     beforeEach(^{
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];

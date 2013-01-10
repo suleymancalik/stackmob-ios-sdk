@@ -21,7 +21,7 @@
 
 SPEC_BEGIN(LocalReadCacheSpec)
 
-
+/*
 describe(@"LocalReadCacheInitialization", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -947,36 +947,31 @@ describe(@"CoreDataFetchRequest", ^{
      
 });
 
-/*
+*/
+
+
 describe(@"purging the cache when objects are deleted", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
     __block NSManagedObjectContext *moc = nil;
     __block NSArray *fixturesToLoad;
     __block NSDictionary *fixtures;
-    beforeAll(^{
-        // delete sqlite db for fresh restart
-        NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
-        NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
-        NSString *defaultName = @"CoreDataStore.sqlite";
-        NSURL *sqliteDBURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        
-        NSError *sqliteDeleteError = nil;
-        BOOL sqliteDelete = [fileManager removeItemAtURL:sqliteDBURL error:&sqliteDeleteError];
-        [[theValue(sqliteDelete) should] beYes];
-        
+    beforeEach(^{
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         SM_CORE_DATA_DEBUG = YES;
-        fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
-        fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
-        client = [SMClient defaultClient];
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
         cds = [client coreDataStoreWithManagedObjectModel:aModel];
         moc = [cds contextForCurrentThread];
+        fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
+        fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
     });
     it(@"Should clear the cache of the object", ^{
+        [cds enableCache];
+        [[theValue([cds cacheIsEnabled]) should] beYes];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
             [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -997,7 +992,10 @@ describe(@"purging the cache when objects are deleted", ^{
         
         
     });
+    
     it(@"Should clear the mapping table of the object reference", ^{
+        [cds enableCache];
+        [[theValue([cds cacheIsEnabled]) should] beYes];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         __block NSMutableArray *array = [NSMutableArray array];
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
@@ -1056,9 +1054,10 @@ describe(@"purging the cache when objects are deleted", ^{
             [[theValue([results count]) should] equal:theValue(0)];
         }];
     });
+     
 });
-*/
 
+/*
 describe(@"calls to save when not online", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -1218,7 +1217,7 @@ describe(@"calls to save when not online", ^{
      
 });
 
-/*
+
 describe(@"returning proper errors from reads", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -1261,6 +1260,169 @@ describe(@"returning proper errors from reads", ^{
     });
 });
  */
+
+describe(@"cache enabling and disabling", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    beforeEach(^{
+        SM_CORE_DATA_DEBUG = YES;
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        moc = [cds contextForCurrentThread];
+    });
+    afterEach(^{
+        [cds enableCache];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        __block NSManagedObject *fetchedPerson = nil;
+        // Fetch person
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'bob'"]] andBlock:^(NSArray *results, NSError *error) {
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            fetchedPerson = [results objectAtIndex:0];
+            
+        }];
+        
+        [moc deleteObject:fetchedPerson];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        
+    });
+    it(@"cache should not be on by default", ^{
+        
+        [[theValue([cds cacheIsEnabled]) should] beNo];
+        
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        // Create person
+        NSManagedObject *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        [person setValue:@"bob" forKey:@"first_name"];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        __block NSManagedObject *fetchedPerson = nil;
+        // Fetch person
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'bob'"]] andBlock:^(NSArray *results, NSError *error) {
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            fetchedPerson = [results objectAtIndex:0];
+            
+        }];
+        
+        // fetchedPerson should be a fault
+        [[theValue([fetchedPerson isFault]) should] beYes];
+        
+        // being online, fault fill should cause a network call
+        [[cds should] receive:@selector(readObjectWithId:inSchema:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:) withCount:1];
+        NSString *name = [fetchedPerson valueForKey:@"first_name"];
+        [[name should] equal:@"bob"];
+        
+        
+    });
+    it(@"can turn the cache on", ^{
+        
+        [[theValue([cds cacheIsEnabled]) should] beNo];
+        
+        [cds enableCache];
+        
+        [[theValue([cds cacheIsEnabled])  should] beYes];
+        
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        // Create person
+        NSManagedObject *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        [person setValue:@"bob" forKey:@"first_name"];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        __block NSManagedObject *fetchedPerson = nil;
+        // Fetch person
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'bob'"]] andBlock:^(NSArray *results, NSError *error) {
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            fetchedPerson = [results objectAtIndex:0];
+            
+        }];
+        
+        // fetchedPerson should be a fault
+        [[theValue([fetchedPerson isFault]) should] beYes];
+        
+        // being online, fault fill should cause a network call
+        [[cds should] receive:@selector(readObjectWithId:inSchema:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:) withCount:0];
+        NSString *name = [fetchedPerson valueForKey:@"first_name"];
+        [[name should] equal:@"bob"];
+        
+        
+    });
+
+    it(@"can turn the cache on and off", ^{
+        
+        [[theValue([cds cacheIsEnabled]) should] beNo];
+        
+        [cds enableCache];
+        
+        [[theValue([cds cacheIsEnabled])  should] beYes];
+        
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        // Create person
+        NSManagedObject *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        [person setValue:@"bob" forKey:@"first_name"];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        __block NSManagedObject *fetchedPerson = nil;
+        // Fetch person
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'bob'"]] andBlock:^(NSArray *results, NSError *error) {
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            fetchedPerson = [results objectAtIndex:0];
+            
+        }];
+        
+        // fetchedPerson should be a fault
+        [[theValue([fetchedPerson isFault]) should] beYes];
+        
+        // being online, fault fill should cause a network call
+        NSString *name = [fetchedPerson valueForKey:@"first_name"];
+        [[name should] equal:@"bob"];
+        
+        // DISABLE CACHE
+        [moc reset];
+        [moc.parentContext reset];
+        [cds disableCache];
+        
+        [[theValue([cds cacheIsEnabled])  should] beNo];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'bob'"]] andBlock:^(NSArray *results, NSError *error) {
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            fetchedPerson = [results objectAtIndex:0];
+            
+        }];
+        
+        // fetchedPerson should be a fault
+        [[theValue([fetchedPerson isFault]) should] beYes];
+        
+        // being online, fault fill should cause a network call
+        [[cds should] receive:@selector(readObjectWithId:inSchema:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:) withCount:1];
+        name = [fetchedPerson valueForKey:@"first_name"];
+        
+        [[name should] equal:@"bob"];
+        
+    });
+    
+});
 
 
 SPEC_END

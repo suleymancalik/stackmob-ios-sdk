@@ -134,13 +134,6 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     NSError *error = nil;
     NSArray *results = [moc executeFetchRequestAndWait:fetchRequest error:&error];
     block(results, error);
-    /*
-    [moc performBlockAndWait:^{
-        NSError *error = nil;
-        NSArray *results = [moc executeFetchRequest:fetchRequest error:&error];
-        block(results, error);
-    }];
-     */
 }
 
 + (void)executeSynchronousSave:(NSManagedObjectContext *)moc withBlock:(SynchronousErrorBlock)block {
@@ -152,17 +145,6 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
         DLog(@"save error is %@", [anError description]);
     }
     block(anError);
-    /*
-    [moc performBlockAndWait:^{
-        NSError *anError = nil;
-        BOOL saveSuccess = [moc save:&anError];
-        
-        if (!saveSuccess) {
-            DLog(@"save error is %@", [anError description]);
-        }
-        block(anError);
-    }];
-     */
 }
 
 + (void)executeSynchronousUpdate:(NSManagedObjectContext *)moc withObject:(NSManagedObjectID *)objectID andBlock:(SynchronousErrorBlock)block {
@@ -176,18 +158,6 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     }
     block(anError);
     
-    /*
-    [moc performBlockAndWait:^{
-        NSError *__autoreleasing anError = nil;
-        NSManagedObject *toUpdate = [moc objectWithID:objectID];
-        [toUpdate setValue:[NSNumber numberWithInt:20] forKey:@"armor_class"];      
-        BOOL success = [moc save:&anError];
-        if (!success) {
-            DLog(@"save error is %@", [anError description]);
-        }
-        block(anError);
-    }];
-     */
 }
 
 + (void)executeSynchronousDelete:(NSManagedObjectContext *)moc withObject:(NSManagedObjectID *)objectID andBlock:(SynchronousErrorBlock)block {
@@ -200,18 +170,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
         DLog(@"save error is %@", [anError description]);
     }
     block(anError);
-    /*
-    [moc performBlockAndWait:^{
-        NSError *__autoreleasing anError = nil;
-        NSManagedObject *toDelete = [moc objectWithID:objectID];
-        [moc deleteObject:toDelete];
-        BOOL success = [moc save:&anError];
-        if (!success) {
-            DLog(@"save error is %@", [anError description]);
-        }
-        block(anError);
-    }];
-     */
+
 }
 
 
@@ -282,61 +241,5 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return _stackMobMOC;
 }
 
-+ (BOOL)synchronousSaveInBackgroundWithContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error
-{
-    NSManagedObjectContext *mainContext = context;
-    NSManagedObjectContext *privateContext = mainContext.parentContext;
-    NSManagedObjectContext *temporaryContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    temporaryContext.parentContext = mainContext;
-    __block BOOL success = NO;
-    __block NSError *saveError = nil;
-    [temporaryContext performBlockAndWait:^{
-        // do something that takes some time asynchronously using the temp context
-        
-        // Save Temporary Context
-        if (![temporaryContext save:&saveError]) {
-            
-            
-        } else {
-            // Save Main Context
-            [mainContext performBlockAndWait:^{
-                
-                if (![mainContext save:&saveError]) {
-                    
-                    
-                } else {
-                    // Main Context should always have a private queue parent
-                    if (privateContext) {
-                        
-                        // Save Private Context to disk
-                        [privateContext performBlockAndWait:^{
-                            
-                            if (![privateContext save:&saveError]) {
-                                
-                                
-                                
-                            } else {
-                                
-                                success = YES;
-                                
-                            }
-                            
-                        }];
-                        
-                    }
-                }
-                
-            }];
-            
-        }
-        
-    }];
-    
-    if (saveError != nil) {
-        *error = saveError;
-    }
-    
-    return success;
-}
 
 @end

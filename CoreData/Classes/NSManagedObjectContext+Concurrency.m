@@ -19,6 +19,39 @@
 
 @implementation NSManagedObjectContext (Concurrency)
 
+- (void)observeContext:(NSManagedObjectContext *)contextToObserve
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_mergeChangesFromNotification:) name:NSManagedObjectContextDidSaveNotification object:contextToObserve];
+}
+
+- (void)stopObservingContext:(NSManagedObjectContext *)contextToStopObserving
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSManagedObjectContextDidSaveNotification object:contextToStopObserving];
+}
+
+- (void)SM_mergeChangesFromNotification:(NSNotification *)notification
+{
+    [self mergeChangesFromContextDidSaveNotification:notification];
+}
+
+- (void)setContextShouldObtainPermanentIDsBeforeSaving
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(contextWillSave:)
+                                                 name:NSManagedObjectContextWillSaveNotification
+                                               object:self];
+}
+
+- (void)contextWillSave:(NSNotification *)notification
+{
+    NSManagedObjectContext *context = (NSManagedObjectContext *)notification.object;
+    if (context.insertedObjects.count > 0) {
+        NSArray *insertedObjects = [[context insertedObjects] allObjects];
+        NSError *error = nil;
+        [context obtainPermanentIDsForObjects:insertedObjects error:&error];
+    }
+}
+
 - (void)saveOnSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
     [self saveWithSuccessCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
@@ -41,6 +74,8 @@
         mainContext = self;
         temporaryContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         temporaryContext.parentContext = mainContext;
+        // TODO do we need to observe this context?
+        //[temporaryContext observeContext:mainContext];
     } else {
         temporaryContext = self;
         mainContext = temporaryContext.parentContext;
@@ -195,7 +230,7 @@
 
 - (void)executeFetchRequest:(NSFetchRequest *)request successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
-    dispatch_queue_t aQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_queue_t aQueue = dispatch_queue_create("fetchQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
     
     // Error checks
@@ -205,9 +240,7 @@
     
     dispatch_async(aQueue, ^{
         NSError *fetchError = nil;
-        NSManagedObjectContext *backgroundContext = mainContext.parentContext;//[[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        //[backgroundContext setPersistentStoreCoordinator:mainContext.parentContext.persistentStoreCoordinator];
-        //[backgroundContext setMergePolicy:[mainContext mergePolicy]];
+        NSManagedObjectContext *backgroundContext = mainContext.parentContext;
         NSFetchRequest *fetchCopy = [request copy];
         [fetchCopy setResultType:NSManagedObjectIDResultType];
         
@@ -232,7 +265,8 @@
 
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request error:(NSError *__autoreleasing *)error
 {
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_queue_t queue = dispatch_queue_create("fetchAndWaitQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_group_t group = dispatch_group_create();
     __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
     
     // Error checks
@@ -243,13 +277,17 @@
     __block NSArray *resultsOfFetch = nil;
     __block NSError *fetchError = nil;
     
-    dispatch_sync(queue, ^{
-        NSManagedObjectContext *backgroundContext = mainContext.parentContext;
-        NSFetchRequest *fetchCopy = [request copy];
-        [fetchCopy setResultType:NSManagedObjectIDResultType];
-        
+    NSManagedObjectContext *backgroundContext = mainContext.parentContext;
+    NSFetchRequest *fetchCopy = [request copy];
+    [fetchCopy setResultType:NSManagedObjectIDResultType];
+    
+    if ([request fetchBatchSize] > 0) {
+        [fetchCopy setFetchBatchSize:[request fetchBatchSize]];
+    }
+    
+    [backgroundContext performBlockAndWait:^{
         resultsOfFetch = [backgroundContext executeFetchRequest:fetchCopy error:&fetchError];
-    });
+    }];
     
     if (fetchError && error != NULL) {
         *error = fetchError;
@@ -257,6 +295,7 @@
     }
 
     dispatch_release(queue);
+    dispatch_release(group);
     
     return [resultsOfFetch map:^id(id item) {
         NSManagedObject *objectFromCurrentContext = [self objectWithID:item];

@@ -30,8 +30,8 @@ NSString* convertPredicateExpressionToStackMobFieldName (NSString* keyPath, NSEn
 }
 
 void setErrorWithReason(NSString *reason, NSError *__autoreleasing *error) {
-    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:reason forKey:@"reason"];
-    if (error) {
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:reason forKey:NSLocalizedDescriptionKey];
+    if (error != NULL) {
         *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:userInfo];
         *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
     }
@@ -149,6 +149,7 @@ void buildQueryForPredicate(SMQuery *__autoreleasing *query, NSPredicate *predic
                                                   error:error];
     
     if (*error != nil) {
+        *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
         return nil;
     }
     
