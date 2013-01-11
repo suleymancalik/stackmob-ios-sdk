@@ -102,6 +102,7 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
         _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
         [_managedObjectContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
         [_managedObjectContext setParentContext:self.privateContext];
+        [_managedObjectContext setContextShouldObtainPermanentIDsBeforeSaving:YES];
     }
     return _managedObjectContext;
 }
