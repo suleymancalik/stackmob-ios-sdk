@@ -1875,7 +1875,8 @@ You should implement this method conservatively, and expect that unknown request
             if ([[theObject allKeys] indexOfObject:[entityDescription sm_fieldNameForProperty:attributeDescription]] != NSNotFound) {
                 id value = [theObject valueForKey:[entityDescription sm_fieldNameForProperty:attributeDescription]];
                 if (value && attributeDescription.attributeType == NSDateAttributeType) {
-                    NSDate *convertedDate = [NSDate dateWithTimeIntervalSince1970:[value doubleValue]];
+                    unsigned long long convertedValue = [value unsignedLongLongValue] / 1000;
+                    NSDate *convertedDate = [NSDate dateWithTimeIntervalSince1970:convertedValue];
                     [serializedDictionary setObject:convertedDate forKey:attributeName];
                 } else {
                     [serializedDictionary setObject:value forKey:attributeName];

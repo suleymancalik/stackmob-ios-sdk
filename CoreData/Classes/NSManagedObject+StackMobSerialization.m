@@ -109,8 +109,9 @@
                 if (attributeDescription.attributeType == NSDateAttributeType) {
                     NSDate *dateValue = propertyValue;
                     if (dateValue != nil) {
-                        double convertedDate = [dateValue timeIntervalSince1970];
-                        [objectDictionary setObject:[NSNumber numberWithInteger:convertedDate] forKey:[selfEntity sm_fieldNameForProperty:property]];
+                        unsigned long long convertedDate = (unsigned long long)[dateValue timeIntervalSince1970] * 1000;
+                        NSNumber *numberToSet = [NSNumber numberWithUnsignedLongLong:convertedDate];
+                        [objectDictionary setObject:numberToSet forKey:[selfEntity sm_fieldNameForProperty:property]];
                     }
                 } else if (attributeDescription.attributeType == NSBooleanAttributeType) {
                     // make sure that boolean values are serialized as true or false

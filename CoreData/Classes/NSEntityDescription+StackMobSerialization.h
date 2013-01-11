@@ -35,6 +35,9 @@
  */
 - (NSString *)primaryKeyField;
 
+/**
+ Converts the value returned from <primaryKeyField> to its StackMob equivalent field.
+ */
 - (NSString *)sm_primaryKeyField;
 
 /**

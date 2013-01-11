@@ -58,28 +58,45 @@
 /**
  Asynchronous fetch method.
  
- A callback based fetch method which executes fetch on a background context, off of the main thread.  Managed object IDs that are returned are converted to managed objects on the calling context.
+ A callback based fetch method which executes fetch on a background context, off of the main thread.  Managed object IDs that are returned are converted to instances of NSManagedObject by the calling context.
  
  Callbacks are performed on the main thread.  Use <executeFetchRequest:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:> to specify queues to perform callbacks on.
  
- @param successBlock <i>typedef void (^SMResultsSuccessBlock)(NSArray *results)</i> A block object to call on the main thread upon successful save of the managed object context.
+ @param request The fetch request to perform against the database.
+ @param successBlock <i>typedef void (^SMResultsSuccessBlock)(NSArray *results)</i> A block object to call on the main thread upon successful save of the managed object context, containing an array of results as instances of NSManagedObject.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i> A block object to call on the main thread upon unsuccessful save.
  */
 - (void)executeFetchRequest:(NSFetchRequest *)request onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /**
- Asynchronous fetch method.
+ Asynchronous fetch method with the option of returning instances of NSManagedObjectID.
  
- A callback based fetch method which executes fetch on a background context, off of the main thread.  Managed object IDs that are returned are converted to managed objects on the calling context.
+ A callback based fetch method which executes fetch on a background context, off of the main thread.  If returnIDs is YES, managed object IDs that are returned by the fetch are converted to instances of NSManagedObject by the calling context.
  
  Callbacks are performed on the main thread.  Use <executeFetchRequest:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:> to specify queues to perform callbacks on.
  
+ @param request The fetch request to perform against the database.
+ @param returnIDs Whether or not results should contain instances of NSManagedObject or NSManagedObjectID.
+ @param successBlock <i>typedef void (^SMResultsSuccessBlock)(NSArray *results)</i> A block object to call on the main thread upon successful save of the managed object context.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i> A block object to call on the main thread upon unsuccessful save.
+ */
+- (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
+
+/**
+ Asynchronous fetch method.
+ 
+ A callback based fetch method which executes fetch on a background context, off of the main thread.  If returnIDs is YES, managed object IDs that are returned by the fetch are converted to instances of NSManagedObject by the calling context.
+ 
+ Callbacks are performed on the main thread.  Use <executeFetchRequest:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:> to specify queues to perform callbacks on.
+ 
+ @param request The fetch request to perform against the database.
+ @param returnIDs Whether or not results should contain instances of NSManagedObject or NSManagedObjectID.
  @param successCallbackQueue Upon successful fetch, the queue to perform the success block on.
  @param failureCallbackQueue Upon unsuccessful fetch, the queue to perform the failure block on.
  @param successBlock <i>typedef void (^SMResultsSuccessBlock)(NSArray *results)</i> A block object to call on the main thread upon successful save of the managed object context.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i> A block object to call on the main thread upon unsuccessful save.
  */
-- (void)executeFetchRequest:(NSFetchRequest *)request successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
+- (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /**
  Synchronous fetch method.
@@ -89,10 +106,24 @@
  @param request The fetch to perform on the database.
  @param error Points to the error object if the fetch is unsuccessful.
  
- @return An array of managed objects matching the request, nil if there was an error.
+ @return An array of NSManagedObject instances matching the request, nil if there was an error.
  */
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request error:(NSError *__autoreleasing *)error;
 
+/**
+ Synchronous fetch method with the option to return results as instances of NSManagedObjectID.
+ 
+ This method works like the NSManagedObjectContext executeFetchRequest:error: method, but executes fetch request on background context.  Managed object IDs that are returned are converted to managed objects on the calling context.
+ 
+ @param request The fetch to perform on the database.
+ @param returnIDs Whether or not results should contain instances of NSManagedObject or NSManagedObjectID.
+ @param error Points to the error object if the fetch is unsuccessful.
+ 
+ @return An array of NSManagedObject or NSManagedObjectID instances matching the request, nil if there was an error.
+ */
+- (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs error:(NSError *__autoreleasing *)error;
+
+// TODO fill in
 - (void)observeContext:(NSManagedObjectContext *)contextToObserve;
 - (void)stopObservingContext:(NSManagedObjectContext *)contextToStopObserving;
 
