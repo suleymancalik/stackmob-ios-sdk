@@ -391,11 +391,11 @@ static SMClient *defaultClient = nil;
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObject:message forKey:@"message"];
 
-        [self.dataStore readObjectWithId:@"postFacebookMessage" inSchema:self.userSchema parameters:args options:[SMRequestOptions options] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
+        [self.dataStore createObject:args inSchema:[NSString stringWithFormat:@"%@/postFacebookMessage", self.userSchema] options:[SMRequestOptions options] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
             if (successBlock) {
                 successBlock(theObject);
             }
-        } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+        } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
             if (failureBlock) {
                 failureBlock(theError);
             }
