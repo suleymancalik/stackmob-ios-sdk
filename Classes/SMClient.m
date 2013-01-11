@@ -328,11 +328,11 @@ static SMClient *defaultClient = nil;
         if (username != nil) {
             [args setValue:username forKey:self.userPrimaryKeyField];
         }
-        [self.dataStore readObjectWithId:@"createUserWithFacebook" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
+        [self.dataStore createObject:args inSchema:[NSString stringWithFormat:@"%@/createUserWithFacebook", self.userSchema] onSuccess:^(NSDictionary *theObject, NSString *schema) {
             if (successBlock) {
                 successBlock(theObject);
             }
-        } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+        } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
             if (failureBlock) {
                 failureBlock(theError);
             }
