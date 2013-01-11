@@ -24,7 +24,7 @@
 /**
  Returns the StackMob equivalent schema for the entity name.
  */
-- (NSString *)sm_schema;
+- (NSString *)SMSchema;
 
 /**
  Returns the primary key field name for this entity.
@@ -38,7 +38,7 @@
 /**
  Converts the value returned from <primaryKeyField> to its StackMob equivalent field.
  */
-- (NSString *)sm_primaryKeyField;
+- (NSString *)SMPrimaryKeyField;
 
 /**
  Given a property description, returns the equivalent field name on StackMob.
@@ -49,7 +49,7 @@
  
  @return The StackMob field name for that property. 
  */
-- (NSString *)sm_fieldNameForProperty:(NSPropertyDescription *)property;
+- (NSString *)SMFieldNameForProperty:(NSPropertyDescription *)property;
 
 /**
  Given a StackMob field name, returns the equivalent `NSPropertyDescription` for the Core Data attribute or relationship.
@@ -58,6 +58,6 @@
  
  @return An `NSPropertyDescription` for the equivalent Core Data attribute or relationship, if one exists. 
  */
-- (NSPropertyDescription *)sm_propertyForField:(NSString *)fieldName;
+- (NSPropertyDescription *)propertyForSMFieldName:(NSString *)fieldName;
 
 @end

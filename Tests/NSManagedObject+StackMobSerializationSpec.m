@@ -258,11 +258,11 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             [lolcatsSet addObject:iMadeYouACookie];
         });
         
-        describe(@"-sm_dictionarySerialization:", ^{
+        describe(@"-SMDictionarySerialization:", ^{
             describe(@"properties", ^{
                 __block NSDictionary *dictionary = nil;
                 beforeEach(^{
-                    dictionary = [[iMadeYouACookie sm_dictionarySerialization] objectForKey:@"SerializedDict"];
+                    dictionary = [[iMadeYouACookie SMDictionarySerialization] objectForKey:@"SerializedDict"];
                 });
                 /*
                 it(@"includes nil properties", ^{
@@ -279,7 +279,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             describe(@"relationships", ^{
                 __block NSDictionary *dictionary = nil;
                 beforeEach(^{
-                    dictionary = [[iMadeYouACookie sm_dictionarySerialization] objectForKey:@"SerializedDict"];
+                    dictionary = [[iMadeYouACookie SMDictionarySerialization] objectForKey:@"SerializedDict"];
                 });
                 /*
                 it(@"includes nil relationships", ^{
@@ -289,7 +289,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
                 describe(@"circular relationships", ^{
                     it(@"survives circular references", ^{
                         [[[[[[hooman valueForKey:@"lolcats"] anyObject] valueForKey:@"photo"] valueForKey:@"photographer"] should] equal:hooman];
-                        [[hooman sm_dictionarySerialization] shouldNotBeNil];
+                        [[hooman SMDictionarySerialization] shouldNotBeNil];
                     });
                 });
             });

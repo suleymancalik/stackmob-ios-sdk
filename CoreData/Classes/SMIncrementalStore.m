@@ -127,11 +127,11 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_enqueueRegularOperations:(NSMutableArray *)regularOperations secureOperations:(NSMutableArray *)secureOperations withGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue refreshAndRetryUnauthorizedRequests:(NSMutableArray *)failedRequestsWithUnauthorizedResponse failedRequests:(NSMutableArray *)failedRequests error:(NSError *__autoreleasing*)error;
 
-- (void)handleWillSave:(NSNotification *)notification;
-- (void)handleDidSave:(NSNotification *)notification;
+- (void)SM_handleWillSave:(NSNotification *)notification;
+- (void)SM_handleDidSave:(NSNotification *)notification;
 
-- (void)enableCache;
-- (void)disableCache;
+- (void)SM_enableCache;
+- (void)SM_disableCache;
 
 @property (nonatomic) BOOL isSaving;
 
@@ -158,17 +158,17 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         _globalOptions = [SMRequestOptions options];
         
         self.isSaving = NO;
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleWillSave:) name:NSManagedObjectContextWillSaveNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleDidSave:) name:NSManagedObjectContextDidSaveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_handleWillSave:) name:NSManagedObjectContextWillSaveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_handleDidSave:) name:NSManagedObjectContextDidSaveNotification object:nil];
         
-        [self enableCache];
+        [self SM_enableCache];
         
         if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Incremental Store initialized and ready to go.")};
     }
     return self;
 }
 
-- (void)enableCache
+- (void)SM_enableCache
 {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     [self SM_configureCache];
@@ -176,7 +176,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
-- (void)disableCache
+- (void)SM_disableCache
 {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     if ([self.localManagedObjectContext hasChanges]) {
@@ -187,13 +187,13 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Cache is inactive.")};
 }
 
-- (void)handleWillSave:(NSNotification *)notification
+- (void)SM_handleWillSave:(NSNotification *)notification
 {
     if (SM_CORE_DATA_DEBUG) {DLog()};
     self.isSaving = YES;
 }
 
-- (void)handleDidSave:(NSNotification *)notification
+- (void)SM_handleDidSave:(NSNotification *)notification
 {
     if (SM_CORE_DATA_DEBUG) {DLog()};
     self.isSaving = NO;
@@ -347,8 +347,8 @@ You should implement this method conservatively, and expect that unknown request
         
         // Create operation for inserted object
         
-        NSDictionary *serializedObjDict = [managedObject sm_dictionarySerialization];
-        NSString *schemaName = [managedObject sm_schema];
+        NSDictionary *serializedObjDict = [managedObject SMDictionarySerialization];
+        NSString *schemaName = [managedObject SMSchema];
         __block NSString *insertedObjectID = [managedObject sm_objectId];
         
         SMRequestOptions *options = [SMRequestOptions options];
@@ -434,8 +434,8 @@ You should implement this method conservatively, and expect that unknown request
         
         // Create operation for updated object
         
-        NSDictionary *serializedObjDict = [managedObject sm_dictionarySerialization];
-        NSString *schemaName = [managedObject sm_schema];
+        NSDictionary *serializedObjDict = [managedObject SMDictionarySerialization];
+        NSString *schemaName = [managedObject SMSchema];
         __block NSString *updatedObjectID = [managedObject sm_objectId];
         __block SMRequestOptions *options = [SMRequestOptions options];
         
@@ -516,8 +516,8 @@ You should implement this method conservatively, and expect that unknown request
         
         // Create operation for updated object
         
-        NSDictionary *serializedObjDict = [managedObject sm_dictionarySerialization];
-        NSString *schemaName = [managedObject sm_schema];
+        NSDictionary *serializedObjDict = [managedObject SMDictionarySerialization];
+        NSString *schemaName = [managedObject SMSchema];
         __block NSString *deletedObjectID = [managedObject sm_objectId];
         __block SMRequestOptions *options = [SMRequestOptions options];
         
@@ -847,7 +847,7 @@ You should implement this method conservatively, and expect that unknown request
         __block NSString *primaryKeyField = nil;
 
         @try {
-            primaryKeyField = [fetchRequest.entity sm_fieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
+            primaryKeyField = [fetchRequest.entity SMFieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
         }
         @catch (NSException *exception) {
             primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
@@ -1564,7 +1564,7 @@ You should implement this method conservatively, and expect that unknown request
         return nil;
     }
     
-    id relationshipContents = [objectDictionaryFromRead valueForKey:[sm_managedObjectEntity sm_fieldNameForProperty:relationship]];
+    id relationshipContents = [objectDictionaryFromRead valueForKey:[sm_managedObjectEntity SMFieldNameForProperty:relationship]];
     
     if ([relationship isToMany]) {
         if (relationshipContents) {
@@ -1599,7 +1599,7 @@ You should implement this method conservatively, and expect that unknown request
     
     __block NSEntityDescription *sm_managedObjectEntity = [parentObject entity];
     __block NSDictionary *objectDictionaryFromRead = nil;
-    __block NSString *sm_fieldName = [sm_managedObjectEntity sm_fieldNameForProperty:relationship];
+    __block NSString *sm_fieldName = [sm_managedObjectEntity SMFieldNameForProperty:relationship];
     
     objectDictionaryFromRead = [self SM_retrieveObjectWithID:referenceID entity:sm_managedObjectEntity options:[SMRequestOptions optionsWithExpandDepth:1] context:context error:error];
     
@@ -1616,7 +1616,7 @@ You should implement this method conservatively, and expect that unknown request
             }
             __block NSMutableArray *arrayToReturn = [NSMutableArray array];
             [(NSArray *)relationshipContents enumerateObjectsUsingBlock:^(id expandedObject, NSUInteger idx, BOOL *stop) {
-                NSString *relatedObjectPrimaryKey = [expandedObject objectForKey:[[relationship destinationEntity] sm_primaryKeyField]];
+                NSString *relatedObjectPrimaryKey = [expandedObject objectForKey:[[relationship destinationEntity] SMPrimaryKeyField]];
                 NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:relatedObjectPrimaryKey];
                 [arrayToReturn addObject:relationshipObjectID];
                 
@@ -1872,8 +1872,8 @@ You should implement this method conservatively, and expect that unknown request
     [entityDescription.attributesByName enumerateKeysAndObjectsUsingBlock:^(id attributeName, id attributeValue, BOOL *stop) {
         NSAttributeDescription *attributeDescription = (NSAttributeDescription *)attributeValue;
         if (attributeDescription.attributeType != NSUndefinedAttributeType) {
-            if ([[theObject allKeys] indexOfObject:[entityDescription sm_fieldNameForProperty:attributeDescription]] != NSNotFound) {
-                id value = [theObject valueForKey:[entityDescription sm_fieldNameForProperty:attributeDescription]];
+            if ([[theObject allKeys] indexOfObject:[entityDescription SMFieldNameForProperty:attributeDescription]] != NSNotFound) {
+                id value = [theObject valueForKey:[entityDescription SMFieldNameForProperty:attributeDescription]];
                 if (value && attributeDescription.attributeType == NSDateAttributeType) {
                     unsigned long long convertedValue = [value unsignedLongLongValue] / 1000;
                     NSDate *convertedDate = [NSDate dateWithTimeIntervalSince1970:convertedValue];
@@ -1888,7 +1888,7 @@ You should implement this method conservatively, and expect that unknown request
     [entityDescription.relationshipsByName enumerateKeysAndObjectsUsingBlock:^(id relationshipName, id relationshipValue, BOOL *stop) {
         NSRelationshipDescription *relationshipDescription = (NSRelationshipDescription *)relationshipValue;
         // get the relationship contents for the property
-        id relationshipContents = [theObject valueForKey:[entityDescription sm_fieldNameForProperty:relationshipDescription]];
+        id relationshipContents = [theObject valueForKey:[entityDescription SMFieldNameForProperty:relationshipDescription]];
         if (![relationshipDescription isToMany]) {
             if (relationshipContents) {
                 NSEntityDescription *entityDescriptionForRelationship = [NSEntityDescription entityForName:[[relationshipValue destinationEntity] name] inManagedObjectContext:context];

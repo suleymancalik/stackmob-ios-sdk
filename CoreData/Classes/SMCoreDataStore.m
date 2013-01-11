@@ -34,7 +34,7 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
 @property (nonatomic, strong) id defaultMergePolicy;
 @property (nonatomic) BOOL cacheIsActive;
 
-- (NSManagedObjectContext *)newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
+- (NSManagedObjectContext *)SM_newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
 
 @end
 
@@ -112,17 +112,17 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
         _mainThreadContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
         [_mainThreadContext setMergePolicy:self.defaultMergePolicy];
         [_mainThreadContext setParentContext:self.privateContext];
-        [_mainThreadContext setContextShouldObtainPermanentIDsBeforeSaving];
+        [_mainThreadContext setContextShouldObtainPermanentIDsBeforeSaving:YES];
     }
     return _mainThreadContext;
 }
 
-- (NSManagedObjectContext *)newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent
+- (NSManagedObjectContext *)SM_newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent
 {
     NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     [context setMergePolicy:self.defaultMergePolicy];
     [context setParentContext:parent];
-    [context setContextShouldObtainPermanentIDsBeforeSaving];
+    [context setContextShouldObtainPermanentIDsBeforeSaving:YES];
     
     return context;
 }
@@ -139,7 +139,7 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
 		NSManagedObjectContext *threadContext = [threadDict objectForKey:SM_ManagedObjectContextKey];
 		if (threadContext == nil)
 		{
-			threadContext = [self newPrivateQueueContextWithParent:self.mainThreadContext];
+			threadContext = [self SM_newPrivateQueueContextWithParent:self.mainThreadContext];
 			[threadDict setObject:threadContext forKey:SM_ManagedObjectContextKey];
 		}
 		return threadContext;

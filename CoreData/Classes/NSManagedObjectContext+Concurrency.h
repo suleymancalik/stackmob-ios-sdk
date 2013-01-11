@@ -18,7 +18,7 @@
 #import "StackMob.h"
 
 /**
- TODO fill in
+ Category which provides methods for performing 
  */
 @interface NSManagedObjectContext (Concurrency)
 
@@ -123,10 +123,29 @@
  */
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs error:(NSError *__autoreleasing *)error;
 
-// TODO fill in
+/**
+ Allows context to be notified when contextToObserve posts the NSManagedObjectContextDidSaveNotification notification.
+ 
+ When notification arrives, mergeChangesFromContextDidSaveNotification: is called.
+ 
+ @param contextToObserve The object to observe for notification posts.
+ */
 - (void)observeContext:(NSManagedObjectContext *)contextToObserve;
+
+/**
+ Removes context from observing NSManagedObjectContextDidSaveNotification notifications from contextToStopObserving.
+ 
+ @param contextToStopObserving The object to stop observing for notification posts.
+ */
 - (void)stopObservingContext:(NSManagedObjectContext *)contextToStopObserving;
 
-- (void)setContextShouldObtainPermanentIDsBeforeSaving;
+/**
+ Adds/Removes observer for NSManagedObjectContextWillSaveNotification notification.
+ 
+ When using the child / parent context pattern, child contexts should obtain permanent IDs for newly inserted objects before pushing save requests to parent contexts.  This method is automatically set to YES for mainThreadContext as well as private queue contexts that are created by contextForCurrentThread.
+ 
+ @param value If YES, adds an observer for NSManagedObjectContextWillSaveNotification, which upon receiving a notification calls obtainPermanentIDsForObjects:, passing the context's inserted objects. 
+ */
+- (void)setContextShouldObtainPermanentIDsBeforeSaving:(BOOL)value;
 
 @end

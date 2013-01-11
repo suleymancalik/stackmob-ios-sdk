@@ -34,12 +34,16 @@
     [self mergeChangesFromContextDidSaveNotification:notification];
 }
 
-- (void)setContextShouldObtainPermanentIDsBeforeSaving
+- (void)setContextShouldObtainPermanentIDsBeforeSaving:(BOOL)value
 {
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(contextWillSave:)
-                                                 name:NSManagedObjectContextWillSaveNotification
-                                               object:self];
+    if (value) {
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(contextWillSave:)
+                                                     name:NSManagedObjectContextWillSaveNotification
+                                                   object:self];
+    } else {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:NSManagedObjectContextWillSaveNotification object:self];
+    }
 }
 
 - (void)contextWillSave:(NSNotification *)notification
@@ -74,8 +78,6 @@
         mainContext = self;
         temporaryContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         temporaryContext.parentContext = mainContext;
-        // TODO do we need to observe this context?
-        //[temporaryContext observeContext:mainContext];
     } else {
         temporaryContext = self;
         mainContext = temporaryContext.parentContext;

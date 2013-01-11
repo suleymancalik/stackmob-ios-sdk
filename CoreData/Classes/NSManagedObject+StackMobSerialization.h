@@ -24,7 +24,7 @@
 /**
  Returns the StackMob equivalent schema for the entity name.
  */
-- (NSString *)sm_schema;
+- (NSString *)SMSchema;
 
 /**
  Returns the unique StackMob ID for this object using the designated primary key attribute for the `NSManagedObject` instance entity.
@@ -46,7 +46,7 @@
 /**
  Converts the value returned from <primaryKeyField> to its StackMob equivalent field.
  */
-- (NSString *)sm_primaryKeyField;
+- (NSString *)SMPrimaryKeyField;
 
 /**
  Returns the primary key field name for this entity.
@@ -60,7 +60,7 @@
 /**
  Converts an `NSManagedObject` into an equivalent dictionary form for StackMob to process.
  */
-- (NSDictionary *)sm_dictionarySerialization;
+- (NSDictionary *)SMDictionarySerialization;
 
 /**
  Use to retrieve the value of a relationship.  
