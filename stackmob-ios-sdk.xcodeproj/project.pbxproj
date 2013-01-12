@@ -146,6 +146,7 @@
 		DE64D608162389A600237570 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = DE64D607162389A600237570 /* Person.m */; };
 		DE64D61C1623BAE800237570 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE64D61B1623BAE800237570 /* Security.framework */; };
 		DE64D61D1623BB0A00237570 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE64D61B1623BAE800237570 /* Security.framework */; };
+		DE6F571016A1367E00FE3575 /* CaseInsensitiveFieldsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE6F570F16A1367E00FE3575 /* CaseInsensitiveFieldsSpec.m */; };
 		DE8D501B1636101E0067B1C2 /* SMRequestOptionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8D501A1636101E0067B1C2 /* SMRequestOptionsSpec.m */; };
 		DE8D51CF15E2CB11002F582A /* NSDictionary+AtomicCounter.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E14315E2C02200224E4E /* NSDictionary+AtomicCounter.h */; };
 		DE8D51D215E2CB11002F582A /* SMBinaryDataConversion.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E14915E2C02200224E4E /* SMBinaryDataConversion.h */; };
@@ -427,6 +428,7 @@
 		DE64D606162389A600237570 /* Person.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
 		DE64D607162389A600237570 /* Person.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		DE64D61B1623BAE800237570 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		DE6F570F16A1367E00FE3575 /* CaseInsensitiveFieldsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CaseInsensitiveFieldsSpec.m; sourceTree = "<group>"; };
 		DE8D501A1636101E0067B1C2 /* SMRequestOptionsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMRequestOptionsSpec.m; sourceTree = "<group>"; };
 		DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		DE96D84E165DA06500303710 /* LocalReadCacheSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalReadCacheSpec.m; sourceTree = "<group>"; };
@@ -787,6 +789,7 @@
 				DE96D84E165DA06500303710 /* LocalReadCacheSpec.m */,
 				DE0837A5167FE65B00872116 /* IncrementalStoreBatchOperationsSpec.m */,
 				DEB68FBF169F95EE00CC45F4 /* NSManagedObjectContext+ConcurrencySpec.m */,
+				DE6F570F16A1367E00FE3575 /* CaseInsensitiveFieldsSpec.m */,
 			);
 			path = integrationTestsCoreData;
 			sourceTree = "<group>";
@@ -1336,6 +1339,7 @@
 				DE18840D16A10F0D00BC1631 /* SMBinDataConvertCDIntegrationSpec.m in Sources */,
 				DE18840E16A10F1000BC1631 /* SMCoreDataStoreTest.m in Sources */,
 				DE18840F16A10F1400BC1631 /* SMIncrementalStoreTest.m in Sources */,
+				DE6F571016A1367E00FE3575 /* CaseInsensitiveFieldsSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
