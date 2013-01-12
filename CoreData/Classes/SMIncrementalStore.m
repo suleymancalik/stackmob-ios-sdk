@@ -808,7 +808,7 @@ You should implement this method conservatively, and expect that unknown request
     if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] == Reachable) {
         
         // Build query for StackMob
-        SMQuery *query = [SMIncrementalStore queryForFetchRequest:fetchRequest error:error];
+        SMQuery *query = [self queryForFetchRequest:fetchRequest error:error];
         
         if (query == nil) {
             if (error) {
