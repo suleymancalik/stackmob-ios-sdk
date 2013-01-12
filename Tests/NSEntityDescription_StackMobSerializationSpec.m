@@ -54,48 +54,48 @@ describe(@"NSEntityDescription_StackMobSerializationSpec", ^{
         [mapEntity setProperties:[NSArray arrayWithObjects:map_id, mapid, name, url, camelCase, poorlyNamed, nil]];
     });
     
-    describe(@"-sm_schema", ^{
+    describe(@"-SMSchema", ^{
         it(@"returns the lower case version of the entity name", ^{
-            [[[mapEntity sm_schema] should] equal:@"map"];
+            [[[mapEntity SMSchema] should] equal:@"map"];
         });
     });
     
-    describe(@"-sm_fieldNameForProperty:", ^{
+    describe(@"-SMFieldNameForProperty:", ^{
         it(@"Returns StackMob equivalent format for camelCase properties", ^{
             NSPropertyDescription *camelCaseProperty = [[mapEntity propertiesByName] objectForKey:@"camelCase"];
-            [[[mapEntity sm_fieldNameForProperty:camelCaseProperty] should] equal:@"camel_case"];
+            [[[mapEntity SMFieldNameForProperty:camelCaseProperty] should] equal:@"camel_case"];
         });
         it(@"Throws an exception for properties beginning with a capital letter", ^{
             __block NSPropertyDescription *capitalLetterProperty = [[mapEntity propertiesByName] objectForKey:@"poorlyNamed"];
             [[theBlock(^{
-                [mapEntity sm_fieldNameForProperty:capitalLetterProperty];
+                [mapEntity SMFieldNameForProperty:capitalLetterProperty];
             }) should] raiseWithName:SMExceptionIncompatibleObject];
         });
         it(@"Returns StackMob equivalent format for all lowercase properties", ^{
             NSPropertyDescription *lowercaseProperty = [[mapEntity propertiesByName] objectForKey:@"name"];
-            [[[mapEntity sm_fieldNameForProperty:lowercaseProperty] should] equal:@"name"];
+            [[[mapEntity SMFieldNameForProperty:lowercaseProperty] should] equal:@"name"];
         });
         it(@"Returns StackMob equivalent format for lowercase with underscore properties", ^{
             NSPropertyDescription *lowercase_property = [[mapEntity propertiesByName] objectForKey:@"map_id"];
-            [[[mapEntity sm_fieldNameForProperty:lowercase_property] should] equal:@"map_id"];
+            [[[mapEntity SMFieldNameForProperty:lowercase_property] should] equal:@"map_id"];
         });
     });
     
-    describe(@"-sm_propertyForField:", ^{
+    describe(@"-propertyForSMFieldName:", ^{
         context(@"Converting from fields to properties returns the correct property names", ^{
             it(@"returns map_id given map_id when map_id is a property", ^{
-                [[[mapEntity sm_propertyForField:@"map_id"] should] equal:[[mapEntity propertiesByName] objectForKey:@"map_id"]];
+                [[[mapEntity propertyForSMFieldName:@"map_id"] should] equal:[[mapEntity propertiesByName] objectForKey:@"map_id"]];
             });
             it(@"returns camelCase given camel_case when camelCase is a property", ^{
-                [[[mapEntity sm_propertyForField:@"camel_case"] should] equal:[[mapEntity propertiesByName] objectForKey:@"camelCase"]];
+                [[[mapEntity propertyForSMFieldName:@"camel_case"] should] equal:[[mapEntity propertiesByName] objectForKey:@"camelCase"]];
             });
             it(@"returns mapid given mapid when mapid is a property", ^{
-                [[[mapEntity sm_propertyForField:@"mapid"] should] equal:[[mapEntity propertiesByName] objectForKey:@"mapid"]];
+                [[[mapEntity propertyForSMFieldName:@"mapid"] should] equal:[[mapEntity propertiesByName] objectForKey:@"mapid"]];
             });
         });
         context(@"when no properties match", ^{
             it(@"should return nil", ^{
-                [[mapEntity sm_propertyForField:@"unknown"] shouldBeNil];
+                [[mapEntity propertyForSMFieldName:@"unknown"] shouldBeNil];
             });
         });
     });

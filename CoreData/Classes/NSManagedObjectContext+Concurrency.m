@@ -34,12 +34,16 @@
     [self mergeChangesFromContextDidSaveNotification:notification];
 }
 
-- (void)setContextShouldObtainPermanentIDsBeforeSaving
+- (void)setContextShouldObtainPermanentIDsBeforeSaving:(BOOL)value
 {
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(contextWillSave:)
-                                                 name:NSManagedObjectContextWillSaveNotification
-                                               object:self];
+    if (value) {
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(contextWillSave:)
+                                                     name:NSManagedObjectContextWillSaveNotification
+                                                   object:self];
+    } else {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:NSManagedObjectContextWillSaveNotification object:self];
+    }
 }
 
 - (void)contextWillSave:(NSNotification *)notification
@@ -74,8 +78,6 @@
         mainContext = self;
         temporaryContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
         temporaryContext.parentContext = mainContext;
-        // TODO do we need to observe this context?
-        //[temporaryContext observeContext:mainContext];
     } else {
         temporaryContext = self;
         mainContext = temporaryContext.parentContext;
@@ -225,10 +227,15 @@
 
 - (void)executeFetchRequest:(NSFetchRequest *)request onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
-    [self executeFetchRequest:request successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+    [self executeFetchRequest:request returnManagedObjectIDs:NO onSuccess:successBlock onFailure:failureBlock];
 }
 
-- (void)executeFetchRequest:(NSFetchRequest *)request successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+- (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    [self executeFetchRequest:request returnManagedObjectIDs:returnIDs successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
     dispatch_queue_t aQueue = dispatch_queue_create("fetchQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
@@ -253,10 +260,20 @@
             }
         } else {
             if (successBlock) {
-                // TODO return managed objects instead of ids
-                dispatch_async(successCallbackQueue, ^{
-                    successBlock(resultsOfFetch);
-                });
+                if (returnIDs) {
+                    dispatch_async(successCallbackQueue, ^{
+                        successBlock(resultsOfFetch);
+                    });
+                } else {
+                    __block NSArray *managedObjectsToReturn = [resultsOfFetch map:^id(id item) {
+                        NSManagedObject *objectFromCurrentContext = [self objectWithID:item];
+                        [self refreshObject:objectFromCurrentContext mergeChanges:YES];
+                        return objectFromCurrentContext;
+                    }];
+                    dispatch_async(successCallbackQueue, ^{
+                        successBlock(managedObjectsToReturn);
+                    });
+                }
             }
         }
     });
@@ -264,6 +281,11 @@
 }
 
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request error:(NSError *__autoreleasing *)error
+{
+    return [self executeFetchRequestAndWait:request returnManagedObjectIDs:NO error:error];
+}
+
+- (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs error:(NSError *__autoreleasing *)error
 {
     dispatch_queue_t queue = dispatch_queue_create("fetchAndWaitQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_group_t group = dispatch_group_create();
@@ -293,16 +315,19 @@
         *error = fetchError;
         return nil;
     }
-
+    
     dispatch_release(queue);
     dispatch_release(group);
     
-    return [resultsOfFetch map:^id(id item) {
-        NSManagedObject *objectFromCurrentContext = [self objectWithID:item];
-        [self refreshObject:objectFromCurrentContext mergeChanges:YES];
-        return objectFromCurrentContext;
-    }];
-    
+    if (returnIDs) {
+        return resultsOfFetch;
+    } else {
+        return [resultsOfFetch map:^id(id item) {
+            NSManagedObject *objectFromCurrentContext = [self objectWithID:item];
+            [self refreshObject:objectFromCurrentContext mergeChanges:YES];
+            return objectFromCurrentContext;
+        }];
+    }
 }
 
 

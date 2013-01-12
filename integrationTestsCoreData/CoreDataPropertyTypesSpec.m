@@ -50,6 +50,7 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
             }
         }];
     });
+    
     it(@"Will save without error after creation", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -78,10 +79,14 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
             }
             NSLog(@"results is %@", results);
             [[theValue([results count]) should] equal:theValue(1)];
-            if ((int)[[[results objectAtIndex:0] valueForKey:@"time"] timeIntervalSince1970] == (int)[date timeIntervalSince1970]) {
+            NSDate *firstDate = [[results objectAtIndex:0] valueForKey:@"time"];
+            NSDate *secondDate = date;
+            [firstDate isEqualToDate:secondDate] ? NSLog(@"dates are equal") : NSLog(@"dates are not equal");
+            [firstDate timeIntervalSince1970] == [secondDate timeIntervalSince1970] ? NSLog(@"dates intervals are equal") : NSLog(@"dates intervals are not equal");
+            if ([[[results objectAtIndex:0] valueForKey:@"time"] isEqualToDate:date]) {
                 NSLog(@"dates are equal");
             }
-            [[theValue((int)[[[results objectAtIndex:0] valueForKey:@"time"] timeIntervalSince1970]) should] equal:theValue((int)[date timeIntervalSince1970])];
+            [[theValue([[[results objectAtIndex:0] valueForKey:@"time"] timeIntervalSinceDate:date]) should] beLessThan:theValue(1)];
         }];
     });
     it(@"Will save and read without error after update", ^{
@@ -303,6 +308,5 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to false", ^{
     });
      
 });
-
 
 SPEC_END

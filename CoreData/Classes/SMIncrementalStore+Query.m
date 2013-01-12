@@ -26,7 +26,7 @@ NSString* convertPredicateExpressionToStackMobFieldName (NSString* keyPath, NSEn
     if (!property) {
         [NSException raise:SMExceptionIncompatibleObject format:@"Property not found for predicate field %@ in entity %@", keyPath, entity];
     }
-    return [entity sm_fieldNameForProperty:property];
+    return [entity SMFieldNameForProperty:property];
 }
 
 void setErrorWithReason(NSString *reason, NSError *__autoreleasing *error) {

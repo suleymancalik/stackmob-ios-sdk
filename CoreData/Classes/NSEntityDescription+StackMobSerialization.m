@@ -20,7 +20,7 @@
 
 @implementation NSEntityDescription (StackMobSerialization)
 
-- (NSString *)sm_schema
+- (NSString *)SMSchema
 {
     return [[self name] lowercaseString];
 }
@@ -30,13 +30,13 @@
     NSString *objectIdField = nil;
      
     // Search for schemanameId
-    objectIdField = [[self sm_schema] stringByAppendingFormat:@"Id"];
+    objectIdField = [[self SMSchema] stringByAppendingFormat:@"Id"];
     if ([[self propertiesByName] objectForKey:objectIdField] != nil) {
         return objectIdField;
     }
     
     // Search for schemaname_id
-    objectIdField = [[self sm_schema] stringByAppendingFormat:@"_id"];
+    objectIdField = [[self SMSchema] stringByAppendingFormat:@"_id"];
     if ([[self propertiesByName] objectForKey:objectIdField] != nil) {
         return objectIdField;
     }
@@ -46,12 +46,12 @@
     return nil;
 }
 
-- (NSString *)sm_primaryKeyField
+- (NSString *)SMPrimaryKeyField
 {
-    return [self sm_fieldNameForProperty:[[self propertiesByName] objectForKey:[self primaryKeyField]]];
+    return [self SMFieldNameForProperty:[[self propertiesByName] objectForKey:[self primaryKeyField]]];
 }
 
-- (NSString *)sm_fieldNameForProperty:(NSPropertyDescription *)property 
+- (NSString *)SMFieldNameForProperty:(NSPropertyDescription *)property 
 {
     NSCharacterSet *uppercaseSet = [NSCharacterSet uppercaseLetterCharacterSet];
     NSMutableString *stringToReturn = [[property name] mutableCopy];
@@ -70,7 +70,7 @@
     return stringToReturn;
 }
 
-- (NSPropertyDescription *)sm_propertyForField:(NSString *)fieldName
+- (NSPropertyDescription *)propertyForSMFieldName:(NSString *)fieldName
 {
     // Look for matching names with all lowercase or underscores first
     NSPropertyDescription *propertyToReturn = [[self propertiesByName] objectForKey:fieldName];
