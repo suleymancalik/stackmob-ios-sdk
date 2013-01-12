@@ -828,6 +828,8 @@ You should implement this method conservatively, and expect that unknown request
             resultsWithoutOID = results;
             dispatch_group_leave(group);
         } onFailure:^(NSError *queryError) {
+            
+            // TODO Check this block for getting hung
             if (error != NULL) {
                 *error = (__bridge id)(__bridge_retained CFTypeRef)queryError;
             }
@@ -1719,9 +1721,14 @@ You should implement this method conservatively, and expect that unknown request
                 }];
                 [object setValue:[NSSet setWithArray:array] forKey:propertyName];
             } else {
-                // Translate StackMob ID to Cache managed object ID and store
-                NSManagedObject *setObject = [self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:propertyValueFromSerializedDict] entityName:[[property destinationEntity] name]];
-                [object setValue:setObject forKey:propertyName];
+                // Recursively cache child objects, if any
+                if ([propertyValueFromSerializedDict isKindOfClass:[NSDictionary class]]) {
+                    
+                } else {
+                    // Translate StackMob ID to Cache managed object ID and store
+                    NSManagedObject *setObject = [self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:propertyValueFromSerializedDict] entityName:[[property destinationEntity] name]];
+                    [object setValue:setObject forKey:propertyName];
+                }
             }
         } else {
             [object setValue:nil forKey:propertyName];
