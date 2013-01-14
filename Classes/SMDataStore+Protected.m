@@ -254,6 +254,14 @@
         // Enumerate through options and add them to the request header.
         NSMutableURLRequest *tempRequest = [request mutableCopy];
         [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
+            
+            // Error checks for functionality not supported
+            if ([headerField isEqualToString:@"X-StackMob-Expand"]) {
+                if ([[request HTTPMethod] isEqualToString:@"POST"] || [[request HTTPMethod] isEqualToString:@"PUT"]) {
+                    [NSException raise:SMExceptionIncompatibleObject format:@"Expand depth is not supported for creates or updates.  Please check your requests and edit accordingly."];
+                }
+            }
+            
             [tempRequest setValue:headerValue forHTTPHeaderField:headerField];
         }];
         request = tempRequest;

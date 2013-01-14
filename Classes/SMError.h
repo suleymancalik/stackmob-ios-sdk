@@ -25,6 +25,8 @@ extern NSString *const SMExceptionUnknownSchema;
 extern NSString *const SMExceptionAddPersistentStore;
 extern NSString *const SMExceptionCannotFillRelationshipFault;
 extern NSString *const SMExceptionCacheError;
+extern NSString *const SMOriginalErrorCausingRefreshKey;
+extern NSString *const SMRefreshErrorObjectKey;
 
 typedef enum {
     //Special StackMob things

@@ -24,9 +24,6 @@
 #define PUT @"PUT"
 #define DELETE @"DELETE"
 
-extern NSString *const SMOriginalErrorCausingRefreshKey;
-extern NSString *const SMRefreshErrorObjectKey;
-
 @class SMUserSession;
 @class SMRequestOptions;
 @class SMCustomCodeRequest;
