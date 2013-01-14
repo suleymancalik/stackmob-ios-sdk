@@ -111,7 +111,7 @@
 {
     if (self.refreshToken == nil) {
         if (failureBlock) {
-            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:nil];
+            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Refresh Token is nil", NSLocalizedDescriptionKey, nil]];
             failureBlock(error);
         }
     } else if (self.refreshing) {

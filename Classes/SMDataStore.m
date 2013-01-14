@@ -28,7 +28,8 @@
 #import "SMCustomCodeRequest.h"
 #import "SMResponseBlocks.h"
 
-
+NSString *const SMOriginalErrorCausingRefreshKey = @"SMOriginalErrorCausingRefresh";
+NSString *const SMRefreshErrorObjectKey = @"SMRefreshErrorObject";
 
 @interface SMDataStore ()
 
