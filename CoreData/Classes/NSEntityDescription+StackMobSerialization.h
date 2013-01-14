@@ -27,6 +27,11 @@
 - (NSString *)SMSchema;
 
 /**
+ Returns a purposly lowercased string for the entity name.
+ */
+- (NSString *)SMLowercasedSchema;
+
+/**
  Returns the primary key field name for this entity.
  
  lowercaseEntityNameId or lowercaseEntityName_id is returned, if found as an attribute. 

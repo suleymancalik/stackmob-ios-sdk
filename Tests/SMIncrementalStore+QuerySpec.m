@@ -26,17 +26,19 @@ __block SMQuery *query;
 __block NSError *error;
 
 describe(@"-queryForEntity:predicate:error", ^{
+    __block SMIncrementalStore *store = nil;
     beforeEach(^{
         entity = [SMSpecHelpers entityForName:@"Person"];
         query = nil;
         error = nil;
+        store = [[SMIncrementalStore alloc] init];
     });
     describe(@"when the left-hand side is not a keypath", ^{
         beforeEach(^{
             predicate = [NSPredicate predicateWithFormat:@"%@ == last_name", @"Vaznaian"];
         });
         it(@"returns an error", ^{
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
             [[error should] beNonNil];
         });
     });
@@ -45,14 +47,14 @@ describe(@"-queryForEntity:predicate:error", ^{
             predicate = [NSPredicate predicateWithFormat:@"%@ == %@", @"last_name", @"Vaznaian"];
         });
         it(@"returns an error", ^{
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
             [[error should] beNonNil];
         });
     });
     describe(@"==", ^{
         beforeEach(^{
             predicate = [NSPredicate predicateWithFormat:@"last_name == %@", @"Cooper"];
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
         });
         it(@"returns the correct query", ^{
             [error shouldBeNil];
@@ -63,7 +65,7 @@ describe(@"-queryForEntity:predicate:error", ^{
     describe(@"=", ^{
         beforeEach(^{
             predicate = [NSPredicate predicateWithFormat:@"last_name = %@", @"Cooper"];
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
         });
         it(@"returns the correct query", ^{
             [error shouldBeNil];
@@ -74,7 +76,7 @@ describe(@"-queryForEntity:predicate:error", ^{
     describe(@"!=", ^{
         beforeEach(^{
             predicate = [NSPredicate predicateWithFormat:@"last_name != %@", @"Williams"];
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
         });
         it(@"returns the correct query", ^{
             [error shouldBeNil];
@@ -85,7 +87,7 @@ describe(@"-queryForEntity:predicate:error", ^{
     describe(@"<>", ^{
         beforeEach(^{
             predicate = [NSPredicate predicateWithFormat:@"last_name <> %@", @"Williams"];
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
         });
         it(@"returns the correct query", ^{
             [error shouldBeNil];
@@ -96,7 +98,7 @@ describe(@"-queryForEntity:predicate:error", ^{
     describe(@"<", ^{
         beforeEach(^{
             predicate = [NSPredicate predicateWithFormat:@"armor_class < %@", [NSNumber numberWithInt:16]];
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
         });
         it(@"returns the correct query", ^{
             [error shouldBeNil];
@@ -107,7 +109,7 @@ describe(@"-queryForEntity:predicate:error", ^{
     describe(@">", ^{
         beforeEach(^{
             predicate = [NSPredicate predicateWithFormat:@"armor_class > %@", [NSNumber numberWithInt:16]];
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
         });
         it(@"returns the correct query", ^{
             [error shouldBeNil];
@@ -118,7 +120,7 @@ describe(@"-queryForEntity:predicate:error", ^{
     describe(@"<=", ^{
         beforeEach(^{
             predicate = [NSPredicate predicateWithFormat:@"armor_class <= %@", [NSNumber numberWithInt:16]];
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
         });
         it(@"returns the correct query", ^{
             [error shouldBeNil];
@@ -129,7 +131,7 @@ describe(@"-queryForEntity:predicate:error", ^{
     describe(@"=<", ^{
         beforeEach(^{
             predicate = [NSPredicate predicateWithFormat:@"armor_class <= %@", [NSNumber numberWithInt:16]];
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
         });
         it(@"returns the correct query", ^{
             [error shouldBeNil];
@@ -140,7 +142,7 @@ describe(@"-queryForEntity:predicate:error", ^{
     describe(@">=", ^{
         beforeEach(^{
             predicate = [NSPredicate predicateWithFormat:@"armor_class >= %@", [NSNumber numberWithInt:16]];
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
         });
         it(@"returns the correct query", ^{
             [error shouldBeNil];
@@ -151,7 +153,7 @@ describe(@"-queryForEntity:predicate:error", ^{
     describe(@"=>", ^{
         beforeEach(^{
             predicate = [NSPredicate predicateWithFormat:@"armor_class => %@", [NSNumber numberWithInt:16]];
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
         });
         it(@"returns the correct query", ^{
             [error shouldBeNil];
@@ -166,7 +168,7 @@ describe(@"-queryForEntity:predicate:error", ^{
                               [NSNumber numberWithInt:16], 
                               nil];
             predicate = [NSPredicate predicateWithFormat:@"armor_class BETWEEN %@", range];
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
         });
         it(@"returns the correct query", ^{
             [error shouldBeNil];
@@ -180,7 +182,7 @@ describe(@"-queryForEntity:predicate:error", ^{
         beforeEach(^{
             first_names = [NSArray arrayWithObjects:@"Aaron", @"Bob", @"Clyde", @"Ducksworth", @"Elliott", nil];
             predicate = [NSPredicate predicateWithFormat:@"first_name IN %@", first_names];
-            query = [SMIncrementalStore queryForEntity:entity predicate:predicate error:&error];
+            query = [store queryForEntity:entity predicate:predicate error:&error];
         });
         it(@"returns the correct query", ^{
             NSString *expectation = [first_names componentsJoinedByString:@","];

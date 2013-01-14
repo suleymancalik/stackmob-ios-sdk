@@ -29,6 +29,7 @@
 #define UUID_CHAR_NUM 36
 
 static SMClient *defaultClient = nil;
+BOOL SM_CONVERT_PROPERTIES = YES;
 
 @interface SMClient ()
 

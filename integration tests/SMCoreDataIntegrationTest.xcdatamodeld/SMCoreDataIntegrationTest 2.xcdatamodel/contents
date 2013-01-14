@@ -65,16 +65,16 @@
         <attribute name="theuser" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Category" positionX="0" positionY="0" width="128" height="90"/>
-        <element name="Favorite" positionX="0" positionY="0" width="128" height="90"/>
-        <element name="Interest" positionX="0" positionY="0" width="128" height="105"/>
-        <element name="Oauth2test" positionX="0" positionY="0" width="128" height="75"/>
-        <element name="Person" positionX="0" positionY="0" width="128" height="165"/>
-        <element name="Random" positionX="187" positionY="-108" width="128" height="150"/>
-        <element name="Superpower" positionX="-171" positionY="123" width="128" height="120"/>
-        <element name="Todo" positionX="-218" positionY="396" width="128" height="105"/>
-        <element name="User3" positionX="-306" positionY="0" width="128" height="75"/>
-        <element name="User4" positionX="-108" positionY="-135" width="128" height="75"/>
-        <element name="Getpermission" positionX="160" positionY="192" width="128" height="75"/>
+        <element name="Category" positionX="-173" positionY="225" width="128" height="90"/>
+        <element name="Favorite" positionX="180" positionY="-9" width="128" height="90"/>
+        <element name="Getpermission" positionX="-216" positionY="-90" width="128" height="75"/>
+        <element name="Interest" positionX="18" positionY="90" width="128" height="105"/>
+        <element name="Oauth2test" positionX="-378" positionY="-90" width="128" height="75"/>
+        <element name="Person" positionX="-369" positionY="-0" width="128" height="165"/>
+        <element name="Random" positionX="-45" positionY="-90" width="128" height="150"/>
+        <element name="Superpower" positionX="205" positionY="144" width="128" height="120"/>
+        <element name="Todo" positionX="-378" positionY="219" width="128" height="105"/>
+        <element name="User3" positionX="-540" positionY="15" width="128" height="75"/>
+        <element name="User4" positionX="-542" positionY="-90" width="128" height="75"/>
     </elements>
 </model>

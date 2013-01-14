@@ -17,10 +17,20 @@
 #import "NSEntityDescription+StackMobSerialization.h"
 #import "SMUserManagedObject.h"
 #import "SMError.h"
+#import "SMClient.h"
 
 @implementation NSEntityDescription (StackMobSerialization)
 
 - (NSString *)SMSchema
+{
+    if (SM_CONVERT_PROPERTIES) {
+        return [[self name] lowercaseString];
+    } else {
+        return [self name];
+    }
+}
+
+- (NSString *)SMLowercasedSchema
 {
     return [[self name] lowercaseString];
 }
@@ -30,13 +40,13 @@
     NSString *objectIdField = nil;
      
     // Search for schemanameId
-    objectIdField = [[self SMSchema] stringByAppendingFormat:@"Id"];
+    objectIdField = [[self SMLowercasedSchema] stringByAppendingFormat:@"Id"];
     if ([[self propertiesByName] objectForKey:objectIdField] != nil) {
         return objectIdField;
     }
     
     // Search for schemaname_id
-    objectIdField = [[self SMSchema] stringByAppendingFormat:@"_id"];
+    objectIdField = [[self SMLowercasedSchema] stringByAppendingFormat:@"_id"];
     if ([[self propertiesByName] objectForKey:objectIdField] != nil) {
         return objectIdField;
     }
@@ -56,6 +66,10 @@
     NSCharacterSet *uppercaseSet = [NSCharacterSet uppercaseLetterCharacterSet];
     NSMutableString *stringToReturn = [[property name] mutableCopy];
     
+    if (!SM_CONVERT_PROPERTIES) {
+        return stringToReturn;
+    }
+    
     NSRange range = [stringToReturn rangeOfCharacterFromSet:uppercaseSet];
     if (range.location == 0) {
         [NSException raise:SMExceptionIncompatibleObject format:@"Property %@ cannot start with an uppercase letter.  Acceptable formats are camelCase or lowercase letters with optional underscores", [property name]];
@@ -72,10 +86,15 @@
 
 - (NSPropertyDescription *)propertyForSMFieldName:(NSString *)fieldName
 {
+    
     // Look for matching names with all lowercase or underscores first
     NSPropertyDescription *propertyToReturn = [[self propertiesByName] objectForKey:fieldName];
     if (propertyToReturn) {
         return propertyToReturn;
+    }
+    
+    if (!SM_CONVERT_PROPERTIES) {
+        return nil;
     }
     
     // Then look for camelCase equivalents

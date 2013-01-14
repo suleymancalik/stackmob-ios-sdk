@@ -381,5 +381,34 @@ describe(@"-userPrimaryKeyField", ^{
     
 });
 
+describe(@"Case sensitive tests, NSManagedObject+StackMobSerialization", ^{
+    __block NSManagedObject *map = nil;
+    beforeEach(^{
+        NSEntityDescription *mapEntity = [[NSEntityDescription alloc] init];
+        [mapEntity setName:@"Map"];
+        [mapEntity setManagedObjectClassName:@"Map"];
+        
+        NSAttributeDescription *objectId = [[NSAttributeDescription alloc] init];
+        [objectId setName:@"map_id"];
+        [objectId setAttributeType:NSStringAttributeType];
+        [objectId setOptional:YES];
+        
+        [mapEntity setProperties:[NSArray arrayWithObject:objectId]];
+        
+        map = [[NSManagedObject alloc] initWithEntity:mapEntity insertIntoManagedObjectContext:nil];
+    });
+    it(@"SMSchema", ^{
+        
+    });
+    it(@"sm_objectId", ^{
+        
+    });
+    it(@"SMPrimaryKeyField", ^{
+        
+    });
+    it(@"primaryKeyField", ^{
+        
+    });
+});
 
 SPEC_END
