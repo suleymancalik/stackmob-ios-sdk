@@ -28,8 +28,6 @@
 #import "SMCustomCodeRequest.h"
 #import "SMResponseBlocks.h"
 
-
-
 @interface SMDataStore ()
 
 @property(nonatomic, readwrite, copy) NSString *apiVersion;

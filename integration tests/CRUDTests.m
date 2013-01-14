@@ -501,6 +501,34 @@ describe(@"setExpandDepth", ^{
              }];
         });
     });
+    it(@"throws an exception when attempting post method", ^{
+        SMRequestOptions *options = [SMRequestOptions optionsWithExpandDepth:1];
+        NSDictionary *toCreate = [NSDictionary dictionaryWithObjectsAndKeys:@"1234", @"expanddepthtest_id", nil];
+        [[theBlock(^{
+            [[client dataStore] createObject:toCreate inSchema:@"expanddepthtest" options:options onSuccess:^(NSDictionary *theObject, NSString *schema)
+             {
+                 // Doesn't matter
+             } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                 [theError shouldNotBeNil];
+                 [[theValue([theError code]) should] equal:theValue(SMErrorInvalidArguments)];
+             }];
+        }) should] raiseWithReason:@"Expand depth is not supported for creates or updates.  Please check your requests and edit accordingly."];
+        
+    });
+    
+    it(@"throws an exception when attempting post method", ^{
+        SMRequestOptions *options = [SMRequestOptions optionsWithExpandDepth:1];
+        NSDictionary *toCreate = [NSDictionary dictionaryWithObjectsAndKeys:@"1234", @"expanddepthtest_id", nil];
+        [[theBlock(^{
+            [[client dataStore] updateObjectWithId:@"1234" inSchema:@"expanddepthtest" update:toCreate options:options onSuccess:^(NSDictionary *theObject, NSString *schema)
+             {
+                 // Doesn't matter
+             } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                 [theError shouldNotBeNil];
+                 [[theValue([theError code]) should] equal:theValue(SMErrorInvalidArguments)];
+             }];
+        }) should] raiseWithReason:@"Expand depth is not supported for creates or updates.  Please check your requests and edit accordingly."];
+    });
     
     
 });

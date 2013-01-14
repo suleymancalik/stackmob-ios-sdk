@@ -17,6 +17,7 @@
 #import <Kiwi/Kiwi.h>
 #import "SMSpecHelpers.h"
 #import "SMIncrementalStore+Query.h"
+#import "SMIncrementalStore.h"
 
 SPEC_BEGIN(SMIncrementalStore_QuerySpec)
 
@@ -24,6 +25,7 @@ __block NSEntityDescription *entity;
 __block NSPredicate *predicate;
 __block SMQuery *query;
 __block NSError *error;
+__block SMIncrementalStore *store = nil;
 
 describe(@"-queryForEntity:predicate:error", ^{
     __block SMIncrementalStore *store = nil;

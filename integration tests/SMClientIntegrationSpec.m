@@ -448,7 +448,9 @@ describe(@"basic auth", ^{
             
             [[theValue(getDone) should] beYes];
             [error shouldNotBeNil];
-            [[theValue(error.code) should] equal:[NSNumber numberWithInt:SMErrorUnauthorized]];
+            [[theValue(error.code) should] equal:[NSNumber numberWithInt:SMErrorRefreshTokenFailed]];
+            NSError *originalError = [[error userInfo] valueForKey:SMOriginalErrorCausingRefreshKey];
+            [[theValue(originalError.code) should] equal:[NSNumber numberWithInt:SMErrorUnauthorized]];
         });
         
         it(@"should disallow resetPassword", ^{
@@ -466,7 +468,9 @@ describe(@"basic auth", ^{
             
             [[theValue(getDone) should] beYes];
             [error shouldNotBeNil];
-            [[theValue(error.code) should] equal:[NSNumber numberWithInt:SMErrorUnauthorized]];
+            [[theValue(error.code) should] equal:[NSNumber numberWithInt:SMErrorRefreshTokenFailed]];
+            NSError *originalError = [[error userInfo] valueForKey:SMOriginalErrorCausingRefreshKey];
+            [[theValue(originalError.code) should] equal:[NSNumber numberWithInt:SMErrorUnauthorized]];
         });
         
         it(@"should disallow refreshToken", ^{
