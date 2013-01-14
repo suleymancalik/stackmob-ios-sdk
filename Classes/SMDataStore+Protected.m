@@ -161,20 +161,28 @@
     }
 }
 
-- (void)refreshAndRetry:(NSURLRequest *)request requestSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue requestFailureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
+- (void)refreshAndRetry:(NSURLRequest *)request requestSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue requestFailureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock
 {
     if (self.session.refreshing) {
-        NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
-        onFailure(request, nil, error, nil);
+        if (failureBlock) {
+            dispatch_async(failureCallbackQueue, ^{
+                NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
+                failureBlock(request, nil, error, nil);
+            });
+        }
     } else {
         __block SMRequestOptions *options = [SMRequestOptions options];
         [options setTryRefreshToken:NO];
         __block dispatch_queue_t newQueueForRefresh = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
         [self.session refreshTokenWithSuccessCallbackQueue:newQueueForRefresh failureCallbackQueue:newQueueForRefresh onSuccess:^(NSDictionary *userObject) {
-            [self queueRequest:[self.session signRequest:request] options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
+            [self queueRequest:[self.session signRequest:request] options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
         } onFailure:^(NSError *theError) {
-            // TODO should we be attempting the request again after a failed refresh attempt
-            [self queueRequest:[self.session signRequest:request] options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
+            if (failureBlock) {
+                __block NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:[NSDictionary dictionaryWithObjectsAndKeys:theError, @"RefreshErrorObject", nil]];
+                dispatch_async(failureCallbackQueue, ^{
+                    failureBlock(request, nil, error, nil);
+                });
+            }
         }];
     }
 }

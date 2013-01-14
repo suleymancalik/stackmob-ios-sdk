@@ -163,7 +163,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         [self SM_enableCache];
         
-        if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Incremental Store initialized and ready to go.")};
+        if (SM_CORE_DATA_DEBUG) {DLog(@"STACKMOB SYSTEM UPDATE: Incremental Store initialized and ready to go.")};
     }
     return self;
 }
@@ -172,7 +172,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     [self SM_configureCache];
-    if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Cache is ready for use.")};
+    if (SM_CORE_DATA_DEBUG) {DLog(@"STACKMOB SYSTEM UPDATE: Cache is ready for use.")};
     
 }
 
@@ -184,7 +184,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         [self SM_saveCache:&error];
     }
     [self SM_saveCacheMap];
-    if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Cache is inactive.")};
+    if (SM_CORE_DATA_DEBUG) {DLog(@"STACKMOB SYSTEM UPDATE: Cache is inactive.")};
 }
 
 - (void)SM_handleWillSave:(NSNotification *)notification
