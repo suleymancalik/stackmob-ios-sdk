@@ -29,6 +29,7 @@ describe(@"SMRelationshipHeaders", ^{
     __block NSString *StackMobRelationsHeader = @"X-StackMob-Relations";
     
     beforeEach(^{
+        SM_CONVERT_PROPERTIES = YES;
         if (mom == nil) {
            mom = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]; 
         }

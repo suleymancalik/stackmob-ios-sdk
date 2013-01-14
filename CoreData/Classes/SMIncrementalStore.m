@@ -349,7 +349,7 @@ You should implement this method conservatively, and expect that unknown request
         
         NSDictionary *serializedObjDict = [managedObject SMDictionarySerialization];
         NSString *schemaName = [managedObject SMSchema];
-        __block NSString *insertedObjectID = [managedObject sm_objectId];
+        __block NSString *insertedObjectID = [managedObject SM_objectId];
         
         SMRequestOptions *options = [SMRequestOptions options];
         // If superclass is SMUserNSManagedObject, add password
@@ -436,7 +436,7 @@ You should implement this method conservatively, and expect that unknown request
         
         NSDictionary *serializedObjDict = [managedObject SMDictionarySerialization];
         NSString *schemaName = [managedObject SMSchema];
-        __block NSString *updatedObjectID = [managedObject sm_objectId];
+        __block NSString *updatedObjectID = [managedObject SM_objectId];
         __block SMRequestOptions *options = [SMRequestOptions options];
         
         if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)); }
@@ -518,7 +518,7 @@ You should implement this method conservatively, and expect that unknown request
         
         NSDictionary *serializedObjDict = [managedObject SMDictionarySerialization];
         NSString *schemaName = [managedObject SMSchema];
-        __block NSString *deletedObjectID = [managedObject sm_objectId];
+        __block NSString *deletedObjectID = [managedObject SM_objectId];
         __block SMRequestOptions *options = [SMRequestOptions options];
         
         if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)); }
@@ -1276,7 +1276,7 @@ You should implement this method conservatively, and expect that unknown request
     }
     
     return [array map:^id(id item) {
-        NSString *itemId = [item sm_objectId];
+        NSString *itemId = [item SM_objectId];
         if (!itemId) {
             [NSException raise:SMExceptionIncompatibleObject format:@"Item not previously assigned an object ID for it's primary key field, which is used to obtain a permanent ID for the Core Data object.  Before a call to save on the managedObjectContext, be sure to assign an object ID.  This looks something like [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]].  The item in question is %@", item];
         } 
