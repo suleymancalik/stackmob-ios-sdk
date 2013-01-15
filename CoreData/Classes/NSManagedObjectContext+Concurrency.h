@@ -18,7 +18,40 @@
 #import "StackMob.h"
 
 /**
- Category which provides methods for performing 
+ Category which provides methods for performing asynchronous callback-based saves and fetches.  Synchronous versions are also provided which wait for operations to complete before returning.
+ 
+ **Important:** These methods are designed for use with managed object context instances obtained from `SMCoreDataStore,` as they take advantage of the parent / child context pattern.
+ 
+ 
+ ## Saves ##
+ 
+ The <saveOnSuccess:onFailure:> method is a callback-based method which will perform the save asynchronously, off of the main thread.  Callbacks will be performed on the main thread.  To specify queues to callbacks, use <saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:>.
+ 
+ Saves methods work by nesting performBlock: calls, pushing save requests to the top of the chain, a private queue parent context with an initialized persistent store coordinator.
+ 
+ The <saveAndWait:> method works similarly to the Core Data save: method, taking the parent / child pattern into account.
+ 
+ ## Fetches ##
+ 
+ The <executeFetchRequest:onSuccess:onFailure:> method is a callback-based method which will perform the fetch asynchronously, off of the main thread.  Callbacks will be performed on the main thread.
+ 
+ Fetch methods work by copying the fetch over to a background context, which operates on a differnt queue and returns `NSManagedObjectID` isntances to the calling context.  Those IDs are then translated into faulted instances of `NSManagedObject` by the calling context, unless otherwise specified.  
+ 
+ To specify whether to return instances of `NSManagedObject` or `NSManagedObjectID`, use <executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:>.
+ 
+ To specify queues to callbacks, use <executeFetchRequest:returnManagedObjectIDs:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:>.
+ 
+ The <executeFetchRequestAndWait:error:> and <executeFetchRequestAndWait:returnManagedObjectIDs:error:> methods work similarly to the Core Data executeFetchRequest:error: method.
+ 
+ ## Observing Contexts ##
+ 
+ <observeContext:> and <stopObservingContext:> are helper methods which simply add / remove observers for `NSManagedObjectContextDidSaveNotification`, if you need to implement manual merging.
+ 
+ ## Hooking Up to the Chain Of Contexts ##
+ 
+ If you create your own context and make it a child of a context provided by <SMCoreDataStore>, and you plan to save on your created context, use <setContextShouldObtainPermanentIDsBeforeSaving:> so that permanent IDs for newly inserted objects are created on your child context level.  Otherwise objects in your context will appear to have temporary IDs even after they have been saved!
+ 
+ 
  */
 @interface NSManagedObjectContext (Concurrency)
 
@@ -83,7 +116,7 @@
 - (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /**
- Asynchronous fetch method.
+ Asynchronous fetch method with the option of returning instances of NSManagedObjectID as well as specifying callback queues.
  
  A callback based fetch method which executes fetch on a background context, off of the main thread.  If returnIDs is YES, managed object IDs that are returned by the fetch are converted to instances of NSManagedObject by the calling context.
  

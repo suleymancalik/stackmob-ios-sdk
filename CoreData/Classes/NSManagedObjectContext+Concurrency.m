@@ -237,7 +237,7 @@
 
 - (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
-    dispatch_queue_t aQueue = dispatch_queue_create("fetchQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_queue_t aQueue = dispatch_queue_create("fetchQueue", NULL);
     __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
     
     // Error checks
@@ -287,7 +287,7 @@
 
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs error:(NSError *__autoreleasing *)error
 {
-    dispatch_queue_t queue = dispatch_queue_create("fetchAndWaitQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_queue_t queue = dispatch_queue_create("fetchAndWaitQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
     __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
     

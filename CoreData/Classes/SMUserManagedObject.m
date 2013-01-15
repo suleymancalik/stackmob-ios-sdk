@@ -61,7 +61,7 @@
     }
     
     [self.client.session.userIdentifierMap setObject:passwordIdentifier forKey:[self valueForKey:[self primaryKeyField]]];
-    [self.client.session SM_saveUserIdentifierMap];
+    [self.client.session SMSaveUserIdentifierMap];
     
 }
 
@@ -72,7 +72,7 @@
     if (passwordIdentifier) {
         [self.client.session.userIdentifierMap removeObjectForKey:primaryKeyValue];
         [KeychainWrapper deleteItemFromKeychainWithIdentifier:passwordIdentifier];
-        [self.client.session SM_saveUserIdentifierMap];
+        [self.client.session SMSaveUserIdentifierMap];
     }
     
 }
