@@ -808,7 +808,7 @@ You should implement this method conservatively, and expect that unknown request
     if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] == Reachable) {
         
         // Build query for StackMob
-        SMQuery *query = [self queryForFetchRequest:fetchRequest error:error];
+        SMQuery *query = [self queryForFetchRequest:fetchRequest dataStore:self.coreDataStore error:error];
         
         if (query == nil) {
             if (error) {
@@ -846,11 +846,11 @@ You should implement this method conservatively, and expect that unknown request
         // Obtain the primary key for the entity
         __block NSString *primaryKeyField = nil;
 
-        @try {
-            primaryKeyField = [fetchRequest.entity SMFieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
-        }
-        @catch (NSException *exception) {
+        NSString *fetchEntityName = SM_CONVERT_SCHEMA_NAMES ? [fetchRequest.entityName lowercaseString] : fetchRequest.entityName;
+        if ([self.coreDataStore.session.userSchema isEqualToString:fetchEntityName]) {
             primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
+        } else {
+            primaryKeyField = [fetchRequest.entity SMEDFieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]] dataStore:self.coreDataStore];
         }
         
         // For each result of the fetch
@@ -1160,6 +1160,16 @@ You should implement this method conservatively, and expect that unknown request
         // Pull object from cache
         NSManagedObject *objectFromCache = [self.localManagedObjectContext objectWithID:cacheObjectID];
         
+        // Obtain the primary key for the entity
+        NSString *primaryKeyField = nil;
+        
+        NSString *relationshipEntityName = SM_CONVERT_SCHEMA_NAMES ? [[[relationship destinationEntity] name] lowercaseString] : [[relationship destinationEntity] name];
+        if ([self.coreDataStore.session.userSchema isEqualToString:relationshipEntityName]) {
+            primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
+        } else {
+            primaryKeyField = [[relationship destinationEntity] primaryKeyField];
+        }
+        /*
         // Get primary key field of relationship
         NSString *primaryKeyField = nil;
         @try {
@@ -1168,7 +1178,7 @@ You should implement this method conservatively, and expect that unknown request
         @catch (NSException *exception) {
             primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
         }
-        
+        */
         if ([relationship isToMany]) {
             // to-many: pull related object set from cache
             // value should be the cache object reference for the related object, if the relationship value is not nil
@@ -1513,7 +1523,7 @@ You should implement this method conservatively, and expect that unknown request
     }
     
     __block NSEntityDescription *sm_managedObjectEntity = entity;
-    __block NSString *schemaName = [[sm_managedObjectEntity name] lowercaseString];
+    __block NSString *schemaName = SM_CONVERT_SCHEMA_NAMES ? [[sm_managedObjectEntity name] lowercaseString] : [sm_managedObjectEntity name];
     __block BOOL readSuccess = NO;
     __block NSDictionary *objectFromServer;
     __block NSError *blockError = nil;
@@ -1564,7 +1574,7 @@ You should implement this method conservatively, and expect that unknown request
         return nil;
     }
     
-    id relationshipContents = [objectDictionaryFromRead valueForKey:[sm_managedObjectEntity SMFieldNameForProperty:relationship]];
+    id relationshipContents = [objectDictionaryFromRead valueForKey:[sm_managedObjectEntity SMEDFieldNameForProperty:relationship dataStore:self.coreDataStore]];
     
     if ([relationship isToMany]) {
         if (relationshipContents) {
@@ -1599,7 +1609,7 @@ You should implement this method conservatively, and expect that unknown request
     
     __block NSEntityDescription *sm_managedObjectEntity = [parentObject entity];
     __block NSDictionary *objectDictionaryFromRead = nil;
-    __block NSString *sm_fieldName = [sm_managedObjectEntity SMFieldNameForProperty:relationship];
+    __block NSString *sm_fieldName = [sm_managedObjectEntity SMEDFieldNameForProperty:relationship dataStore:self.coreDataStore];
     
     objectDictionaryFromRead = [self SM_retrieveObjectWithID:referenceID entity:sm_managedObjectEntity options:[SMRequestOptions optionsWithExpandDepth:1] context:context error:error];
     
@@ -1616,7 +1626,8 @@ You should implement this method conservatively, and expect that unknown request
             }
             __block NSMutableArray *arrayToReturn = [NSMutableArray array];
             [(NSArray *)relationshipContents enumerateObjectsUsingBlock:^(id expandedObject, NSUInteger idx, BOOL *stop) {
-                NSString *relatedObjectPrimaryKey = [expandedObject objectForKey:[[relationship destinationEntity] SMPrimaryKeyField]];
+                NSManagedObject *relatedObjectManagedObjectReference = [context objectWithID:[self newObjectIDForEntity:[relationship destinationEntity] referenceObject:referenceID]];
+                NSString *relatedObjectPrimaryKey = [expandedObject objectForKey:[relatedObjectManagedObjectReference SMPrimaryKeyField]];
                 NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:relatedObjectPrimaryKey];
                 [arrayToReturn addObject:relationshipObjectID];
                 
@@ -1872,8 +1883,22 @@ You should implement this method conservatively, and expect that unknown request
     [entityDescription.attributesByName enumerateKeysAndObjectsUsingBlock:^(id attributeName, id attributeValue, BOOL *stop) {
         NSAttributeDescription *attributeDescription = (NSAttributeDescription *)attributeValue;
         if (attributeDescription.attributeType != NSUndefinedAttributeType) {
-            if ([[theObject allKeys] indexOfObject:[entityDescription SMFieldNameForProperty:attributeDescription]] != NSNotFound) {
-                id value = [theObject valueForKey:[entityDescription SMFieldNameForProperty:attributeDescription]];
+            if (!SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES && [attributeName isEqualToString:[self.coreDataStore.session userPrimaryKeyField]]) {
+                NSMutableString *convertedPrimaryKey = [attributeName copy];
+                NSCharacterSet *uppercaseSet = [NSCharacterSet uppercaseLetterCharacterSet];
+                NSRange range = [convertedPrimaryKey rangeOfCharacterFromSet:uppercaseSet];
+                while (range.location != NSNotFound) {
+                    
+                    unichar letter = [convertedPrimaryKey characterAtIndex:range.location] + 32;
+                    [convertedPrimaryKey replaceCharactersInRange:range withString:[NSString stringWithFormat:@"_%C", letter]];
+                    range = [convertedPrimaryKey rangeOfCharacterFromSet:uppercaseSet];
+                }
+                if ([[theObject allKeys] indexOfObject:convertedPrimaryKey] != NSNotFound) {
+                    id value = [theObject valueForKey:convertedPrimaryKey];
+                    [serializedDictionary setObject:value forKey:attributeName];
+                }
+            } else if ([[theObject allKeys] indexOfObject:[entityDescription SMEDFieldNameForProperty:attributeDescription dataStore:self.coreDataStore]] != NSNotFound) {
+                id value = [theObject valueForKey:[entityDescription SMEDFieldNameForProperty:attributeDescription dataStore:self.coreDataStore]];
                 if (value && attributeDescription.attributeType == NSDateAttributeType) {
                     unsigned long long convertedValue = [value unsignedLongLongValue] / 1000;
                     NSDate *convertedDate = [NSDate dateWithTimeIntervalSince1970:convertedValue];
@@ -1888,7 +1913,7 @@ You should implement this method conservatively, and expect that unknown request
     [entityDescription.relationshipsByName enumerateKeysAndObjectsUsingBlock:^(id relationshipName, id relationshipValue, BOOL *stop) {
         NSRelationshipDescription *relationshipDescription = (NSRelationshipDescription *)relationshipValue;
         // get the relationship contents for the property
-        id relationshipContents = [theObject valueForKey:[entityDescription SMFieldNameForProperty:relationshipDescription]];
+        id relationshipContents = [theObject valueForKey:[entityDescription SMEDFieldNameForProperty:relationshipDescription dataStore:self.coreDataStore]];
         if (![relationshipDescription isToMany]) {
             if (relationshipContents) {
                 NSEntityDescription *entityDescriptionForRelationship = [NSEntityDescription entityForName:[[relationshipValue destinationEntity] name] inManagedObjectContext:context];

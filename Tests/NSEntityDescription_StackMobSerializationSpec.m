@@ -24,7 +24,8 @@ SPEC_BEGIN(NSEntityDescription_StackMobSerializationSpec)
 describe(@"NSEntityDescription_StackMobSerializationSpec", ^{
     __block NSEntityDescription *mapEntity = nil;
     beforeEach(^{
-        SM_CONVERT_PROPERTIES = YES;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
+        SM_CONVERT_SCHEMA_NAMES = YES;
         mapEntity = [[NSEntityDescription alloc] init];
         [mapEntity setName:@"Map"];
         [mapEntity setManagedObjectClassName:@"Map"];
@@ -107,7 +108,8 @@ describe(@"-userPrimaryKeyField", ^{
     __block NSEntityDescription *theEntity = nil;
     context(@"With an entity that has a StackMob-like userPrimaryKeyField", ^{
         beforeEach(^{
-            SM_CONVERT_PROPERTIES = YES;
+            SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
+            SM_CONVERT_SCHEMA_NAMES = YES;
             theEntity = [[NSEntityDescription alloc] init];
             [theEntity setName:@"Entity"];
             [theEntity setManagedObjectClassName:@"Entity"];
@@ -149,10 +151,11 @@ describe(@"-userPrimaryKeyField", ^{
     });
 });
 
-describe(@"CaseInsensitiveFields, NSEntityDescription+StackMobSerialization", ^{
+describe(@"CaseSensitiveFields, NSEntityDescription+StackMobSerialization", ^{
     __block NSEntityDescription *mapEntity = nil;
     beforeEach(^{
-        SM_CONVERT_PROPERTIES = NO;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = NO;
+        SM_CONVERT_SCHEMA_NAMES = NO;
         mapEntity = [[NSEntityDescription alloc] init];
         [mapEntity setName:@"Map"];
         [mapEntity setManagedObjectClassName:@"Map"];
@@ -184,56 +187,99 @@ describe(@"CaseInsensitiveFields, NSEntityDescription+StackMobSerialization", ^{
         [mapEntity setProperties:[NSArray arrayWithObjects:mapId, mapid, name, url, camelCase, poorlyNamed, nil]];
     });
     afterEach(^{
-        SM_CONVERT_PROPERTIES = NO;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = NO;
+        SM_CONVERT_SCHEMA_NAMES = NO;
     });
     it(@"SMSchema", ^{
         [[[mapEntity SMSchema] should] equal:@"Map"];
         
-        SM_CONVERT_PROPERTIES = YES;
+        SM_CONVERT_SCHEMA_NAMES = YES;
         
         [[[mapEntity SMSchema] should] equal:@"map"];
     });
+    
     it(@"primaryKeyField", ^{
         [[[mapEntity primaryKeyField] should] equal:@"mapId"];
         
-        SM_CONVERT_PROPERTIES = YES;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
+        SM_CONVERT_SCHEMA_NAMES = YES;
         
         // no change should happen from this method
         [[[mapEntity primaryKeyField] should] equal:@"mapId"];
     });
+
     it(@"SMPrimaryKeyField", ^{
-        [[[mapEntity SMPrimaryKeyField] should] equal:@"mapId"];
         
-        SM_CONVERT_PROPERTIES = YES;
+        // We do not convert primary keys
+        [[[mapEntity SMPrimaryKeyField] should] equal:@"map_id"];
+        
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
+        
+        [[[mapEntity SMPrimaryKeyField] should] equal:@"map_id"];
+        
+        SM_CONVERT_SCHEMA_NAMES = YES;
         
         [[[mapEntity SMPrimaryKeyField] should] equal:@"map_id"];
         
         
     });
+    
     it(@"SMFieldNameForProperty", ^{
         NSPropertyDescription *property = [[mapEntity propertiesByName] objectForKey:@"mapId"];
-        [[[mapEntity SMFieldNameForProperty:property] should] equal:@"mapId"];
+        [[[mapEntity SMFieldNameForProperty:property] should] equal:@"map_id"];
         
-        SM_CONVERT_PROPERTIES = YES;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
         
         [[[mapEntity SMFieldNameForProperty:property] should] equal:@"map_id"];
+        
+        SM_CONVERT_SCHEMA_NAMES = YES;
+        
+        [[[mapEntity SMFieldNameForProperty:property] should] equal:@"map_id"];
+        
+        // Try for non-primary key attribute
+        SM_CONVERT_SCHEMA_NAMES = NO;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = NO;
+        
+        property = [[mapEntity propertiesByName] objectForKey:@"camelCase"];
+        [[[mapEntity SMFieldNameForProperty:property] should] equal:@"camelCase"];
+        
+        SM_CONVERT_SCHEMA_NAMES = YES;
+        
+        [[[mapEntity SMFieldNameForProperty:property] should] equal:@"camelCase"];
+        
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
+        
+        [[[mapEntity SMFieldNameForProperty:property] should] equal:@"camel_case"];
     });
+    
+    
     it(@"propertyForSMFieldName", ^{
         
         [[[mapEntity propertyForSMFieldName:@"mapId"] should] equal:[[mapEntity propertiesByName] objectForKey:@"mapId"]];
         
-        SM_CONVERT_PROPERTIES = YES;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
         
         [[[mapEntity propertyForSMFieldName:@"mapId"] should] equal:[[mapEntity propertiesByName] objectForKey:@"mapId"]];
         
-        SM_CONVERT_PROPERTIES = NO;
+        [[[mapEntity propertyForSMFieldName:@"map_id"] should] equal:[[mapEntity propertiesByName] objectForKey:@"mapId"]];
         
-        [[mapEntity propertyForSMFieldName:@"map_id"] shouldBeNil];
-        
-        SM_CONVERT_PROPERTIES = YES;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = NO;
         
         [[[mapEntity propertyForSMFieldName:@"map_id"] should] equal:[[mapEntity propertiesByName] objectForKey:@"mapId"]];
+        
+        [[[mapEntity propertyForSMFieldName:@"camelCase"] should] equal:[[mapEntity propertiesByName] objectForKey:@"camelCase"]];
+        
+        [[mapEntity propertyForSMFieldName:@"camel_case"] shouldBeNil];
+        
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
+        
+        [[[mapEntity propertyForSMFieldName:@"camelCase"] should] equal:[[mapEntity propertiesByName] objectForKey:@"camelCase"]];
+        
+        [[[mapEntity propertyForSMFieldName:@"camel_case"] should] equal:[[mapEntity propertiesByName] objectForKey:@"camelCase"]];
+        
+        
     });
+    
 });
 
 SPEC_END

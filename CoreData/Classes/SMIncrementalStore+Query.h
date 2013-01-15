@@ -16,6 +16,7 @@
 
 #import "SMIncrementalStore.h"
 #import "SMQuery.h"
+#import "SMDataStore.h"
 
 /**
  A category on <SMIncrementalStore> providing methods to translate fetch requests into instances of <SMQuery>.
@@ -31,6 +32,7 @@
  @return An instance of `SMQuery` representing the received fetch request.
  */
 - (SMQuery *)queryForFetchRequest:(NSFetchRequest *)fetchRequest
+                        dataStore:(SMDataStore *)dataStore
                             error:(NSError *__autoreleasing *)error;
 /**
  Given a fetch request with a predicate, returns the equivalent query to be sent to StackMob.
@@ -43,6 +45,7 @@
  */
 - (SMQuery *)queryForEntity:(NSEntityDescription *)entityDescription
                   predicate:(NSPredicate *)predicate
+                  dataStore:(SMDataStore *)dataStore
                       error:(NSError *__autoreleasing *)error;
 
 

@@ -17,24 +17,28 @@
 #import "SMIncrementalStore+Query.h"
 #import "NSEntityDescription+StackMobSerialization.h"
 #import "SMError.h"
+#import "SMUserSession.h"
 
 @implementation SMIncrementalStore (Query)
 
 - (SMQuery *)queryForEntity:(NSEntityDescription *)entityDescription
                   predicate:(NSPredicate *)predicate
+                  dataStore:(SMDataStore *)dataStore
                       error:(NSError *__autoreleasing *)error {
     
     SMQuery *query = [[SMQuery alloc] initWithEntity:entityDescription];
-    [self buildQuery:&query forPredicate:predicate error:error];
+    [self buildQuery:&query forPredicate:predicate dataStore:dataStore error:error];
     
     return query;
 }
 
 - (SMQuery *)queryForFetchRequest:(NSFetchRequest *)fetchRequest
+                    dataStore:(SMDataStore *)dataStore
                             error:(NSError *__autoreleasing *)error {
     
     SMQuery *query = [self queryForEntity:fetchRequest.entity
                                 predicate:fetchRequest.predicate
+                                dataStore:(SMDataStore *)dataStore
                                     error:error];
     
     if (*error != nil) {
@@ -67,7 +71,7 @@
     [fetchRequest.sortDescriptors enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSString *fieldName = nil;
         if ([[obj key] rangeOfCharacterFromSet:[NSCharacterSet uppercaseLetterCharacterSet]].location != NSNotFound) {
-            fieldName = [self convertPredicateExpressionToStackMobFieldName:[obj key] entity:fetchRequest.entity];
+            fieldName = [self convertPredicateExpressionToStackMobFieldName:[obj key] entity:fetchRequest.entity dataStore:dataStore];
         } else {
             fieldName = [obj key];
         }
@@ -77,13 +81,20 @@
     return query;
 }
 
-- (NSString *)convertPredicateExpressionToStackMobFieldName:(NSString *)keyPath entity:(NSEntityDescription *)entity
+- (NSString *)convertPredicateExpressionToStackMobFieldName:(NSString *)keyPath entity:(NSEntityDescription *)entity dataStore:(SMDataStore *)dataStore
 {
     NSPropertyDescription *property = [[entity propertiesByName] objectForKey:keyPath];
     if (!property) {
         [NSException raise:SMExceptionIncompatibleObject format:@"Property not found for predicate field %@ in entity %@", keyPath, entity];
     }
-    return [entity SMFieldNameForProperty:property];
+    
+    NSString *userSchema = [dataStore.session userSchema];
+    NSString *userPrimaryKeyField = [dataStore.session userPrimaryKeyField];
+    if ([[[entity name] lowercaseString] isEqualToString:userSchema] && [[property name] isEqualToString:userPrimaryKeyField]) {
+        return userPrimaryKeyField;
+    }
+    
+    return [entity SMEDFieldNameForProperty:property dataStore:dataStore];
 }
 
 - (BOOL)setError:(NSError *__autoreleasing *)error withReason:(NSString *)reason {
@@ -128,7 +139,7 @@
     return YES;
 }
 
-- (BOOL)buildQuery:(SMQuery *__autoreleasing *)query forCompoundPredicate:(NSCompoundPredicate *)compoundPredicate error:(NSError *__autoreleasing *)error
+- (BOOL)buildQuery:(SMQuery *__autoreleasing *)query forCompoundPredicate:(NSCompoundPredicate *)compoundPredicate dataStore:(SMDataStore *)dataStore error:(NSError *__autoreleasing *)error
 {
     if ([compoundPredicate compoundPredicateType] != NSAndPredicateType) {
         [self setError:error withReason:@"Predicate type not supported."];
@@ -137,13 +148,13 @@
     
     for (unsigned int i = 0; i < [[compoundPredicate subpredicates] count]; i++) {
         NSPredicate *subpredicate = [[compoundPredicate subpredicates] objectAtIndex:i];
-        [self buildQuery:query forPredicate:subpredicate error:error];
+        [self buildQuery:query forPredicate:subpredicate dataStore:dataStore error:error];
     }
     
     return YES;
 }
 
-- (BOOL)buildQuery:(SMQuery *__autoreleasing *)query forComparisonPredicate:(NSComparisonPredicate *)comparisonPredicate error:(NSError *__autoreleasing *)error
+- (BOOL)buildQuery:(SMQuery *__autoreleasing *)query forComparisonPredicate:(NSComparisonPredicate *)comparisonPredicate dataStore:(SMDataStore *)dataStore error:(NSError *__autoreleasing *)error
 {
     if (comparisonPredicate.leftExpression.expressionType != NSKeyPathExpressionType) {
         [self setError:error withReason:@"LHS must be usable as a remote keypath"];
@@ -156,7 +167,7 @@
     // Convert leftExpression keyPath to SM equivalent field name if needed
     NSString *lhs = nil;
     if ([comparisonPredicate.leftExpression.keyPath rangeOfCharacterFromSet:[NSCharacterSet uppercaseLetterCharacterSet]].location != NSNotFound) {
-        lhs = [self convertPredicateExpressionToStackMobFieldName:comparisonPredicate.leftExpression.keyPath entity:[*query entity]];
+        lhs = [self convertPredicateExpressionToStackMobFieldName:comparisonPredicate.leftExpression.keyPath entity:[*query entity] dataStore:dataStore];
     } else {
         lhs = comparisonPredicate.leftExpression.keyPath;
     }
@@ -201,13 +212,13 @@
     return YES;
 }
 
-- (BOOL)buildQuery:(SMQuery *__autoreleasing *)query forPredicate:(NSPredicate *)predicate error:(NSError *__autoreleasing *)error;
+- (BOOL)buildQuery:(SMQuery *__autoreleasing *)query forPredicate:(NSPredicate *)predicate dataStore:(SMDataStore *)dataStore error:(NSError *__autoreleasing *)error;
 {
     if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
-        [self buildQuery:query forCompoundPredicate:(NSCompoundPredicate *)predicate error:error];
+        [self buildQuery:query forCompoundPredicate:(NSCompoundPredicate *)predicate dataStore:dataStore error:error];
     }
     else if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
-        [self buildQuery:query forComparisonPredicate:(NSComparisonPredicate *)predicate error:error];
+        [self buildQuery:query forComparisonPredicate:(NSComparisonPredicate *)predicate dataStore:dataStore error:error];
     }
     
     return YES;

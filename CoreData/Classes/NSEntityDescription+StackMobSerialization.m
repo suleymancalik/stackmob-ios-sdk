@@ -18,12 +18,14 @@
 #import "SMUserManagedObject.h"
 #import "SMError.h"
 #import "SMClient.h"
+#import "SMDataStore.h"
+#import "SMUserSession.h"
 
 @implementation NSEntityDescription (StackMobSerialization)
 
 - (NSString *)SMSchema
 {
-    if (SM_CONVERT_PROPERTIES) {
+    if (SM_CONVERT_SCHEMA_NAMES) {
         return [[self name] lowercaseString];
     } else {
         return [self name];
@@ -51,27 +53,37 @@
         return objectIdField;
     }
     
+    
     // Raise an exception and return nil
     [NSException raise:SMExceptionIncompatibleObject format:@"No Attribute found for entity %@ which maps to the primary key on StackMob. The Attribute name should match one of the following formats: lowercasedEntityNameId or lowercasedEntityName_id.  If the managed object subclass for %@ inherits from SMUserManagedObject, meaning it is intended to define user objects, you may return either of the above formats or whatever lowercase string with optional underscores matches the primary key field on StackMob.", [self name], [self name]];
     return nil;
 }
 
-- (NSString *)SMPrimaryKeyField
+- (NSString *)SMEDPrimaryKeyFieldFromDataStore:(SMDataStore *)dataStore
 {
-    return [self SMFieldNameForProperty:[[self propertiesByName] objectForKey:[self primaryKeyField]]];
+    return [self SMEDFieldNameForProperty:[[self propertiesByName] objectForKey:[self primaryKeyField]] dataStore:dataStore];
 }
 
-- (NSString *)SMFieldNameForProperty:(NSPropertyDescription *)property 
+- (NSString *)SMEDFieldNameForProperty:(NSPropertyDescription *)property dataStore:(SMDataStore *)dataStore
 {
     NSCharacterSet *uppercaseSet = [NSCharacterSet uppercaseLetterCharacterSet];
     NSMutableString *stringToReturn = [[property name] mutableCopy];
     
-    if (!SM_CONVERT_PROPERTIES) {
-        return stringToReturn;
+    if (!SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES) {
+        if (dataStore) {
+            if (![[property name] isEqualToString:[dataStore.session userPrimaryKeyField]] && ![[property name] isEqualToString:[self primaryKeyField]]) {
+                return stringToReturn;
+            }
+        } else {
+            if (![[property name] isEqualToString:[self primaryKeyField]]) {
+                return stringToReturn;
+            }
+        }
+        
     }
     
     NSRange range = [stringToReturn rangeOfCharacterFromSet:uppercaseSet];
-    if (range.location == 0) {
+    if (range.location == 0 && SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES) {
         [NSException raise:SMExceptionIncompatibleObject format:@"Property %@ cannot start with an uppercase letter.  Acceptable formats are camelCase or lowercase letters with optional underscores", [property name]];
     }
     while (range.location != NSNotFound) {
@@ -84,7 +96,7 @@
     return stringToReturn;
 }
 
-- (NSPropertyDescription *)propertyForSMFieldName:(NSString *)fieldName
+- (NSPropertyDescription *)propertyForSMFieldName:(NSString *)fieldName dataStore:(SMDataStore *)dataStore
 {
     
     // Look for matching names with all lowercase or underscores first
@@ -93,7 +105,7 @@
         return propertyToReturn;
     }
     
-    if (!SM_CONVERT_PROPERTIES) {
+    if (!SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES && ![fieldName isEqualToString:[dataStore.session userPrimaryKeyField]] && ![fieldName isEqualToString:[self SMEDPrimaryKeyFieldFromDataStore:dataStore]]) {
         return nil;
     }
     

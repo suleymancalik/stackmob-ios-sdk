@@ -28,7 +28,6 @@ __block NSError *error;
 __block SMIncrementalStore *store = nil;
 
 describe(@"-queryForEntity:predicate:error", ^{
-    __block SMIncrementalStore *store = nil;
     beforeEach(^{
         entity = [SMSpecHelpers entityForName:@"Person"];
         query = nil;

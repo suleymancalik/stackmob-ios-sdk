@@ -22,7 +22,7 @@
 #import "User3.h"
 
 SPEC_BEGIN(SMIncrementalStoreFetchTest)
-
+/*
 describe(@"with fixtures", ^{
     __block NSArray *fixturesToLoad;
     __block NSDictionary *fixtures;
@@ -384,7 +384,7 @@ describe(@"with fixtures", ^{
     });
     
 });
-
+*/
 describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^{
     __block NSManagedObjectContext *moc = nil;
     __block SMClient *client = nil;
@@ -395,6 +395,7 @@ describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^
     beforeEach(^{
         // create a bunch of users
         client = [SMIntegrationTestHelpers defaultClient];
+        [client setUserSchema:@"User3"];
         [SMClient setDefaultClient:client];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
         moc = [cds contextForCurrentThread];
@@ -432,6 +433,7 @@ describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^
         }];
     });
     it(@"Should correctly fetch", ^{
+        SM_CONVERT_SCHEMA_NAMES = YES;
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         NSEntityDescription *entity = [NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc];
@@ -452,6 +454,8 @@ describe(@"fetch requests for managed objects", ^{
     __block NSManagedObject *todoObject = nil;
     beforeEach(^{
         // create a bunch of users
+        SM_CONVERT_SCHEMA_NAMES = YES;
+        SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
@@ -494,6 +498,8 @@ describe(@"fetch requests for managed objects", ^{
         }];
     });
     it(@"Should correctly fetch", ^{
+        SM_CONVERT_SCHEMA_NAMES = YES;
+        SM_CORE_DATA_DEBUG = YES;
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         NSEntityDescription *entity = [NSEntityDescription entityForName:@"Todo" inManagedObjectContext:moc];

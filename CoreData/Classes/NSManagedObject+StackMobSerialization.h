@@ -96,4 +96,6 @@
  */
 - (id)valueForRelationshipKey:(NSString *)key error:(NSError *__autoreleasing*)error;
 
+- (NSString *)SMFieldNameForProperty:(NSPropertyDescription *)property;
+
 @end

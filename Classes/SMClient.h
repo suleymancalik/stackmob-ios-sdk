@@ -28,7 +28,8 @@
 #define DEFAULT_PRIMARY_KEY_FIELD_NAME @"username"
 #define DEFAULT_PASSWORD_FIELD_NAME @"password"
 
-extern BOOL SM_CONVERT_PROPERTIES;
+extern BOOL SM_CONVERT_SCHEMA_NAMES;
+extern BOOL SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES;
 
 /**
  `SMClient` provides a high level interface to interacting with StackMob. A new client must be given, at the very least, an API version and public key in order to communicate with your StackMob application.

@@ -74,7 +74,27 @@
 
 - (NSString *)SMPrimaryKeyField
 {
-    return [[self entity] SMFieldNameForProperty:[[[self entity] propertiesByName] objectForKey:[self primaryKeyField]]];
+    __block NSString *primaryKeyField = nil;
+    if ([self isKindOfClass:[SMUserManagedObject class]]) {
+        NSLog(@"isKindOfClass");
+        primaryKeyField = [(SMUserManagedObject *)self primaryKeyField];
+    } else {
+        primaryKeyField = [self primaryKeyField];
+    }
+    
+    return [self SMFieldNameForProperty:[[[self entity] propertiesByName] objectForKey:primaryKeyField]];
+}
+
+- (NSString *)SMFieldNameForProperty:(NSPropertyDescription *)property
+{
+    if ([self isKindOfClass:[SMUserManagedObject class]]) {
+        NSLog(@"isKindOfClass");
+        NSString *toReturn = [(SMUserManagedObject *)self primaryKeyField];
+        return toReturn;
+    }
+    
+    NSString *entityReturn =  [[self entity] SMEDFieldNameForProperty:property dataStore:nil];
+    return entityReturn;
 }
 
 - (NSDictionary *)SMDictionarySerialization
@@ -116,23 +136,23 @@
                     if (dateValue != nil) {
                         unsigned long long convertedDate = (unsigned long long)[dateValue timeIntervalSince1970] * 1000;
                         NSNumber *numberToSet = [NSNumber numberWithUnsignedLongLong:convertedDate];
-                        [objectDictionary setObject:numberToSet forKey:[selfEntity SMFieldNameForProperty:property]];
+                        [objectDictionary setObject:numberToSet forKey:[self SMFieldNameForProperty:property]];
                     }
                 } else if (attributeDescription.attributeType == NSBooleanAttributeType) {
                     // make sure that boolean values are serialized as true or false
                     id value = propertyValue;
                     if (value != nil) {
                         if ([value boolValue]) {
-                            [objectDictionary setObject:[NSNumber numberWithBool:YES] forKey:[selfEntity SMFieldNameForProperty:property]];
+                            [objectDictionary setObject:[NSNumber numberWithBool:YES] forKey:[self SMFieldNameForProperty:property]];
                         }
                         else {
-                            [objectDictionary setObject:[NSNumber numberWithBool:NO] forKey:[selfEntity SMFieldNameForProperty:property]];
+                            [objectDictionary setObject:[NSNumber numberWithBool:NO] forKey:[self SMFieldNameForProperty:property]];
                         }
                     }
                 } else {
                     id value = propertyValue;
                     if (value != nil) {
-                        [objectDictionary setObject:value forKey:[selfEntity SMFieldNameForProperty:property]];
+                        [objectDictionary setObject:value forKey:[self SMFieldNameForProperty:property]];
                     }
                 }
             }
@@ -156,14 +176,14 @@
                     if (keyPath && [keyPath length] > 0) {
                         [relationshipKeyPath appendFormat:@"%@.", keyPath];
                     }
-                    [relationshipKeyPath appendString:[selfEntity SMFieldNameForProperty:relationship]];
+                    [relationshipKeyPath appendString:[self SMFieldNameForProperty:relationship]];
                     
                     [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] SMSchema]]];
                 }
-                [objectDictionary setObject:relatedObjectDictionaries forKey:[selfEntity SMFieldNameForProperty:property]];
+                [objectDictionary setObject:relatedObjectDictionaries forKey:[self SMFieldNameForProperty:property]];
             } else {
                 if (propertyValue == [NSNull null]) {
-                    [objectDictionary setObject:propertyValue forKey:[selfEntity SMFieldNameForProperty:property]];
+                    [objectDictionary setObject:propertyValue forKey:[self SMFieldNameForProperty:property]];
                 }
                 else if ([processedObjects containsObject:propertyValue]) {
                     // add relationship header
@@ -171,24 +191,24 @@
                     if (keyPath && [keyPath length] > 0) {
                         [relationshipKeyPath appendFormat:@"%@.", keyPath];
                     }
-                    [relationshipKeyPath appendString:[selfEntity SMFieldNameForProperty:relationship]];
+                    [relationshipKeyPath appendString:[self SMFieldNameForProperty:relationship]];
                     
                     [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] SMSchema]]];
                     
                     
                     NSPropertyDescription *primaryKeyProperty = [[[relationship destinationEntity] propertiesByName] objectForKey:[propertyValue primaryKeyField]];
-                    [objectDictionary setObject:[NSDictionary dictionaryWithObject:[propertyValue SM_objectId] forKey:[[relationship destinationEntity] SMFieldNameForProperty:primaryKeyProperty]] forKey:[selfEntity SMFieldNameForProperty:property]];
+                    [objectDictionary setObject:[NSDictionary dictionaryWithObject:[propertyValue SM_objectId] forKey:[propertyValue SMFieldNameForProperty:primaryKeyProperty]] forKey:[self SMFieldNameForProperty:property]];
                 }
                 else {
                     NSMutableString *relationshipKeyPath = [NSMutableString string];
                     if (keyPath && [keyPath length] > 0) {
                         [relationshipKeyPath appendFormat:@"%@.", keyPath];
                     }
-                    [relationshipKeyPath appendString:[selfEntity SMFieldNameForProperty:relationship]];
+                    [relationshipKeyPath appendString:[self SMFieldNameForProperty:relationship]];
                     
                     [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] SMSchema]]];
                     
-                    [objectDictionary setObject:[propertyValue SMDictionarySerializationByTraversingRelationshipsExcludingObjects:processedObjects entities:processedEntities relationshipHeaderValues:values relationshipKeyPath:relationshipKeyPath] forKey:[selfEntity SMFieldNameForProperty:property]];
+                    [objectDictionary setObject:[propertyValue SMDictionarySerializationByTraversingRelationshipsExcludingObjects:processedObjects entities:processedEntities relationshipHeaderValues:values relationshipKeyPath:relationshipKeyPath] forKey:[self SMFieldNameForProperty:property]];
                 }
             }
         }

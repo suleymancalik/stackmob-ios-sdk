@@ -32,7 +32,8 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
         context(@"given an object with an id field matching its entity name", ^{
             __block NSManagedObject *map = nil;
             beforeEach(^{
-                SM_CONVERT_PROPERTIES = YES;
+                SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
+                SM_CONVERT_SCHEMA_NAMES = YES;
                 NSEntityDescription *mapEntity = [[NSEntityDescription alloc] init];
                 [mapEntity setName:@"Map"];
                 [mapEntity setManagedObjectClassName:@"Map"];
@@ -56,7 +57,8 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
         context(@"given an object without an identifiable id attribute", ^{
             __block NSManagedObject *model = nil;
             beforeEach(^{
-                SM_CONVERT_PROPERTIES = YES;
+                SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
+                SM_CONVERT_SCHEMA_NAMES = YES;
                 NSEntityDescription *incompleteEntity = [[NSEntityDescription alloc] init];
                 [incompleteEntity setName:@"Incomplete"];
                 [incompleteEntity setManagedObjectClassName:@"Incomplete"];
@@ -73,7 +75,8 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             __block StackMobSerializationSpecUser *user = nil;
             __block SMClient *client = nil;
             beforeEach(^{
-                SM_CONVERT_PROPERTIES = YES;
+                SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
+                SM_CONVERT_SCHEMA_NAMES = YES;
                 client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
                 NSEntityDescription *userEntity = [[NSEntityDescription alloc] init];
                 [userEntity setName:@"User"];
@@ -104,7 +107,8 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
         __block NSManagedObject *cookieTag = nil;
         __block NSManagedObject *foodTag = nil;
         beforeEach(^{
-            SM_CONVERT_PROPERTIES = YES;
+            SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
+            SM_CONVERT_SCHEMA_NAMES = YES;
             
             //        
             //             ========
@@ -388,7 +392,8 @@ describe(@"-userPrimaryKeyField", ^{
 describe(@"Case sensitive tests, NSManagedObject+StackMobSerialization", ^{
     __block NSManagedObject *map = nil;
     beforeEach(^{
-        SM_CONVERT_PROPERTIES = NO;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = NO;
+        SM_CONVERT_SCHEMA_NAMES = NO;
         NSEntityDescription *mapEntity = [[NSEntityDescription alloc] init];
         [mapEntity setName:@"Map"];
         [mapEntity setManagedObjectClassName:@"Map"];
@@ -404,35 +409,50 @@ describe(@"Case sensitive tests, NSManagedObject+StackMobSerialization", ^{
         [map setValue:@"bob" forKey:[map primaryKeyField]];
     });
     afterEach(^{
-        SM_CONVERT_PROPERTIES = NO;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = NO;
+        SM_CONVERT_SCHEMA_NAMES = NO;
     });
     it(@"SMSchema", ^{
         [[[map SMSchema] should] equal:@"Map"];
         
-        SM_CONVERT_PROPERTIES = YES;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
+        
+        [[[map SMSchema] should] equal:@"Map"];
+        
+        SM_CONVERT_SCHEMA_NAMES = YES;
         
         [[[map SMSchema] should] equal:@"map"];
     });
+    
     it(@"SM_objectId", ^{
         [[[map SM_objectId] should] equal:@"bob"];
         
-        SM_CONVERT_PROPERTIES = YES;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
         
         [[[map SM_objectId] should] equal:@"bob"];
     });
+    
     it(@"SMPrimaryKeyField", ^{
-        [[[map SMPrimaryKeyField] should] equal:@"mapId"];
+        [[[map SMPrimaryKeyField] should] equal:@"map_id"];
         
-        SM_CONVERT_PROPERTIES = YES;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
+        
+        [[[map SMPrimaryKeyField] should] equal:@"map_id"];
+        
+        SM_CONVERT_SCHEMA_NAMES = YES;
         
         [[[map SMPrimaryKeyField] should] equal:@"map_id"];
     });
     it(@"primaryKeyField", ^{
         [[[map primaryKeyField] should] equal:@"mapId"];
         
-        SM_CONVERT_PROPERTIES = YES;
+        SM_CONVERT_ATTRIBUTES_AND_RELATIONSHIPS_NAMES = YES;
         
         // no change should happen from this method
+        [[[map primaryKeyField] should] equal:@"mapId"];
+        
+        SM_CONVERT_SCHEMA_NAMES = YES;
+        
         [[[map primaryKeyField] should] equal:@"mapId"];
     });
 });
