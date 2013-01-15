@@ -24,11 +24,17 @@ extern NSString *const SMCacheWasDisabledNotification;
 @class SMIncrementalStore;
 
 /**
- The `SMCoreDataStore` class provides an `NSPersistentStoreCoordinator` and `NSManagedObjectContext` instance to the developer, configured to StackMob using the `SMUserSession` credentials.
+ The `SMCoreDataStore` class provides all the necessary properties and methods to interact with StackMob's Core Data integration.
  
  ## Using SMCoreDataStore ##
  
- With your `SMCoreDataStore` object you can retrieve a managed object context configured with a `SMIncrementalStore` as it's persistent store to allow communication to StackMob from Core Data.  Obtain a managed object context for your thread using <contextForCurrentThread>.  When saving or fetching from the context, use methods from the NSManagedObjectContext+Concurrency category to ensure proper asynchronous saving and fetching off of the main thread.
+ With your `SMCoreDataStore` object you can retrieve a managed object context configured with a `SMIncrementalStore` as it's persistent store to allow communication to StackMob from Core Data.  Obtain a managed object context for your thread using <contextForCurrentThread>.  You can obtain the managed object context for the main thread at any time with <mainThreadContext>.
+ 
+ When saving or fetching from the context, use methods from the <NSManagedObjectContext+Concurrency> category to ensure proper asynchronous saving and fetching off of the main thread.
+ 
+ If you want to do your own context creation, use the <persistentStoreCoordinator> property to ensure your objects are being saved to the StackMob server.
+ 
+ The default merge policy set for all contexts created by this class is NSMergeByPropertyObjectTrumpMergePolicy.  Use <setDefaultMergePolicy:applyToMainThreadContextAndParent:> to change the default.
  
  @note You should not have to initialize an instance of this class directly.  Instead, initialize an instance of <SMClient> and use the method <coreDataStoreWithManagedObjectModel:> to retrieve an instance completely configured and ready to communicate to StackMob.
  */
@@ -57,7 +63,7 @@ extern NSString *const SMCacheWasDisabledNotification;
  
  This property is deprecated. Use <contextForCurrentThread> to obtain a properly initialized managed object context.
  */
-@property (nonatomic, strong) NSManagedObjectContext *managedObjectContext __deprecated;
+@property (nonatomic, strong) NSManagedObjectContext *managedObjectContext __attribute__((deprecated));
 
 
 ///-------------------------------

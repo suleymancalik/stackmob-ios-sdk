@@ -76,7 +76,7 @@
         self.oauthStorageKey = [NSString stringWithFormat:@"%@.%@.oauth", [[NSBundle bundleForClass:[self class]] bundleIdentifier], publicKey];
         [self saveAccessTokenInfo:[[NSUserDefaults standardUserDefaults] dictionaryForKey:self.oauthStorageKey]];
         
-        [self SM_readUserIdentifierMap];
+        [self SMReadUserIdentifierMap];
         
     }
     
@@ -255,7 +255,7 @@
     
 }
 
-- (void)SM_readUserIdentifierMap
+- (void)SMReadUserIdentifierMap
 {
     
     NSString *errorDesc = nil;
@@ -283,7 +283,7 @@
     
 }
 
-- (void)SM_saveUserIdentifierMap
+- (void)SMSaveUserIdentifierMap
 {
     NSString *errorDesc = nil;
     NSError *error = nil;

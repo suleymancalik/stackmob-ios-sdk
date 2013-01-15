@@ -32,7 +32,7 @@
     return [[self entity] SMLowercasedSchema];
 }
 
-- (NSString *)SM_objectId
+- (NSString *)SMObjectId
 {
     NSString *objectIdField = [self primaryKeyField];
     if ([[[self entity] attributesByName] objectForKey:objectIdField] == nil) {
@@ -142,12 +142,14 @@
             if ([relationship isToMany]) {
                 NSMutableArray *relatedObjectDictionaries = [NSMutableArray array];
                 [(NSSet *)propertyValue enumerateObjectsUsingBlock:^(id child, BOOL *stopRelEnum) {
-                    NSString *childObjectId = [child SM_objectId];
+
+                    NSString *childObjectId = [child SMObjectId];
                     if (childObjectId == nil) {
                         *stopRelEnum = YES;
                         [NSException raise:SMExceptionIncompatibleObject format:@"Trying to serialize an object with a to-many relationship whose value references an object with a nil value for it's primary key field.  Please make sure you assign object ids with assignObjectId before attaching to relationships.  The object in question is %@", [child description]];
                     }
-                    [relatedObjectDictionaries addObject:[child SM_objectId]];
+
+                    [relatedObjectDictionaries addObject:[child SMObjectId]];
                 }];
                 
                 // add relationship header only if there are actual keys
@@ -177,7 +179,8 @@
                     
                     
                     NSPropertyDescription *primaryKeyProperty = [[[relationship destinationEntity] propertiesByName] objectForKey:[propertyValue primaryKeyField]];
-                    [objectDictionary setObject:[NSDictionary dictionaryWithObject:[propertyValue SM_objectId] forKey:[[relationship destinationEntity] SMFieldNameForProperty:primaryKeyProperty]] forKey:[selfEntity SMFieldNameForProperty:property]];
+
+                    [objectDictionary setObject:[NSDictionary dictionaryWithObject:[propertyValue SMObjectId] forKey:[[relationship destinationEntity] SMFieldNameForProperty:primaryKeyProperty]] forKey:[selfEntity SMFieldNameForProperty:property]];
                 }
                 else {
                     NSMutableString *relationshipKeyPath = [NSMutableString string];
@@ -208,7 +211,7 @@
 {
     NSMutableDictionary *dictionaryToReturn = [*objectDictionary mutableCopy];
     
-    [dictionaryToReturn setObject:[self SM_objectId] forKey:[self SMPrimaryKeyField]];
+    [dictionaryToReturn setObject:[self SMObjectId] forKey:[self SMPrimaryKeyField]];
     
     *objectDictionary = dictionaryToReturn;
 }
