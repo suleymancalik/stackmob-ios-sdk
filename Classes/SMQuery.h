@@ -59,7 +59,7 @@
 /**
  Initializes an `SMQuery` object from the provided entity.
 
- @param entity A Core Data `NSEntityDescription` for which we assume a corresponding schema named [[entity name] lowercaseString].
+ @param entity A Core Data `NSEntityDescription` for which we assume a corresponding schema on the StackMob server.
  */
 - (id)initWithEntity:(NSEntityDescription *)entity;
 

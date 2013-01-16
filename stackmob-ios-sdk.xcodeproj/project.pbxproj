@@ -179,7 +179,6 @@
 		DEA9ED96164B2BAB006B7326 /* SystemInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = DEA9ED94164B2BAB006B7326 /* SystemInformation.h */; };
 		DEA9ED97164B2BAB006B7326 /* SystemInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED95164B2BAB006B7326 /* SystemInformation.m */; };
 		DEB68F93169F50CF00CC45F4 /* SMIncrementalStoreNode.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DEC5F9F8169B979B00A44722 /* SMIncrementalStoreNode.h */; };
-		DEB68FCA169F9BD900CC45F4 /* SMIncrementalStoreFetchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A615CB5EA200E491C4 /* SMIncrementalStoreFetchTest.m */; };
 		DEB6E8A9169662A700B2C88D /* AFHTTPClient+StackMob.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE3AE12816810FAC000B2E80 /* AFHTTPClient+StackMob.h */; };
 		DEBBBCAF15CC440600650D75 /* SMCoreDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCA515CC440600650D75 /* SMCoreDataStore.h */; };
 		DEBBBCB015CC440600650D75 /* SMCoreDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCA615CC440600650D75 /* SMCoreDataStore.m */; };
@@ -220,6 +219,12 @@
 		DEE18F61160A704000BDCCC6 /* NSDictionary+AtomicCounterSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18515E2C08B00224E4E /* NSDictionary+AtomicCounterSpec.m */; };
 		DEE18F62160A77A200BDCCC6 /* NSEntityDescription_StackMobSerializationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18615E2C08B00224E4E /* NSEntityDescription_StackMobSerializationSpec.m */; };
 		DEE18F63160A77AD00BDCCC6 /* NSManagedObject+StackMobSerializationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18715E2C08B00224E4E /* NSManagedObject+StackMobSerializationSpec.m */; };
+		DEE52B3F16A62904005F44C5 /* ConvertPropertiesSwitchSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE52B3E16A62904005F44C5 /* ConvertPropertiesSwitchSpec.m */; };
+		DEE52B4816A62B41005F44C5 /* Capitaluser.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE52B4716A62B41005F44C5 /* Capitaluser.m */; };
+		DEE52B4B16A62B5C005F44C5 /* Animal.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE52B4A16A62B5C005F44C5 /* Animal.m */; };
+		DEE52B5316A62F6B005F44C5 /* Animal.json in Resources */ = {isa = PBXBuildFile; fileRef = DEE52B5216A62F6B005F44C5 /* Animal.json */; };
+		DEE52B5416A62F6B005F44C5 /* Animal.json in Resources */ = {isa = PBXBuildFile; fileRef = DEE52B5216A62F6B005F44C5 /* Animal.json */; };
+		DEE52B5616A6547B005F44C5 /* SMCoreDataStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC570FA15D065FC00D9E44E /* SMCoreDataStoreTest.m */; };
 		DEE7CB971683C8C000A03211 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
 		DEE7CB9A1683C8CC00A03211 /* SMPushClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED78164B1D43006B7326 /* SMPushClientIntegrationSpec.m */; };
 		DEE7CB9B1683C8D000A03211 /* SMNetworkReachabilitySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9EEBE164B4F24006B7326 /* SMNetworkReachabilitySpec.m */; };
@@ -457,6 +462,12 @@
 		DEC5F9F8169B979B00A44722 /* SMIncrementalStoreNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMIncrementalStoreNode.h; sourceTree = "<group>"; };
 		DEC5F9F9169B979B00A44722 /* SMIncrementalStoreNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMIncrementalStoreNode.m; sourceTree = "<group>"; };
 		DEE18F59160A611E00BDCCC6 /* SMRelationshipHeadersSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMRelationshipHeadersSpec.m; sourceTree = "<group>"; };
+		DEE52B3E16A62904005F44C5 /* ConvertPropertiesSwitchSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConvertPropertiesSwitchSpec.m; sourceTree = "<group>"; };
+		DEE52B4616A62B41005F44C5 /* Capitaluser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Capitaluser.h; sourceTree = "<group>"; };
+		DEE52B4716A62B41005F44C5 /* Capitaluser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Capitaluser.m; sourceTree = "<group>"; };
+		DEE52B4916A62B5C005F44C5 /* Animal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Animal.h; sourceTree = "<group>"; };
+		DEE52B4A16A62B5C005F44C5 /* Animal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Animal.m; sourceTree = "<group>"; };
+		DEE52B5216A62F6B005F44C5 /* Animal.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = Animal.json; path = Fixtures/Animal.json; sourceTree = "<group>"; };
 		DEE585271631F3C40009A1DE /* SMUpdateObjectsOptimizationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMUpdateObjectsOptimizationSpec.m; sourceTree = "<group>"; };
 		DEF756B41624918E006FD554 /* KeychainWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeychainWrapper.h; sourceTree = "<group>"; };
 		DEF756B51624918E006FD554 /* KeychainWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeychainWrapper.m; sourceTree = "<group>"; };
@@ -540,6 +551,7 @@
 		6102E0CD1593B5F700B0C774 /* Fixtures */ = {
 			isa = PBXGroup;
 			children = (
+				DEE52B5216A62F6B005F44C5 /* Animal.json */,
 				DE0CC79F15CB5DED00E491C4 /* person.json */,
 				DE1BDE351682C111009282BA /* personpermissions.json */,
 				6102E0CE1593B60500B0C774 /* people.json */,
@@ -758,6 +770,10 @@
 				DEFA4EBE1628A93E00E75101 /* User4.m */,
 				DE360C2B16431D5A00C31A55 /* Random.h */,
 				DE360C2C16431D5A00C31A55 /* Random.m */,
+				DEE52B4616A62B41005F44C5 /* Capitaluser.h */,
+				DEE52B4716A62B41005F44C5 /* Capitaluser.m */,
+				DEE52B4916A62B5C005F44C5 /* Animal.h */,
+				DEE52B4A16A62B5C005F44C5 /* Animal.m */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -778,6 +794,7 @@
 				DE96D84E165DA06500303710 /* LocalReadCacheSpec.m */,
 				DE0837A5167FE65B00872116 /* IncrementalStoreBatchOperationsSpec.m */,
 				DEB68FBF169F95EE00CC45F4 /* NSManagedObjectContext+ConcurrencySpec.m */,
+				DEE52B3E16A62904005F44C5 /* ConvertPropertiesSwitchSpec.m */,
 			);
 			path = integrationTestsCoreData;
 			sourceTree = "<group>";
@@ -1022,6 +1039,7 @@
 				DE1BDE331682C106009282BA /* placespermissions.json in Resources */,
 				DE1BDE361682C111009282BA /* blogpostspermissions.json in Resources */,
 				DE1BDE371682C111009282BA /* personpermissions.json in Resources */,
+				DEE52B5316A62F6B005F44C5 /* Animal.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1046,6 +1064,7 @@
 				DE1BDE391682C120009282BA /* peoplepermissions.json in Resources */,
 				DE1BDE3A1682C129009282BA /* placespermissions.json in Resources */,
 				DE1BDE3B1682C151009282BA /* blogpostspermissions.json in Resources */,
+				DEE52B5416A62F6B005F44C5 /* Animal.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1317,7 +1336,10 @@
 				DE0CC7CF15CB6B1F00E491C4 /* SMIntegrationTestHelpers.m in Sources */,
 				DE0CC7D215CB6B3800E491C4 /* SMCoreDataIntegrationTestHelpers.m in Sources */,
 				DE64D608162389A600237570 /* Person.m in Sources */,
-				DEB68FCA169F9BD900CC45F4 /* SMIncrementalStoreFetchTest.m in Sources */,
+				DEE52B3F16A62904005F44C5 /* ConvertPropertiesSwitchSpec.m in Sources */,
+				DEE52B4816A62B41005F44C5 /* Capitaluser.m in Sources */,
+				DEE52B4B16A62B5C005F44C5 /* Animal.m in Sources */,
+				DEE52B5616A6547B005F44C5 /* SMCoreDataStoreTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

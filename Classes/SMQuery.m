@@ -15,13 +15,12 @@
  */
 
 #import "SMQuery.h"
+#import "SMClient.h"
 
 #define CONCAT(prefix, suffix) ([NSString stringWithFormat:@"%@%@", prefix, suffix])
 
 #define EARTH_RADIAN_MILES 3956.6
 #define EARTH_RADIAN_KM    6367.5
-
-// TODO: header keys to #defines?
 
 @implementation SMQuery
 
@@ -33,7 +32,7 @@
 - (id)initWithEntity:(NSEntityDescription *)entity
 {
     
-    NSString *schemaName = [[entity name] lowercaseString];
+    NSString *schemaName = SM_LOWERCASE_SCHEMA_NAMES ? [[entity name] lowercaseString] : [entity name];
     return [self initWithSchema:schemaName entity:entity];
     
 }
@@ -48,7 +47,7 @@
     self = [super init];
     if (self) {
         _entity = entity;
-        _schemaName = [schema lowercaseString];
+        _schemaName = SM_LOWERCASE_SCHEMA_NAMES ? [schema lowercaseString] : schema;
         _requestParameters = [NSMutableDictionary dictionaryWithCapacity:1];
         _requestHeaders = [NSMutableDictionary dictionaryWithCapacity:1];
     }

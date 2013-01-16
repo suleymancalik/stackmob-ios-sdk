@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1810" systemVersion="11G63b" minimumToolsVersion="Xcode 4.1" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Animal" representedClassName="Animal" syncable="YES">
+        <attribute name="animal_id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="armor_class" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="company" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="theName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="theSpecies" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="capitalUser" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Capitaluser" inverseName="animal" inverseEntity="Capitaluser" syncable="YES"/>
+    </entity>
+    <entity name="Capitaluser" representedClassName="Capitaluser" syncable="YES">
+        <attribute name="userName" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="animal" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Animal" inverseName="capitalUser" inverseEntity="Animal" syncable="YES"/>
+    </entity>
     <entity name="Category" syncable="YES">
         <attribute name="categoryId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
@@ -76,5 +88,7 @@
         <element name="Todo" positionX="-378" positionY="219" width="128" height="105"/>
         <element name="User3" positionX="-540" positionY="15" width="128" height="75"/>
         <element name="User4" positionX="-542" positionY="-90" width="128" height="75"/>
+        <element name="Animal" positionX="-198" positionY="18" width="128" height="135"/>
+        <element name="Capitaluser" positionX="-162" positionY="90" width="128" height="75"/>
     </elements>
 </model>

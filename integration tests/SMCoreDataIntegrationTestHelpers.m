@@ -98,6 +98,16 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return fetchRequest;
 }
 
++ (NSFetchRequest *)makeAnimalFetchRequest:(NSPredicate *)predicate {
+    NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Animal"];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    [fetchRequest setEntity:entity];
+    [fetchRequest setPredicate:predicate];
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"theSpecies" ascending:YES]]];
+    [fetchRequest setReturnsObjectsAsFaults:NO];
+    return fetchRequest;
+}
+
 + (NSFetchRequest *)makeFavoriteFetchRequest:(NSPredicate *)predicate {
     NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Favorite"];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];

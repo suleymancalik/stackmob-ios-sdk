@@ -16,6 +16,7 @@
 
 #import <Kiwi/Kiwi.h>
 #import "SMQuery.h"
+#import "SMClient.h"
 
 #define TEST_SCHEMA @"test"
 #define CONCAT(prefix, suffix) ([NSString stringWithFormat:@"%@%@", prefix, suffix])
@@ -182,5 +183,4 @@ describe(@"near", ^{
         [[results should] equal:expectation];
     });
 });
-
 SPEC_END

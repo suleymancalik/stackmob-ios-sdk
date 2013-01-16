@@ -385,10 +385,11 @@ describe(@"-userPrimaryKeyField", ^{
     
 });
 
-describe(@"Case sensitive tests, NSManagedObject+StackMobSerialization", ^{
+describe(@"Case insensitive tests, NSManagedObject+StackMobSerialization", ^{
     __block NSManagedObject *map = nil;
     beforeEach(^{
-        SM_CONVERT_PROPERTIES = NO;
+        SM_CONVERT_PROPERTIES = YES;
+        SM_LOWERCASE_SCHEMA_NAMES = YES;
         NSEntityDescription *mapEntity = [[NSEntityDescription alloc] init];
         [mapEntity setName:@"Map"];
         [mapEntity setManagedObjectClassName:@"Map"];
@@ -404,33 +405,43 @@ describe(@"Case sensitive tests, NSManagedObject+StackMobSerialization", ^{
         [map setValue:@"bob" forKey:[map primaryKeyField]];
     });
     afterEach(^{
-        SM_CONVERT_PROPERTIES = NO;
+        SM_CONVERT_PROPERTIES = YES;
+        SM_LOWERCASE_SCHEMA_NAMES = YES;
     });
     it(@"SMSchema", ^{
-        [[[map SMSchema] should] equal:@"Map"];
+        [[[map SMSchema] should] equal:@"map"];
         
-        SM_CONVERT_PROPERTIES = YES;
+        SM_CONVERT_PROPERTIES = NO;
         
         [[[map SMSchema] should] equal:@"map"];
+        
+        SM_LOWERCASE_SCHEMA_NAMES = NO;
+        
+        [[[map SMSchema] should] equal:@"Map"];
     });
-    it(@"SM_objectId", ^{
-        [[[map SM_objectId] should] equal:@"bob"];
+    
+    it(@"SMObjectId", ^{
+        [[[map SMObjectId] should] equal:@"bob"];
         
-        SM_CONVERT_PROPERTIES = YES;
+        SM_CONVERT_PROPERTIES = NO;
         
-        [[[map SM_objectId] should] equal:@"bob"];
+        [[[map SMObjectId] should] equal:@"bob"];
     });
     it(@"SMPrimaryKeyField", ^{
-        [[[map SMPrimaryKeyField] should] equal:@"mapId"];
-        
-        SM_CONVERT_PROPERTIES = YES;
-        
         [[[map SMPrimaryKeyField] should] equal:@"map_id"];
+        
+        SM_CONVERT_PROPERTIES = NO;
+        
+        [[[map SMPrimaryKeyField] should] equal:@"mapId"];
     });
     it(@"primaryKeyField", ^{
         [[[map primaryKeyField] should] equal:@"mapId"];
         
-        SM_CONVERT_PROPERTIES = YES;
+        SM_LOWERCASE_SCHEMA_NAMES = NO;
+        
+        [[[map primaryKeyField] should] equal:@"mapId"];
+        
+        SM_CONVERT_PROPERTIES = NO;
         
         // no change should happen from this method
         [[[map primaryKeyField] should] equal:@"mapId"];

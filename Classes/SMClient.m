@@ -28,8 +28,10 @@
 #define TW_SECRET_KEY @"tw_ts"
 #define UUID_CHAR_NUM 36
 
+BOOL SM_LOWERCASE_SCHEMA_NAMES = YES;
+BOOL SM_CONVERT_PROPERTIES = YES;
+
 static SMClient *defaultClient = nil;
-BOOL SM_CONVERT_PROPERTIES = NO;
 
 @interface SMClient ()
 
@@ -74,7 +76,7 @@ BOOL SM_CONVERT_PROPERTIES = NO;
         self.appAPIVersion = appAPIVersion;
         self.apiHost = apiHost;
         self.publicKey = publicKey;
-        self.userSchema = [userSchema lowercaseString];
+        self.userSchema = SM_LOWERCASE_SCHEMA_NAMES ? [userSchema lowercaseString] : userSchema;
         self.userPrimaryKeyField = userPrimaryKeyField;
         self.userPasswordField = userPasswordField;
         
@@ -129,7 +131,7 @@ BOOL SM_CONVERT_PROPERTIES = NO;
 - (void)setUserSchema:(NSString *)userSchema
 {
     if (_SM_userSchema != userSchema) {
-        _SM_userSchema = [userSchema lowercaseString];
+        _SM_userSchema = SM_LOWERCASE_SCHEMA_NAMES ? [userSchema lowercaseString] : userSchema;
         [self.session setUserSchema:_SM_userSchema];
     }
 }

@@ -113,7 +113,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (BOOL)SM_saveCache:(NSError *__autoreleasing*)error;
 - (BOOL)SM_purgeObjectFromCacheWithID:(NSString *)objectID;
 
-- (NSString *)SM_remoteKeyForEntityName:(NSString *)entityName;
 - (NSDictionary *)SM_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context includeRelationships:(BOOL)includeRelationships;
 - (BOOL)SM_addPasswordToSerializedDictionary:(NSDictionary **)originalDictionary originalObject:(SMUserManagedObject *)object;
 
@@ -1514,7 +1513,7 @@ You should implement this method conservatively, and expect that unknown request
     }
     
     __block NSEntityDescription *sm_managedObjectEntity = entity;
-    __block NSString *schemaName = [[sm_managedObjectEntity name] lowercaseString];
+    __block NSString *schemaName = SM_LOWERCASE_SCHEMA_NAMES ? [[sm_managedObjectEntity name] lowercaseString] : [sm_managedObjectEntity name];
     __block BOOL readSuccess = NO;
     __block NSDictionary *objectFromServer;
     __block NSError *blockError = nil;
@@ -1854,12 +1853,6 @@ You should implement this method conservatively, and expect that unknown request
 ////////////////////////////
 #pragma mark - Misc Internal Methods
 ////////////////////////////
-
-- (NSString *)SM_remoteKeyForEntityName:(NSString *)entityName {
-    if (SM_CORE_DATA_DEBUG) {DLog()};
-    
-    return [[entityName lowercaseString] stringByAppendingString:@"_id"];
-}
 
 /*
  Returns a dictionary that has extra fields from StackMob that aren't present as attributes or relationships in the Core Data representation stripped out.  Examples may be StackMob added createddate or lastmoddate.

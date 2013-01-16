@@ -585,6 +585,45 @@ describe(@"reset password", ^{
     });  
 });
 
+describe(@"lowercased schema names test", ^{
+    __block SMClient *client = nil;
+    beforeEach(^{
+        client = nil;
+        SM_LOWERCASE_SCHEMA_NAMES = YES;
+        SM_CONVERT_PROPERTIES = YES;
+    });
+    afterEach(^{
+        SM_LOWERCASE_SCHEMA_NAMES = YES;
+        SM_CONVERT_PROPERTIES = YES;
+    });
+    it(@"init and setUserSchema methods", ^{
+        client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:@"dfkdj" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"Theuser" userPrimaryKeyField:@"username" userPasswordField:@"password"];
+        [[client.userSchema should] equal:@"theuser"];
+        
+        [client setUserSchema:@"Newuser"];
+        
+        [[client.userSchema should] equal:@"newuser"];
+        
+        SM_CONVERT_PROPERTIES = NO;
+        
+        client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:@"dfkdj" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"Theuser" userPrimaryKeyField:@"username" userPasswordField:@"password"];
+        [[client.userSchema should] equal:@"theuser"];
+        
+        [client setUserSchema:@"Newuser"];
+        
+        [[client.userSchema should] equal:@"newuser"];
+        
+        SM_LOWERCASE_SCHEMA_NAMES = NO;
+        
+        client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:@"dfkdj" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"Theuser" userPrimaryKeyField:@"username" userPasswordField:@"password"];
+        [[client.userSchema should] equal:@"Theuser"];
+        
+        [client setUserSchema:@"Newuser"];
+        
+        [[client.userSchema should] equal:@"Newuser"];
+    });
+});
+
 #pragma mark Facebook Auth
 
 describe(@"loginWithFacebook", ^{

@@ -23,7 +23,7 @@
 
 - (NSString *)SMSchema
 {
-    if (SM_CONVERT_PROPERTIES) {
+    if (SM_LOWERCASE_SCHEMA_NAMES) {
         return [[self name] lowercaseString];
     } else {
         return [self name];

@@ -34,6 +34,7 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 + (NSFetchRequest *)makeSuperpowerFetchRequest:(NSPredicate *)predicate;
 + (NSFetchRequest *)makeFavoriteFetchRequest:(NSPredicate *)predicate;
 + (NSFetchRequest *)makeInterestFetchRequest:(NSPredicate *)predicate;
++ (NSFetchRequest *)makeAnimalFetchRequest:(NSPredicate *)predicate;
 + (void)executeSynchronousFetch:(NSManagedObjectContext *)moc withRequest:(NSFetchRequest *)fetchRequest andBlock:(SynchronousFetchBlock)block;
 + (void)executeSynchronousSave:(NSManagedObjectContext *)moc withBlock:(SynchronousErrorBlock)block;
 + (void)executeSynchronousUpdate:(NSManagedObjectContext *)moc withObject:(NSManagedObjectID *)objectID andBlock:(SynchronousErrorBlock)block;

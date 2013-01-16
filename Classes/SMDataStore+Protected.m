@@ -153,7 +153,7 @@
             failureBlock(error, theObjectId, schema);
         }
     } else {
-        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
+        NSString *path = SM_LOWERCASE_SCHEMA_NAMES ? [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]] : [schema stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"GET" path:path parameters:parameters];
         SMFullResponseSuccessBlock urlSuccessBlock = [self SMFullResponseSuccessBlockForSchema:schema withSuccessBlock:successBlock];
         SMFullResponseFailureBlock urlFailureBlock = [self SMFullResponseFailureBlockForObjectId:theObjectId ofSchema:schema withFailureBlock:failureBlock];
@@ -342,8 +342,9 @@
     } else {
         NSString *theSchema = schema;
         if ([schema rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]].location == NSNotFound) {
-            // lowercase the schema for StackMob
-            theSchema = [theSchema lowercaseString];
+            if (SM_LOWERCASE_SCHEMA_NAMES) {
+                theSchema = [theSchema lowercaseString];
+            }
         }
         
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"POST" path:theSchema parameters:theObject];
@@ -362,7 +363,7 @@
         }
         return nil;
     } else {
-        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
+        NSString *path = SM_LOWERCASE_SCHEMA_NAMES ? [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]] : [schema stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
         
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"PUT" path:path parameters:updatedFields];
         
@@ -381,7 +382,7 @@
         }
         return nil;
     } else {
-        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
+        NSString *path = SM_LOWERCASE_SCHEMA_NAMES ? [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]] : [schema stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
         
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"DELETE" path:path parameters:nil];
         SMFullResponseSuccessBlock urlSuccessBlock = [self SMFullResponseSuccessBlockForResultSuccessBlock:successBlock];

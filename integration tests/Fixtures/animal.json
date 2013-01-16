@@ -1,0 +1,20 @@
+[
+ {
+ "theName":"Jon",
+ "theSpecies":"Cooper",
+ "company":"Carbon Five",
+ "armor_class":12
+ },
+ {
+ "theName":"Jonah",
+ "theSpecies":"Williams",
+ "company":"Carbon Five",
+ "armor_class":15
+ },
+ {
+ "theName":"Matt",
+ "theSpecies":"Vaznaian",
+ "company":"StackMob",
+ "armor_class":12
+ }
+]

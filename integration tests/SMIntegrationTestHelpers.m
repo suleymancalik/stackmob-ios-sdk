@@ -85,7 +85,7 @@ void synchronousQuery(SMDataStore *sm, SMQuery *query, SynchronousQueryBlock blo
             
         });
         [smObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            NSString *uuid_field = [NSString stringWithFormat:@"%@_id", fixtureName];
+            NSString *uuid_field = [NSString stringWithFormat:@"%@_id", [fixtureName lowercaseString]];
             NSString *uuid = [(NSDictionary *)obj objectForKey:uuid_field];
             
             syncWithSemaphore(^(dispatch_semaphore_t semaphore) {

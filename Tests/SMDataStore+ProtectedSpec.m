@@ -19,13 +19,13 @@
 #import "SMDataStore+Protected.h"
 
 SPEC_BEGIN(SMDataStore_CompletionBlocksSpec)
-__block SMDataStore *dataStore = nil;
-beforeEach(^{
-    SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
-    dataStore = [[SMDataStore alloc] initWithAPIVersion:@"0" session:[client session]]; 
-});
 
 describe(@"SMFullResponseSuccessBlockForSchema:withSuccessBlock:", ^{
+    __block SMDataStore *dataStore = nil;
+    beforeEach(^{
+        SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
+        dataStore = [[SMDataStore alloc] initWithAPIVersion:@"0" session:[client session]];
+    });
     it(@"returns a block which calls the success block with appropriate arguments", ^{
         NSDictionary *responseObject = [NSDictionary dictionaryWithObjectsAndKeys:
                                         @"The Great American Novel", @"name", 
@@ -51,6 +51,11 @@ describe(@"SMFullResponseSuccessBlockForSchema:withSuccessBlock:", ^{
 });
 
 describe(@"-SMFullResponseFailureBlockForObject:ofSchema:withFailureBlock:", ^{
+    __block SMDataStore *dataStore = nil;
+    beforeEach(^{
+        SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
+        dataStore = [[SMDataStore alloc] initWithAPIVersion:@"0" session:[client session]];
+    });
     it(@"returns a block which calls the failure block with appropriate arguments", ^{
         NSDictionary *requestObject = [NSDictionary dictionaryWithObjectsAndKeys:
                                         @"1234", @"book_id", 
@@ -75,6 +80,11 @@ describe(@"-SMFullResponseFailureBlockForObject:ofSchema:withFailureBlock:", ^{
 });
 
 describe(@"countFromRangeHeader", ^{
+    __block SMDataStore *dataStore = nil;
+    beforeEach(^{
+        SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
+        dataStore = [[SMDataStore alloc] initWithAPIVersion:@"0" session:[client session]];
+    });
     it(@"should return 0 given a nil rangeHeader and an empty array", ^{
         [[[NSNumber numberWithInt:[dataStore countFromRangeHeader:nil results:[NSArray array]]] should] equal:[NSNumber numberWithInt:0]];
     });
@@ -95,6 +105,44 @@ describe(@"countFromRangeHeader", ^{
     });
     it(@"should return 637 given a rangeHeader with that number in the count position", ^{
         [[[NSNumber numberWithInt:[dataStore countFromRangeHeader:@"1-1/637," results:nil]] should] equal:[NSNumber numberWithInt:637]];
+    });
+});
+
+describe(@"lowercase schema tests", ^{
+    __block SMDataStore *dataStore = nil;
+    beforeEach(^{
+        SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
+        dataStore = [[SMDataStore alloc] initWithAPIVersion:@"0" session:[client session]];
+    });
+    afterEach(^{
+        SM_LOWERCASE_SCHEMA_NAMES = YES;
+    });
+    it(@"post operation", ^{
+        AFJSONRequestOperation *op = [dataStore postOperationForObject:[NSDictionary dictionary] inSchema:@"Schema" options:nil successCallbackQueue:nil failureCallbackQueue:nil onSuccess:nil onFailure:nil];
+        [[[[[op request] URL] path] should] equal:@"/schema"];
+        
+        SM_LOWERCASE_SCHEMA_NAMES = NO;
+        
+        op = [dataStore postOperationForObject:[NSDictionary dictionary] inSchema:@"Schema" options:nil successCallbackQueue:nil failureCallbackQueue:nil onSuccess:nil onFailure:nil];
+        [[[[[op request] URL] path] should] equal:@"/Schema"];
+    });
+    it(@"put operation", ^{
+        AFJSONRequestOperation *op = [dataStore putOperationForObjectID:@"1234" inSchema:@"Schema" update:[NSDictionary dictionary] options:nil successCallbackQueue:nil failureCallbackQueue:nil onSuccess:nil onFailure:nil];
+        [[[[[op request] URL] path] should] equal:@"/schema/1234"];
+        
+        SM_LOWERCASE_SCHEMA_NAMES = NO;
+        
+        op = [dataStore putOperationForObjectID:@"1234" inSchema:@"Schema" update:[NSDictionary dictionary] options:nil successCallbackQueue:nil failureCallbackQueue:nil onSuccess:nil onFailure:nil];
+        [[[[[op request] URL] path] should] equal:@"/Schema/1234"];
+    });
+    it(@"delete operation", ^{
+        AFJSONRequestOperation *op = [dataStore deleteOperationForObjectID:@"1234" inSchema:@"Schema" options:nil successCallbackQueue:nil failureCallbackQueue:nil onSuccess:nil onFailure:nil];
+        [[[[[op request] URL] path] should] equal:@"/schema/1234"];
+        
+        SM_LOWERCASE_SCHEMA_NAMES = NO;
+        
+        op = [dataStore deleteOperationForObjectID:@"1234" inSchema:@"Schema" options:nil successCallbackQueue:nil failureCallbackQueue:nil onSuccess:nil onFailure:nil];
+        [[[[[op request] URL] path] should] equal:@"/Schema/1234"];
     });
 });
 

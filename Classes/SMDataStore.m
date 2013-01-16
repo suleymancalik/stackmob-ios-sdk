@@ -75,8 +75,9 @@ failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
      } else {
      NSString *theSchema = schema;
      if ([schema rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]].location == NSNotFound) {
-     // lowercase the schema for StackMob
-     theSchema = [theSchema lowercaseString];
+         if (SM_LOWERCASE_SCHEMA_NAMES) {
+             theSchema = [theSchema lowercaseString];
+         }
      }
      
      NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"POST" path:theSchema parameters:theObject];
@@ -122,7 +123,7 @@ failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
             failureBlock(error, updatedFields, schema);
         }
     } else {
-        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
+        NSString *path = SM_LOWERCASE_SCHEMA_NAMES ? [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]] : [schema stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
         
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"PUT" path:path parameters:updatedFields];
         
@@ -177,7 +178,7 @@ failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
             failureBlock(error, theObjectId, schema);
         }
     } else {
-        NSString *path = [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
+        NSString *path = SM_LOWERCASE_SCHEMA_NAMES ? [[schema lowercaseString] stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]] : [schema stringByAppendingPathComponent:[self URLEncodedStringFromValue:theObjectId]];
         
         NSMutableURLRequest *request = [[self.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"DELETE" path:path parameters:nil];
         SMFullResponseSuccessBlock urlSuccessBlock = [self SMFullResponseSuccessBlockForObjectId:theObjectId ofSchema:schema withSuccessBlock:successBlock];
