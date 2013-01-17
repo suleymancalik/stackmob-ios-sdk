@@ -289,14 +289,6 @@ You should implement this method conservatively, and expect that unknown request
                   error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     
-    // If network is not reachable, error and return
-    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
-        if (NULL != error) {
-            *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The network is not reachable", NSLocalizedDescriptionKey, nil]];
-            *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
-        }
-        return nil;
-    }
     // Reset options and failed operations queue
     [self.globalOptions setTryRefreshToken:YES];
     
@@ -804,8 +796,8 @@ You should implement this method conservatively, and expect that unknown request
 - (id)SM_fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     
-    // Network is reachable
-    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] == Reachable) {
+    // TODO Change this network first or cache first
+    if (YES) {
         
         // Build query for StackMob
         SMQuery *query = [self queryForFetchRequest:fetchRequest error:error];
@@ -1003,15 +995,6 @@ You should implement this method conservatively, and expect that unknown request
     
         if (!cacheObjectID) {
             // Scenario: Got here because object was refreshed and is now a fault, but was never cached in the first place.  Grab from the server if possible.
-            if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
-                if (NULL != error) {
-                    *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"No cache ID was found for the provided object ID: %@ and the network is not reachable", objectID], NSLocalizedDescriptionKey, nil]];
-                    *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
-                }
-                // fill blank node to return
-                SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:[NSDictionary dictionary] version:1];
-                return node;
-            }
             
             NSDictionary *objectFromServer = [self SM_retrieveObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:[SMRequestOptions options] context:context error:error];
             if (!objectFromServer) {
@@ -1502,15 +1485,6 @@ You should implement this method conservatively, and expect that unknown request
 - (NSDictionary *)SM_retrieveObjectWithID:(NSString *)objectID entity:(NSEntityDescription *)entity options:(SMRequestOptions *)options context:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error
 {
     if (SM_CORE_DATA_DEBUG) {DLog()};
-    
-    // If the network is not reachable, error and return
-    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
-        if (NULL != error) {
-            *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The network is not reachable", NSLocalizedDescriptionKey, nil]];
-            *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
-        }
-        return nil;
-    }
     
     __block NSEntityDescription *sm_managedObjectEntity = entity;
     __block NSString *schemaName = [[sm_managedObjectEntity name] lowercaseString];
