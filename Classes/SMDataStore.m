@@ -28,6 +28,8 @@
 #import "SMCustomCodeRequest.h"
 #import "SMResponseBlocks.h"
 
+static SMCachePolicy defaultCachePolicy;
+
 @interface SMDataStore ()
 
 @property(nonatomic, readwrite, copy) NSString *apiVersion;
@@ -39,12 +41,23 @@
 @synthesize apiVersion = _SM_apiVersion;
 @synthesize session = _SM_session;
 
++ (SMCachePolicy)defaultCachePolicy
+{
+    return defaultCachePolicy;
+}
+
++ (void)setDefaultCachePolicy:(SMCachePolicy)cachePolicy
+{
+    defaultCachePolicy = cachePolicy;
+}
+
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session
 {
     self = [super init];
     if (self) {
         self.apiVersion = apiVersion;
 		self.session = session;
+        [SMDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
     }
     return self;
 }

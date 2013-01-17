@@ -520,7 +520,7 @@ You should implement this method conservatively, and expect that unknown request
             if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore deleted object %@ on schema %@", deletedObjectID , schemaName); }
             
             // Purge cache of object
-            if ([self.coreDataStore cacheIsEnabled]) { [deletedObjectIDs addObject:deletedObjectID]; }
+            [deletedObjectIDs addObject:deletedObjectID];
             
         };
         
@@ -791,154 +791,170 @@ You should implement this method conservatively, and expect that unknown request
     return nil;
 }
 
-// Returns NSArray<NSManagedObject>
-
-- (id)SM_fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
+- (id)SM_fetchObjectsFromNetwork:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
+    
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     
-    // TODO Change this network first or cache first
-    if (YES) {
+    // Build query for StackMob
+    SMQuery *query = [self queryForFetchRequest:fetchRequest error:error];
+    
+    if (query == nil) {
+        if (error) {
+            *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
+        }
+        return nil;
+    }
+    
+    __block NSArray *resultsWithoutOID;
+    
+    // create a group dispatch and queue
+    dispatch_queue_t queue = dispatch_queue_create("fetchObjectsQueue", NULL);
+    dispatch_group_t group = dispatch_group_create();
+    
+    dispatch_group_enter(group);
+    [self.coreDataStore performQuery:query options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSArray *results) {
+        resultsWithoutOID = results;
+        dispatch_group_leave(group);
+    } onFailure:^(NSError *queryError) {
         
-        // Build query for StackMob
-        SMQuery *query = [self queryForFetchRequest:fetchRequest error:error];
+        // TODO Check this block for getting hung
+        if (error != NULL) {
+            *error = (__bridge id)(__bridge_retained CFTypeRef)queryError;
+        }
+        dispatch_group_leave(group);
+    }];
+    
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    
+    dispatch_release(queue);
+    dispatch_release(group);
+    
+    if (*error != nil) {
+        return nil;
+    }
+    
+    // Obtain the primary key for the entity
+    __block NSString *primaryKeyField = nil;
+    
+    @try {
+        primaryKeyField = [fetchRequest.entity SMFieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
+    }
+    @catch (NSException *exception) {
+        primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
+    }
+    
+    // For each result of the fetch
+    NSArray *results = [resultsWithoutOID map:^(id item) {
         
-        if (query == nil) {
-            if (error) {
-                *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
-            }
-            return nil;
+        id remoteID = [item objectForKey:primaryKeyField];
+        
+        if (!remoteID) {
+            [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
         }
         
-        __block NSArray *resultsWithoutOID;
+        NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
+        NSManagedObject *sm_managedObject = [context objectWithID:sm_managedObjectID];
+        NSDictionary *serializedObjectDict = [self SM_responseSerializationForDictionary:item schemaEntityDescription:fetchRequest.entity managedObjectContext:context includeRelationships:YES];
         
-        // create a group dispatch and queue
-        dispatch_queue_t queue = dispatch_queue_create("fetchObjectsQueue", NULL);
-        dispatch_group_t group = dispatch_group_create();
-        
-        dispatch_group_enter(group);
-        [self.coreDataStore performQuery:query options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSArray *results) {
-            resultsWithoutOID = results;
-            dispatch_group_leave(group);
-        } onFailure:^(NSError *queryError) {
-            
-            // TODO Check this block for getting hung
-            if (error != NULL) {
-                *error = (__bridge id)(__bridge_retained CFTypeRef)queryError;
-            }
-            dispatch_group_leave(group);
-        }];
-        
-        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-        
-        dispatch_release(queue);
-        dispatch_release(group);
-        
-        if (*error != nil) {
-            return nil;
+        // If the object is not marked faulted, it exists in memory and its values should be replaced with up-to-date fetched values.
+        if (![sm_managedObject isFault]) {
+            [self SM_populateManagedObject:sm_managedObject withDictionary:serializedObjectDict entity:[sm_managedObject entity]];
         }
         
-        // Obtain the primary key for the entity
-        __block NSString *primaryKeyField = nil;
+        // Obtain cache object representation, or create if needed
+        NSManagedObject *cacheManagedObject = [self SM_retrieveCacheObjectForRemoteID:remoteID entityName:[[sm_managedObject entity] name]];
+        
+        [self SM_populateCacheManagedObject:cacheManagedObject withDictionary:serializedObjectDict entity:fetchRequest.entity];
+        
+        return sm_managedObject;
+        
+    }];
+    
+    [self SM_saveCache:error];
+    
+    return results;
 
-        @try {
-            primaryKeyField = [fetchRequest.entity SMFieldNameForProperty:[[fetchRequest.entity propertiesByName] objectForKey:[fetchRequest.entity primaryKeyField]]];
+}
+
+- (id)SM_fetchObjectsFromCache:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
+    
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
+    
+    __block NSArray *localCacheResults = nil;
+    __block NSError *localCacheError = nil;
+    [self.localManagedObjectContext performBlockAndWait:^{
+        localCacheResults = [self.localManagedObjectContext executeFetchRequest:fetchRequest error:&localCacheError];
+    }];
+    
+    // Error check
+    if (localCacheError != nil) {
+        if (error != NULL) {
+            *error = (__bridge id)(__bridge_retained CFTypeRef)localCacheError;
         }
-        @catch (NSException *exception) {
-            primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
+        return nil;
+    }
+    
+    NSString *primaryKeyField = nil;
+    @try {
+        primaryKeyField = [fetchRequest.entity primaryKeyField];
+    }
+    @catch (NSException *exception) {
+        primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
+    }
+    
+    NSArray *results = [localCacheResults map:^id(id item) {
+        id remoteID = [item valueForKey:primaryKeyField];
+        if (!remoteID) {
+            [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
         }
+        NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
         
-        // For each result of the fetch
-        NSArray *results = [resultsWithoutOID map:^(id item) {
+        // Allows us to always return object, faulted or not
+        NSManagedObject *sm_managedObject = [context objectWithID:sm_managedObjectID];
         
-            id remoteID = [item objectForKey:primaryKeyField];
-            
-            if (!remoteID) {
-                [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
+        return sm_managedObject;
+    }];
+    
+    return results;
+
+}
+
+// Returns NSArray<NSManagedObject>
+- (id)SM_fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
+    
+    if (SM_CORE_DATA_DEBUG) { DLog(); }
+    id resultsToReturn = nil;
+    switch ([SMCoreDataStore defaultCachePolicy]) {
+        case SMTryNetworkNoCache:
+            resultsToReturn = [self SM_fetchObjectsFromNetwork:fetchRequest withContext:context error:error];
+            break;
+        case SMTryCacheNoNetwork:
+            resultsToReturn = [self SM_fetchObjectsFromCache:fetchRequest withContext:context error:error];
+            break;
+        case SMTryNetworkElseCache:
+            resultsToReturn = [self SM_fetchObjectsFromNetwork:fetchRequest withContext:context error:error];
+            if (*error && [*error code] == SMErrorNetworkNotReachable) {
+                resultsToReturn = [self SM_fetchObjectsFromCache:fetchRequest withContext:context error:error];
             }
-            
-            NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
-            NSManagedObject *sm_managedObject = [context objectWithID:sm_managedObjectID];
-            NSDictionary *serializedObjectDict = [self SM_responseSerializationForDictionary:item schemaEntityDescription:fetchRequest.entity managedObjectContext:context includeRelationships:YES];
-            
-            // If the object is not marked faulted, it exists in memory and its values should be replaced with up-to-date fetched values.
-            if (![sm_managedObject isFault]) {
-                [self SM_populateManagedObject:sm_managedObject withDictionary:serializedObjectDict entity:[sm_managedObject entity]];
-            }
-            
-            if ([self.coreDataStore cacheIsEnabled]) {
-                // Obtain cache object representation, or create if needed
-                NSManagedObject *cacheManagedObject = [self SM_retrieveCacheObjectForRemoteID:remoteID entityName:[[sm_managedObject entity] name]];
-                
-                [self SM_populateCacheManagedObject:cacheManagedObject withDictionary:serializedObjectDict entity:fetchRequest.entity];
-            }
-            
-            return sm_managedObject;
-            
-        }];
-        
-        if ([self.coreDataStore cacheIsEnabled]) { [self SM_saveCache:error]; }
-        
-        return results;
-        
-    } else {
-        
-        if ([self.coreDataStore cacheIsEnabled]) {
-            // Network is not reachable, perform fetch request on Cache
-            __block NSArray *localCacheResults = nil;
-            __block NSError *localCacheError = nil;
-            [self.localManagedObjectContext performBlockAndWait:^{
-                localCacheResults = [self.localManagedObjectContext executeFetchRequest:fetchRequest error:&localCacheError];
-            }];
-            /*
-            dispatch_queue_t localCacheQueue = dispatch_queue_create("localCacheQueue", NULL);
-            dispatch_sync(localCacheQueue, ^{
-                
-            });
-            dispatch_release(localCacheQueue);
-             */
-            // Error check
-            if (localCacheError != nil) {
-                if (error != NULL) {
-                    *error = (__bridge id)(__bridge_retained CFTypeRef)localCacheError;
-                }
+            break;
+        case SMTryCacheElseNetwork:
+            resultsToReturn = [self SM_fetchObjectsFromNetwork:fetchRequest withContext:context error:error];
+            if (*error) {
                 return nil;
             }
-            
-            // Return results translated to StackMob equivalent managed object IDs
-            NSString *primaryKeyField = nil;
-            @try {
-                primaryKeyField = [fetchRequest.entity primaryKeyField];
+            if ([resultsToReturn count] == 0) {
+                resultsToReturn = [self SM_fetchObjectsFromNetwork:fetchRequest withContext:context error:error];
             }
-            @catch (NSException *exception) {
-                primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
-            }
-            
-            NSArray *results = [localCacheResults map:^id(id item) {
-                id remoteID = [item valueForKey:primaryKeyField];
-                if (!remoteID) {
-                    [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
-                }
-                NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
-                
-                // Allows us to always return object, faulted or not
-                NSManagedObject *sm_managedObject = [context objectWithID:sm_managedObjectID];
-                
-                return sm_managedObject;
-            }];
-            
-            return results;
-        } else {
-            
-            // Network not reachable + no cache active = Error out
+            break;
+        default:
             if (error != NULL) {
-                NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Cannot perform fetch because the network is not reachable and no cache is active to perform fetch.", NSLocalizedDescriptionKey, nil]];
-                *error = (__bridge id)(__bridge_retained CFTypeRef)networkNotReachableError;
+                NSError *errorToReturn = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:nil];
+                *error = (__bridge id)(__bridge_retained CFTypeRef)errorToReturn;
             }
-            
-            return nil;
-        }
-        
+            break;
     }
+    
+    return resultsToReturn;
 }
 
 // Returns NSArray<NSManagedObjectID>
@@ -991,7 +1007,8 @@ You should implement this method conservatively, and expect that unknown request
     __block NSString *sm_managedObjectReferenceID = [self referenceObjectForObjectID:objectID];
     
     
-    if ([self.coreDataStore cacheIsEnabled] && [sm_managedObject isFault]) {
+    //if ([self.coreDataStore cacheIsEnabled] && [sm_managedObject isFault]) {
+    if ([sm_managedObject isFault]) {
         NSString *cacheReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
         NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
     
@@ -999,11 +1016,11 @@ You should implement this method conservatively, and expect that unknown request
             // Scenario: Got here because object was refreshed and is now a fault, but was never cached in the first place.  Grab from the server if possible.
             
             NSDictionary *objectFromServer = [self SM_retrieveObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:[SMRequestOptions options] context:context error:error];
-            if (!objectFromServer) {
+            if (*error) {
                 return nil;
             }
             
-            // Only cache if we were filling a fault.
+            // Only cache if we were filling a fault from the server.
             if (!self.isSaving) {
                 [self SM_cacheObjectWithID:sm_managedObjectReferenceID values:objectFromServer entity:[sm_managedObject entity] context:context];
                 [self SM_saveCache:error];
@@ -1055,7 +1072,9 @@ You should implement this method conservatively, and expect that unknown request
     NSDictionary *serializedObjectDictionary = nil;
     
     // If the context's merge policy is that in memory wins, we do not need to make a network call to retreive persisted values.
-    if ([self.coreDataStore cacheIsEnabled] && [context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
+   
+    //if ([self.coreDataStore cacheIsEnabled] && [context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
+    if ([context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[sm_managedObject dictionaryWithValuesForKeys:[[[sm_managedObject entity] attributesByName] allKeys]]];
         NSDictionary *relationships = [[sm_managedObject entity] relationshipsByName];
         [relationships enumerateKeysAndObjectsUsingBlock:^(id relationshipName, id relationshipDescription, BOOL *stop) {
@@ -1076,7 +1095,6 @@ You should implement this method conservatively, and expect that unknown request
             return nil;
         }
     }
-    
     
     SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDictionary version:1];
     
@@ -1130,7 +1148,8 @@ You should implement this method conservatively, and expect that unknown request
     __block NSManagedObject *sm_managedObject = [context objectWithID:objectID];
     __block NSString *sm_managedObjectReferenceID = [self referenceObjectForObjectID:objectID];
     
-    if ([self.coreDataStore cacheIsEnabled] && !self.isSaving && [sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
+    //if ([self.coreDataStore cacheIsEnabled] && !self.isSaving && [sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
+    if (!self.isSaving && [sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
         NSString *cacheReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
         NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
         
@@ -1168,16 +1187,9 @@ You should implement this method conservatively, and expect that unknown request
                 
                 // If there is no primary key id, this was just a reference and we need to retreive online, if possible
                 if (!relatedObjectRemoteID) {
-                    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
-                        *stop = YES;
-                        arrayToReturn = nil;
-                        [NSException raise:SMExceptionCannotFillRelationshipFault format:@"Cannot fill relationship %@ fault for object ID %@, related object not cached and network is not reachable", [relationship name], objectID];
-                        
-                    } else {
-                        // Retreive object from server
-                        id resultToReturn =  [self SM_retrieveAndCacheRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID context:context error:error];
-                        arrayToReturn = resultToReturn;
-                    }
+                    // Retreive object from server
+                    id resultToReturn =  [self SM_retrieveAndCacheRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID context:context error:error];
+                    arrayToReturn = resultToReturn;
                 } else {
                     // Use primary key id to create in-memory context managed object ID equivalent
                     NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:relatedObjectRemoteID];
@@ -1204,11 +1216,6 @@ You should implement this method conservatively, and expect that unknown request
                 
                 // If there is no primary key id, this was just a reference and we need to retreive online, if possible
                 if (!relatedObjectRemoteID) {
-                    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
-                        [NSException raise:SMExceptionCannotFillRelationshipFault format:@"Cannot fill relationship %@ fault for object ID %@, related object not cached and network is not reachable", [relationship name], objectID];
-                         return nil;
-                    }
-                    
                     // Retreive object from server
                     id resultToReturn =  [self SM_retrieveAndCacheRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID context:context error:error];
                     return resultToReturn;
@@ -1227,7 +1234,8 @@ You should implement this method conservatively, and expect that unknown request
     id result = nil;
     
     // If the context's merge policy is that client wins, we do not need to make a network call to retreive persisted values.
-    if ([self.coreDataStore cacheIsEnabled] && [context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
+    //if ([self.coreDataStore cacheIsEnabled] && [context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
+    if ([context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
         if ([relationship isToMany]) {
             result = [NSArray array];
         } else {
@@ -1792,6 +1800,7 @@ You should implement this method conservatively, and expect that unknown request
 
 - (BOOL)SM_purgeObjectsFromCache:(NSArray *)arrayOfObjectIDs
 {
+    // TODO dont break when objects don't exist
     if (SM_CORE_DATA_DEBUG) {DLog()};
     
     __block BOOL success = YES;

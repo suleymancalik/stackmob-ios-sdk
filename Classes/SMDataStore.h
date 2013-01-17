@@ -24,6 +24,13 @@
 #define PUT @"PUT"
 #define DELETE @"DELETE"
 
+typedef enum {
+    SMTryNetworkNoCache = 0,
+    SMTryCacheNoNetwork  = 1,
+    SMTryNetworkElseCache = 2,
+    SMTryCacheElseNetwork = 3,
+} SMCachePolicy;
+
 @class SMUserSession;
 @class SMRequestOptions;
 @class SMCustomCodeRequest;
@@ -55,6 +62,16 @@
 
 @property(nonatomic, readonly, copy) NSString *apiVersion;
 @property(nonatomic, readwrite, strong) SMUserSession *session;
+
+///-------------------------------
+/// @name Cache Options
+///-------------------------------
+
+
++ (SMCachePolicy)defaultCachePolicy;
+
++ (void)setDefaultCachePolicy:(SMCachePolicy)cachePolicy;
+
 
 
 ///-------------------------------

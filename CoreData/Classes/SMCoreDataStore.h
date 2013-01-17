@@ -103,20 +103,12 @@ extern NSString *const SMCacheWasDisabledNotification;
  */
 - (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply;
 
-/**
- Turns the offline caching system on.
- */
-- (void)enableCache;
+- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID onSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock;
 
-/**
- Turns the offline caching system off.
- */
-- (void)disableCache;
+- (void)purgeCacheOfManagedObjectsWithIDs:(NSArray *)managedObjectIDs onSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock;
 
-/**
- Returns whether the offline caching system if currently being used.
- */
-- (BOOL)cacheIsEnabled;
+- (void)purgeEntireCacheOnSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock;
+
 
 
 @end

@@ -32,7 +32,6 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
 @property(nonatomic, readwrite, strong)NSManagedObjectModel *managedObjectModel;
 @property (nonatomic, strong) NSManagedObjectContext *privateContext;
 @property (nonatomic, strong) id defaultMergePolicy;
-@property (nonatomic) BOOL cacheIsActive;
 
 - (NSManagedObjectContext *)SM_newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
 
@@ -46,7 +45,21 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
 @synthesize mainThreadContext = _mainThreadContext;
 @synthesize privateContext = _privateContext;
 @synthesize defaultMergePolicy = _defaultMergePolicy;
-@synthesize cacheIsActive = _cacheIsActive;
+
+- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID onSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock
+{
+    
+}
+
+- (void)purgeCacheOfManagedObjectsWithIDs:(NSArray *)managedObjectIDs onSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock
+{
+    
+}
+
+- (void)purgeEntireCacheOnSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock
+{
+    
+}
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
@@ -54,7 +67,6 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
     if (self) {
         _managedObjectModel = managedObjectModel;
         _defaultMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
-        self.cacheIsActive = NO;
     }
     
     return self;
@@ -158,27 +170,6 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
             [self.privateContext setMergePolicy:mergePolicy];
         }
     }
-}
-
-- (void)enableCache
-{
-    if (SM_CORE_DATA_DEBUG) { DLog(); }
-    if (!self.cacheIsEnabled) {
-        self.cacheIsActive = YES;
-    }
-}
-
-- (void)disableCache
-{
-    if (SM_CORE_DATA_DEBUG) { DLog(); }
-    if (self.cacheIsEnabled) {
-        self.cacheIsActive = NO;
-    }
-}
-
-- (BOOL)cacheIsEnabled
-{
-    return self.cacheIsActive;
 }
 
 @end

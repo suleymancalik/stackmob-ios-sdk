@@ -72,6 +72,11 @@ typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
     self.localNetworkStatusBlock = block;
 }
 
+- (void)setNetworkStatusChangeBlockAndReturnCachePolicy:(SMCachePolicy (^)(SMNetworkStatus))block
+{
+    
+}
+
 - (void)networkChangeNotificationFromAFNetworking:(NSNotification *)notification
 {
     int notificationNetworkStatus = [self translateAFNetworkingStatus:[[[notification userInfo] objectForKey:AFNetworkingReachabilityNotificationStatusItem] intValue]];

@@ -44,6 +44,8 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 + (void)MOCDidSave:(NSNotification *)notification;
 + (void)MOCWillSave:(NSNotification *)notification;
 + (void)removeSQLiteDatabaseAndMaps;
++ (NSURL *)SM_getStoreURLForCacheMapTable;
++ (NSDictionary *)getContentsOfFileAtPath:(NSString *)path;
 
 @end
 

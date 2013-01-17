@@ -33,6 +33,55 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 @synthesize stackMobMOC = _stackMobMOC;
 @synthesize client = _client;
 
++ (NSURL *)SM_getStoreURLForCacheMapTable
+{
+    
+    NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+    NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
+    
+    NSString *defaultName = @"CacheMap.plist";
+    
+    NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
+    
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    
+    for (NSString *path in paths)
+    {
+        NSString *filepath = [path stringByAppendingPathComponent:defaultName];
+        if ([fm fileExistsAtPath:filepath])
+        {
+            return [NSURL fileURLWithPath:filepath];
+        }
+        
+    }
+    
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    return aURL;
+}
+
++ (NSDictionary *)getContentsOfFileAtPath:(NSString *)path
+{
+    NSString *errorDesc = nil;
+    NSPropertyListFormat format;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:path];
+        NSDictionary *temp = (NSDictionary *)[NSPropertyListSerialization
+                                              propertyListFromData:plistXML
+                                              mutabilityOption:NSPropertyListMutableContainersAndLeaves
+                                              format:&format
+                                              errorDescription:&errorDesc];
+        
+        if (!temp) {
+            [NSException raise:SMExceptionCacheError format:@"Error reading cachemap: %@, format: %d", errorDesc, format];
+        } else {
+            return [temp mutableCopy];
+        }
+    }
+    
+    return nil;
+}
+
 + (SMCoreDataIntegrationTestHelpers *)singleton {
     if (_singletonInstance == nil) {
         _singletonInstance = [[SMCoreDataIntegrationTestHelpers alloc] init];
