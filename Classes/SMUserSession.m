@@ -76,7 +76,7 @@
         self.oauthStorageKey = [NSString stringWithFormat:@"%@.%@.oauth", [[NSBundle bundleForClass:[self class]] bundleIdentifier], publicKey];
         [self saveAccessTokenInfo:[[NSUserDefaults standardUserDefaults] dictionaryForKey:self.oauthStorageKey]];
         
-        [self SM_readUserIdentifierMap];
+        [self SMReadUserIdentifierMap];
         
     }
     
@@ -101,11 +101,17 @@
 }
 
 - (void)refreshTokenOnSuccess:(void (^)(NSDictionary *userObject))successBlock
-                        onFailure:(void (^)(NSError *theError))failureBlock
+                    onFailure:(void (^)(NSError *theError))failureBlock
+{
+    [self refreshTokenWithSuccessCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
+    
+}
+
+- (void)refreshTokenWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(void (^)(NSDictionary *userObject))successBlock onFailure:(void (^)(NSError *theError))failureBlock
 {
     if (self.refreshToken == nil) {
         if (failureBlock) {
-            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:nil];
+            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Refresh Token is nil", NSLocalizedDescriptionKey, nil]];
             failureBlock(error);
         }
     } else if (self.refreshing) {
@@ -115,7 +121,7 @@
         }
     } else {
         self.refreshing = YES;//Don't ever trigger two refreshToken calls
-        [self doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
+        [self doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
     }
     
 }
@@ -145,6 +151,7 @@
         self.refreshing = NO;
         if (failureBlock) {
             if (response == nil) {
+                // TODO should we check for code -1009
                 NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
                 failureBlock(networkNotReachableError);
             } else {
@@ -249,7 +256,7 @@
     
 }
 
-- (void)SM_readUserIdentifierMap
+- (void)SMReadUserIdentifierMap
 {
     
     NSString *errorDesc = nil;
@@ -277,7 +284,7 @@
     
 }
 
-- (void)SM_saveUserIdentifierMap
+- (void)SMSaveUserIdentifierMap
 {
     NSString *errorDesc = nil;
     NSError *error = nil;

@@ -29,7 +29,7 @@
 /**
  Returns the unique StackMob ID for this object using the designated primary key attribute for the `NSManagedObject` instance entity.
  */
-- (NSString *)sm_objectId;
+- (NSString *)SMObjectId;
 
 /**
  Assigns a unique ID to the `NSManagedObject` instance.

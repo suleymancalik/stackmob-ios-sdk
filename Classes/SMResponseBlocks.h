@@ -100,5 +100,14 @@ typedef void (^SMCountSuccessBlock)(NSNumber *count);
  */
 typedef void (^SMFailureRetryBlock)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON, SMRequestOptions *options, SMFullResponseSuccessBlock successBlock, SMFullResponseFailureBlock failureBlock);
 
+/**
+ Used internally for requests that fail during a core data save.
+ 
+ @param theRequest The original request in `NSURLRequest` form.
+ @param theError The error, if any.
+ @param theObject The original object being saved.
+ @param theOptions The SMRequestOption instance passed to the request.
+ @param originalSuccessBlock The block passed to original request.
+ */
 typedef void (^SMCoreDataSaveFailureBlock)(NSURLRequest *theRequest, NSError *theError, NSDictionary *theObject, SMRequestOptions *theOptions, SMResultSuccessBlock originalSuccessBlock);
 

@@ -161,19 +161,32 @@
     }
 }
 
-- (void)refreshAndRetry:(NSURLRequest *)request successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
+- (void)refreshAndRetry:(NSURLRequest *)request originalError:(NSError *)originalError requestSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue requestFailureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock
 {
     if (self.session.refreshing) {
-        NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
-        onFailure(request, nil, error, nil);
+        if (failureBlock) {
+            dispatch_async(failureCallbackQueue, ^{
+                NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
+                failureBlock(request, nil, error, nil);
+            });
+        }
     } else {
         __block SMRequestOptions *options = [SMRequestOptions options];
         [options setTryRefreshToken:NO];
-        [self.session refreshTokenOnSuccess:^(NSDictionary *userObject) {
-            [self queueRequest:[self.session signRequest:request] options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
+        __block dispatch_queue_t newQueueForRefresh = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+        [self.session refreshTokenWithSuccessCallbackQueue:newQueueForRefresh failureCallbackQueue:newQueueForRefresh onSuccess:^(NSDictionary *userObject) {
+            [self queueRequest:[self.session signRequest:request] options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
         } onFailure:^(NSError *theError) {
-            // TODO should we be attempting the request again after a failed refresh attempt
-            [self queueRequest:[self.session signRequest:request] options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
+            if (failureBlock) {
+                NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:theError, SMRefreshErrorObjectKey, @"Attempt to refresh access token failed.", NSLocalizedDescriptionKey, nil];
+                if (originalError) {
+                    [userInfo setObject:originalError forKey:SMOriginalErrorCausingRefreshKey];
+                }
+                __block NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:userInfo];
+                dispatch_async(failureCallbackQueue, ^{
+                    failureBlock(request, nil, error, nil);
+                });
+            }
         }];
     }
 }
@@ -241,6 +254,14 @@
         // Enumerate through options and add them to the request header.
         NSMutableURLRequest *tempRequest = [request mutableCopy];
         [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
+            
+            // Error checks for functionality not supported
+            if ([headerField isEqualToString:@"X-StackMob-Expand"]) {
+                if ([[request HTTPMethod] isEqualToString:@"POST"] || [[request HTTPMethod] isEqualToString:@"PUT"]) {
+                    [NSException raise:SMExceptionIncompatibleObject format:@"Expand depth is not supported for creates or updates.  Please check your requests and edit accordingly."];
+                }
+            }
+            
             [tempRequest setValue:headerValue forHTTPHeaderField:headerField];
         }];
         request = tempRequest;
@@ -252,12 +273,12 @@
     
     
     if (self.session.refreshToken != nil && options.tryRefreshToken && [self.session accessTokenHasExpired]) {
-        [self refreshAndRetry:request successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
+        [self refreshAndRetry:request originalError:nil requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
     } 
     else {
         SMFullResponseFailureBlock retryBlock = ^(NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
             if ([response statusCode] == SMErrorUnauthorized && options.tryRefreshToken) {
-                [self refreshAndRetry:originalRequest successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
+                [self refreshAndRetry:originalRequest originalError:[self errorFromResponse:response JSON:JSON] requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
             } else if ([response statusCode] == SMErrorServiceUnavailable && options.numberOfRetries > 0) {
                 NSString *retryAfter = [[response allHeaderFields] valueForKey:@"Retry-After"];
                 if (retryAfter) {

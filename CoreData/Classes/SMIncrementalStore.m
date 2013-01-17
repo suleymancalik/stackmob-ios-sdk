@@ -163,7 +163,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         [self SM_enableCache];
         
-        if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Incremental Store initialized and ready to go.")};
+        if (SM_CORE_DATA_DEBUG) {DLog(@"STACKMOB SYSTEM UPDATE: Incremental Store initialized and ready to go.")};
     }
     return self;
 }
@@ -172,7 +172,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     [self SM_configureCache];
-    if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Cache is ready for use.")};
+    if (SM_CORE_DATA_DEBUG) {DLog(@"STACKMOB SYSTEM UPDATE: Cache is ready for use.")};
     
 }
 
@@ -184,7 +184,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         [self SM_saveCache:&error];
     }
     [self SM_saveCacheMap];
-    if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Cache is inactive.")};
+    if (SM_CORE_DATA_DEBUG) {DLog(@"STACKMOB SYSTEM UPDATE: Cache is inactive.")};
 }
 
 - (void)SM_handleWillSave:(NSNotification *)notification
@@ -289,14 +289,6 @@ You should implement this method conservatively, and expect that unknown request
                   error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     
-    // If network is not reachable, error and return
-    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
-        if (NULL != error) {
-            *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The network is not reachable", NSLocalizedDescriptionKey, nil]];
-            *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
-        }
-        return nil;
-    }
     // Reset options and failed operations queue
     [self.globalOptions setTryRefreshToken:YES];
     
@@ -335,7 +327,7 @@ You should implement this method conservatively, and expect that unknown request
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("insertedObjectQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_queue_t queue = dispatch_queue_create("insertedObjectQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
@@ -349,7 +341,7 @@ You should implement this method conservatively, and expect that unknown request
         
         NSDictionary *serializedObjDict = [managedObject SMDictionarySerialization];
         NSString *schemaName = [managedObject SMSchema];
-        __block NSString *insertedObjectID = [managedObject sm_objectId];
+        __block NSString *insertedObjectID = [managedObject SMObjectId];
         
         SMRequestOptions *options = [SMRequestOptions options];
         // If superclass is SMUserNSManagedObject, add password
@@ -422,7 +414,7 @@ You should implement this method conservatively, and expect that unknown request
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("updatedObjectsQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_queue_t queue = dispatch_queue_create("updatedObjectsQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
@@ -436,7 +428,7 @@ You should implement this method conservatively, and expect that unknown request
         
         NSDictionary *serializedObjDict = [managedObject SMDictionarySerialization];
         NSString *schemaName = [managedObject SMSchema];
-        __block NSString *updatedObjectID = [managedObject sm_objectId];
+        __block NSString *updatedObjectID = [managedObject SMObjectId];
         __block SMRequestOptions *options = [SMRequestOptions options];
         
         if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)); }
@@ -503,7 +495,7 @@ You should implement this method conservatively, and expect that unknown request
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("deletedObjectsQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_queue_t queue = dispatch_queue_create("deletedObjectsQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
@@ -518,7 +510,7 @@ You should implement this method conservatively, and expect that unknown request
         
         NSDictionary *serializedObjDict = [managedObject SMDictionarySerialization];
         NSString *schemaName = [managedObject SMSchema];
-        __block NSString *deletedObjectID = [managedObject sm_objectId];
+        __block NSString *deletedObjectID = [managedObject SMObjectId];
         __block SMRequestOptions *options = [SMRequestOptions options];
         
         if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)); }
@@ -804,11 +796,11 @@ You should implement this method conservatively, and expect that unknown request
 - (id)SM_fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(); }
     
-    // Network is reachable
-    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] == Reachable) {
+    // TODO Change this network first or cache first
+    if (YES) {
         
         // Build query for StackMob
-        SMQuery *query = [SMIncrementalStore queryForFetchRequest:fetchRequest error:error];
+        SMQuery *query = [self queryForFetchRequest:fetchRequest error:error];
         
         if (query == nil) {
             if (error) {
@@ -820,7 +812,7 @@ You should implement this method conservatively, and expect that unknown request
         __block NSArray *resultsWithoutOID;
         
         // create a group dispatch and queue
-        dispatch_queue_t queue = dispatch_queue_create("fetchObjectsQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        dispatch_queue_t queue = dispatch_queue_create("fetchObjectsQueue", NULL);
         dispatch_group_t group = dispatch_group_create();
         
         dispatch_group_enter(group);
@@ -1005,15 +997,6 @@ You should implement this method conservatively, and expect that unknown request
     
         if (!cacheObjectID) {
             // Scenario: Got here because object was refreshed and is now a fault, but was never cached in the first place.  Grab from the server if possible.
-            if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
-                if (NULL != error) {
-                    *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"No cache ID was found for the provided object ID: %@ and the network is not reachable", objectID], NSLocalizedDescriptionKey, nil]];
-                    *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
-                }
-                // fill blank node to return
-                SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:[NSDictionary dictionary] version:1];
-                return node;
-            }
             
             NSDictionary *objectFromServer = [self SM_retrieveObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:[SMRequestOptions options] context:context error:error];
             if (!objectFromServer) {
@@ -1278,7 +1261,7 @@ You should implement this method conservatively, and expect that unknown request
     }
     
     return [array map:^id(id item) {
-        NSString *itemId = [item sm_objectId];
+        NSString *itemId = [item SMObjectId];
         if (!itemId) {
             [NSException raise:SMExceptionIncompatibleObject format:@"Item not previously assigned an object ID for it's primary key field, which is used to obtain a permanent ID for the Core Data object.  Before a call to save on the managedObjectContext, be sure to assign an object ID.  This looks something like [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]].  The item in question is %@", item];
         } 
@@ -1505,15 +1488,6 @@ You should implement this method conservatively, and expect that unknown request
 {
     if (SM_CORE_DATA_DEBUG) {DLog()};
     
-    // If the network is not reachable, error and return
-    if ([self.coreDataStore.session.networkMonitor currentNetworkStatus] != Reachable) {
-        if (NULL != error) {
-            *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"The network is not reachable", NSLocalizedDescriptionKey, nil]];
-            *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
-        }
-        return nil;
-    }
-    
     __block NSEntityDescription *sm_managedObjectEntity = entity;
     __block NSString *schemaName = [[sm_managedObjectEntity name] lowercaseString];
     __block BOOL readSuccess = NO;
@@ -1521,7 +1495,7 @@ You should implement this method conservatively, and expect that unknown request
     __block NSError *blockError = nil;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("retreiveFromServerQueue", NULL);//dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_queue_t queue = dispatch_queue_create("retrieveObjectFromServerQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     dispatch_group_enter(group);
