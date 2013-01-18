@@ -18,6 +18,7 @@
 #import "StackMob.h"
 #import "SMIntegrationTestHelpers.h"
 #import "SMCoreDataIntegrationTestHelpers.h"
+#import "Person.h"
 
 SPEC_BEGIN(LocalReadCacheSpec)
 
@@ -76,17 +77,17 @@ describe(@"General Fetch Flow", ^{
         moc = [cds contextForCurrentThread];
     });
     afterEach(^{
-        [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+        [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
     });
-    
+    /*
     describe(@"General Fetch Flow", ^{
         it(@"cache enabled, returned objects are saved into local cache without error", ^{
             __block NSArray *smResults = nil;
             __block NSArray *lcResults = nil;
             __block NSDictionary *lcMapResults = nil;
             
-            [[theValue([SMCoreDataStore defaultCachePolicy]) should] equal:theValue(SMTryNetworkNoCache)];
+            [[theValue([SMCoreDataStore defaultCachePolicy]) should] equal:theValue(SMAccessNetworkOnly)];
             
             [SMCoreDataStore setDefaultCachePolicy:SMTryCacheElseNetwork];
             
@@ -95,7 +96,7 @@ describe(@"General Fetch Flow", ^{
                 [error shouldBeNil];
             }];
             
-            [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 smResults = results;
@@ -121,7 +122,7 @@ describe(@"General Fetch Flow", ^{
             [[theValue([lcMapResults count]) should] equal:theValue(3)];
             
             // Let's 100% check
-            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheNoNetwork];
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
             
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 lcResults = results;
@@ -152,7 +153,7 @@ describe(@"General Fetch Flow", ^{
         it(@"handles correctly", ^{
             __block NSString *firstName = nil;
             __block NSString *personId = nil;
-            [[theValue([SMCoreDataStore defaultCachePolicy]) should] equal:theValue(SMTryNetworkNoCache)];
+            [[theValue([SMCoreDataStore defaultCachePolicy]) should] equal:theValue(SMAccessNetworkOnly)];
             
             // fetch new object, which will fault
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
@@ -187,7 +188,7 @@ describe(@"General Fetch Flow", ^{
             // reset memory
             [moc reset];
             
-            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheNoNetwork];
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
             
             // fetch from LC
             __block NSString *lcFirstName = nil;
@@ -207,7 +208,7 @@ describe(@"General Fetch Flow", ^{
             __block NSManagedObject *jonObject = nil;
             __block NSString *superpowerId = nil;
             
-            [[theValue([SMCoreDataStore defaultCachePolicy]) should] equal:theValue(SMTryNetworkNoCache)];
+            [[theValue([SMCoreDataStore defaultCachePolicy]) should] equal:theValue(SMAccessNetworkOnly)];
             
             // fetch new object, which will fault
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
@@ -291,7 +292,7 @@ describe(@"General Fetch Flow", ^{
             // reset memory
             [moc reset];
             
-            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheNoNetwork];
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
             
             // fetch from LC
             __block NSString *lcFirstName = nil;
@@ -304,7 +305,7 @@ describe(@"General Fetch Flow", ^{
             
             // delete objects
             
-            [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeSuperpowerFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -327,13 +328,13 @@ describe(@"General Fetch Flow", ^{
         it(@"returned objects are saved into local cache without error", ^{
             __block NSArray *smResults = nil;
             __block NSArray *lcResults = nil;
-            [[theValue([SMCoreDataStore defaultCachePolicy]) should] equal:theValue(SMTryNetworkNoCache)];
+            [[theValue([SMCoreDataStore defaultCachePolicy]) should] equal:theValue(SMAccessNetworkOnly)];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 NSLog(@"results are %@", results);
                 smResults = results;
             }];
             
-            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheNoNetwork];
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 NSLog(@"results are %@", results);
                 lcResults = results;
@@ -367,12 +368,12 @@ describe(@"General Fetch Flow", ^{
             // let's try again to see that fetching same objects multiple times is smooth
             [moc reset];
             
-            [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 NSLog(@"results are %@", results);
                 smResults = results;
             }];
-            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheNoNetwork];
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 NSLog(@"results are %@", results);
                 lcResults = results;
@@ -406,7 +407,7 @@ describe(@"General Fetch Flow", ^{
             [moc reset];
             
             // update to object will work on correct MOC
-            [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             NSPredicate *jonPredicate = [NSPredicate predicateWithFormat:@"first_name == 'Jon'"];
             __block NSArray *jonFetchResults = nil;
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:jonPredicate] andBlock:^(NSArray *results, NSError *error) {
@@ -435,7 +436,7 @@ describe(@"General Fetch Flow", ^{
             
             [moc reset];
             
-            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheNoNetwork];
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
             
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Ty'"]] andBlock:^(NSArray *results, NSError *error) {
                 NSLog(@"results are %@", results);
@@ -450,7 +451,7 @@ describe(@"General Fetch Flow", ^{
         it(@"to-one null relationship returns null", ^{
             __block NSManagedObject *jonObject = nil;
             
-            [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
                 [[theValue([results count]) should] equal:theValue(1)];
@@ -464,7 +465,7 @@ describe(@"General Fetch Flow", ^{
             __block NSManagedObject *jonObject = nil;
             __block NSString *superpowerId = nil;
             // go online
-            [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             
             // fetch new object, which will fault
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
@@ -500,19 +501,18 @@ describe(@"General Fetch Flow", ^{
                 jonObject = [results objectAtIndex:0];
             }];
             
-            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheNoNetwork];
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
             
             NSString *name = [jonObject valueForKey:@"first_name"];
             [[name should] equal:@"Jon"];
             NSError *anError = nil;
             NSManagedObject *jonSuperpower = [jonObject valueForRelationshipKey:@"superpower" error:&anError];
             
-            [anError shouldNotBeNil];
-            [[theValue([anError code]) should] equal:theValue(SMErrorCouldNotFillRelationshipFault)];
-            [jonSuperpower shouldNotBeNil];
+            NSString *jonSuperpowerName = [jonSuperpower valueForKey:@"name"];
+            [[jonSuperpowerName should] equal:@"superpower"];
             
             // delete objects
-            [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeSuperpowerFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                     [moc deleteObject:obj];
@@ -526,7 +526,7 @@ describe(@"General Fetch Flow", ^{
         it(@"to-one relationship fault fill without internet when related object has been previously fetched returns properly", ^{
             __block NSManagedObject *jonObject = nil;
             __block NSString *superpowerId = nil;
-            [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             
             // fetch new object, which will fault
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
@@ -565,7 +565,7 @@ describe(@"General Fetch Flow", ^{
                 [[theValue([results count]) should] equal:theValue(1)];
             }];
             
-            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheNoNetwork];
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
             
             NSManagedObject *jonSuperpower = nil;
             @try {
@@ -578,7 +578,7 @@ describe(@"General Fetch Flow", ^{
             [jonSuperpower shouldNotBeNil];
             [[[jonSuperpower valueForKey:@"name"] should] equal:@"superpower"];
             
-            [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeSuperpowerFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                     [moc deleteObject:obj];
@@ -592,7 +592,7 @@ describe(@"General Fetch Flow", ^{
         it(@"to-one relationship fault fill with internet returns related object and caches correctly", ^{
             __block NSManagedObject *jonObject = nil;
             __block NSString *superpowerId = nil;
-           [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+           [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             
             // fetch new object, which will fault
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
@@ -636,7 +636,7 @@ describe(@"General Fetch Flow", ^{
             [[superpowerName should] equal:@"superpower"];
             
             // We can then clear the moc, go offline and fetch both items
-            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheNoNetwork];
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
             [moc reset];
             
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
@@ -654,7 +654,7 @@ describe(@"General Fetch Flow", ^{
             
             
             // delete objects
-            [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeSuperpowerFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                     [moc deleteObject:obj];
@@ -666,13 +666,13 @@ describe(@"General Fetch Flow", ^{
         });
          
     });
-    /*
+    */
     describe(@"newValuesForRelationship offline testing, To-Many", ^{
         
         it(@"to-many null relationship returns empty set", ^{
             __block NSManagedObject *jonObject = nil;
             
-            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
                 [[theValue([results count]) should] equal:theValue(1)];
@@ -685,12 +685,13 @@ describe(@"General Fetch Flow", ^{
          
         
         it(@"To-Many relationship fault fill without internet when related object has NOT been previously fetched remains a fault", ^{
-            __block NSManagedObject *jonObject = nil;
-            // go online
-            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+            __block NSManagedObjectContext *testContext = moc;
+            __block Person *jonObject = nil;
+            SM_CORE_DATA_DEBUG = YES;
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             
             // fetch new object, which will fault
-            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
+            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:testContext withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
                 [[theValue([results count]) should] equal:theValue(1)];
                 jonObject = [results objectAtIndex:0];
                 NSManagedObject *nullSuperpower = [jonObject valueForKey:@"superpower"];
@@ -698,59 +699,68 @@ describe(@"General Fetch Flow", ^{
             }];
             
             // add some related objects
-            NSManagedObject *interest1 = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
+            NSManagedObject *interest1 = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:testContext];
             [interest1 setValue:[interest1 assignObjectId] forKey:[interest1 primaryKeyField]];
             [interest1 setValue:@"interest1" forKey:@"name"];
             
-            NSManagedObject *interest2 = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
+            NSManagedObject *interest2 = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:testContext];
             [interest2 setValue:[interest2 assignObjectId] forKey:[interest2 primaryKeyField]];
             [interest2 setValue:@"interest2" forKey:@"name"];
             
             // save them to the server
-            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:testContext withBlock:^(NSError *error) {
                 [error shouldBeNil];
             }];
             
             // relate and save
-            [jonObject setValue:[NSSet setWithObjects:interest1, interest2, nil] forKey:@"interests"];
+            [jonObject addInterests:[NSSet setWithObjects:interest1, interest2, nil]];
             
-            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:testContext withBlock:^(NSError *error) {
                 [error shouldBeNil];
             }];
             
-            [moc reset];
+            [testContext reset];
+            [[testContext parentContext] reset];
             
-            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
+            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:testContext withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
                 [[theValue([results count]) should] equal:theValue(1)];
                 jonObject = [results objectAtIndex:0];
             }];
             
-            [[client.session.networkMonitor stubAndReturn:theValue(0)] currentNetworkStatus];
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
             
             NSError *anError = nil;
             NSString *jonName = [jonObject valueForKey:@"first_name"];
             [[jonName should] equal:@"Jon"];
-            NSSet *jonInterests = [jonObject valueForRelationshipKey:@"interests" error:&anError];
+            NSSet *jonInterests = [jonObject valueForKey:@"interests"];
+            [jonInterests enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+                NSLog(@"object is %@", obj);
+                NSString *interestName = [obj valueForKey:@"name"];
+                NSLog(@"name is %@", interestName);
+            }];
+            //NSSet *jonInterests = [jonObject valueForRelationshipKey:@"interests" error:&anError];
             [[theValue([jonInterests isKindOfClass:[NSSet class]]) should] equal:theValue(1)];
             [anError shouldNotBeNil];
             [[theValue([jonObject hasFaultForRelationshipNamed:@"interests"]) should] beYes];
             [[theValue([anError code]) should] equal:theValue(SMErrorCouldNotFillRelationshipFault)];
             // delete objects
-            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+            
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
+            
+            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:testContext withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                    [moc deleteObject:obj];
+                    [testContext deleteObject:obj];
                 }];
             }];
-            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:testContext withBlock:^(NSError *error) {
                 [error shouldBeNil];
             }];
         });
      
         it(@"To-Many relationship fault fill without internet when related object has been previously fetched returns properly", ^{
             __block NSManagedObject *jonObject = nil;
-            // go online
-            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+            
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             
             // fetch new object, which will fault
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
@@ -792,7 +802,7 @@ describe(@"General Fetch Flow", ^{
                 [[theValue([results count]) should] equal:theValue(2)];
             }];
             
-            [[client.session.networkMonitor stubAndReturn:theValue(0)] currentNetworkStatus];
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
             
             NSArray *jonInterests = nil;
             @try {
@@ -809,8 +819,7 @@ describe(@"General Fetch Flow", ^{
             [[interestsArray should] contain:interestName];
             
             
-            // delete objects
-            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                     [moc deleteObject:obj];
@@ -824,8 +833,8 @@ describe(@"General Fetch Flow", ^{
         
         it(@"To-Many relationship fault fill with internet returns related object and caches correctly", ^{
             __block NSManagedObject *jonObject = nil;
-            // go online
-            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+            
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             
             // fetch new object, which will fault
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
@@ -871,7 +880,7 @@ describe(@"General Fetch Flow", ^{
             [[interestsArray should] contain:interestName];
             
             // We can then clear the moc, go offline and fetch both items
-            [[client.session.networkMonitor stubAndReturn:theValue(0)] currentNetworkStatus];
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
             [moc reset];
             
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
@@ -888,7 +897,7 @@ describe(@"General Fetch Flow", ^{
             
             
             // delete objects
-            [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+            [SMCoreDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
                 [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                     [moc deleteObject:obj];
@@ -900,7 +909,6 @@ describe(@"General Fetch Flow", ^{
         });
      
     });
-     */
      
 });
 

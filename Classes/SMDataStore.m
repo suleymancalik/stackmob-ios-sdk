@@ -57,7 +57,7 @@ static SMCachePolicy defaultCachePolicy;
     if (self) {
         self.apiVersion = apiVersion;
 		self.session = session;
-        [SMDataStore setDefaultCachePolicy:SMTryNetworkNoCache];
+        [SMDataStore setDefaultCachePolicy:SMAccessNetworkOnly];
     }
     return self;
 }
