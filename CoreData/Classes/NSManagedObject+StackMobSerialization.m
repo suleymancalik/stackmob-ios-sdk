@@ -222,11 +222,6 @@
             return nil;
     }
     
-    if ([self hasFaultForRelationshipNamed:key]) {
-        *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorCouldNotFillRelationshipFault userInfo:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"Cannot fill relationship %@ fault for object ID %@, related object not cached and network is not reachable", key, [self objectID]] forKey:NSLocalizedDescriptionKey]];
-    }
-    
-    
     return result;
     
 }

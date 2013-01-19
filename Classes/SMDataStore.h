@@ -25,7 +25,7 @@
 #define DELETE @"DELETE"
 
 typedef enum {
-    SMAccessNetworkOnly = 0,
+    SMTryNetworkOnly = 0,
     SMTryCacheOnly  = 1,
     SMTryNetworkElseCache = 2,
     SMTryCacheElseNetwork = 3,

@@ -103,9 +103,9 @@ extern NSString *const SMCacheWasDisabledNotification;
  */
 - (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply;
 
-- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID onSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock;
+- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID onSuccess:(void (^)())successBlock onFailure:(void (^)(NSError *error))failureBlock;
 
-- (void)purgeCacheOfManagedObjectsWithIDs:(NSArray *)managedObjectIDs onSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock;
+- (void)purgeCacheOfManagedObjectsIDs:(NSArray *)managedObjectIDs onSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock;
 
 - (void)purgeEntireCacheOnSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock;
 

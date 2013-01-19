@@ -19,6 +19,11 @@
 
 @implementation NSManagedObjectContext (Concurrency)
 
+- (void)dealloc
+{
+    [self setContextShouldObtainPermanentIDsBeforeSaving:NO];
+}
+
 - (void)observeContext:(NSManagedObjectContext *)contextToObserve
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_mergeChangesFromNotification:) name:NSManagedObjectContextDidSaveNotification object:contextToObserve];

@@ -137,8 +137,8 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return entity;
 }
 
-+ (NSFetchRequest *)makePersonFetchRequest:(NSPredicate *)predicate {
-    NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Person"];
++ (NSFetchRequest *)makePersonFetchRequest:(NSPredicate *)predicate context:(NSManagedObjectContext *)moc {
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Person" inManagedObjectContext:moc];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     [fetchRequest setEntity:entity];
     [fetchRequest setPredicate:predicate];
@@ -147,8 +147,8 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return fetchRequest;
 }
 
-+ (NSFetchRequest *)makeFavoriteFetchRequest:(NSPredicate *)predicate {
-    NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Favorite"];
++ (NSFetchRequest *)makeFavoriteFetchRequest:(NSPredicate *)predicate context:(NSManagedObjectContext *)moc {
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Favorite" inManagedObjectContext:moc];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     [fetchRequest setEntity:entity];
     [fetchRequest setPredicate:predicate];
@@ -157,8 +157,8 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return fetchRequest;
 }
 
-+ (NSFetchRequest *)makeInterestFetchRequest:(NSPredicate *)predicate {
-    NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Interest"];
++ (NSFetchRequest *)makeInterestFetchRequest:(NSPredicate *)predicate context:(NSManagedObjectContext *)moc {
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Interest" inManagedObjectContext:moc];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     [fetchRequest setEntity:entity];
     [fetchRequest setPredicate:predicate];
@@ -167,8 +167,8 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return fetchRequest;
 }
 
-+ (NSFetchRequest *)makeSuperpowerFetchRequest:(NSPredicate *)predicate {
-    NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Superpower"];
++ (NSFetchRequest *)makeSuperpowerFetchRequest:(NSPredicate *)predicate context:(NSManagedObjectContext *)moc {
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Superpower" inManagedObjectContext:moc];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     [fetchRequest setEntity:entity];
     [fetchRequest setPredicate:predicate];
@@ -179,14 +179,14 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 }
 
 + (void)executeSynchronousFetch:(NSManagedObjectContext *)moc withRequest:(NSFetchRequest *)fetchRequest andBlock:(SynchronousFetchBlock)block {
-    DLog();
+    DLog()
     NSError *error = nil;
     NSArray *results = [moc executeFetchRequestAndWait:fetchRequest error:&error];
     block(results, error);
 }
 
 + (void)executeSynchronousSave:(NSManagedObjectContext *)moc withBlock:(SynchronousErrorBlock)block {
-    DLog();
+    DLog()
     NSError *anError = nil;
     BOOL saveSuccess = [moc saveAndWait:&anError];
     
@@ -197,7 +197,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 }
 
 + (void)executeSynchronousUpdate:(NSManagedObjectContext *)moc withObject:(NSManagedObjectID *)objectID andBlock:(SynchronousErrorBlock)block {
-    DLog();
+    DLog()
     NSError *__autoreleasing anError = nil;
     NSManagedObject *toUpdate = [moc objectWithID:objectID];
     [toUpdate setValue:[NSNumber numberWithInt:20] forKey:@"armor_class"];
@@ -210,7 +210,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 }
 
 + (void)executeSynchronousDelete:(NSManagedObjectContext *)moc withObject:(NSManagedObjectID *)objectID andBlock:(SynchronousErrorBlock)block {
-    DLog();
+    DLog()
     NSError *__autoreleasing anError = nil;
     NSManagedObject *toDelete = [moc objectWithID:objectID];
     [moc deleteObject:toDelete];

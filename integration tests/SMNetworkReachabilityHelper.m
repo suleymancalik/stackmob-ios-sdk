@@ -36,6 +36,11 @@
     return self;
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:SMNetworkStatusDidChangeNotification object:nil];
+}
+
 - (void)networkDidChange:(NSNotification *)notification
 {
     NSLog(@"user info is %@", [notification userInfo]);

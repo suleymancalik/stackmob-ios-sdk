@@ -113,4 +113,9 @@ typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
     }
 }
 
+- (void)dealloc
+{
+    [self removeNetworkStatusDidChangeObserver];
+}
+
 @end

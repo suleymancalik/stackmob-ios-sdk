@@ -46,21 +46,6 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
 @synthesize privateContext = _privateContext;
 @synthesize defaultMergePolicy = _defaultMergePolicy;
 
-- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID onSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock
-{
-    
-}
-
-- (void)purgeCacheOfManagedObjectsWithIDs:(NSArray *)managedObjectIDs onSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock
-{
-    
-}
-
-- (void)purgeEntireCacheOnSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock
-{
-    
-}
-
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
     self = [super initWithAPIVersion:apiVersion session:session];
@@ -170,6 +155,23 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
             [self.privateContext setMergePolicy:mergePolicy];
         }
     }
+}
+
+- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID onSuccess:(void (^)())successBlock onFailure:(void (^)(NSError *error))failureBlock
+{
+    NSDictionary *notificationUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:objectID, SMCachePurgeObjectID, successBlock, SMCachePurgeSuccessBlock, failureBlock, SMCachePurgeFailureBlock, nil];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:SMPurgeCacheOfObjectNotification object:self userInfo:notificationUserInfo];
+}
+
+- (void)purgeCacheOfManagedObjectsIDs:(NSArray *)managedObjectIDs onSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock
+{
+    
+}
+
+- (void)purgeEntireCacheOnSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock
+{
+    
 }
 
 @end

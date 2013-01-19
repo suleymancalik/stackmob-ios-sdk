@@ -159,6 +159,7 @@ describe(@"with fixtures", ^{
                     
                 }];
                 
+                // TODO MAKE SYNC
                 [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[superpower SMObjectId] inSchema:[superpower SMSchema] onSuccess:^(NSString *theObjectId, NSString *schema) {
                     DLog(@"Deleted superpower");
                 } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
@@ -258,7 +259,7 @@ describe(@"with fixtures", ^{
                     [[[[result valueForKey:@"person"] valueForKey:@"person_id"] should] equal:seanId];
                 }];
 
-                
+                // TODO MAKE SYNC
                 [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[basketball SMObjectId] inSchema:[basketball SMSchema] onSuccess:^(NSString *theObjectId, NSString *schema) {
                     DLog(@"Deleted basketball");
                 } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
