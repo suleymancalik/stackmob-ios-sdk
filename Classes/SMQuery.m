@@ -154,7 +154,11 @@
 - (void)fromIndex:(NSUInteger)start toIndex:(NSUInteger)end
 {
     NSString *rangeHeader = [NSString stringWithFormat:@"objects=%i-%i", (int)start, (int)end];
-    [self.requestHeaders setValue:rangeHeader forKey:@"Range"];
+    
+    NSMutableDictionary *requestHeadersCopy = [self.requestHeaders mutableCopy];
+    [requestHeadersCopy setObject:rangeHeader forKey:@"Range"];
+    
+    self.requestHeaders = [NSDictionary dictionaryWithDictionary:requestHeadersCopy];
 }
 
 // TODO: verify that asking for Range 0-N where N is > the # records doesn't explode
