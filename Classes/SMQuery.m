@@ -57,98 +57,120 @@
 
 - (void)where:(NSString *)field isEqualTo:(id)value
 {
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
     if(value == nil) {
-        [self.requestParameters setValue:@"true"
+        [requestParametersCopy setObject:@"true"
                                   forKey:CONCAT(field, @"[null]")];
     } else {
-        [self.requestParameters setValue:value 
+        [requestParametersCopy setObject:value 
                                   forKey:field];
     }
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
 - (void)where:(NSString *)field isNotEqualTo:(id)value
 {
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
     if(value == nil) {
-        [self.requestParameters setValue:@"false"
+        [requestParametersCopy setObject:@"false"
                                   forKey:CONCAT(field, @"[null]")];
     } else {
-        [self.requestParameters setValue:value
+        [requestParametersCopy setObject:value
                                   forKey:CONCAT(field, @"[ne]")];
     }
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
 - (void)where:(NSString *)field isLessThan:(id)value
 {
-    [self.requestParameters setValue:value
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
+    [requestParametersCopy setObject:value
                               forKey:CONCAT(field, @"[lt]")];
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
 - (void)where:(NSString *)field isLessThanOrEqualTo:(id)value
 {
-    [self.requestParameters setValue:value
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
+    [requestParametersCopy setObject:value
                               forKey:CONCAT(field, @"[lte]")];
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
 - (void)where:(NSString *)field isGreaterThan:(id)value
 {
-    [self.requestParameters setValue:value
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
+    [requestParametersCopy setObject:value
                               forKey:CONCAT(field, @"[gt]")];
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
 - (void)where:(NSString *)field isGreaterThanOrEqualTo:(id)value
 {
-    [self.requestParameters setValue:value
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
+    [requestParametersCopy setObject:value
                               forKey:CONCAT(field, @"[gte]")];
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
 - (void)where:(NSString *)field isIn:(NSArray *)valuesArray
 {
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
     NSString *possibleValues = [valuesArray componentsJoinedByString:@","];
-    [self.requestParameters setValue:possibleValues
+    [requestParametersCopy setObject:possibleValues
                               forKey:CONCAT(field, @"[in]")];
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
 - (void)where:(NSString *)field isWithin:(CLLocationDistance)miles milesOf:(CLLocationCoordinate2D)point
 {
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
     double radius = miles / EARTH_RADIAN_MILES;
     NSString *withinParam = [NSString stringWithFormat:@"%.6f,%.6f,%.6f",
                              point.latitude, 
                              point.longitude, 
                              radius];
     
-    [self.requestParameters setValue:withinParam
+    [requestParametersCopy setObject:withinParam
                               forKey:CONCAT(field, @"[within]")];
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
 - (void)where:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point
 {
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
     double radius = kilometers / EARTH_RADIAN_KM;
     NSString *withinParam = [NSString stringWithFormat:@"%.6f,%.6f,%.6f",
                              point.latitude, 
                              point.longitude, 
                              radius];
-    [self.requestParameters setValue:withinParam
+    [requestParametersCopy setObject:withinParam
                               forKey:CONCAT(field, @"[within]")];
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
 - (void)where:(NSString *)field isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)sw andNECorner:(CLLocationCoordinate2D)ne
 {
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
     NSString *withinParam = [NSString stringWithFormat:@"%.6f,%.6f,%.6f,%.6f",
                              sw.latitude, 
                              sw.longitude,
                              ne.latitude,
                              ne.longitude];                            
-    [self.requestParameters setValue:withinParam
+    [requestParametersCopy setObject:withinParam
                               forKey:CONCAT(field, @"[within]")];
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
 // TODO: how do we highlight to the user that this is going to add a 'distance' field and will ignore order by criteria
 - (void)where:(NSString *)field near:(CLLocationCoordinate2D)point {
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
     NSString *nearParam = [NSString stringWithFormat:@"%f,%f",
                            point.latitude, point.longitude];
     
-    [self.requestParameters setValue:nearParam 
+    [requestParametersCopy setObject:nearParam 
                               forKey:CONCAT(field, @"[near]")];
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
 - (void)fromIndex:(NSUInteger)start toIndex:(NSUInteger)end
@@ -179,7 +201,10 @@
     } else {
         orderByHeader = [NSString stringWithFormat:@"%@,%@", existingOrderByHeader, orderBy];
     }
-    [self.requestHeaders setValue:orderByHeader forKey:@"X-StackMob-OrderBy"];
+    NSMutableDictionary *requestHeadersCopy = [self.requestHeaders mutableCopy];
+    [requestHeadersCopy setObject:orderByHeader forKey:@"X-StackMob-OrderBy"];
+    
+    self.requestHeaders = [NSDictionary dictionaryWithDictionary:requestHeadersCopy];
 }
 
 @end
