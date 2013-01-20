@@ -169,6 +169,31 @@ describe(@"with a prepopulated database of people", ^{
         });
     });
     
+    
+    describe(@"multiple where clauses on a count query", ^{
+        beforeEach(^{
+            query = [[SMQuery alloc] initWithSchema:@"people"];
+        });
+        afterEach(^{
+            query = nil;
+        });
+        it(@"works", ^{
+            [query where:@"armor_class" isLessThan:[NSNumber numberWithInt:17]];
+            [query where:@"armor_class" isGreaterThan:[NSNumber numberWithInt:12]];
+            
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                
+                [sm performCount:query onSuccess:^(NSNumber *count) {
+                    syncReturn(semaphore);
+                    [[count should] equal:[NSNumber numberWithInt:1]];
+                } onFailure:^(NSError *error) {
+                    syncReturn(semaphore);
+                    [error shouldBeNil];
+                }];
+            });
+        });
+    });
+    
     describe(@"pagination and limit", ^{
         beforeEach(^{
             query = [[SMQuery alloc] initWithSchema:@"blogposts"];
