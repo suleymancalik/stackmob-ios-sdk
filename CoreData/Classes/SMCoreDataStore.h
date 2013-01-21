@@ -65,6 +65,24 @@ extern NSString *const SMCacheWasDisabledNotification;
  */
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext __attribute__((deprecated));
 
+///-------------------------------
+/// @name Accessors for Default Cache Policy
+///-------------------------------
+
+/**
+ Returns the default cache policy.
+ 
+ During initialization of SMCoreDataStore instance, default is set to SMTryNetworkOnly, the equivalent of not using the cache.
+ */
++ (SMCachePolicy)defaultCachePolicy;
+
+/**
+ Sets the defauly cache policy.
+ 
+ @param cachePolicy
+ */
++ (void)setDefaultCachePolicy:(SMCachePolicy)cachePolicy;
+
 
 ///-------------------------------
 /// @name Initialize
@@ -103,11 +121,42 @@ extern NSString *const SMCacheWasDisabledNotification;
  */
 - (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply;
 
-- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID onSuccess:(void (^)())successBlock onFailure:(void (^)(NSError *error))failureBlock;
+///-------------------------------
+/// @name Manually Purging the Cache
+///-------------------------------
 
-- (void)purgeCacheOfManagedObjectsIDs:(NSArray *)managedObjectIDs onSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock;
+/**
+ Removes the cache entry for the provided NSManagedObjectID.
+ 
+ @param objectID The managed object ID of the object to remove from the cache, if an entry exists.
+ */
+- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID;
 
-- (void)purgeEntireCacheOnSuccess:(void (^)())successBlock onFailure:(void (^)())failureBlock;
+/**
+ Removes the cache entries for the provided array of NSManagedObject instances.
+ 
+ @param managedObjects An array of managed objects to remove from the cache, if entries exist.
+ */
+- (void)purgeCacheOfMangedObjects:(NSArray *)managedObjects;
+
+/**
+ Removes the cache entries for the provided array of NSManagedObjectID instances.
+ 
+ @param managedObjectIDs An array of managed object IDs whose objects should be removed from the cache, if entries exist.
+ */
+- (void)purgeCacheOfManagedObjectsIDs:(NSArray *)managedObjectIDs;
+
+/**
+ Removes all the cache entries whose entity matches the provided entity name.
+ 
+ @param entityName
+ */
+- (void)purgeCacheOfObjectsWithEntityName:(NSString *)entityName;
+
+/**
+ Clears the cache of all entries.
+ */
+- (void)resetCache;
 
 
 

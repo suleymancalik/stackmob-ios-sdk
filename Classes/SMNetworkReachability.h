@@ -123,6 +123,4 @@ typedef enum {
  */
 - (void)setNetworkStatusChangeBlock:(void (^)(SMNetworkStatus status))block;
 
-- (void)setNetworkStatusChangeBlockAndReturnCachePolicy:(SMCachePolicy (^)(SMNetworkStatus))block;
-
 @end

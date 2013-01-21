@@ -141,7 +141,7 @@ describe(@"Successful fetching replaces equivalent results of fetching from cach
     });
 });
 
-describe(@"General Fetch Flow", ^{
+describe(@"Fetch with Cache", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
     __block NSManagedObjectContext *moc = nil;
@@ -166,7 +166,31 @@ describe(@"General Fetch Flow", ^{
         [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkOnly];
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
     });
-    
+    describe(@"Cache else network logic", ^{
+        it(@"behaves properly", ^{
+            __block NSArray *fetchResults = nil;
+            [SMCoreDataStore setDefaultCachePolicy:SMTryCacheElseNetwork];
+            
+            [[cds should] receive:@selector(performQuery:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:) withCount:1];
+            
+            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
+                fetchResults = results;
+                [error shouldBeNil];
+            }];
+            
+            [[theValue([fetchResults count]) should] equal:theValue(3)];
+            
+            
+            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
+                fetchResults = results;
+                [error shouldBeNil];
+            }];
+            
+            [[theValue([fetchResults count]) should] equal:theValue(3)];
+            
+            
+        });
+    });
     describe(@"General Fetch Flow", ^{
         it(@"cache enabled, returned objects are saved into local cache without error", ^{
             __block NSArray *smResults = nil;
@@ -1017,7 +1041,8 @@ describe(@"Purging the Cache", ^{
     });
     afterEach(^{
         [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkOnly];
-         });
+        [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+    });
     it(@"Should clear the cache of objects that are deleted", ^{
         __block NSArray *resultfOfFetch = nil;
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
@@ -1054,24 +1079,18 @@ describe(@"Purging the Cache", ^{
         }];
         
     });
-    /*
+    
     it(@"interface for purging the cache of an object", ^{
         __block NSArray *resultfOfFetch = nil;
-        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
             resultfOfFetch = results;
         }];
         
-        NSManagedObject *anItem =[resultfOfFetch objectAtIndex:0];
-        //NSString *firstName = [anItem valueForKey:@"first_name"];
+        NSManagedObject *anItem = [resultfOfFetch objectAtIndex:0];
         
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [cds purgeCacheOfMangedObjectID:[anItem objectID] onSuccess:^{
-                syncReturn(semaphore);
-            } onFailure:^(NSError *error) {
-                [error shouldBeNil];
-                syncReturn(semaphore);
-            }];
-        });
+        [cds purgeCacheOfMangedObjectID:[anItem objectID]];
+        
+        sleep(5);
         
         __block NSDictionary *lcMapResults = nil;
         NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
@@ -1083,14 +1102,126 @@ describe(@"Purging the Cache", ^{
         // TODO grab actual objects and test with cache objects
         
     });
-     */
-    pending_(@"interface for purging the cache of objects", ^{
+    it(@"resetting the cache", ^{
+        __block NSArray *resultfOfFetch = nil;
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
+            resultfOfFetch = results;
+        }];
+        
+        [[theValue([resultfOfFetch count]) should] equal:theValue(3)];
+        
+        __block NSDictionary *lcMapResults = nil;
+        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
+        
+        [lcMapResults shouldNotBeNil];
+        [[theValue([lcMapResults count]) should] equal:theValue(3)];
+        
+        [cds resetCache];
+        
+        sleep(5);
+        
+        [SMCoreDataStore setDefaultCachePolicy:SMTryCacheOnly];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
+            resultfOfFetch = results;
+        }];
+        
+        [[theValue([resultfOfFetch count]) should] equal:theValue(0)];
+        
+        lcMapResults = nil;
+        cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
+        
+        [lcMapResults shouldNotBeNil];
+        [[theValue([lcMapResults count]) should] equal:theValue(0)];
+    });
+});
+describe(@"purging cache of multiple objects at a time", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    __block NSArray *fixturesToLoad;
+    __block NSDictionary *fixtures;
+    beforeEach(^{
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
+        SM_CORE_DATA_DEBUG = YES;
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        moc = [cds contextForCurrentThread];
+        fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
+        fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
+    });
+    afterEach(^{
+        [SMCoreDataStore setDefaultCachePolicy:SMTryNetworkOnly];
+    });
+    it(@"interface for purging the cache of objects", ^{
+        __block NSArray *resultfOfFetch = nil;
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
+            resultfOfFetch = results;
+        }];
+        
+        [cds purgeCacheOfMangedObjects:resultfOfFetch];
+        
+        sleep(5);
+        
+        __block NSDictionary *lcMapResults = nil;
+        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
+        
+        [lcMapResults shouldNotBeNil];
+        [[theValue([lcMapResults count]) should] equal:theValue(0)];
+        
+        // deleting the objects through CD shouldn't break
+        [resultfOfFetch enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [moc deleteObject:obj];
+        }];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
         
     });
-    pending_(@"purging the cache of an entity", ^{
+    it(@"interface for purging the cache of objects by entity name", ^{
+        __block NSArray *resultfOfFetch = nil;
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
+            resultfOfFetch = results;
+        }];
         
-    });
-    pending_(@"purging the entire cache", ^{
+        [cds purgeCacheOfObjectsWithEntityName:@"Todo"];
+        
+        sleep(5);
+        
+        __block NSDictionary *lcMapResults = nil;
+        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
+        
+        [lcMapResults shouldNotBeNil];
+        [[theValue([lcMapResults count]) should] equal:theValue(3)];
+        
+        [cds purgeCacheOfObjectsWithEntityName:@"Person"];
+        
+        sleep(5);
+        
+        lcMapResults = nil;
+        cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
+        
+        [lcMapResults shouldNotBeNil];
+        [[theValue([lcMapResults count]) should] equal:theValue(0)];
+        
+        // deleting the objects through CD shouldn't break
+        [resultfOfFetch enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [moc deleteObject:obj];
+        }];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
         
     });
 });

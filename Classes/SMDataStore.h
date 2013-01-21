@@ -63,16 +63,6 @@ typedef enum {
 @property(nonatomic, readonly, copy) NSString *apiVersion;
 @property(nonatomic, readwrite, strong) SMUserSession *session;
 
-///-------------------------------
-/// @name Cache Options
-///-------------------------------
-
-
-+ (SMCachePolicy)defaultCachePolicy;
-
-+ (void)setDefaultCachePolicy:(SMCachePolicy)cachePolicy;
-
-
 
 ///-------------------------------
 /// @name Initialize

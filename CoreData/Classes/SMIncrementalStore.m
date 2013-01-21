@@ -39,12 +39,14 @@ NSString *const SMDeletedObjectFailures = @"SMDeletedObjectFailures";
 NSString *const SMFailedManagedObjectID = @"SMFailedManagedObjectID";
 NSString *const SMFailedManagedObjectError = @"SMFailedManagedObjectError";
 
-NSString *const SMPurgeCacheOfObjectNotification = @"SMPurgeCacheOfObjectNotification";
-NSString *const SMPurgeCacheOfObjectsNotification = @"SMPurgeCacheOfObjectsNotification";
-NSString *const SMCachePurgeObjectID = @"SMCachePurgeObjectID";
-NSString *const SMArrayOfObjectIDsToBePurgedFromCache = @"SMArrayOfObjectIDsToBePurgedFromCache";
-NSString *const SMCachePurgeSuccessBlock = @"SMCachePurgeSuccessBlock";
-NSString *const SMCachePurgeFailureBlock = @"SMCachePurgeFailureBlock";
+NSString *const SMPurgeObjectFromCacheNotification = @"SMPurgeObjectFromCacheNotification";
+NSString *const SMPurgeObjectsFromCacheNotification = @"SMPurgeObjectsFromCacheNotification";
+NSString *const SMPurgeObjectsFromCacheByEntityNotification = @"SMPurgeObjectsFromCacheByEntityNotification";
+NSString *const SMResetCacheNotification = @"SMResetCacheNotification";
+
+NSString *const SMCachePurgeManagedObjectID = @"SMCachePurgeManagedObjectID";
+NSString *const SMCachePurgeArrayOfManageObjectIDs = @"SMCachePurgeArrayOfManageObjectIDs";
+NSString *const SMCachePurgeOfObjectsFromEntityName = @"SMCachePurgeOfObjectsFromEntityName";
 
 // Internal
 
@@ -121,8 +123,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_saveCache:(NSError *__autoreleasing*)error;
 
-- (void)SM_didRecievePurgeCacheOfObjectNotification:(NSNotification *)notification;
-- (void)SM_didRecievePurgeCacheOfObjectsNotification:(NSNotification *)notification;
+- (void)SM_didRecievePurgeObjectFromCacheNotification:(NSNotification *)notification;
+- (void)SM_didRecievePurgeObjectsFromCacheNotification:(NSNotification *)notification;
+- (void)SM_didRecievePurgeObjectFromCacheByEntityNotification:(NSNotification *)notification;
+- (void)SM_didRecieveCacheResetNotification:(NSNotification *)notification;
 
 - (BOOL)SM_purgeObjectsFromCacheByStackMobID:(NSArray *)arrayOfStackMobObjectIDs;
 - (BOOL)SM_purgeCacheManagedObjectsFromCache:(NSArray *)arrayOfManagedObjects;
@@ -195,13 +199,15 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_registerForNotifications
 {
-    // TODO add specific object here
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_handleWillSave:) name:NSManagedObjectContextWillSaveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_handleDidSave:) name:NSManagedObjectContextDidSaveNotification object:nil];
-    /*
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didRecievePurgeCacheOfObjectNotification:) name:SMPurgeCacheOfObjectNotification object:self.coreDataStore];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didRecievePurgeCacheOfObjectsNotification:) name:SMPurgeCacheOfObjectsNotification object:self.coreDataStore];
-     */
+    
+    // Cache Purge Notifications
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didRecievePurgeObjectFromCacheNotification:) name:SMPurgeObjectFromCacheNotification object:self.coreDataStore];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didRecievePurgeObjectsFromCacheNotification:) name:SMPurgeObjectsFromCacheNotification object:self.coreDataStore];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didRecievePurgeObjectFromCacheByEntityNotification:) name:SMPurgeObjectsFromCacheByEntityNotification object:self.coreDataStore];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didRecieveCacheResetNotification:) name:SMResetCacheNotification object:self.coreDataStore];
+    
     
 }
 
@@ -209,8 +215,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSManagedObjectContextWillSaveNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSManagedObjectContextDidSaveNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:SMPurgeCacheOfObjectNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:SMPurgeCacheOfObjectsNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:SMPurgeObjectFromCacheNotification object:self.coreDataStore];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:SMPurgeObjectsFromCacheNotification object:self.coreDataStore];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:SMPurgeObjectsFromCacheByEntityNotification object:self.coreDataStore];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:SMResetCacheNotification object:self.coreDataStore];
     
 }
 
@@ -393,7 +401,7 @@ You should implement this method conservatively, and expect that unknown request
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("insertedObjectQueue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("Inserted Object Queue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
@@ -480,7 +488,7 @@ You should implement this method conservatively, and expect that unknown request
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("updatedObjectsQueue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("Updated Objects Queue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
@@ -561,7 +569,7 @@ You should implement this method conservatively, and expect that unknown request
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("deletedObjectsQueue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("Deleted Objects Queue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
@@ -874,7 +882,7 @@ You should implement this method conservatively, and expect that unknown request
     __block NSArray *resultsWithoutOID;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("fetchObjectsQueue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("Fetch Objects Queue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     dispatch_group_enter(group);
@@ -1028,7 +1036,7 @@ You should implement this method conservatively, and expect that unknown request
             }
             break;
         case SMTryCacheElseNetwork:
-            resultsToReturn = [self SM_fetchObjectsFromNetwork:fetchRequest withContext:context error:error];
+            resultsToReturn = [self SM_fetchObjectsFromCache:fetchRequest withContext:context error:error];
             if (*error) {
                 return nil;
             }
@@ -1592,6 +1600,18 @@ You should implement this method conservatively, and expect that unknown request
     
 }
 
+- (void)SM_removeStoreURLPath:(NSURL *)storeURL
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:[storeURL path]]) {
+        NSError *deleteError = nil;
+        BOOL delete = [fileManager removeItemAtURL:storeURL error:&deleteError];
+        if (!delete) {
+            [NSException raise:@"SMExceptionCouldNotDeleteSQLiteDatabase" format:@""];
+        }
+    }
+}
+
 - (void)SM_readCacheMap
 {
     if (SM_CORE_DATA_DEBUG) {DLog()}
@@ -1681,7 +1701,7 @@ You should implement this method conservatively, and expect that unknown request
     __block NSError *blockError = nil;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("retrieveObjectFromServerQueue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("Retrieve Object From Server Queue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     dispatch_group_enter(group);
@@ -1945,48 +1965,66 @@ You should implement this method conservatively, and expect that unknown request
 
 #pragma mark - Purging the Cache
 
-- (void)SM_didRecievePurgeCacheOfObjectNotification:(NSNotification *)notification
+- (void)SM_didRecievePurgeObjectFromCacheNotification:(NSNotification *)notification
 {
-    dispatch_queue_t purgeQueue = dispatch_queue_create("cachePurgeQueue", NULL);
     NSDictionary *notificationUserInfo = [notification userInfo];
-    NSManagedObjectID *objectID = [notificationUserInfo objectForKey:SMCachePurgeObjectID];
+    NSManagedObjectID *objectID = [notificationUserInfo objectForKey:SMCachePurgeManagedObjectID];
     
-    if (![[[objectID persistentStore] class] isKindOfClass:[SMIncrementalStore class]]) {
-        __block NSError *objectIDError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Cache Purge Error: Recieved object ID not created from StackMob persistent store.", NSLocalizedDescriptionKey, nil]];
-        SMFailureBlock failureBlock = [notificationUserInfo objectForKey:SMCachePurgeFailureBlock];
-        if (failureBlock) {
-            dispatch_async(purgeQueue, ^{
-                failureBlock(objectIDError);
-            });
-        }
-    } else {
-        
+    if ([[objectID persistentStore] class] == [SMIncrementalStore class]) {
         NSString *objectIDReference = [(SMIncrementalStore *)[objectID persistentStore] referenceObjectForObjectID:objectID];
         NSError *purgeError = nil;
-        BOOL purgeSuccess = [self SM_purgeObjectFromCacheWithStackMobID:objectIDReference error:&purgeError];
-        if (purgeSuccess) {
-            SMSuccessBlock successBlock = [notificationUserInfo objectForKey:SMCachePurgeSuccessBlock];
-            if (successBlock) {
-                dispatch_async(purgeQueue, ^{
-                    successBlock();
-                });
-            }
-        } else {
-            SMFailureBlock failureBlock = [notificationUserInfo objectForKey:SMCachePurgeFailureBlock];
-            if (failureBlock) {
-                dispatch_async(purgeQueue, ^{
-                    failureBlock(purgeError);
-                });
-            }
-        }
+        [self SM_purgeObjectFromCacheWithStackMobID:objectIDReference error:&purgeError];
     }
-    
-    dispatch_release(purgeQueue);
 }
 
-- (void)SM_didRecievePurgeCacheOfObjectsNotification:(NSNotification *)notification
+- (void)SM_didRecievePurgeObjectsFromCacheNotification:(NSNotification *)notification
+{
+    NSDictionary *notificationUserInfo = [notification userInfo];
+    NSArray *objectIDsToPurge = [notificationUserInfo objectForKey:SMCachePurgeArrayOfManageObjectIDs];
+    
+    NSMutableArray *cacheObjectsToPurge = [NSMutableArray arrayWithCapacity:[objectIDsToPurge count]];
+    [objectIDsToPurge enumerateObjectsUsingBlock:^(id objectID, NSUInteger idx, BOOL *stop) {
+        
+        if([[objectID persistentStore] class] == [SMIncrementalStore class]) {
+            NSString *objectIDReference = [(SMIncrementalStore *)[objectID persistentStore] referenceObjectForObjectID:objectID];
+            NSString *cacheIDStringRepresentation = [self.cacheMappingTable objectForKey:objectIDReference];
+            NSManagedObjectID *cacheObjectID = [self.localPersistentStoreCoordinator managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheIDStringRepresentation]];
+            NSError *anError = nil;
+            NSManagedObject *cacheObject = [self.localManagedObjectContext existingObjectWithID:cacheObjectID error:&anError];
+            [cacheObjectsToPurge addObject:cacheObject];
+        }
+    }];
+    
+    [self SM_purgeCacheManagedObjectsFromCache:cacheObjectsToPurge];
+    
+    
+}
+
+- (void)SM_didRecievePurgeObjectFromCacheByEntityNotification:(NSNotification *)notification
+{
+    NSString *entityName = [[notification userInfo] objectForKey:SMCachePurgeOfObjectsFromEntityName];
+    NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:entityName];
+    NSError *error = nil;
+    NSArray *results = [self.localManagedObjectContext executeFetchRequest:request error:&error];
+    if (!error) {
+        [self SM_purgeCacheManagedObjectsFromCache:results];
+    }
+}
+
+- (void)SM_didRecieveCacheResetNotification:(NSNotification *)notification
 {
     
+    
+    NSURL *storeURL = [self SM_getStoreURLForCacheDatabase];
+    [self SM_removeStoreURLPath:storeURL];
+    
+    [self.cacheMappingTable removeAllObjects];
+    [self SM_saveCacheMap];
+    
+    _localManagedObjectContext = nil;
+    _localPersistentStoreCoordinator = nil;
+    _localManagedObjectModel = nil;
+    _localManagedObjectContext = self.localManagedObjectContext;
 }
 
 - (BOOL)SM_purgeCacheManagedObjectFromCache:(NSManagedObject *)object
@@ -2071,26 +2109,30 @@ You should implement this method conservatively, and expect that unknown request
         [self.localManagedObjectContext deleteObject:object];
     }];
     
-    NSError *anError = nil;
-    success = [self SM_saveCache:&anError];
-    
-    if (success) {
-        [arrayOfManagedObjects enumerateObjectsUsingBlock:^(id object, NSUInteger idx, BOOL *stop) {
-            // Convert ID to string rep, get StackMob ID key and delete
-            NSString *stringRepOfRelationshipCacheID = [[[object objectID] URIRepresentation] absoluteString];
-            
-            NSArray *matchingKeys = [self.cacheMappingTable allKeysForObject:stringRepOfRelationshipCacheID];
-            
-            if ([matchingKeys count] != 1) {
-                // This means the object was never placed in the cache map, or duplicated
-                [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %d", [matchingKeys count]];
-            } else {
-                [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
-            }
-        }];
-        [self SM_saveCacheMap];
-    } else {
-        if (SM_CORE_DATA_DEBUG) { DLog(@"Error saving cache: %@", anError) }
+    if ([self.localManagedObjectContext hasChanges]) {
+        
+        NSError *anError = nil;
+        success = [self SM_saveCache:&anError];
+        
+        if (success) {
+            [arrayOfManagedObjects enumerateObjectsUsingBlock:^(id object, NSUInteger idx, BOOL *stop) {
+                // Convert ID to string rep, get StackMob ID key and delete
+                NSString *stringRepOfRelationshipCacheID = [[[object objectID] URIRepresentation] absoluteString];
+                
+                NSArray *matchingKeys = [self.cacheMappingTable allKeysForObject:stringRepOfRelationshipCacheID];
+                
+                if ([matchingKeys count] != 1) {
+                    // This means the object was never placed in the cache map, or duplicated
+                    [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %d", [matchingKeys count]];
+                } else {
+                    [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
+                }
+            }];
+            [self SM_saveCacheMap];
+        } else {
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Error saving cache: %@", anError) }
+        }
+        
     }
 
     

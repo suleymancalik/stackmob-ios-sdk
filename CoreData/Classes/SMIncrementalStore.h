@@ -24,12 +24,13 @@ extern NSString *const SMDeletedObjectFailures;
 extern NSString *const SMFailedManagedObjectID;
 extern NSString *const SMFailedManagedObjectError;
 
-extern NSString *const SMPurgeCacheOfObjectNotification;
-extern NSString *const SMPurgeCacheOfObjectsNotification;
-extern NSString *const SMCachePurgeObjectID;
-extern NSString *const SMArrayOfObjectIDsToBePurgedFromCache;
-extern NSString *const SMCachePurgeSuccessBlock;
-extern NSString *const SMCachePurgeFailureBlock;
+extern NSString *const SMPurgeObjectFromCacheNotification;
+extern NSString *const SMPurgeObjectsFromCacheNotification;
+extern NSString *const SMPurgeObjectsFromCacheByEntityNotification;
+extern NSString *const SMResetCacheNotification;
+extern NSString *const SMCachePurgeManagedObjectID;
+extern NSString *const SMCachePurgeArrayOfManageObjectIDs;
+extern NSString *const SMCachePurgeOfObjectsFromEntityName;
 
 extern BOOL SM_CORE_DATA_DEBUG;
 extern unsigned int SM_MAX_LOG_LENGTH;
