@@ -43,8 +43,8 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 + (void)MOCDidChange:(NSNotification *)notification;
 + (void)MOCDidSave:(NSNotification *)notification;
 + (void)MOCWillSave:(NSNotification *)notification;
-+ (void)removeSQLiteDatabaseAndMaps;
-+ (NSURL *)SM_getStoreURLForCacheMapTable;
++ (void)removeSQLiteDatabaseAndMapsWithPublicKey:(NSString *)publicKey;
++ (NSURL *)SM_getStoreURLForCacheMapTableWithPublicKey:(NSString *)publicKey;
 + (NSDictionary *)getContentsOfFileAtPath:(NSString *)path;
 
 @end

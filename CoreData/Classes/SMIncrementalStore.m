@@ -245,13 +245,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 {
     if (SM_CORE_DATA_DEBUG) {DLog()}
     if ([[notification object] persistentStoreCoordinator] == [self.coreDataStore persistentStoreCoordinator]) {
-        NSLog(@"pscs are the same");
-    } else if([notification object] != self.localManagedObjectContext) {
-        NSLog(@"local moc and object are the same");
-    } else {
-        NSLog(@"NOT THE SAME");
-    }
-    if ([[notification object] persistentStoreCoordinator] == [self.coreDataStore persistentStoreCoordinator]) {
         if (SM_CORE_DATA_DEBUG) {DLog(@"Updating isSaving to YES")}
         self.isSaving = YES;
     }
@@ -260,13 +253,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (void)SM_handleDidSave:(NSNotification *)notification
 {
     if (SM_CORE_DATA_DEBUG) {DLog()}
-    if ([[notification object] persistentStoreCoordinator] == [self.coreDataStore persistentStoreCoordinator]) {
-        NSLog(@"pscs are the same");
-    } else if([notification object] != self.localManagedObjectContext) {
-        NSLog(@"local moc and object are the same");
-    } else {
-        NSLog(@"NOT THE SAME");
-    }
     if ([[notification object] persistentStoreCoordinator] == [self.coreDataStore persistentStoreCoordinator]) {
         if (SM_CORE_DATA_DEBUG) {DLog(@"Updating isSaving to NO")}
         self.isSaving = NO;
@@ -1528,15 +1514,14 @@ You should implement this method conservatively, and expect that unknown request
     NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
     NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
     
-    NSString *defaultName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(id)kCFBundleNameKey];
-    if (defaultName == nil)
+    NSString *databaseName = nil;
+    if (applicationName != nil)
     {
-        defaultName = @"CoreDataStore";
+        databaseName = [NSString stringWithFormat:@"%@-%@-CoreDataStore.sqlite", applicationName, self.coreDataStore.session.regularOAuthClient.publicKey];
+    } else {
+        databaseName = [NSString stringWithFormat:@"%@-CoreDataStore.sqlite", self.coreDataStore.session.regularOAuthClient.publicKey];
     }
-    if (![defaultName hasSuffix:@"sqlite"])
-    {
-        defaultName = [defaultName stringByAppendingPathExtension:@"sqlite"];
-    }
+    
     
     NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
     
@@ -1544,7 +1529,7 @@ You should implement this method conservatively, and expect that unknown request
     
     for (NSString *path in paths)
     {
-        NSString *filepath = [path stringByAppendingPathComponent:defaultName];
+        NSString *filepath = [path stringByAppendingPathComponent:databaseName];
         if ([fm fileExistsAtPath:filepath])
         {
             return [NSURL fileURLWithPath:filepath];
@@ -1552,7 +1537,7 @@ You should implement this method conservatively, and expect that unknown request
         
     }
     
-    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:databaseName]];
     return aURL;
 }
 
@@ -1564,7 +1549,13 @@ You should implement this method conservatively, and expect that unknown request
     NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
     NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
     
-    NSString *defaultName = @"CacheMap.plist";
+    NSString *cacheMapName = nil;
+    if (applicationName != nil)
+    {
+        cacheMapName = [NSString stringWithFormat:@"%@-%@-CacheMap.plist", applicationName, self.coreDataStore.session.regularOAuthClient.publicKey];
+    } else {
+        cacheMapName = [NSString stringWithFormat:@"%@-CacheMap.plist", self.coreDataStore.session.regularOAuthClient.publicKey];
+    }
     
     NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
     
@@ -1572,7 +1563,7 @@ You should implement this method conservatively, and expect that unknown request
     
     for (NSString *path in paths)
     {
-        NSString *filepath = [path stringByAppendingPathComponent:defaultName];
+        NSString *filepath = [path stringByAppendingPathComponent:cacheMapName];
         if ([fm fileExistsAtPath:filepath])
         {
             return [NSURL fileURLWithPath:filepath];
@@ -1580,7 +1571,7 @@ You should implement this method conservatively, and expect that unknown request
         
     }
     
-    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:cacheMapName]];
     return aURL;
 }
 

@@ -65,13 +65,12 @@ describe(@"Successful fetching replaces equivalent results of fetching from cach
     __block NSDictionary *fixtures;
     beforeEach(^{
         
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
-        
         SM_CORE_DATA_DEBUG = YES;
         
         fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
         fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
@@ -103,7 +102,7 @@ describe(@"Successful fetching replaces equivalent results of fetching from cach
         // The Number of things cached should be 2
         // Cache should have three entries
         __block NSDictionary *lcMapResults = nil;
-        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
         lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
         
         [lcMapResults shouldNotBeNil];
@@ -131,7 +130,7 @@ describe(@"Successful fetching replaces equivalent results of fetching from cach
         // The Number of things cached should be 1
         // Cache should have three entries
         lcMapResults = nil;
-        cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
         lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
         
         [lcMapResults shouldNotBeNil];
@@ -149,13 +148,13 @@ describe(@"Fetch with Cache", ^{
     __block NSDictionary *fixtures;
     beforeEach(^{
         
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
-        
         SM_CORE_DATA_DEBUG = YES;
         
         fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
         fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
@@ -214,7 +213,7 @@ describe(@"Fetch with Cache", ^{
             }];
             
             // Cache should have three entries
-            NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+            NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
             lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
             
             [lcMapResults shouldNotBeNil];
@@ -1027,10 +1026,10 @@ describe(@"Purging the Cache", ^{
     __block NSArray *fixturesToLoad;
     __block NSDictionary *fixtures;
     beforeEach(^{
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
@@ -1050,7 +1049,7 @@ describe(@"Purging the Cache", ^{
         }];
         
         __block NSDictionary *lcMapResults = nil;
-        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
         lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
         
         [lcMapResults shouldNotBeNil];
@@ -1065,7 +1064,7 @@ describe(@"Purging the Cache", ^{
         }];
         
         lcMapResults = nil;
-        cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
         lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
         
         [lcMapResults shouldNotBeNil];
@@ -1093,7 +1092,7 @@ describe(@"Purging the Cache", ^{
         sleep(5);
         
         __block NSDictionary *lcMapResults = nil;
-        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
         lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
         
         [lcMapResults shouldNotBeNil];
@@ -1111,7 +1110,7 @@ describe(@"Purging the Cache", ^{
         [[theValue([resultfOfFetch count]) should] equal:theValue(3)];
         
         __block NSDictionary *lcMapResults = nil;
-        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
         lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
         
         [lcMapResults shouldNotBeNil];
@@ -1130,7 +1129,7 @@ describe(@"Purging the Cache", ^{
         [[theValue([resultfOfFetch count]) should] equal:theValue(0)];
         
         lcMapResults = nil;
-        cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
         lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
         
         [lcMapResults shouldNotBeNil];
@@ -1144,10 +1143,10 @@ describe(@"purging cache of multiple objects at a time", ^{
     __block NSArray *fixturesToLoad;
     __block NSDictionary *fixtures;
     beforeEach(^{
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
@@ -1170,7 +1169,7 @@ describe(@"purging cache of multiple objects at a time", ^{
         sleep(5);
         
         __block NSDictionary *lcMapResults = nil;
-        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
         lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
         
         [lcMapResults shouldNotBeNil];
@@ -1197,7 +1196,7 @@ describe(@"purging cache of multiple objects at a time", ^{
         sleep(5);
         
         __block NSDictionary *lcMapResults = nil;
-        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
         lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
         
         [lcMapResults shouldNotBeNil];
@@ -1208,7 +1207,7 @@ describe(@"purging cache of multiple objects at a time", ^{
         sleep(5);
         
         lcMapResults = nil;
-        cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTable];
+        cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
         lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
         
         [lcMapResults shouldNotBeNil];

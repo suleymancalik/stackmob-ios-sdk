@@ -33,14 +33,14 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 @synthesize stackMobMOC = _stackMobMOC;
 @synthesize client = _client;
 
-+ (NSURL *)SM_getStoreURLForCacheMapTable
++ (NSURL *)SM_getStoreURLForCacheMapTableWithPublicKey:(NSString *)publicKey
 {
     
     NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
     NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
     NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
     
-    NSString *defaultName = @"CacheMap.plist";
+    NSString *defaultName = [NSString stringWithFormat:@"%@-CacheMap.plist", publicKey];
     
     NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
     
@@ -89,11 +89,11 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return _singletonInstance;
 }
 
-+ (void)removeSQLiteDatabaseAndMaps
++ (void)removeSQLiteDatabaseAndMapsWithPublicKey:(NSString *)publicKey
 {
     NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
     NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
-    NSString *defaultName = @"CoreDataStore.sqlite";
+    NSString *defaultName = [NSString stringWithFormat:@"%@-CoreDataStore.sqlite", publicKey];
     NSURL *sqliteDBURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
@@ -115,7 +115,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
         }
     }
     
-    defaultName = @"CacheMap.plist";
+    defaultName = [NSString stringWithFormat:@"%@-CacheMap.plist", publicKey];
     aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
     if ([fileManager fileExistsAtPath:[aURL path]]) {
         NSError *sqliteDeleteError = nil;
