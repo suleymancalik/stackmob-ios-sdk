@@ -16,10 +16,14 @@
 
 #import "SMDataStore.h"
 
-extern NSString *const SMEnableCacheNotification;
-extern NSString *const SMDisableCacheNotification;
-extern NSString *const SMCacheWasEnabledNotification;
-extern NSString *const SMCacheWasDisabledNotification;
+extern NSString *const SMSetCachePolicyNotification;
+
+typedef enum {
+    SMTryNetworkOnly = 0,
+    SMTryCacheOnly  = 1,
+    SMTryNetworkElseCache = 2,
+    SMTryCacheElseNetwork = 3,
+} SMCachePolicy;
 
 @class SMIncrementalStore;
 
@@ -35,6 +39,36 @@ extern NSString *const SMCacheWasDisabledNotification;
  If you want to do your own context creation, use the <persistentStoreCoordinator> property to ensure your objects are being saved to the StackMob server.
  
  The default merge policy set for all contexts created by this class is NSMergeByPropertyObjectTrumpMergePolicy.  Use <setDefaultMergePolicy:applyToMainThreadContextAndParent:> to change the default.
+ 
+ ## Using the Cache ##
+ 
+ The Core Data integration includes a caching system to allow for local fetching without needing to make a network request.  It is also used to fill faulted objects which have been previously fetched.
+ 
+ ### How It Works ###
+ 
+ The cache itself is a Core Data stack, equipped with its own private managed object context and persistent store coordinator.  It uses SQLite as the persistent store, which is what most standard applications using Core Data use as the local persisent store.  By setting up the cache this way results from fetches to be cached independently of their original request, meaning you can perform fetches locally that can return subsets of the originally cached data.  For example, suppose you are building a To-Do application which has the option to filter tasks by date, subject, etc.  These filters would translate to conditional fetches on the same list of tasks.  Rather than needing to execute a fetch on the network every time your query conditions change, you can instead grab all the tasks with one network call at the beginning and perform the conditional fetches on that data locally, without needing to fetch from the network again. 
+ 
+ After successfully performing a fetch from the StackMob database, an equivalent fetch is performed locally on the cache and those results are replaced with the up-to-date objects from the server.  The results are returned as faulted managed objects and accessing an object's values will cause Core Data to fill the fault using the cache.
+ 
+ **Important:** There are a few scenarios where filling faults require network calls.  The first is when an object is faulted but does not have an entry in the cache.  This happens when a managed object context obtains a managed object ID reference to a faulted object that is not in the cache.  The second is when trying to access values of related objects which themselves have not been cached.  If either of these situations arise and there is no network connection Core Data may throw the "Core Data could not fulfill a fault" exception.  
+ 
+ ### Caching Policies ###
+ 
+ There are 4 policies 
+ 
+ * SMTryNetworkOnly - This is the default policy, the eqivalent of not using the cache at all.
+ * SMTryCacheOnly - This policy directs all fetches to the cache, never trying the network.
+ * SMTryNetworkElseCache - This policy will try to fetch from the network, and if an error occurs because there is no network connection the fetch is performed on the cache.
+ * SMTryCacheElseNetwork - This policy will start by performing the fetch on the cache and returning if there are results.  If there are no results, the fetch is performed on the network and those up-to-date results from the server will be cached and returned.  If there is an error because there is no network connection the original empty array is returned.
+ 
+ ### How To Change the Caching Policy ###
+ 
+ You can change the default caching policy at any time
+ 
+ ### Manually Purging the Cache ###
+ 
+ 
+ 
  
  @note You should not have to initialize an instance of this class directly.  Instead, initialize an instance of <SMClient> and use the method <coreDataStoreWithManagedObjectModel:> to retrieve an instance completely configured and ready to communicate to StackMob.
  */
@@ -65,23 +99,10 @@ extern NSString *const SMCacheWasDisabledNotification;
  */
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext __attribute__((deprecated));
 
-///-------------------------------
-/// @name Accessors for Default Cache Policy
-///-------------------------------
-
 /**
- Returns the default cache policy.
- 
- During initialization of SMCoreDataStore instance, default is set to SMTryNetworkOnly, the equivalent of not using the cache.
+ The cache policy to adhere by.
  */
-+ (SMCachePolicy)defaultCachePolicy;
-
-/**
- Sets the defauly cache policy.
- 
- @param cachePolicy
- */
-+ (void)setDefaultCachePolicy:(SMCachePolicy)cachePolicy;
+@property (nonatomic) SMCachePolicy cachePolicy;
 
 
 ///-------------------------------

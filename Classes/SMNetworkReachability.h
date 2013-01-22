@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 #import "AFHTTPClient.h"
 #import "SMDataStore.h"
+#import "SMCoreDataStore.h"
 
 extern NSString * SMNetworkStatusDidChangeNotification;
 extern NSString * SMCurrentNetworkStatusKey;
@@ -122,5 +123,7 @@ typedef enum {
  @param block The block to execute when the network status changes.
  */
 - (void)setNetworkStatusChangeBlock:(void (^)(SMNetworkStatus status))block;
+
+- (void)setNetworkStatusChangeBlockWithCachePolicyReturn:(SMCachePolicy (^)(SMNetworkStatus status))block;
 
 @end

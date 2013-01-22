@@ -24,13 +24,6 @@
 #define PUT @"PUT"
 #define DELETE @"DELETE"
 
-typedef enum {
-    SMTryNetworkOnly = 0,
-    SMTryCacheOnly  = 1,
-    SMTryNetworkElseCache = 2,
-    SMTryCacheElseNetwork = 3,
-} SMCachePolicy;
-
 @class SMUserSession;
 @class SMRequestOptions;
 @class SMCustomCodeRequest;

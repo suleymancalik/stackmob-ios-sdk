@@ -1022,7 +1022,7 @@ You should implement this method conservatively, and expect that unknown request
     
     if (SM_CORE_DATA_DEBUG) { DLog() }
     id resultsToReturn = nil;
-    switch ([SMCoreDataStore defaultCachePolicy]) {
+    switch ([self.coreDataStore cachePolicy]) {
         case SMTryNetworkOnly:
             resultsToReturn = [self SM_fetchObjectsFromNetwork:fetchRequest withContext:context error:error];
             break;
