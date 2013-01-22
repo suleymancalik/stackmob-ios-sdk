@@ -221,7 +221,13 @@
     NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
     NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
     
-    NSString *defaultName = @"UserIdentifierMap.plist";
+    NSString *userIDMapName = nil;
+    if (applicationName != nil)
+    {
+        userIDMapName = [NSString stringWithFormat:@"%@-%@-UserIdentifierMap.plist", applicationName, self.regularOAuthClient.publicKey];
+    } else {
+        userIDMapName = [NSString stringWithFormat:@"%@-UserIdentifierMap.plist", self.regularOAuthClient.publicKey];
+    }
     
     NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
     
@@ -229,7 +235,7 @@
     
     for (NSString *path in paths)
     {
-        NSString *filepath = [path stringByAppendingPathComponent:defaultName];
+        NSString *filepath = [path stringByAppendingPathComponent:userIDMapName];
         if ([fm fileExistsAtPath:filepath])
         {
             return [NSURL fileURLWithPath:filepath];
@@ -237,7 +243,7 @@
         
     }
     
-    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:userIDMapName]];
     return aURL;
 }
 

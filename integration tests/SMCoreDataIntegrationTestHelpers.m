@@ -105,7 +105,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
         }
     }
     
-    defaultName = @"UserIdentifierMap.plist";
+    defaultName = [NSString stringWithFormat:@"%@-UserIdentifierMap.plist", publicKey];
     NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
     if ([fileManager fileExistsAtPath:[aURL path]]) {
         NSError *sqliteDeleteError = nil;
