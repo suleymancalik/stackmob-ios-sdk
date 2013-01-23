@@ -1970,7 +1970,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         NSArray *results = [self.localManagedObjectContext executeFetchRequest:fetchRequest error:&fetchError];
         NSLog(@"results are %@", results);
         if ([results count] == 0) {
-            // bad reference in cache map, delete if possible
+            // delete object we are replacing
             NSManagedObjectID *cacheObjectId = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceId]];
             NSManagedObject *objectToDelete = [self.localManagedObjectContext objectWithID:cacheObjectId];
             [self SM_purgeCacheManagedObjectFromCache:objectToDelete];
