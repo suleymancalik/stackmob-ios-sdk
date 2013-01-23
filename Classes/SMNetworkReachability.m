@@ -85,7 +85,7 @@ typedef SMCachePolicy (^SMCachePolicyReturnBlock)(SMNetworkStatus status);
     
     if (self.networkStatus != notificationNetworkStatus) {
         self.networkStatus = notificationNetworkStatus;
-        if (SM_CORE_DATA_DEBUG) {DLog(@"SYSTEM: Network reachability has changed to %d", notificationNetworkStatus)};
+        if (SM_CORE_DATA_DEBUG) {DLog(@"STACKMOB SYSTEM UPDATE: Network reachability has changed to %d", notificationNetworkStatus)};
         if (self.localNetworkStatusBlock) {
             self.localNetworkStatusBlock(self.networkStatus);
         }

@@ -151,7 +151,7 @@
         self.refreshing = NO;
         if (failureBlock) {
             if (response == nil) {
-                // TODO should we check for code -1009
+                // May need to check for code -1009
                 NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
                 failureBlock(networkNotReachableError);
             } else {

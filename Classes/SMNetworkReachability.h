@@ -125,7 +125,11 @@ typedef enum {
 - (void)setNetworkStatusChangeBlock:(void (^)(SMNetworkStatus status))block;
 
 /**
- add comment
+ Provide a block to execute whenever there is a change in network reachability.
+ 
+ The block must return an SMCachePolicy.  This method is useful when you want to set the cache policy based on the network status.
+ 
+ @param block The block to execute when the network status changes.
  */
 - (void)setNetworkStatusChangeBlockWithCachePolicyReturn:(SMCachePolicy (^)(SMNetworkStatus status))block;
 

@@ -856,7 +856,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         dispatch_group_leave(group);
     } onFailure:^(NSError *queryError) {
         
-        // TODO Check this block for getting hung
         if (error != NULL) {
             *error = (__bridge id)(__bridge_retained CFTypeRef)queryError;
         }
@@ -879,7 +878,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         NSArray *cacheResults = [self.localManagedObjectContext executeFetchRequest:fetchRequest error:&fetchOnCacheError];
         
         if (fetchOnCacheError) {
-            // TODO handle this error
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Error fetching from cache, %@", fetchOnCacheError) }
         }
         
         if ([cacheResults count] > 0) {
@@ -890,7 +889,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             
             BOOL purgeSuccess = [self SM_purgeCacheManagedObjectsFromCache:cacheObjectsToBeDeleted];
             if (!purgeSuccess) {
-                // TODO handle this error
+                if (SM_CORE_DATA_DEBUG) { DLog(@"Purge Unsuccessful") }
             }
         }
         
@@ -934,7 +933,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         NSError *cacheSaveError = nil;
         [self SM_saveCache:&cacheSaveError];
         if (cacheSaveError) {
-            // TODO handle this error
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Cache save unsuccessful, %@", cacheSaveError) }
         }
         
         return results;
@@ -1030,19 +1029,19 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     if (SM_CACHE_ENABLED) {
         id resultsToReturn = nil;
         switch ([self.coreDataStore cachePolicy]) {
-            case SMTryNetworkOnly:
+            case SMCachePolicyTryNetworkOnly:
                 resultsToReturn = [self SM_fetchObjectsFromNetwork:fetchRequest withContext:context error:error];
                 break;
-            case SMTryCacheOnly:
+            case SMCachePolicyTryCacheOnly:
                 resultsToReturn = [self SM_fetchObjectsFromCache:fetchRequest withContext:context error:error];
                 break;
-            case SMTryNetworkElseCache:
+            case SMCachePolicyTryNetworkElseCache:
                 resultsToReturn = [self SM_fetchObjectsFromNetwork:fetchRequest withContext:context error:error];
                 if (*error && [*error code] == SMErrorNetworkNotReachable) {
                     resultsToReturn = [self SM_fetchObjectsFromCache:fetchRequest withContext:context error:error];
                 }
                 break;
-            case SMTryCacheElseNetwork:
+            case SMCachePolicyTryCacheElseNetwork:
                 resultsToReturn = [self SM_fetchObjectsFromCache:fetchRequest withContext:context error:error];
                 if (*error) {
                     return nil;
@@ -1669,7 +1668,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     if (cacheResult) {
         [self SM_cacheObjectWithID:objectID values:objectFromServer entity:entity context:context];
-        // TODO do something with error
         [self SM_saveCache:NULL];
     }
     
@@ -1708,7 +1706,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     if (!readSuccess) {
         if (NULL != error) {
-            // TODO provide sm specific error
             *error = [[NSError alloc] initWithDomain:[blockError domain] code:[blockError code] userInfo:[blockError userInfo]];
             *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
         }

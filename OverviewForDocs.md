@@ -131,6 +131,12 @@ If you want to make direct REST-based calls to the Datastore, check out the [SMD
 
 <br/>
 
+### Caching System
+
+Included with version 1.2.0+ of the SDK is a caching system built in to the Core Data Integration to allow for local fetching of objects which have previously been fetched from the server.  See the [SMCoreDataStore class reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) for how to turn on the cache, set the cache policy, manually purge the cache, etc.
+
+<br/>
+
 ### User Schema and Authentication
 
 SMClient provides all the necessary methods for user authentication.
@@ -233,7 +239,7 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 <a name="commonly_used_classes">&nbsp;</a>
 ## Commonly Used Classes
 * [SMClient](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html) - Gives you access to everything you need to communicate with StackMob.
-* [SMCoreDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) -  Gives you access to configured NSManagedObjectContext instances to communicate with StackMob directly through Core Data.
+* [SMCoreDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) -  Gives you access to configured NSManagedObjectContext instances to communicate with StackMob directly through Core Data.  Includes the necessary methods for interacting with the cache.
 * [NSManagedObjectContext+Concurrency](http://stackmob.github.com/stackmob-ios-sdk/Categories/NSManagedObjectContext+Concurrency.html) - Provides methods to save and fetch in the background.
 * [SMDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html) - Gives you access to make direct REST-based calls to StackMob.
 * [SMRequestOptions](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMRequestOptions.html) - When making direct calls to StackMob, an instance of SMRequestOptions gives you request configuration options.
@@ -241,7 +247,7 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 * [SMCustomCodeRequest](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCustomCodeRequest.html) - Starting place for making custom code calls.
 * [SMBinaryDataConversion](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMBinaryDataConversion.html) - Convert NSData to NSString for persisting to a field on StackMob with type Binary Data (s3 Integration).
 * [SMPushClient](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMPushClient.html) - Guide to sending push notifications.
-* [Error Code Translations](http://stackmob.github.com/stackmob-ios-sdk/ErrorCodeTranslations.html) - A copy of what's listed in `SMError`.
+* [Error Code Translations](http://stackmob.github.com/stackmob-ios-sdk/ErrorCodeTranslations.html) - A copy of what's listed in `SMError`, this shows all the readable typedefs for specific error codes.
 
 <a name="tutorials">&nbsp;</a>
 ## Tutorials
@@ -251,7 +257,8 @@ You can find all the iOS SDK tutorials at our <a href="https://developer.stackmo
 <a name="core_data_references">&nbsp;</a>
 ## Core Data References
 
-* [Getting Started With Core Data](http://www.raywenderlich.com/934/core-data-on-ios-5-tutorial-getting-started) - Ray Wenderlich does a great tutorial on the basics of Core Data.  I would definitely start here.
+* [Core Data Primer eBook](http://go.stackmob.com/learncoredata.html) - StackMob has put together an eBook based on one of our tutorial series which walks you through the full implementation of an app that uses Core Data.
+* [Getting Started With Core Data](http://www.raywenderlich.com/934/core-data-on-ios-5-tutorial-getting-started) - Ray Wenderlich does a great tutorial on the basics of Core Data.
 * [iPhone Core Data: Your First Steps](http://mobile.tutsplus.com/tutorials/iphone/iphone-core-data/) - Well organized tutorial on Core Data.
 * [Introduction To Core Data](https://developer.apple.com/library/ios/\#documentation/Cocoa/Conceptual/CoreData/cdProgrammingGuide.html\#//apple\_ref/doc/uid/TP40001075) - Apple's Core Data Programming Guide
 * [Introduction To Predicates](https://developer.apple.com/library/ios/\#documentation/Cocoa/Conceptual/Predicates/predicates.html\#//apple\_ref/doc/uid/TP40001789) - Apple's Predicates Programming Guide
