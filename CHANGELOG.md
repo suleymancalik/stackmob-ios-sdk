@@ -7,7 +7,6 @@
 * Caching system to allow for local fetching of objects which have previously been fetched from the server.  See SMCoreDataStore class reference for how to.
 * Introduce additional methods for interacting with Core Data.  See new methods in SMCoreDataStore and NSManagedObjectContext+Concurrency class references.
 * Update to internal network request algorithms for improved performance of Core Data saves and fetches.
-* Support to create a fetch request predicate in the form "relationship == managed_object", passing the predicate value an instance of NSManagedObject or NSManagedObjectID.  This will translate to a StackMob query on schema A where the value of a one-to-one relationship to Schema B equals the ID of the passed managed object.
 * All NSDate attributes are saved on StackMob as integers in ms, rather than seconds.  This allows there not be a mismatch in translation when you also have attributes for createddate and lastmoddate.
 * Every Datastore API method (SMDataStore class reference) now has an additional method definition which has parameter options for success and failure callback queues.  This is used a lot internally so callbacks are not run on the main thread, but is exposed so you can do the same.
 
