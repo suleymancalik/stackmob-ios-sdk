@@ -43,7 +43,7 @@ typedef enum {
  
  ## Using the Cache ##
  
- The Core Data integration includes a caching system to allow for local fetching without needing to make a network request.  It is also used to fill faulted objects which have been previously fetched.
+ The Core Data integration in version 1.2.0 includes a caching system to allow for local fetching of objects which have previously been fetched from the server.  It is also used to fill faulted objects which have been previously fetched.
  
  ### How It Works ###
  
