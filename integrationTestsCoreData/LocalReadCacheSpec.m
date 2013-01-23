@@ -400,6 +400,7 @@ describe(@"Fetch with Cache", ^{
             
             // reset memory
             [moc reset];
+            [[moc parentContext] reset];
             
             [cds setCachePolicy:SMTryCacheOnly];
             

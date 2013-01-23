@@ -72,26 +72,26 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 }
 
 @property (nonatomic, strong) __block SMCoreDataStore *coreDataStore;
-@property (nonatomic, strong) NSManagedObjectContext *localManagedObjectContext;
+@property (nonatomic, strong) __block NSManagedObjectContext *localManagedObjectContext;
 @property (nonatomic, strong) NSPersistentStoreCoordinator *localPersistentStoreCoordinator;
 @property (nonatomic, strong) NSManagedObjectModel *localManagedObjectModel;
 
-// Cache mapping table appears as Key: StackMob object ID, Value: 
-@property (nonatomic, strong) NSMutableDictionary *cacheMappingTable;
+// Cache mapping table appears as Key: StackMob object ID, Value:
+@property (nonatomic, strong) __block NSMutableDictionary *cacheMappingTable;
 @property (nonatomic) dispatch_queue_t callbackQueue;
 @property (nonatomic, strong) SMRequestOptions *globalOptions;
 
-- (id)SM_handleSaveRequest:(NSPersistentStoreRequest *)request 
-            withContext:(NSManagedObjectContext *)context 
-                  error:(NSError *__autoreleasing *)error;
+- (id)SM_handleSaveRequest:(NSPersistentStoreRequest *)request
+               withContext:(NSManagedObjectContext *)context
+                     error:(NSError *__autoreleasing *)error;
 
 - (BOOL)SM_handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error;
 - (BOOL)SM_handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error;
 - (BOOL)SM_handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error;
 
-- (id)SM_handleFetchRequest:(NSPersistentStoreRequest *)request 
-             withContext:(NSManagedObjectContext *)context 
-                   error:(NSError *__autoreleasing *)error;
+- (id)SM_handleFetchRequest:(NSPersistentStoreRequest *)request
+                withContext:(NSManagedObjectContext *)context
+                      error:(NSError *__autoreleasing *)error;
 
 - (id)SM_fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error;
 - (id)SM_fetchObjectIDs:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError *__autoreleasing *)error;
@@ -117,7 +117,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (id)SM_retrieveAndCacheRelatedObjectForRelationship:(NSRelationshipDescription *)relationship parentObject:(NSManagedObject *)parentObject referenceID:(NSString *)referenceID context:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error;
 
 - (void)SM_cacheObjectWithID:(NSString *)objectID values:(NSDictionary *)values entity:(NSEntityDescription *)entity context:(NSManagedObjectContext *)context;
-- (NSManagedObject *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName;
+- (NSManagedObjectID *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName;
 - (void)SM_populateManagedObject:(NSManagedObject *)object withDictionary:(NSDictionary *)dictionary entity:(NSEntityDescription *)entity;
 - (void)SM_populateCacheManagedObject:(NSManagedObject *)object withDictionary:(NSDictionary *)dictionary entity:(NSEntityDescription *)entity;
 
@@ -260,40 +260,40 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 }
 
 /*
-Once a store has been created, the persistent store coordinator invokes loadMetadata: on it. In your implementation, if all goes well you should typically load the store metadata, call setMetadata: to store the metadata, and return YES. If an error occurs, however (if the store is invalid for some reason—for example, if the store URL is invalid, or the user doesn’t have read permission for the store URL), create an NSError object that describes the problem, assign it to the error parameter passed into the method, and return NO.
-
-In the specific case where the store is new, you may choose not to generate metadata in loadMetadata:, but instead allow it to be automatically generated. In this case, the call to setMetadata: is not necessary.
-
-If the metadata is generated automatically, the store identifier will set to a generated UUID. To override this automatic UUID generation, override identifierForNewStoreAtURL: to return an appropriate value. Store identifiers should either be persisted as part of the store metadata, or uniquely derivable in some way such that a given store will have the same identifier even if added to multiple persistent store coordinators. The identifier may be any type of object, although if you want object IDs created by your store to respond to URIRepresentation or for managedObjectIDForURIRepresentation: to be able to parse the generated URI representation, it should be an instance of NSString.
+ Once a store has been created, the persistent store coordinator invokes loadMetadata: on it. In your implementation, if all goes well you should typically load the store metadata, call setMetadata: to store the metadata, and return YES. If an error occurs, however (if the store is invalid for some reason—for example, if the store URL is invalid, or the user doesn’t have read permission for the store URL), create an NSError object that describes the problem, assign it to the error parameter passed into the method, and return NO.
+ 
+ In the specific case where the store is new, you may choose not to generate metadata in loadMetadata:, but instead allow it to be automatically generated. In this case, the call to setMetadata: is not necessary.
+ 
+ If the metadata is generated automatically, the store identifier will set to a generated UUID. To override this automatic UUID generation, override identifierForNewStoreAtURL: to return an appropriate value. Store identifiers should either be persisted as part of the store metadata, or uniquely derivable in some way such that a given store will have the same identifier even if added to multiple persistent store coordinators. The identifier may be any type of object, although if you want object IDs created by your store to respond to URIRepresentation or for managedObjectIDForURIRepresentation: to be able to parse the generated URI representation, it should be an instance of NSString.
  
  Note: loadMetadata: should ignore any potential skew between the store and the model in use by the coordinator; this will bee handled automatically by the persistent store coordinator later. It is sufficient to return the version hashes that were saved in the store metadata the last time the store was saved (if the store is new the version hashes for the current model in use should be returned).
  
  In your implementation of this method, you must validate that the URL used to create the store is usable (the location exists and if necessary is writable, the schema is compatible, and so on) and return an error if there is an issue.
  
-*/
+ */
 - (BOOL)loadMetadata:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     NSString* uuid = [[NSProcessInfo processInfo] globallyUniqueString];
     [self setMetadata:[NSDictionary dictionaryWithObjectsAndKeys:
-                       SMIncrementalStoreType, NSStoreTypeKey, 
-                       uuid, NSStoreUUIDKey, 
+                       SMIncrementalStoreType, NSStoreTypeKey,
+                       uuid, NSStoreUUIDKey,
                        @"Something user defined", @"Some user defined key",
                        nil]];
     return YES;
 }
 
 /*
-Return Value
-A value as appropriate for request, or nil if the request cannot be completed
+ Return Value
+ A value as appropriate for request, or nil if the request cannot be completed
+ 
+ Discussion
+ The value to return depends on the result type (see resultType) of request:
+ 
+ You should implement this method conservatively, and expect that unknown request types may at some point be passed to the method. The correct behavior in these cases is to return nil and an error.
+ */
 
-Discussion
-The value to return depends on the result type (see resultType) of request:
-
-You should implement this method conservatively, and expect that unknown request types may at some point be passed to the method. The correct behavior in these cases is to return nil and an error.
-*/
-
-- (id)executeRequest:(NSPersistentStoreRequest *)request 
-         withContext:(NSManagedObjectContext *)context 
+- (id)executeRequest:(NSPersistentStoreRequest *)request
+         withContext:(NSManagedObjectContext *)context
                error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     id result = nil;
@@ -335,18 +335,18 @@ You should implement this method conservatively, and expect that unknown request
 
 /*
  If the request is a save request, you record the changes provided in the request’s insertedObjects, updatedObjects, and deletedObjects collections. Note there is also a lockedObjects collection; this collection contains objects which were marked as being tracked for optimistic locking (through the detectConflictsForObject:: method); you may choose to respect this or not.
- In the case of a save request containing objects which are to be inserted, executeRequest:withContext:error: is preceded by a call to obtainPermanentIDsForObjects:error:; Core Data will assign the results of this call as the objectIDs for the objects which are to be inserted. Once these IDs have been assigned, they cannot change. 
+ In the case of a save request containing objects which are to be inserted, executeRequest:withContext:error: is preceded by a call to obtainPermanentIDsForObjects:error:; Core Data will assign the results of this call as the objectIDs for the objects which are to be inserted. Once these IDs have been assigned, they cannot change.
  
  Note that if an empty save request is received by the store, this must be treated as an explicit request to save the metadata, but that store metadata should always be saved if it has been changed since the store was loaded.
-
+ 
  If the request is a save request, the method should return an empty array.
  If the save request contains nil values for the inserted/updated/deleted/locked collections; you should treat it as a request to save the store metadata.
  
  @note: We are *IGNORING* locked objects. We are also not handling the metadata save requests, because AFAIK we don't need to generate any.
  */
-- (id)SM_handleSaveRequest:(NSPersistentStoreRequest *)request 
-            withContext:(NSManagedObjectContext *)context 
-                  error:(NSError *__autoreleasing *)error {
+- (id)SM_handleSaveRequest:(NSPersistentStoreRequest *)request
+               withContext:(NSManagedObjectContext *)context
+                     error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     
     // Reset options and failed operations queue
@@ -430,7 +430,7 @@ You should implement this method conservatively, and expect that unknown request
                 if ([managedObject isKindOfClass:[SMUserManagedObject class]]) {
                     [managedObject removePassword];
                 }
-
+                
             };
             
             SMCoreDataSaveFailureBlock operationFailureBlock = ^(NSURLRequest *theRequest, NSError *theError, NSDictionary *theObject, SMRequestOptions *theOptions, SMResultSuccessBlock originalSuccessBlock){
@@ -450,7 +450,7 @@ You should implement this method conservatively, and expect that unknown request
             };
             
             AFJSONRequestOperation *op = [[self coreDataStore] postOperationForObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
-        
+            
             options.isSecure ? [secureOperations addObject:op] : [regularOperations addObject:op];
             
         } else {
@@ -540,7 +540,7 @@ You should implement this method conservatively, and expect that unknown request
     }];
     
     success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests error:error];
-        
+    
     dispatch_release(group);
     dispatch_release(queue);
     return success;
@@ -719,7 +719,7 @@ You should implement this method conservatively, and expect that unknown request
     }
     
     return success;
-
+    
 }
 
 
@@ -825,10 +825,10 @@ You should implement this method conservatively, and expect that unknown request
  You must support the following properties of NSFetchRequest: entity, predicate, sortDescriptors, fetchLimit, resultType, includesSubentities, returnsDistinctResults (in the case of NSDictionaryResultType), propertiesToFetch (in the case of NSDictionaryResultType), fetchOffset, fetchBatchSize, shouldRefreshFetchedObjects, propertiesToGroupBy, and havingPredicate. If a store does not have underlying support for a feature (propertiesToGroupBy, havingPredicate), it should either emulate the feature in memory or return an error. Note that these are the properties that directly affect the contents of the array to be returned.
  
  You may optionally ignore the following properties of NSFetchRequest: includesPropertyValues, returnsObjectsAsFaults, relationshipKeyPathsForPrefetching, and includesPendingChanges (this is handled by the managed object context). (These are properties that allow for optimization of I/O and do not affect the results array contents directly.)
-*/
-- (id)SM_handleFetchRequest:(NSPersistentStoreRequest *)request 
-             withContext:(NSManagedObjectContext *)context 
-                   error:(NSError * __autoreleasing *)error {
+ */
+- (id)SM_handleFetchRequest:(NSPersistentStoreRequest *)request
+                withContext:(NSManagedObjectContext *)context
+                      error:(NSError * __autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     NSFetchRequest *fetchRequest = (NSFetchRequest *)request;
     switch (fetchRequest.resultType) {
@@ -942,10 +942,10 @@ You should implement this method conservatively, and expect that unknown request
         }
         
         // Obtain cache object representation, or create if needed
-        NSManagedObject *cacheManagedObject = [self SM_retrieveCacheObjectForRemoteID:remoteID entityName:[[sm_managedObject entity] name]];
+        
+        NSManagedObject *cacheManagedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:remoteID entityName:[[sm_managedObject entity] name]]];
         
         [self SM_populateCacheManagedObject:cacheManagedObject withDictionary:serializedObjectDict entity:fetchRequest.entity];
-        
         return sm_managedObject;
         
     }];
@@ -957,7 +957,7 @@ You should implement this method conservatively, and expect that unknown request
     }
     
     return results;
-
+    
 }
 
 - (id)SM_fetchObjectsFromCache:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
@@ -1000,7 +1000,7 @@ You should implement this method conservatively, and expect that unknown request
     }];
     
     return results;
-
+    
 }
 
 // Returns NSArray<NSManagedObject>
@@ -1072,7 +1072,7 @@ You should implement this method conservatively, and expect that unknown request
 /*
  Returns an incremental store node encapsulating the persistent external values of the object with a given object ID.
  Return Value
-   An incremental store node encapsulating the persistent external values of the object with object ID objectID, or nil if the corresponding object cannot be found.
+ An incremental store node encapsulating the persistent external values of the object with object ID objectID, or nil if the corresponding object cannot be found.
  
  Discussion
  The returned node should include all attributes values and may include to-one relationship values as instances of NSManagedObjectID.
@@ -1082,7 +1082,7 @@ You should implement this method conservatively, and expect that unknown request
  This method is used in 2 scenarios: When an object is fulfilling a fault, and before a save on updated objects to grab a copy from the server for merge conflict purposes.
  */
 - (NSIncrementalStoreNode *)newValuesForObjectWithID:(NSManagedObjectID *)objectID
-                                         withContext:(NSManagedObjectContext *)context 
+                                         withContext:(NSManagedObjectContext *)context
                                                error:(NSError *__autoreleasing *)error {
     
     if (SM_CORE_DATA_DEBUG) { DLog(@"new values for object with id %@", [context objectWithID:objectID]) }
@@ -1091,14 +1091,10 @@ You should implement this method conservatively, and expect that unknown request
     __block NSString *sm_managedObjectReferenceID = [self referenceObjectForObjectID:objectID];
     
     
-    //if ([self.coreDataStore cacheIsEnabled] && [sm_managedObject isFault]) {
     if ([sm_managedObject isFault]) {
-        if (self.isSaving) {
-            NSLog(@"we are saving");
-        }
         NSString *cacheReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
         NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
-    
+        
         if (!cacheObjectID) {
             // Scenario: Got here because object was refreshed and is now a fault, but was never cached in the first place.  Grab from the server if possible.
             
@@ -1109,18 +1105,18 @@ You should implement this method conservatively, and expect that unknown request
             }
             
             /*
-            NSDictionary *objectFromServer = [self SM_retrieveObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:[SMRequestOptions options] context:context error:error];
-            if (*error) {
-                return nil;
-            }
-            
-            // Only cache if we were filling a fault from the server.
-            if (!self.isSaving) {
-                [self SM_cacheObjectWithID:sm_managedObjectReferenceID values:objectFromServer entity:[sm_managedObject entity] context:context];
-                [self SM_saveCache:error];
-            }
-            
-            NSDictionary *serializedObjectDict = [self SM_responseSerializationForDictionary:objectFromServer schemaEntityDescription:[sm_managedObject entity] managedObjectContext:context includeRelationships:NO];
+             NSDictionary *objectFromServer = [self SM_retrieveObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:[SMRequestOptions options] context:context error:error];
+             if (*error) {
+             return nil;
+             }
+             
+             // Only cache if we were filling a fault from the server.
+             if (!self.isSaving) {
+             [self SM_cacheObjectWithID:sm_managedObjectReferenceID values:objectFromServer entity:[sm_managedObject entity] context:context];
+             [self SM_saveCache:error];
+             }
+             
+             NSDictionary *serializedObjectDict = [self SM_responseSerializationForDictionary:objectFromServer schemaEntityDescription:[sm_managedObject entity] managedObjectContext:context includeRelationships:NO];
              */
             
             SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDict version:1];
@@ -1129,7 +1125,7 @@ You should implement this method conservatively, and expect that unknown request
             
         }
         
-        NSManagedObject *objectFromCache = [self.localManagedObjectContext objectRegisteredForID:cacheObjectID];
+        NSManagedObject *objectFromCache = [self.localManagedObjectContext objectWithID:cacheObjectID];
         
         if (!objectFromCache) {
             [NSException raise:SMExceptionIncompatibleObject format:@"Cache object with managed object ID %@ not found.", cacheObjectID];
@@ -1151,16 +1147,16 @@ You should implement this method conservatively, and expect that unknown request
         if (![objectFromCache valueForKey:primaryKeyField]) {
             
             /*
-            NSDictionary *objectFromServer = [self SM_retrieveObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:[SMRequestOptions options] context:context error:error];
-            if (*error) {
-                return nil;
-            }
-            
-            // Cache item
-            [self SM_cacheObjectWithID:sm_managedObjectReferenceID values:objectFromServer entity:[sm_managedObject entity] context:context];
-            [self SM_saveCache:error];
-            
-            NSDictionary *serializedObjectDict = [self SM_responseSerializationForDictionary:objectFromServer schemaEntityDescription:[sm_managedObject entity] managedObjectContext:context includeRelationships:NO];
+             NSDictionary *objectFromServer = [self SM_retrieveObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:[SMRequestOptions options] context:context error:error];
+             if (*error) {
+             return nil;
+             }
+             
+             // Cache item
+             [self SM_cacheObjectWithID:sm_managedObjectReferenceID values:objectFromServer entity:[sm_managedObject entity] context:context];
+             [self SM_saveCache:error];
+             
+             NSDictionary *serializedObjectDict = [self SM_responseSerializationForDictionary:objectFromServer schemaEntityDescription:[sm_managedObject entity] managedObjectContext:context includeRelationships:NO];
              */
             
             NSDictionary *serializedObjectDict = [self SM_retrieveAndSerializeObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:[SMRequestOptions options] context:context includeRelationships:NO cacheResult:YES error:error];
@@ -1214,8 +1210,6 @@ You should implement this method conservatively, and expect that unknown request
     NSDictionary *serializedObjectDictionary = nil;
     
     // If the context's merge policy is that in memory wins, we do not need to make a network call to retreive persisted values.
-   
-    //if ([self.coreDataStore cacheIsEnabled] && [context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
     if ([context mergePolicy] == NSMergeByPropertyObjectTrumpMergePolicy) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[sm_managedObject dictionaryWithValuesForKeys:[[[sm_managedObject entity] attributesByName] allKeys]]];
         NSDictionary *relationships = [[sm_managedObject entity] relationshipsByName];
@@ -1241,7 +1235,7 @@ You should implement this method conservatively, and expect that unknown request
     SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDictionary version:1];
     
     return node;
-
+    
 }
 
 /*
@@ -1276,27 +1270,25 @@ You should implement this method conservatively, and expect that unknown request
         }
         return nil;
     }
-
+    
     return result;
     
     
 }
 - (id)SM_newValueForRelationship:(NSRelationshipDescription *)relationship
-              forObjectWithID:(NSManagedObjectID *)objectID 
-                  withContext:(NSManagedObjectContext *)context 
-                        error:(NSError *__autoreleasing *)error {
+                 forObjectWithID:(NSManagedObjectID *)objectID
+                     withContext:(NSManagedObjectContext *)context
+                           error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(@"new value for relationship %@ for object with id %@", relationship, objectID) }
     
     __block NSManagedObject *sm_managedObject = [context objectWithID:objectID];
     __block NSString *sm_managedObjectReferenceID = [self referenceObjectForObjectID:objectID];
     
-    //if ([self.coreDataStore cacheIsEnabled] && !self.isSaving && [sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
     if (!self.isSaving && [sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
-        if (self.isSaving) {
-            NSLog(@"we are saving");
-        }
-        NSString *cacheReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
-        NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
+        
+        // Retreive parent object from cache
+        NSString *cacheMapReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
+        NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheMapReferenceID]];
         
         if (!cacheObjectID) {
             if (NULL != error) {
@@ -1306,7 +1298,6 @@ You should implement this method conservatively, and expect that unknown request
             return nil;
         }
         
-        // Pull object from cache
         NSManagedObject *objectFromCache = [self.localManagedObjectContext objectWithID:cacheObjectID];
         
         // Get primary key field of relationship
@@ -1326,36 +1317,17 @@ You should implement this method conservatively, and expect that unknown request
                 return [NSArray array];
             }
             __block NSMutableArray *arrayToReturn = [NSMutableArray array];
+            __block BOOL shouldRetreiveFromNetwork = NO;
             
-            // Instead of enumerating, call retrieveAndCacheRelatedObject
-            id resultToReturn =  [self SM_retrieveAndCacheRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID context:context error:error];
-            arrayToReturn = resultToReturn;
-            
-            /*
             [relatedObjectCacheReferenceSet enumerateObjectsUsingBlock:^(id cacheManagedObject, NSUInteger idx, BOOL *stop) {
                 // get remoteID for object in context
                 NSString *relatedObjectRemoteID = [cacheManagedObject valueForKey:primaryKeyField];
                 
                 // If there is no primary key id, this was just a reference and we need to retreive online, if possible
                 if (!relatedObjectRemoteID) {
-                    // Grab id from cache map
-                    NSString *stringRepOfRelationshipCacheID = [[[cacheManagedObject objectID] URIRepresentation] absoluteString];
-                    NSArray *matchingKeys = [self.cacheMappingTable allKeysForObject:stringRepOfRelationshipCacheID];
-                    
-                    if ([matchingKeys count] != 1) {
-                        // This means the object was never placed in the cache map, or duplicated
-                        [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %d", [matchingKeys count]];
-                    }
-                    
-                    NSString *relatedObjectStackMobID = [matchingKeys lastObject];
-                    // Retreive object from server
-                    id resultToReturn = [self SM_retrieveAndSerializeObjectWithID:relatedObjectStackMobID entity:[cacheManagedObject entity] options:[SMRequestOptions options] context:context includeRelationships:YES cacheResult:YES error:error];
-                    
-                    NSManagedObjectID *relatedObjectManagedObjectID = [self newObjectIDForEntity:[cacheManagedObject entity] referenceObject:relatedObjectStackMobID];
-                    [arrayToReturn addObject:relatedObjectStackMobID];
-                    
-                    //id resultToReturn =  [self SM_retrieveAndCacheRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID context:context error:error];
-                    //arrayToReturn = resultToReturn;
+                    // All objects are likely references, retreive object online if possible
+                    shouldRetreiveFromNetwork = YES;
+                    *stop = YES;
                 } else {
                     // Use primary key id to create in-memory context managed object ID equivalent
                     NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:relatedObjectRemoteID];
@@ -1364,10 +1336,13 @@ You should implement this method conservatively, and expect that unknown request
                 }
                 
             }];
-            */
-            if (!arrayToReturn) {
-                return nil;
+            
+            if (shouldRetreiveFromNetwork) {
+                [arrayToReturn removeAllObjects];
+                id resultToReturn =  [self SM_retrieveAndCacheRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID context:context error:error];
+                arrayToReturn = resultToReturn;
             }
+            
             return arrayToReturn;
             
         } else {
@@ -1421,7 +1396,7 @@ You should implement this method conservatively, and expect that unknown request
  Returns an array containing the object IDs for a given array of newly-inserted objects.
  This method is called before executeRequest:withContext:error: with a save request, to assign permanent IDs to newly-inserted objects.
  */
-- (NSArray *)obtainPermanentIDsForObjects:(NSArray *)array 
+- (NSArray *)obtainPermanentIDsForObjects:(NSArray *)array
                                     error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog(@"obtain permanent ids for objects: %@", truncateOutputIfExceedsMaxLogLength(array)) }
     // check if array is null, return empty array if so
@@ -1429,7 +1404,7 @@ You should implement this method conservatively, and expect that unknown request
         return [NSArray array];
     }
     
-    if (*error) { 
+    if (*error) {
         if (SM_CORE_DATA_DEBUG) { DLog(@"error with obtaining perm ids is %@", *error) }
         *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
     }
@@ -1438,7 +1413,7 @@ You should implement this method conservatively, and expect that unknown request
         NSString *itemId = [item SMObjectId];
         if (!itemId) {
             [NSException raise:SMExceptionIncompatibleObject format:@"Item not previously assigned an object ID for it's primary key field, which is used to obtain a permanent ID for the Core Data object.  Before a call to save on the managedObjectContext, be sure to assign an object ID.  This looks something like [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]].  The item in question is %@", item];
-        } 
+        }
         
         NSManagedObjectID *returnId = [self newObjectIDForEntity:[item entity] referenceObject:itemId];
         if (SM_CORE_DATA_DEBUG) { DLog(@"Permanent ID assigned is %@", returnId) }
@@ -1581,12 +1556,15 @@ You should implement this method conservatively, and expect that unknown request
     
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSURL *pathToStore = [storeURL URLByDeletingLastPathComponent];
-    
-    NSError *error = nil;
-    BOOL pathWasCreated = [fileManager createDirectoryAtPath:[pathToStore path] withIntermediateDirectories:YES attributes:nil error:&error];
-    
-    if (!pathWasCreated) {
-        [NSException raise:SMExceptionAddPersistentStore format:@"Error creating sqlite persistent store: %@", error];
+    BOOL isDir;
+    BOOL fileExists = [fileManager fileExistsAtPath:[pathToStore path] isDirectory:&isDir];
+    if (!fileExists) {
+        NSError *error = nil;
+        BOOL pathWasCreated = [fileManager createDirectoryAtPath:[pathToStore path] withIntermediateDirectories:YES attributes:nil error:&error];
+        
+        if (!pathWasCreated) {
+            [NSException raise:SMExceptionAddPersistentStore format:@"Error creating sqlite persistent store: %@", error];
+        }
     }
     
 }
@@ -1624,10 +1602,9 @@ You should implement this method conservatively, and expect that unknown request
         } else {
             self.cacheMappingTable = [temp mutableCopy];
         }
+    } else {
+        self.cacheMappingTable = [NSMutableDictionary dictionary];
     }
-    
-    self.cacheMappingTable = [NSMutableDictionary dictionary];
-    
     
     
 }
@@ -1642,7 +1619,7 @@ You should implement this method conservatively, and expect that unknown request
     
     NSData *mapData = [NSPropertyListSerialization dataFromPropertyList:self.cacheMappingTable
                                                                  format:NSPropertyListXMLFormat_v1_0
-                                                         errorDescription:&errorDesc];
+                                                       errorDescription:&errorDesc];
     
     if (!mapData) {
         [NSException raise:SMExceptionCacheError format:@"Error serializing cachemap data with error description %@", errorDesc];
@@ -1722,7 +1699,7 @@ You should implement this method conservatively, and expect that unknown request
     dispatch_release(queue);
     
     return objectFromServer;
-
+    
 }
 
 - (id)SM_retrieveRelatedObjectForRelationship:(NSRelationshipDescription *)relationship parentObject:(NSManagedObject *)parentObject referenceID:(NSString *)referenceID context:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error
@@ -1730,7 +1707,7 @@ You should implement this method conservatively, and expect that unknown request
     if (SM_CORE_DATA_DEBUG) {DLog()}
     
     __block NSEntityDescription *sm_managedObjectEntity = [parentObject entity];
-    // No expansion, 
+    // No expansion,
     __block NSDictionary *objectDictionaryFromRead = [self SM_retrieveObjectWithID:referenceID entity:sm_managedObjectEntity options:[SMRequestOptions options] context:context error:error];
     
     if (!objectDictionaryFromRead) {
@@ -1780,10 +1757,25 @@ You should implement this method conservatively, and expect that unknown request
         return nil;
     }
     
-    id relationshipContents = [objectDictionaryFromRead valueForKey:sm_fieldName];
+    // purge cache of parent object existing relationships in cache, followed by parent object, to be replaced by object dictionary from read
+    NSString *cacheObjectIDStringRef = [self.cacheMappingTable objectForKey:referenceID];
+    NSManagedObjectID *cacheObjectID = [self.localPersistentStoreCoordinator managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheObjectIDStringRef]];
+    NSManagedObject *cacheParentObject = [self.localManagedObjectContext objectWithID:cacheObjectID];
     
+    id relationshipContents = [objectDictionaryFromRead valueForKey:sm_fieldName];
     if ([relationship isToMany]) {
+        
+        NSSet *relationshipContentsFromCache = [cacheParentObject valueForKey:[relationship name]];
+        __block NSMutableArray *cacheObjectsToBePurged = [NSMutableArray array];
+        [relationshipContentsFromCache enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+            [cacheObjectsToBePurged addObject:obj];
+        }];
+        [self SM_purgeCacheManagedObjectsFromCache:cacheObjectsToBePurged];
+        __block NSMutableSet *newRelationshipContents = [cacheParentObject mutableSetValueForKey:[relationship name]];
+        [newRelationshipContents removeAllObjects];
+        
         if (relationshipContents) {
+            // Cache and relate new objects
             if (![relationshipContents isKindOfClass:[NSArray class]]) {
                 [NSException raise:SMExceptionIncompatibleObject format:@"Relationship contents should be an array for a to-many relationship. The relationship passed has contents that are of class type %@. Confirm that this relationship was meant to be to-many.", [relationshipContents class]];
             }
@@ -1795,7 +1787,8 @@ You should implement this method conservatively, and expect that unknown request
                 
                 // Cache object
                 [self SM_cacheObjectWithID:relatedObjectPrimaryKey values:expandedObject entity:[relationship destinationEntity] context:context];
-                
+                NSManagedObject *newlyCachedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:relatedObjectPrimaryKey entityName:[[relationship destinationEntity] name]]];
+                [newRelationshipContents addObject:newlyCachedObject];
             }];
             
             [self SM_saveCache:error];
@@ -1803,9 +1796,17 @@ You should implement this method conservatively, and expect that unknown request
             return arrayToReturn;
             
         } else {
+            // Save empty array
+            [self SM_saveCache:error];
             return [NSArray array];
         }
     } else {
+        
+        NSManagedObject *relationshipContentsFromCache = [cacheParentObject valueForKey:[relationship name]];
+        if (relationshipContentsFromCache) {
+            [self SM_purgeCacheManagedObjectFromCache:relationshipContentsFromCache];
+        }
+        
         if (relationshipContents) {
             if (![relationshipContents isKindOfClass:[NSDictionary class]]) {
                 [NSException raise:SMExceptionIncompatibleObject format:@"Relationship contents should be a Dictionary for a to-one relationship with expansion. The relationship passed has contents that are of class type %@. Confirm that this relationship was meant to be to-one.", [relationshipContents class]];
@@ -1814,12 +1815,15 @@ You should implement this method conservatively, and expect that unknown request
             NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:relatedObjectPrimaryKey];
             
             [self SM_cacheObjectWithID:relatedObjectPrimaryKey values:relationshipContents entity:[relationship destinationEntity] context:context];
-            
+            NSManagedObject *newlyCachedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:relatedObjectPrimaryKey entityName:[[relationship destinationEntity] name]]];
+            [cacheParentObject setValue:newlyCachedObject forKey:[relationship name]];
             // Save Cache if has changes
             [self SM_saveCache:error];
             
             return relationshipObjectID;
         } else {
+            // Save Cache if has changes
+            [self SM_saveCache:error];
             return [NSNull null];
         }
     }
@@ -1831,7 +1835,7 @@ You should implement this method conservatively, and expect that unknown request
     if (SM_CORE_DATA_DEBUG) {DLog()}
     
     // Get cached managed object or create if needed
-    NSManagedObject *cacheManagedObject = [self SM_retrieveCacheObjectForRemoteID:objectID entityName:[entity name]];
+    NSManagedObject *cacheManagedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:objectID entityName:[entity name]]];
     
     // Serialize expanded object with relationships
     NSDictionary *serializedObjectDict = [self SM_responseSerializationForDictionary:values schemaEntityDescription:entity managedObjectContext:context includeRelationships:YES];
@@ -1886,18 +1890,19 @@ You should implement this method conservatively, and expect that unknown request
             if ([property isKindOfClass:[NSAttributeDescription class]]) {
                 [object setValue:propertyValueFromSerializedDict forKey:propertyName];
             } else if ([(NSRelationshipDescription *)property isToMany]) {
-                NSMutableArray *array = [NSMutableArray array];
+                __block NSMutableSet *objectRelationshipSet = [object mutableSetValueForKey:propertyName];
+                [objectRelationshipSet removeAllObjects];
                 [(NSSet *)propertyValueFromSerializedDict enumerateObjectsUsingBlock:^(id obj, BOOL *stopEnum) {
-                    [array addObject:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:obj] entityName:[[property destinationEntity] name]]];
+                    NSManagedObject *objectToAdd = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:obj] entityName:[[property destinationEntity] name]]];
+                    [objectRelationshipSet addObject:objectToAdd];
                 }];
-                [object setValue:[NSSet setWithArray:array] forKey:propertyName];
             } else {
                 // Recursively cache child objects, if any
                 if ([propertyValueFromSerializedDict isKindOfClass:[NSDictionary class]]) {
                     
                 } else {
                     // Translate StackMob ID to Cache managed object ID and store
-                    NSManagedObject *setObject = [self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:propertyValueFromSerializedDict] entityName:[[property destinationEntity] name]];
+                    NSManagedObject *setObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:propertyValueFromSerializedDict] entityName:[[property destinationEntity] name]]];
                     [object setValue:setObject forKey:propertyName];
                 }
             }
@@ -1906,16 +1911,87 @@ You should implement this method conservatively, and expect that unknown request
         }
         
     }];
+    
+    NSError *saveError = nil;
+    BOOL saveSuccess = [self SM_saveCache:&saveError];
+    if (!saveSuccess) {
+        if (SM_CORE_DATA_DEBUG) { DLog(@"Did Not Save Cache") }
+    }
 }
+/*
+ - (NSManagedObjectID *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName {
+ if (SM_CORE_DATA_DEBUG) {DLog()}
+ 
+ NSManagedObject *cacheObject = nil;
+ NSString *cacheReferenceId = [self.cacheMappingTable objectForKey:remoteID];
+ if (cacheReferenceId) {
+ NSManagedObjectID *cacheObjectId = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceId]];
+ cacheObject = [self.localManagedObjectContext objectWithID:cacheObjectId];
+ } else {
+ cacheObject = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.localManagedObjectContext];
+ NSError *permanentIdError = nil;
+ [self.localManagedObjectContext obtainPermanentIDsForObjects:[NSArray arrayWithObject:cacheObject] error:&permanentIdError];
+ // Sanity check
+ if (permanentIdError) {
+ [NSException raise:SMExceptionCacheError format:@"Could not obtain permanent IDs for objects %@ with error %@", cacheObject, permanentIdError];
+ }
+ 
+ [self.cacheMappingTable setObject:[[[cacheObject objectID] URIRepresentation] absoluteString] forKey:remoteID];
+ [self SM_saveCacheMap];
+ NSError *saveError = nil;
+ [self SM_saveCache:&saveError];
+ if (SM_CORE_DATA_DEBUG) { DLog(@"Creating new cache object, %@", cacheObject) }
+ }
+ 
+ return [cacheObject objectID];
+ }
+ */
 
-- (NSManagedObject *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName {
+- (NSManagedObjectID *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName {
     if (SM_CORE_DATA_DEBUG) {DLog()}
     
     NSManagedObject *cacheObject = nil;
     NSString *cacheReferenceId = [self.cacheMappingTable objectForKey:remoteID];
     if (cacheReferenceId) {
-        NSManagedObjectID *cacheObjectId = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceId]];
-        cacheObject = [self.localManagedObjectContext objectWithID:cacheObjectId];
+        
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:entityName];
+        NSEntityDescription *desc = [NSEntityDescription entityForName:entityName inManagedObjectContext:self.localManagedObjectContext];
+        NSString *primaryKeyField;
+        if ([[entityName lowercaseString] isEqualToString:[self.coreDataStore.session userSchema]]) {
+            primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
+        } else {
+            primaryKeyField = [desc primaryKeyField];
+        }
+        
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == %@", primaryKeyField, remoteID];
+        [fetchRequest setPredicate:predicate];
+        
+        NSError *fetchError = nil;
+        NSArray *results = [self.localManagedObjectContext executeFetchRequest:fetchRequest error:&fetchError];
+        NSLog(@"results are %@", results);
+        if ([results count] == 0) {
+            // bad reference in cache map, delete if possible
+            NSManagedObjectID *cacheObjectId = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceId]];
+            NSManagedObject *objectToDelete = [self.localManagedObjectContext objectWithID:cacheObjectId];
+            [self SM_purgeCacheManagedObjectFromCache:objectToDelete];
+            // remove from cache map
+            [self.cacheMappingTable removeObjectForKey:remoteID];
+            
+            // make new reference
+            cacheObject = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.localManagedObjectContext];
+            NSError *permanentIdError = nil;
+            [self.localManagedObjectContext obtainPermanentIDsForObjects:[NSArray arrayWithObject:cacheObject] error:&permanentIdError];
+            // Sanity check
+            if (permanentIdError) {
+                [NSException raise:SMExceptionCacheError format:@"Could not obtain permanent IDs for objects %@ with error %@", cacheObject, permanentIdError];
+            }
+            
+            [self.cacheMappingTable setObject:[[[cacheObject objectID] URIRepresentation] absoluteString] forKey:remoteID];
+            [self SM_saveCacheMap];
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Creating new cache object, %@", cacheObject) }
+        } else {
+            return [[results objectAtIndex:0] objectID];
+        }
     } else {
         cacheObject = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.localManagedObjectContext];
         NSError *permanentIdError = nil;
@@ -1930,8 +2006,14 @@ You should implement this method conservatively, and expect that unknown request
         if (SM_CORE_DATA_DEBUG) { DLog(@"Creating new cache object, %@", cacheObject) }
     }
     
-    return cacheObject;
+    NSError *saveError = nil;
+    BOOL saveSuccess = [self SM_saveCache:&saveError];
+    if (!saveSuccess) {
+        if (SM_CORE_DATA_DEBUG) { DLog(@"Did Not Save Cache") }
+    }
+    return [cacheObject objectID];
 }
+
 
 - (BOOL)SM_saveCache:(NSError *__autoreleasing*)error
 {
@@ -2035,11 +2117,11 @@ You should implement this method conservatively, and expect that unknown request
         
         NSArray *matchingKeys = [self.cacheMappingTable allKeysForObject:stringRepOfRelationshipCacheID];
         
-        if ([matchingKeys count] != 1) {
+        if ([matchingKeys count] == 1) {
+            [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
+        } else if ([matchingKeys count] > 1) {
             // This means the object was never placed in the cache map, or duplicated
             [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %d", [matchingKeys count]];
-        } else {
-            [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
         }
         [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
         [self SM_saveCacheMap];
@@ -2112,11 +2194,11 @@ You should implement this method conservatively, and expect that unknown request
                 
                 NSArray *matchingKeys = [self.cacheMappingTable allKeysForObject:stringRepOfRelationshipCacheID];
                 
-                if ([matchingKeys count] != 1) {
+                if ([matchingKeys count] == 1) {
+                    [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
+                } else if ([matchingKeys count] > 1) {
                     // This means the object was never placed in the cache map, or duplicated
                     [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %d", [matchingKeys count]];
-                } else {
-                    [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
                 }
             }];
             [self SM_saveCacheMap];
@@ -2125,7 +2207,7 @@ You should implement this method conservatively, and expect that unknown request
         }
         
     }
-
+    
     
     return success;
 }
@@ -2239,7 +2321,7 @@ You should implement this method conservatively, and expect that unknown request
         DLog(@"read object from server is %@", theObject)
         DLog(@"serialized dictionary to return is %@", serializedDictionary)
     }
-
+    
     return [NSDictionary dictionaryWithDictionary:serializedDictionary];
 }
 
