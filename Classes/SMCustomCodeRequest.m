@@ -37,6 +37,11 @@
     return self;
 }
 
+- (NSString *)URLEncodedStringFromValue:(NSString *)value
+{
+	return (__bridge_transfer  NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (__bridge CFStringRef)value, nil, NULL, CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
+}
+
 @end
 
 @implementation SMCustomCodeRequest
@@ -68,7 +73,8 @@
 
 - (void)addQueryStringParameterWhere:(NSString *)key equals:(NSString *)value
 {
-    [self.queryStringParameters addObject:[NSString stringWithFormat:@"%@=%@", key, value]];
+    NSString *encodedValue = [self URLEncodedStringFromValue:value];
+    [self.queryStringParameters addObject:[NSString stringWithFormat:@"%@=%@", key, encodedValue]];
 }
 
 @end

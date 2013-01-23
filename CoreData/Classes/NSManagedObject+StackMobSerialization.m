@@ -22,12 +22,12 @@
 
 @implementation NSManagedObject (StackMobSerialization)
 
-- (NSString *)sm_schema
+- (NSString *)SMSchema
 {
-    return [[self entity] sm_schema];
+    return [[self entity] SMSchema];
 }
 
-- (NSString *)sm_objectId
+- (NSString *)SMObjectId
 {
     NSString *objectIdField = [self primaryKeyField];
     if ([[[self entity] attributesByName] objectForKey:objectIdField] == nil) {
@@ -51,13 +51,13 @@
     NSString *objectIdField = nil;
     
     // Search for schemanameId
-    objectIdField = [[self sm_schema] stringByAppendingFormat:@"Id"];
+    objectIdField = [[self SMSchema] stringByAppendingFormat:@"Id"];
     if ([[[self entity] propertiesByName] objectForKey:objectIdField] != nil) {
         return objectIdField;
     }
     
     // Search for schemaname_id
-    objectIdField = [[self sm_schema] stringByAppendingFormat:@"_id"];
+    objectIdField = [[self SMSchema] stringByAppendingFormat:@"_id"];
     if ([[[self entity] propertiesByName] objectForKey:objectIdField] != nil) {
         return objectIdField;
     }
@@ -67,15 +67,15 @@
     return nil;
 }
 
-- (NSString *)sm_primaryKeyField
+- (NSString *)SMPrimaryKeyField
 {
-    return [[self entity] sm_fieldNameForProperty:[[[self entity] propertiesByName] objectForKey:[self primaryKeyField]]];
+    return [[self entity] SMFieldNameForProperty:[[[self entity] propertiesByName] objectForKey:[self primaryKeyField]]];
 }
 
-- (NSDictionary *)sm_dictionarySerialization
+- (NSDictionary *)SMDictionarySerialization
 {
     NSMutableArray *arrayOfRelationshipHeaders = [NSMutableArray array];
-    NSMutableDictionary *contentsOfSerializedObject = [NSMutableDictionary dictionaryWithObject:[self sm_dictionarySerializationByTraversingRelationshipsExcludingObjects:nil entities:nil relationshipHeaderValues:&arrayOfRelationshipHeaders relationshipKeyPath:nil] forKey:@"SerializedDict"];
+    NSMutableDictionary *contentsOfSerializedObject = [NSMutableDictionary dictionaryWithObject:[self SMDictionarySerializationByTraversingRelationshipsExcludingObjects:nil entities:nil relationshipHeaderValues:&arrayOfRelationshipHeaders relationshipKeyPath:nil] forKey:@"SerializedDict"];
     
     if ([arrayOfRelationshipHeaders count] > 0) {
         
@@ -87,7 +87,7 @@
     
 }
 
-- (NSDictionary *)sm_dictionarySerializationByTraversingRelationshipsExcludingObjects:(NSMutableSet *)processedObjects entities:(NSMutableSet *)processedEntities relationshipHeaderValues:(NSMutableArray *__autoreleasing *)values relationshipKeyPath:(NSString *)keyPath
+- (NSDictionary *)SMDictionarySerializationByTraversingRelationshipsExcludingObjects:(NSMutableSet *)processedObjects entities:(NSMutableSet *)processedEntities relationshipHeaderValues:(NSMutableArray *__autoreleasing *)values relationshipKeyPath:(NSString *)keyPath
 {
     if (processedObjects == nil) {
         processedObjects = [NSMutableSet set];
@@ -109,24 +109,25 @@
                 if (attributeDescription.attributeType == NSDateAttributeType) {
                     NSDate *dateValue = propertyValue;
                     if (dateValue != nil) {
-                        double convertedDate = [dateValue timeIntervalSince1970];
-                        [objectDictionary setObject:[NSNumber numberWithInteger:convertedDate] forKey:[selfEntity sm_fieldNameForProperty:property]];
+                        unsigned long long convertedDate = (unsigned long long)[dateValue timeIntervalSince1970] * 1000;
+                        NSNumber *numberToSet = [NSNumber numberWithUnsignedLongLong:convertedDate];
+                        [objectDictionary setObject:numberToSet forKey:[selfEntity SMFieldNameForProperty:property]];
                     }
                 } else if (attributeDescription.attributeType == NSBooleanAttributeType) {
                     // make sure that boolean values are serialized as true or false
                     id value = propertyValue;
                     if (value != nil) {
                         if ([value boolValue]) {
-                            [objectDictionary setObject:[NSNumber numberWithBool:YES] forKey:[selfEntity sm_fieldNameForProperty:property]];
+                            [objectDictionary setObject:[NSNumber numberWithBool:YES] forKey:[selfEntity SMFieldNameForProperty:property]];
                         }
                         else {
-                            [objectDictionary setObject:[NSNumber numberWithBool:NO] forKey:[selfEntity sm_fieldNameForProperty:property]];
+                            [objectDictionary setObject:[NSNumber numberWithBool:NO] forKey:[selfEntity SMFieldNameForProperty:property]];
                         }
                     }
                 } else {
                     id value = propertyValue;
                     if (value != nil) {
-                        [objectDictionary setObject:value forKey:[selfEntity sm_fieldNameForProperty:property]];
+                        [objectDictionary setObject:value forKey:[selfEntity SMFieldNameForProperty:property]];
                     }
                 }
             }
@@ -136,12 +137,12 @@
             if ([relationship isToMany]) {
                 NSMutableArray *relatedObjectDictionaries = [NSMutableArray array];
                 [(NSSet *)propertyValue enumerateObjectsUsingBlock:^(id child, BOOL *stopRelEnum) {
-                    NSString *childObjectId = [child sm_objectId];
+                    NSString *childObjectId = [child SMObjectId];
                     if (childObjectId == nil) {
                         *stopRelEnum = YES;
                         [NSException raise:SMExceptionIncompatibleObject format:@"Trying to serialize an object with a to-many relationship whose value references an object with a nil value for it's primary key field.  Please make sure you assign object ids with assignObjectId before attaching to relationships.  The object in question is %@", [child description]];
                     }
-                    [relatedObjectDictionaries addObject:[child sm_objectId]];
+                    [relatedObjectDictionaries addObject:[child SMObjectId]];
                 }];
                 
                 // add relationship header only if there are actual keys
@@ -150,14 +151,14 @@
                     if (keyPath && [keyPath length] > 0) {
                         [relationshipKeyPath appendFormat:@"%@.", keyPath];
                     }
-                    [relationshipKeyPath appendString:[selfEntity sm_fieldNameForProperty:relationship]];
+                    [relationshipKeyPath appendString:[selfEntity SMFieldNameForProperty:relationship]];
                     
-                    [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] sm_schema]]];
+                    [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] SMSchema]]];
                 }
-                [objectDictionary setObject:relatedObjectDictionaries forKey:[selfEntity sm_fieldNameForProperty:property]];
+                [objectDictionary setObject:relatedObjectDictionaries forKey:[selfEntity SMFieldNameForProperty:property]];
             } else {
                 if (propertyValue == [NSNull null]) {
-                    [objectDictionary setObject:propertyValue forKey:[selfEntity sm_fieldNameForProperty:property]];
+                    [objectDictionary setObject:propertyValue forKey:[selfEntity SMFieldNameForProperty:property]];
                 }
                 else if ([processedObjects containsObject:propertyValue]) {
                     // add relationship header
@@ -165,31 +166,31 @@
                     if (keyPath && [keyPath length] > 0) {
                         [relationshipKeyPath appendFormat:@"%@.", keyPath];
                     }
-                    [relationshipKeyPath appendString:[selfEntity sm_fieldNameForProperty:relationship]];
+                    [relationshipKeyPath appendString:[selfEntity SMFieldNameForProperty:relationship]];
                     
-                    [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] sm_schema]]];
+                    [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] SMSchema]]];
                     
                     
                     NSPropertyDescription *primaryKeyProperty = [[[relationship destinationEntity] propertiesByName] objectForKey:[propertyValue primaryKeyField]];
-                    [objectDictionary setObject:[NSDictionary dictionaryWithObject:[propertyValue sm_objectId] forKey:[[relationship destinationEntity] sm_fieldNameForProperty:primaryKeyProperty]] forKey:[selfEntity sm_fieldNameForProperty:property]];
+                    [objectDictionary setObject:[NSDictionary dictionaryWithObject:[propertyValue SMObjectId] forKey:[[relationship destinationEntity] SMFieldNameForProperty:primaryKeyProperty]] forKey:[selfEntity SMFieldNameForProperty:property]];
                 }
                 else {
                     NSMutableString *relationshipKeyPath = [NSMutableString string];
                     if (keyPath && [keyPath length] > 0) {
                         [relationshipKeyPath appendFormat:@"%@.", keyPath];
                     }
-                    [relationshipKeyPath appendString:[selfEntity sm_fieldNameForProperty:relationship]];
+                    [relationshipKeyPath appendString:[selfEntity SMFieldNameForProperty:relationship]];
                     
-                    [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] sm_schema]]];
+                    [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] SMSchema]]];
                     
-                    [objectDictionary setObject:[propertyValue sm_dictionarySerializationByTraversingRelationshipsExcludingObjects:processedObjects entities:processedEntities relationshipHeaderValues:values relationshipKeyPath:relationshipKeyPath] forKey:[selfEntity sm_fieldNameForProperty:property]];
+                    [objectDictionary setObject:[propertyValue SMDictionarySerializationByTraversingRelationshipsExcludingObjects:processedObjects entities:processedEntities relationshipHeaderValues:values relationshipKeyPath:relationshipKeyPath] forKey:[selfEntity SMFieldNameForProperty:property]];
                 }
             }
         }
     }];
     
     // Add value for primary key field if needed
-    NSString *primaryKeyField = [self sm_primaryKeyField];
+    NSString *primaryKeyField = [self SMPrimaryKeyField];
     if (![objectDictionary valueForKey:primaryKeyField]) {
         [self attachObjectIdToDictionary:&objectDictionary];
     }
@@ -202,9 +203,27 @@
 {
     NSMutableDictionary *dictionaryToReturn = [*objectDictionary mutableCopy];
     
-    [dictionaryToReturn setObject:[self sm_objectId] forKey:[self sm_primaryKeyField]];
+    [dictionaryToReturn setObject:[self SMObjectId] forKey:[self SMPrimaryKeyField]];
     
     *objectDictionary = dictionaryToReturn;
+}
+
+- (id)valueForRelationshipKey:(NSString *)key error:(NSError *__autoreleasing*)error
+{
+    id result = nil;
+    @try {
+        result = [self valueForKey:key];
+    }
+    @catch (NSException *exception) {
+        if ([exception name] == SMExceptionCannotFillRelationshipFault && NULL != error) {
+            *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorCouldNotFillRelationshipFault userInfo:[NSDictionary dictionaryWithObject:[exception reason] forKey:NSLocalizedDescriptionKey]];
+        }
+            
+            return nil;
+    }
+    
+    return result;
+    
 }
 
 @end

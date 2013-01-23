@@ -448,7 +448,9 @@ describe(@"basic auth", ^{
             
             [[theValue(getDone) should] beYes];
             [error shouldNotBeNil];
-            [[theValue(error.code) should] equal:[NSNumber numberWithInt:SMErrorUnauthorized]];
+            [[theValue(error.code) should] equal:[NSNumber numberWithInt:SMErrorRefreshTokenFailed]];
+            NSError *originalError = [[error userInfo] valueForKey:SMOriginalErrorCausingRefreshKey];
+            [[theValue(originalError.code) should] equal:[NSNumber numberWithInt:SMErrorUnauthorized]];
         });
         
         it(@"should disallow resetPassword", ^{
@@ -466,7 +468,9 @@ describe(@"basic auth", ^{
             
             [[theValue(getDone) should] beYes];
             [error shouldNotBeNil];
-            [[theValue(error.code) should] equal:[NSNumber numberWithInt:SMErrorUnauthorized]];
+            [[theValue(error.code) should] equal:[NSNumber numberWithInt:SMErrorRefreshTokenFailed]];
+            NSError *originalError = [[error userInfo] valueForKey:SMOriginalErrorCausingRefreshKey];
+            [[theValue(originalError.code) should] equal:[NSNumber numberWithInt:SMErrorUnauthorized]];
         });
         
         it(@"should disallow refreshToken", ^{
@@ -669,6 +673,54 @@ describe(@"authentication with permissions", ^{
         });
     });
 });
+
+describe(@"basic login/logout works as it should", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    
+    beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
+        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        moc = [cds contextForCurrentThread];
+    });
+    it(@"login/logout", ^{
+        // login
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [client loginWithUsername:@"dude" password:@"sweet" onSuccess:^(NSDictionary *result) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                [error shouldNotBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        
+        // check values
+        [[theValue([client isLoggedIn]) should] beYes];
+        [[theValue([client isLoggedOut]) should] beNo];
+        [[client.session refreshToken] shouldNotBeNil];
+        
+        // logout, if logged in
+        if ([client isLoggedIn]) {
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [client logoutOnSuccess:^(NSDictionary *result) {
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *error) {
+                    [error shouldNotBeNil];
+                    syncReturn(semaphore);
+                }];
+            });
+        }
+        
+        // check values
+        [[theValue([client isLoggedIn]) should] beNo];
+        [[theValue([client isLoggedOut]) should] beYes];
+        [[client.session refreshToken] shouldBeNil];
+    });
+});
+
 
 
 SPEC_END

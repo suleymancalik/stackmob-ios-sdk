@@ -24,21 +24,34 @@
 
 SPEC_BEGIN(SMIncrementalStoreTest)
 
+
 describe(@"with fixtures", ^{
     __block NSArray *fixturesToLoad;
     __block NSDictionary *fixtures;
     
-    __block NSManagedObjectContext *moc;
-    [SMCoreDataIntegrationTestHelpers registerForMOCNotificationsWithContext:moc];
+    __block NSManagedObjectContext *moc = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    
     
     beforeEach(^{
         fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
         fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
+        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        moc = [cds contextForCurrentThread];
+        
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers registerForMOCNotificationsWithContext:moc];
     });
     
     afterEach(^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+        [SMCoreDataIntegrationTestHelpers removeObserversrForMOCNotificationsWithContext:moc];
     });
     
     
@@ -48,8 +61,10 @@ describe(@"with fixtures", ^{
         __block int afterInsert;
         
         describe(@"insert", ^{
+            
             it(@"inserts an object", ^{
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     people = results;
                     beforeInsert = [people count];
@@ -69,7 +84,7 @@ describe(@"with fixtures", ^{
                     }
                 }];
                 DLog(@"inserted objects after save are %@", [moc insertedObjects]);
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -82,6 +97,7 @@ describe(@"with fixtures", ^{
             });
             
             it(@"inserts an object with a one-to-one relationship", ^{
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 // create person
                 NSManagedObject *sean = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
                 [sean setValue:@"Bob" forKey:@"first_name"];
@@ -117,7 +133,7 @@ describe(@"with fixtures", ^{
                 __block NSManagedObject *person;
                 __block NSManagedObject *superpower;
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"last_name = 'Bobberson'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -130,7 +146,7 @@ describe(@"with fixtures", ^{
                     
                 }];
                 
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeSuperpowerFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeSuperpowerFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -143,7 +159,8 @@ describe(@"with fixtures", ^{
                     
                 }];
                 
-                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[superpower sm_objectId] inSchema:[superpower sm_schema] onSuccess:^(NSString *theObjectId, NSString *schema) {
+                // TODO MAKE SYNC
+                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[superpower SMObjectId] inSchema:[superpower SMSchema] onSuccess:^(NSString *theObjectId, NSString *schema) {
                     DLog(@"Deleted superpower");
                 } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
                     [theError shouldBeNil];
@@ -153,6 +170,8 @@ describe(@"with fixtures", ^{
 
 
             it(@"inserts/updates an object with a one-to-many relationship", ^{
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+                
                 // create person
                 NSManagedObject *sean = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
                 [sean setValue:@"Bob" forKey:@"first_name"];
@@ -178,6 +197,7 @@ describe(@"with fixtures", ^{
                     }
                 }];
                 // link the two
+                //[moc refreshObject:sean mergeChanges:YES];
                 [basketball setValue:sean forKey:@"person"];
                 [tennis setValue:sean forKey:@"person"];
                 
@@ -204,7 +224,7 @@ describe(@"with fixtures", ^{
                 __block NSString *tennisId = [tennis valueForKey:[tennis primaryKeyField]];
                 
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"last_name = 'Bobberson'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -212,7 +232,7 @@ describe(@"with fixtures", ^{
                     [[theValue([results count]) should] equal:[NSNumber numberWithInt:1]];
                     Person *result = [results objectAtIndex:0];
                     [[[result valueForKey:@"person_id"] should] equal:seanId];
-                    [[[result objectID] should] equal:[sean objectID]]; 
+                    [[[result objectID] should] equal:[sean objectID]];
                     NSSet *interests = [result valueForKey:@"interests"];
                     [[theValue([interests count]) should] equal:[NSNumber numberWithInt:2]];
                     [interests enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -227,7 +247,7 @@ describe(@"with fixtures", ^{
                 }];
                 
                 predicate = [NSPredicate predicateWithFormat:@"name = 'basketball'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -239,14 +259,14 @@ describe(@"with fixtures", ^{
                     [[[[result valueForKey:@"person"] valueForKey:@"person_id"] should] equal:seanId];
                 }];
 
-                
-                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[basketball sm_objectId] inSchema:[basketball sm_schema] onSuccess:^(NSString *theObjectId, NSString *schema) {
+                // TODO MAKE SYNC
+                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[basketball SMObjectId] inSchema:[basketball SMSchema] onSuccess:^(NSString *theObjectId, NSString *schema) {
                     DLog(@"Deleted basketball");
                 } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
                     [theError shouldBeNil];
                     DLog(@"Did not delete basketball with error userInfo %@",[theError userInfo]);
                 }];
-                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[tennis sm_objectId] inSchema:[tennis sm_schema] onSuccess:^(NSString *theObjectId, NSString *schema) {
+                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[tennis SMObjectId] inSchema:[tennis SMSchema] onSuccess:^(NSString *theObjectId, NSString *schema) {
                     DLog(@"Deleted tennis");
                 } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
                     [theError shouldBeNil];
@@ -256,6 +276,7 @@ describe(@"with fixtures", ^{
             });
             
             it(@"inserts/updates an object with a many-to-many relationship", ^{
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 // make 2 person objects
                 NSManagedObject *bob = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
                 [bob setValue:@"Bob" forKey:@"first_name"];
@@ -313,7 +334,7 @@ describe(@"with fixtures", ^{
                 __block NSString *jackId = [jack valueForKey:[jack primaryKeyField]];
                 
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"last_name = 'Bobberson'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -321,7 +342,7 @@ describe(@"with fixtures", ^{
                     [[theValue([results count]) should] equal:[NSNumber numberWithInt:1]];
                     Person *result = [results objectAtIndex:0];
                     [[[result valueForKey:@"person_id"] should] equal:bobId];
-                    [[[result objectID] should] equal:[bob objectID]]; 
+                    [[[result objectID] should] equal:[bob objectID]];
                     NSSet *favorites = [result valueForKey:@"favorites"];
                     [[theValue([favorites count]) should] equal:[NSNumber numberWithInt:2]];
                     [favorites enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -336,7 +357,7 @@ describe(@"with fixtures", ^{
                 }];
                 
                 predicate = [NSPredicate predicateWithFormat:@"last_name = 'Jackerson'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -344,7 +365,7 @@ describe(@"with fixtures", ^{
                     [[theValue([results count]) should] equal:[NSNumber numberWithInt:1]];
                     Person *result = [results objectAtIndex:0];
                     [[[result valueForKey:@"person_id"] should] equal:jackId];
-                    [[[result objectID] should] equal:[jack objectID]]; 
+                    [[[result objectID] should] equal:[jack objectID]];
                     NSSet *favorites = [result valueForKey:@"favorites"];
                     [[theValue([favorites count]) should] equal:[NSNumber numberWithInt:2]];
                     [favorites enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -359,7 +380,7 @@ describe(@"with fixtures", ^{
                 }];
                 
                 predicate = [NSPredicate predicateWithFormat:@"genre = 'movies'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeFavoriteFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeFavoriteFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -367,7 +388,7 @@ describe(@"with fixtures", ^{
                     [[theValue([results count]) should] equal:[NSNumber numberWithInt:1]];
                     NSManagedObject *result = [results objectAtIndex:0];
                     [[[result valueForKey:@"favorite_id"] should] equal:batmanId];
-                    [[[result objectID] should] equal:[batman objectID]]; 
+                    [[[result objectID] should] equal:[batman objectID]];
                     NSSet *persons = [result valueForKey:@"persons"];
                     [[theValue([persons count]) should] equal:[NSNumber numberWithInt:2]];
                     [persons enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -382,7 +403,7 @@ describe(@"with fixtures", ^{
                 }];
                 
                 predicate = [NSPredicate predicateWithFormat:@"genre = 'coffee'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeFavoriteFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeFavoriteFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -390,7 +411,7 @@ describe(@"with fixtures", ^{
                     [[theValue([results count]) should] equal:[NSNumber numberWithInt:1]];
                     NSManagedObject *result = [results objectAtIndex:0];
                     [[[result valueForKey:@"favorite_id"] should] equal:blueBottleId];
-                    [[[result objectID] should] equal:[blueBottle objectID]]; 
+                    [[[result objectID] should] equal:[blueBottle objectID]];
                     NSSet *persons = [result valueForKey:@"persons"];
                     [[theValue([persons count]) should] equal:[NSNumber numberWithInt:2]];
                     [persons enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
@@ -407,13 +428,13 @@ describe(@"with fixtures", ^{
                 
                 
                 // delete objects
-                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[blueBottle sm_objectId] inSchema:[blueBottle sm_schema] onSuccess:^(NSString *theObjectId, NSString *schema) {
+                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[blueBottle SMObjectId] inSchema:[blueBottle SMSchema] onSuccess:^(NSString *theObjectId, NSString *schema) {
                     DLog(@"Deleted blueBottle");
                 } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
                     [theError shouldBeNil];
                     DLog(@"Did not delete blueBottle with error userInfo %@",[theError userInfo]);
                 }];
-                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[batman sm_objectId] inSchema:[batman sm_schema] onSuccess:^(NSString *theObjectId, NSString *schema) {
+                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[batman SMObjectId] inSchema:[batman SMSchema] onSuccess:^(NSString *theObjectId, NSString *schema) {
                     DLog(@"Deleted batman");
                 } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
                     [theError shouldBeNil];
@@ -426,7 +447,8 @@ describe(@"with fixtures", ^{
         
         describe(@"update", ^{
             it(@"updates an object", ^{
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -444,7 +466,7 @@ describe(@"with fixtures", ^{
                     DLog(@"Executed syncronous update");
                 }];
                 NSLog(@"updated objects after update %@", [moc updatedObjects]);
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -455,8 +477,10 @@ describe(@"with fixtures", ^{
         });
         
         describe(@"delete", ^{
+            
             it(@"deletes objects from StackMob", ^{
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -471,7 +495,7 @@ describe(@"with fixtures", ^{
                         [error shouldBeNil];
                     }
                 }];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -484,12 +508,14 @@ describe(@"with fixtures", ^{
             });
             
             it(@"deletes objects with relationships", ^{
+                SM_CORE_DATA_DEBUG = YES;
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 __block Person *firstPerson;
                 __block NSString *firstPersonName;
                 __block int countOfPeopleBeforeDelete;
                 __block int countOfPeopleAfterDelete;
                 // grab a person
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -534,7 +560,7 @@ describe(@"with fixtures", ^{
                 }];
                 
                 // make sure everything is cool
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -544,7 +570,7 @@ describe(@"with fixtures", ^{
                     [[theValue(countOfPeopleAfterDelete) should] equal:theValue(countOfPeopleBeforeDelete - 1)];
                 }];
                 
-                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[batman sm_objectId] inSchema:[batman sm_schema] onSuccess:^(NSString *theObjectId, NSString *schema) {
+                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[batman SMObjectId] inSchema:[batman SMSchema] onSuccess:^(NSString *theObjectId, NSString *schema) {
                     DLog(@"Deleted batman");
                 } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
                     [theError shouldBeNil];
@@ -556,9 +582,10 @@ describe(@"with fixtures", ^{
         
         describe(@"retreiving an object with to-many relationships as faults", ^{
             it(@"cache insert and new relationship for objectID return the correct things", ^{
+                [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 __block Person *firstPerson;
                 __block NSString *firstPersonName;
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -598,7 +625,7 @@ describe(@"with fixtures", ^{
                 }];
                 
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"first_name = %@", firstPersonName];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -617,13 +644,13 @@ describe(@"with fixtures", ^{
                 }];
                 
                 // delete objects
-                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[basketball sm_objectId] inSchema:[basketball sm_schema] onSuccess:^(NSString *theObjectId, NSString *schema) {
+                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[basketball SMObjectId] inSchema:[basketball SMSchema] onSuccess:^(NSString *theObjectId, NSString *schema) {
                     DLog(@"Deleted basketball");
                 } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
                     [theError shouldBeNil];
                     DLog(@"Did not delete basketball with error userInfo %@", [theError userInfo]);
                 }];
-                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[tennis sm_objectId] inSchema:[tennis sm_schema] onSuccess:^(NSString *theObjectId, NSString *schema) {
+                [[[SMIntegrationTestHelpers defaultClient] dataStore] deleteObjectId:[tennis SMObjectId] inSchema:[tennis SMSchema] onSuccess:^(NSString *theObjectId, NSString *schema) {
                     DLog(@"Deleted tennis");
                 } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
                     [theError shouldBeNil];
@@ -639,9 +666,16 @@ describe(@"with fixtures", ^{
 
 describe(@"Testing CRUD on an entity with camelCase property names", ^{
     __block NSManagedObjectContext *moc = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
     __block NSManagedObject *camelCaseObject = nil;
     beforeEach(^{
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        SM_CORE_DATA_DEBUG = YES;
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         camelCaseObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
         [camelCaseObject setValue:@"new" forKey:@"name"];
         [camelCaseObject setValue:@"1234" forKey:@"server_id"];
@@ -649,6 +683,8 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
         [camelCaseObject setValue:[camelCaseObject assignObjectId] forKey:[camelCaseObject primaryKeyField]];
     });
     afterEach(^{
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [moc deleteObject:camelCaseObject];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
@@ -656,8 +692,11 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
                 [error shouldBeNil];
             }
         }];
+        
     });
+    
     it(@"Will save without error after creation", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
                 DLog(@"Error userInfo is %@", [error userInfo]);
@@ -665,14 +704,16 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
             }
         }];
     });
+    
     it(@"Will successfully read with a predicate", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
                 DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
             }
         }];
-        NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         [fetchRequest setEntity:entity];
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"yearBorn == 1900"];
@@ -685,7 +726,9 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
             NSLog(@"results is %@", results);
         }];
     });
+    
     it(@"Will successfully read with a sort descriptor", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSManagedObject *anotherRandom = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
         [anotherRandom setValue:@"another" forKey:@"name"];
         [anotherRandom setValue:@"1234" forKey:@"server_id"];
@@ -704,9 +747,8 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
                 [error shouldBeNil];
             }
         }];
-        NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        [fetchRequest setEntity:entity];
+        
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Random"];
         [fetchRequest setSortDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"yearBorn" ascending:YES]]];
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
             if (error != nil) {
@@ -721,7 +763,6 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
         }];
         
         
-        
         [moc deleteObject:anotherRandom];
         [moc deleteObject:yetAnotherRandom];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -730,9 +771,12 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
                 [error shouldBeNil];
             }
         }];
+        NSLog(@"end of test");
         
     });
+    
     it(@"Will save without error after update", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
                 DLog(@"Error userInfo is %@", [error userInfo]);
@@ -747,26 +791,24 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
             }
         }];
     });
+     
 });
 
 describe(@"test camel case with relationships", ^{
     __block NSManagedObjectContext *moc = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
     __block NSManagedObject *todo = nil;
     __block NSManagedObject *category = nil;
     beforeEach(^{
-        moc = [SMCoreDataIntegrationTestHelpers moc];
-    });
-    afterEach(^{
-        [moc deleteObject:todo];
-        [moc deleteObject:category];
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-        }];
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
     });
     it(@"Should pass for one-to-one", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         todo = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
         
         [todo setValue:@"Hello One-To-One" forKey:@"title"];
@@ -797,18 +839,34 @@ describe(@"test camel case with relationships", ^{
         else {
             DLog(@"You created a relationship between the Todo and Category Object!");
         }
+        
+        [moc deleteObject:todo];
+        [moc deleteObject:category];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *saveError) {
+            if (saveError != nil) {
+                DLog(@"Error userInfo is %@", [saveError userInfo]);
+                [saveError shouldBeNil];
+            }
+        }];
     });
 });
 
 describe(@"Updating existing object relationship fields to nil", ^{
     __block NSManagedObjectContext *moc = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
     __block Person *person = nil;
     __block Superpower *superpower = nil;
     __block NSManagedObject *interest = nil;
     beforeEach(^{
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
     });
     it(@"passes for one-to-one", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         // create person and superpower
         person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
         [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
@@ -864,6 +922,7 @@ describe(@"Updating existing object relationship fields to nil", ^{
         
     });
     it(@"passes for one-to-many", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         // create person and superpower
         person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
         [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
@@ -923,12 +982,19 @@ describe(@"can update a field to null", ^{
     __block NSManagedObjectContext *moc = nil;
     __block Person *person = nil;
     __block Superpower *superpower = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
     beforeEach(^{
-        moc = [SMCoreDataIntegrationTestHelpers moc];
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         person = nil;
         superpower = nil;
     });
     it(@"updates", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
         [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
         [person setValue:[NSNumber numberWithInt:3] forKey:@"armor_class"];
@@ -968,6 +1034,7 @@ describe(@"can update a field to null", ^{
         
     });
     it(@"updates with relationships, too", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
         [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
         [person setValue:[NSNumber numberWithInt:3] forKey:@"armor_class"];
@@ -1022,5 +1089,6 @@ describe(@"can update a field to null", ^{
     });
     
 });
+
 
 SPEC_END

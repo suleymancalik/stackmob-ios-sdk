@@ -31,12 +31,99 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 @synthesize stackMobMOM = _stackMobMOM;
 @synthesize stackMobPSC = _stackMobPSC;
 @synthesize stackMobMOC = _stackMobMOC;
+@synthesize client = _client;
+
++ (NSURL *)SM_getStoreURLForCacheMapTableWithPublicKey:(NSString *)publicKey
+{
+    
+    NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+    NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
+    
+    NSString *defaultName = [NSString stringWithFormat:@"%@-CacheMap.plist", publicKey];
+    
+    NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
+    
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    
+    for (NSString *path in paths)
+    {
+        NSString *filepath = [path stringByAppendingPathComponent:defaultName];
+        if ([fm fileExistsAtPath:filepath])
+        {
+            return [NSURL fileURLWithPath:filepath];
+        }
+        
+    }
+    
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    return aURL;
+}
+
++ (NSDictionary *)getContentsOfFileAtPath:(NSString *)path
+{
+    NSString *errorDesc = nil;
+    NSPropertyListFormat format;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:path];
+        NSDictionary *temp = (NSDictionary *)[NSPropertyListSerialization
+                                              propertyListFromData:plistXML
+                                              mutabilityOption:NSPropertyListMutableContainersAndLeaves
+                                              format:&format
+                                              errorDescription:&errorDesc];
+        
+        if (!temp) {
+            [NSException raise:SMExceptionCacheError format:@"Error reading cachemap: %@, format: %d", errorDesc, format];
+        } else {
+            return [temp mutableCopy];
+        }
+    }
+    
+    return nil;
+}
 
 + (SMCoreDataIntegrationTestHelpers *)singleton {
     if (_singletonInstance == nil) {
         _singletonInstance = [[SMCoreDataIntegrationTestHelpers alloc] init];
     }
     return _singletonInstance;
+}
+
++ (void)removeSQLiteDatabaseAndMapsWithPublicKey:(NSString *)publicKey
+{
+    NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+    NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
+    NSString *defaultName = [NSString stringWithFormat:@"%@-CoreDataStore.sqlite", publicKey];
+    NSURL *sqliteDBURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if ([fileManager fileExistsAtPath:[sqliteDBURL path]]) {
+        NSError *sqliteDeleteError = nil;
+        BOOL sqliteDelete = [fileManager removeItemAtURL:sqliteDBURL error:&sqliteDeleteError];
+        if (!sqliteDelete) {
+            [NSException raise:@"SMCouldNotDeleteSQLiteDatabase" format:@""];
+        }
+    }
+    
+    defaultName = [NSString stringWithFormat:@"%@-UserIdentifierMap.plist", publicKey];
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    if ([fileManager fileExistsAtPath:[aURL path]]) {
+        NSError *sqliteDeleteError = nil;
+        BOOL sqliteDelete = [fileManager removeItemAtURL:aURL error:&sqliteDeleteError];
+        if (!sqliteDelete) {
+            [NSException raise:@"SMCouldNotDeleteUserIdentifierMap" format:@""];
+        }
+    }
+    
+    defaultName = [NSString stringWithFormat:@"%@-CacheMap.plist", publicKey];
+    aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    if ([fileManager fileExistsAtPath:[aURL path]]) {
+        NSError *sqliteDeleteError = nil;
+        BOOL sqliteDelete = [fileManager removeItemAtURL:aURL error:&sqliteDeleteError];
+        if (!sqliteDelete) {
+            [NSException raise:@"SMCouldNotDeleteCacheMap" format:@""];
+        }
+    }
 }
 
 + (NSManagedObjectContext *)moc {
@@ -50,8 +137,8 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return entity;
 }
 
-+ (NSFetchRequest *)makePersonFetchRequest:(NSPredicate *)predicate {
-    NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Person"];
++ (NSFetchRequest *)makePersonFetchRequest:(NSPredicate *)predicate context:(NSManagedObjectContext *)moc {
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Person" inManagedObjectContext:moc];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     [fetchRequest setEntity:entity];
     [fetchRequest setPredicate:predicate];
@@ -60,8 +147,8 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return fetchRequest;
 }
 
-+ (NSFetchRequest *)makeFavoriteFetchRequest:(NSPredicate *)predicate {
-    NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Favorite"];
++ (NSFetchRequest *)makeFavoriteFetchRequest:(NSPredicate *)predicate context:(NSManagedObjectContext *)moc {
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Favorite" inManagedObjectContext:moc];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     [fetchRequest setEntity:entity];
     [fetchRequest setPredicate:predicate];
@@ -70,8 +157,8 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return fetchRequest;
 }
 
-+ (NSFetchRequest *)makeInterestFetchRequest:(NSPredicate *)predicate {
-    NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Interest"];
++ (NSFetchRequest *)makeInterestFetchRequest:(NSPredicate *)predicate context:(NSManagedObjectContext *)moc {
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Interest" inManagedObjectContext:moc];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     [fetchRequest setEntity:entity];
     [fetchRequest setPredicate:predicate];
@@ -80,8 +167,8 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return fetchRequest;
 }
 
-+ (NSFetchRequest *)makeSuperpowerFetchRequest:(NSPredicate *)predicate {
-    NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Superpower"];
++ (NSFetchRequest *)makeSuperpowerFetchRequest:(NSPredicate *)predicate context:(NSManagedObjectContext *)moc {
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Superpower" inManagedObjectContext:moc];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     [fetchRequest setEntity:entity];
     [fetchRequest setPredicate:predicate];
@@ -92,53 +179,47 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 }
 
 + (void)executeSynchronousFetch:(NSManagedObjectContext *)moc withRequest:(NSFetchRequest *)fetchRequest andBlock:(SynchronousFetchBlock)block {
-    DLog();
-    [moc performBlockAndWait:^{
-        NSError *error = nil;
-        NSArray *results = [moc executeFetchRequest:fetchRequest error:&error];
-        block(results, error);
-    }];
+    DLog()
+    NSError *error = nil;
+    NSArray *results = [moc executeFetchRequestAndWait:fetchRequest error:&error];
+    block(results, error);
 }
 
 + (void)executeSynchronousSave:(NSManagedObjectContext *)moc withBlock:(SynchronousErrorBlock)block {
-    DLog();
-    [moc performBlockAndWait:^{
-        NSError *__autoreleasing anError = nil;
-        BOOL saveSuccess = [moc save:&anError];
-        
-        if (!saveSuccess) {
-            DLog(@"save error is %@", [anError description]);
-        }
-        block(anError);
-    }];
+    DLog()
+    NSError *anError = nil;
+    BOOL saveSuccess = [moc saveAndWait:&anError];
+    
+    if (!saveSuccess) {
+        DLog(@"save error is %@", [anError description]);
+    }
+    block(anError);
 }
 
 + (void)executeSynchronousUpdate:(NSManagedObjectContext *)moc withObject:(NSManagedObjectID *)objectID andBlock:(SynchronousErrorBlock)block {
-    DLog();
-    [moc performBlockAndWait:^{
-        NSError *__autoreleasing anError = nil;
-        NSManagedObject *toUpdate = [moc objectWithID:objectID];
-        [toUpdate setValue:[NSNumber numberWithInt:20] forKey:@"armor_class"];      
-        BOOL success = [moc save:&anError];
-        if (!success) {
-            DLog(@"save error is %@", [anError description]);
-        }
-        block(anError);
-    }];
+    DLog()
+    NSError *__autoreleasing anError = nil;
+    NSManagedObject *toUpdate = [moc objectWithID:objectID];
+    [toUpdate setValue:[NSNumber numberWithInt:20] forKey:@"armor_class"];
+    BOOL success = [moc saveAndWait:&anError];
+    if (!success) {
+        DLog(@"save error is %@", [anError description]);
+    }
+    block(anError);
+    
 }
 
 + (void)executeSynchronousDelete:(NSManagedObjectContext *)moc withObject:(NSManagedObjectID *)objectID andBlock:(SynchronousErrorBlock)block {
-    DLog();
-    [moc performBlockAndWait:^{
-        NSError *__autoreleasing anError = nil;
-        NSManagedObject *toDelete = [moc objectWithID:objectID];
-        [moc deleteObject:toDelete];
-        BOOL success = [moc save:&anError];
-        if (!success) {
-            DLog(@"save error is %@", [anError description]);
-        }
-        block(anError);
-    }];
+    DLog()
+    NSError *__autoreleasing anError = nil;
+    NSManagedObject *toDelete = [moc objectWithID:objectID];
+    [moc deleteObject:toDelete];
+    BOOL success = [moc saveAndWait:&anError];
+    if (!success) {
+        DLog(@"save error is %@", [anError description]);
+    }
+    block(anError);
+
 }
 
 
@@ -182,6 +263,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
 
 - (NSPersistentStoreCoordinator *)stackMobPSC {
     if (_stackMobPSC == nil) {
+        self.client = [SMIntegrationTestHelpers defaultClient];
         [NSPersistentStoreCoordinator registerStoreClass:[SMIncrementalStore class] forStoreType:SMIncrementalStoreType];
         _stackMobPSC = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.stackMobMOM];
         NSError *error;
@@ -189,7 +271,7 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
         [_stackMobPSC addPersistentStoreWithType:SMIncrementalStoreType
                                    configuration:nil 
                                              URL:nil
-                                         options:[NSDictionary dictionaryWithObject:[[SMIntegrationTestHelpers defaultClient] dataStore] forKey:SM_DataStoreKey] 
+                                         options:[NSDictionary dictionaryWithObject:self.client.dataStore forKey:SM_DataStoreKey]
                                            error:&error];
         if (error != nil) {
             DLog(@"Error: %@", error);
@@ -207,5 +289,6 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     }
     return _stackMobMOC;
 }
+
 
 @end

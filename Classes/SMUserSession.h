@@ -37,13 +37,13 @@
 @property (nonatomic, readwrite, strong) SMOAuth2Client *secureOAuthClient;
 @property (nonatomic, readwrite, strong) AFHTTPClient *tokenClient;
 @property (nonatomic, readwrite, strong) SMNetworkReachability *networkMonitor;
+@property (nonatomic, strong) NSMutableDictionary *userIdentifierMap;
 @property (nonatomic, copy) NSString *userSchema;
 @property (nonatomic, copy) NSString *userPrimaryKeyField;
 @property (nonatomic, copy) NSString *userPasswordField;
 @property (nonatomic, copy) NSDate *expiration;
 @property (nonatomic, copy) NSString *refreshToken;
 @property (atomic) BOOL refreshing;
-@property (nonatomic, copy) NSString *oauthStorageKey;
 
 /**
  Internal method used by `SMUserSession` to check if the expiration date on the current access token has expired.
@@ -60,11 +60,24 @@
 /**
  Makes a request to refresh the current user session using the refresh token.
  
+ Callback blocks are performed on the main thread.
+ 
  @param successBlock Upon success provides the user object.
  @param failureBlock Upon failure to refresh the session, provides the error.
  */
 - (void)refreshTokenOnSuccess:(void (^)(NSDictionary *userObject))successBlock
                         onFailure:(void (^)(NSError *theError))failureBlock;
+
+
+/**
+ Makes a request to refresh the current user session using the refresh token.
+ 
+ @param successCallbackQueue The queue to perform successBlock on.
+ @param failureCallbackQueue The queue to perform failureBlock on.
+ @param successBlock Upon success provides the user object.
+ @param failureBlock Upon failure to refresh the session, provides the error.
+ */
+- (void)refreshTokenWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(void (^)(NSDictionary *userObject))successBlock onFailure:(void (^)(NSError *theError))failureBlock;
 
 /**
  Initialize a user session.
@@ -94,12 +107,16 @@
  @param endpoint The endpoint to hit depending on whether we are asking for a new access token or refreshing a current session.
  @param credentials The credentials needed to authenticate the user.
  @param options An instance of SMRequestOptions.
+ @param successCallbackQueue The queue to perform successBlock on.
+ @param failureCallbackQueue The queue to perform failureBlock on.
  @param successBlock Upon success provides the user object.
  @param failureBlock Upon failure to refresh the session, provides the error. 
  */
 - (void)doTokenRequestWithEndpoint:(NSString *)endpoint
                        credentials:(NSDictionary *)credentials
-                       options:(SMRequestOptions *)options
+                           options:(SMRequestOptions *)options
+              successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+              failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                          onSuccess:(void (^)(NSDictionary *userObject))successBlock
                          onFailure:(void (^)(NSError *theError))failureBlock;
 
@@ -127,5 +144,24 @@
  @return The signed request.
  */
 - (NSURLRequest *)signRequest:(NSURLRequest *)request;
+
+/**
+ Whether the calling session is eligible to perform an access token refresh request.
+ 
+ @param options The tryRefreshToken property is used.
+ 
+ @return Whether the calling session is eligible to perform an access token refresh request.
+ */
+- (BOOL)eligibleForTokenRefresh:(SMRequestOptions *)options;
+
+/**
+ Internal method used to read a file which maps users to unique strings.
+ */
+- (void)SMReadUserIdentifierMap;
+
+/**
+ Internal method used to save a file which maps users to unique strings.
+ */
+- (void)SMSaveUserIdentifierMap;
 
 @end

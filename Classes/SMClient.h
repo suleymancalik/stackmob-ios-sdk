@@ -61,13 +61,17 @@
  
  ## Core Data Integration ##
  
- In order to use the Core Data integration, you must initialize an `SMClient` as well as a `NSManagedObjectModel`, then pass the `NSManagedObjectModel` instance to the `SMClient` instance method <coreDataStoreWithManagedObjectModel:> which returns an instance of <SMCoreDataStore>.  You can then retrieve an instance of `NSManagedObjectContext`:
+ In order to use the Core Data integration, you must initialize an `SMClient` as well as a `NSManagedObjectModel`, then pass the `NSManagedObjectModel` instance to the `SMClient` instance method <coreDataStoreWithManagedObjectModel:> which returns an instance of <SMCoreDataStore>.  You can then retrieve an instance of `NSManagedObjectContext` using the contextForCurrentThread method:
  
     SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
     SMCoreDataStore *coreDataStore = [client coreDataStoreWithManagedObjectModel:self.managedObjectModel];
-    self.managedObjectContext = [coreDataStore managedObjectContext];
+    self.managedObjectContext = [coreDataStore contextForCurrentThread];
  
- It is important only to instantiate one `SMCoreDataStore` instance and use the same `NSManagedObjectInstance` instance throughout the duration of your application.  This ensures that you use the same copy of the context and persistent store.
+ It is important only to instantiate one `SMCoreDataStore` instance throughout the duration of your application.  This ensures that you use the same copy of the persistent store coordinator.
+ 
+ Check out the [SMCoreDataStore class](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) for a list of all methods and functionality for interacting with the Core Data integration.
+ 
+ For the full list of Core Data functionality that is supported by our integration, as well as work arounds for that which is not, check out the [StackMob <--> Core Data Support Specifications](http://stackmob.github.com/stackmob-ios-sdk/CoreDataSupportSpecs.html).
  
  Last but not least, make sure to adhere to the [StackMob <--> Core Data Coding Practices](http://stackmob.github.com/stackmob-ios-sdk/index.html\#coding\_practices)!
  
@@ -158,6 +162,7 @@
  An instance of `SMUserSession` which contains the necessary credentials to make StackMob requests.
  */
 @property(nonatomic, readonly, strong) SMUserSession * session;
+
 
 #pragma mark init
 ///-------------------------------

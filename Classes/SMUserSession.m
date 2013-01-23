@@ -24,13 +24,22 @@
 #define MAC_KEY @"mac_key"
 #define REFRESH_TOKEN @"refresh_token"
 
+@interface SMUserSession ()
+
+@property (nonatomic, copy) NSString *oauthStorageKey;
+
+- (NSURL *)SM_getStoreURLForUserIdentifierTable;
+- (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL;
+
+@end
+
 
 @implementation SMUserSession
 
 
 @synthesize regularOAuthClient = _SM_regularOAuthClient;
 @synthesize secureOAuthClient = _SM_secureOAuthClient;
-@synthesize tokenClient = _SM_tokenClient;  
+@synthesize tokenClient = _SM_tokenClient;
 @synthesize userSchema = _SM_userSchema;
 @synthesize userPrimaryKeyField = _userPrimaryKeyField;
 @synthesize userPasswordField = _SM_userPasswordField;
@@ -39,10 +48,11 @@
 @synthesize refreshing = _SM_refreshing;
 @synthesize oauthStorageKey = _SM_oauthStorageKey;
 @synthesize networkMonitor = _SM_networkMonitor;
+@synthesize userIdentifierMap = _SM_userIdentifierMap;
 
-- (id)initWithAPIVersion:(NSString *)version 
-                 apiHost:(NSString *)apiHost 
-               publicKey:(NSString *)publicKey 
+- (id)initWithAPIVersion:(NSString *)version
+                 apiHost:(NSString *)apiHost
+               publicKey:(NSString *)publicKey
               userSchema:(NSString *)userSchema
      userPrimaryKeyField:(NSString *)userPrimaryKeyField
        userPasswordField:(NSString *)userPasswordField
@@ -51,9 +61,9 @@
     if (self) {
         self.regularOAuthClient = [[SMOAuth2Client alloc] initWithAPIVersion:version scheme:@"http" apiHost:apiHost publicKey:publicKey];
         self.secureOAuthClient = [[SMOAuth2Client alloc] initWithAPIVersion:version scheme:@"https" apiHost:apiHost publicKey:publicKey];
-        self.tokenClient = [[AFHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@", apiHost]]];    
+        self.tokenClient = [[AFHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@", apiHost]]];
         NSString *acceptHeader = [NSString stringWithFormat:@"application/vnd.stackmob+json; version=%@", version];
-        [self.tokenClient setDefaultHeader:@"Accept" value:acceptHeader]; 
+        [self.tokenClient setDefaultHeader:@"Accept" value:acceptHeader];
         [self.tokenClient setDefaultHeader:@"X-StackMob-API-Key" value:publicKey];
         [self.tokenClient setDefaultHeader:@"Content-Type" value:@"application/x-www-form-urlencoded"];
         [self.tokenClient setDefaultHeader:@"User-Agent" value:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, smDeviceModel(), smSystemVersion(), [[NSLocale currentLocale] localeIdentifier]]];
@@ -62,8 +72,11 @@
         self.userPrimaryKeyField = userPrimaryKeyField;
         self.userPasswordField = userPasswordField;
         self.refreshing = NO;
-        self.oauthStorageKey = [NSString stringWithFormat:@"%@.oauth", publicKey];
+        
+        self.oauthStorageKey = [NSString stringWithFormat:@"%@.%@.oauth", [[NSBundle bundleForClass:[self class]] bundleIdentifier], publicKey];
         [self saveAccessTokenInfo:[[NSUserDefaults standardUserDefaults] dictionaryForKey:self.oauthStorageKey]];
+        
+        [self SMReadUserIdentifierMap];
         
     }
     
@@ -88,11 +101,17 @@
 }
 
 - (void)refreshTokenOnSuccess:(void (^)(NSDictionary *userObject))successBlock
-                        onFailure:(void (^)(NSError *theError))failureBlock
+                    onFailure:(void (^)(NSError *theError))failureBlock
+{
+    [self refreshTokenWithSuccessCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
+    
+}
+
+- (void)refreshTokenWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(void (^)(NSDictionary *userObject))successBlock onFailure:(void (^)(NSError *theError))failureBlock
 {
     if (self.refreshToken == nil) {
         if (failureBlock) {
-            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:nil];
+            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Refresh Token is nil", NSLocalizedDescriptionKey, nil]];
             failureBlock(error);
         }
     } else if (self.refreshing) {
@@ -102,14 +121,16 @@
         }
     } else {
         self.refreshing = YES;//Don't ever trigger two refreshToken calls
-        [self doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] onSuccess:successBlock onFailure:failureBlock];
+        [self doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
     }
     
 }
 
 - (void)doTokenRequestWithEndpoint:(NSString *)endpoint
-                       credentials:(NSDictionary *)credentials 
-                       options:(SMRequestOptions *)options
+                       credentials:(NSDictionary *)credentials
+                           options:(SMRequestOptions *)options
+              successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+              failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                          onSuccess:(void (^)(NSDictionary *userObject))successBlock
                          onFailure:(void (^)(NSError *theError))failureBlock
 {
@@ -119,9 +140,9 @@
     NSMutableURLRequest *request = [self.tokenClient requestWithMethod:@"POST" path:[self.userSchema stringByAppendingPathComponent:endpoint] parameters:args];
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
-        [request setValue:headerValue forHTTPHeaderField:headerField]; 
+        [request setValue:headerValue forHTTPHeaderField:headerField];
     }];
-    SMFullResponseSuccessBlock successHandler = ^void(NSURLRequest *req, NSHTTPURLResponse *response, id JSON) {   
+    SMFullResponseSuccessBlock successHandler = ^void(NSURLRequest *req, NSHTTPURLResponse *response, id JSON) {
         if (successBlock) {
             successBlock([self parseTokenResults:JSON]);
         }
@@ -130,6 +151,7 @@
         self.refreshing = NO;
         if (failureBlock) {
             if (response == nil) {
+                // May need to check for code -1009
                 NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
                 failureBlock(networkNotReachableError);
             } else {
@@ -144,6 +166,12 @@
         }
     };
     AFJSONRequestOperation * op = [SMJSONRequestOperation JSONRequestOperationWithRequest:request success:successHandler failure:failureHandler];
+    if (successCallbackQueue) {
+        [op setSuccessCallbackQueue:successCallbackQueue];
+    }
+    if (failureCallbackQueue) {
+        [op setFailureCallbackQueue:failureCallbackQueue];
+    }
     [self.tokenClient enqueueHTTPRequestOperation:op];
 }
 
@@ -151,10 +179,11 @@
 {
     NSMutableDictionary *resultsToSave = [result mutableCopy];
     NSNumber *expires = [result valueForKey:EXPIRES_IN];
-    [resultsToSave setObject:[NSDate dateWithTimeIntervalSinceNow:expires.intValue] forKey:EXPIRES_IN];
+    NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:[expires doubleValue]];
+    [resultsToSave setObject:expirationDate forKey:EXPIRES_IN];
     [self saveAccessTokenInfo:resultsToSave];
     [[NSUserDefaults standardUserDefaults] setObject:resultsToSave forKey:self.oauthStorageKey];
-    return [[result valueForKey:@"stackmob"] valueForKey:@"user"];   
+    return [[result valueForKey:@"stackmob"] valueForKey:@"user"];
 }
 
 - (void)saveAccessTokenInfo:(NSDictionary *)result
@@ -175,9 +204,110 @@
 - (NSURLRequest *) signRequest:(NSURLRequest *)request
 {
     NSMutableURLRequest *newRequest = [request mutableCopy];
-    //Both have the same credentials so it doesn't matter which we use here
+    // Both requests have the same credentials so it doesn't matter which we use here
     [self.regularOAuthClient signRequest:newRequest path:[[request URL] path]];
     return newRequest;
+}
+
+- (BOOL)eligibleForTokenRefresh:(SMRequestOptions *)options
+{
+    return options.tryRefreshToken && self.refreshToken != nil && [self accessTokenHasExpired];
+}
+
+- (NSURL *)SM_getStoreURLForUserIdentifierTable
+{
+    
+    NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+    NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
+    
+    NSString *userIDMapName = nil;
+    if (applicationName != nil)
+    {
+        userIDMapName = [NSString stringWithFormat:@"%@-%@-UserIdentifierMap.plist", applicationName, self.regularOAuthClient.publicKey];
+    } else {
+        userIDMapName = [NSString stringWithFormat:@"%@-UserIdentifierMap.plist", self.regularOAuthClient.publicKey];
+    }
+    
+    NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
+    
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    
+    for (NSString *path in paths)
+    {
+        NSString *filepath = [path stringByAppendingPathComponent:userIDMapName];
+        if ([fm fileExistsAtPath:filepath])
+        {
+            return [NSURL fileURLWithPath:filepath];
+        }
+        
+    }
+    
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:userIDMapName]];
+    return aURL;
+}
+
+- (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL
+{
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSURL *pathToStore = [storeURL URLByDeletingLastPathComponent];
+    
+    NSError *error = nil;
+    BOOL pathWasCreated = [fileManager createDirectoryAtPath:[pathToStore path] withIntermediateDirectories:YES attributes:nil error:&error];
+    
+    if (!pathWasCreated) {
+        [NSException raise:SMExceptionAddPersistentStore format:@"Error creating user identifier map: %@", error];
+    }
+    
+}
+
+- (void)SMReadUserIdentifierMap
+{
+    
+    NSString *errorDesc = nil;
+    NSPropertyListFormat format;
+    NSURL *mapPath = [self SM_getStoreURLForUserIdentifierTable];
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[mapPath path]]) {
+        NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:[mapPath path]];
+        NSDictionary *temp = (NSDictionary *)[NSPropertyListSerialization
+                                              propertyListFromData:plistXML
+                                              mutabilityOption:NSPropertyListMutableContainersAndLeaves
+                                              format:&format
+                                              errorDescription:&errorDesc];
+        
+        if (!temp) {
+            [NSException raise:SMExceptionCacheError format:@"Error reading user identifier: %@, format: %d", errorDesc, format];
+        } else {
+            self.userIdentifierMap = [temp mutableCopy];
+        }
+    } else {
+        self.userIdentifierMap = [NSMutableDictionary dictionary];
+    }
+    
+}
+
+- (void)SMSaveUserIdentifierMap
+{
+    NSString *errorDesc = nil;
+    NSError *error = nil;
+    NSURL *mapPath = [self SM_getStoreURLForUserIdentifierTable];
+    [self SM_createStoreURLPathIfNeeded:mapPath];
+    
+    NSData *mapData = [NSPropertyListSerialization dataFromPropertyList:self.userIdentifierMap
+                                                                 format:NSPropertyListXMLFormat_v1_0
+                                                       errorDescription:&errorDesc];
+    
+    if (!mapData) {
+        [NSException raise:SMExceptionCacheError format:@"Error serializing user identifier data with error description %@", errorDesc];
+    }
+    
+    BOOL successfulWrite = [mapData writeToFile:[mapPath path] options:NSDataWritingAtomic error:&error];
+    if (!successfulWrite) {
+        [NSException raise:SMExceptionCacheError format:@"Error saving identifier data with error %@", error];
+    }
+    
 }
 
 

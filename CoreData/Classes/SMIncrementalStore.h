@@ -18,6 +18,19 @@
 
 extern NSString *const SMIncrementalStoreType;
 extern NSString *const SM_DataStoreKey;
+extern NSString *const SMInsertedObjectFailures;
+extern NSString *const SMUpdatedObjectFailures;
+extern NSString *const SMDeletedObjectFailures;
+extern NSString *const SMFailedManagedObjectID;
+extern NSString *const SMFailedManagedObjectError;
+
+extern NSString *const SMPurgeObjectFromCacheNotification;
+extern NSString *const SMPurgeObjectsFromCacheNotification;
+extern NSString *const SMPurgeObjectsFromCacheByEntityNotification;
+extern NSString *const SMResetCacheNotification;
+extern NSString *const SMCachePurgeManagedObjectID;
+extern NSString *const SMCachePurgeArrayOfManageObjectIDs;
+extern NSString *const SMCachePurgeOfObjectsFromEntityName;
 
 extern BOOL SM_CORE_DATA_DEBUG;
 extern unsigned int SM_MAX_LOG_LENGTH;

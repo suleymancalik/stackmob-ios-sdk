@@ -15,16 +15,21 @@
  */
 
 #import "SMNetworkReachability.h"
+#import "SMIncrementalStore.h"
+
+#define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
 NSString * SMNetworkStatusDidChangeNotification = @"SMNetworkStatusDidChangeNotification";
 NSString * SMCurrentNetworkStatusKey = @"SMCurrentNetworkStatusKey";
 
 typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
+typedef SMCachePolicy (^SMCachePolicyReturnBlock)(SMNetworkStatus status);
 
 @interface SMNetworkReachability ()
 
 @property (nonatomic) int networkStatus;
 @property (readwrite, nonatomic, copy) SMNetworkStatusBlock localNetworkStatusBlock;
+@property (readwrite, nonatomic, copy) SMCachePolicyReturnBlock localNetworkStatusBlockWithReturn;
 
 - (void)addNetworkStatusDidChangeObserver;
 - (void)removeNetworkStatusDidChangeObserver;
@@ -69,16 +74,26 @@ typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
     self.localNetworkStatusBlock = block;
 }
 
+- (void)setNetworkStatusChangeBlockWithCachePolicyReturn:(SMCachePolicy (^)(SMNetworkStatus))block
+{
+    self.localNetworkStatusBlockWithReturn = block;
+}
+
 - (void)networkChangeNotificationFromAFNetworking:(NSNotification *)notification
 {
     int notificationNetworkStatus = [self translateAFNetworkingStatus:[[[notification userInfo] objectForKey:AFNetworkingReachabilityNotificationStatusItem] intValue]];
     
     if (self.networkStatus != notificationNetworkStatus) {
         self.networkStatus = notificationNetworkStatus;
+        if (SM_CORE_DATA_DEBUG) {DLog(@"STACKMOB SYSTEM UPDATE: Network reachability has changed to %d", notificationNetworkStatus)};
         if (self.localNetworkStatusBlock) {
             self.localNetworkStatusBlock(self.networkStatus);
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:SMNetworkStatusDidChangeNotification object:nil userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:self.currentNetworkStatus], SMCurrentNetworkStatusKey, nil]];
+        if (self.localNetworkStatusBlockWithReturn) {
+            SMCachePolicy newCachePolicy = self.localNetworkStatusBlockWithReturn(self.networkStatus);
+            [[NSNotificationCenter defaultCenter] postNotificationName:SMSetCachePolicyNotification object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:newCachePolicy], @"NewCachePolicy", nil]];
+        }
     }
     
 }
@@ -102,6 +117,11 @@ typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
             return Unknown;
             break;
     }
+}
+
+- (void)dealloc
+{
+    [self removeNetworkStatusDidChangeObserver];
 }
 
 @end

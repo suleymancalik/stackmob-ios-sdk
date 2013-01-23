@@ -35,6 +35,7 @@ static SMClient *defaultClient = nil;
 @property(nonatomic, readwrite, copy) NSString *publicKey;
 @property(nonatomic, readwrite, strong) SMUserSession * session;
 @property(nonatomic, readwrite, strong) SMCoreDataStore *coreDataStore;
+
 @end
 
 @implementation SMClient
@@ -90,6 +91,7 @@ static SMClient *defaultClient = nil;
         
         self.session = [[SMUserSession alloc] initWithAPIVersion:appAPIVersion apiHost:apiHost publicKey:publicKey userSchema:userSchema userPrimaryKeyField:userPrimaryKeyField userPasswordField:userPasswordField];
         self.coreDataStore = nil;
+        
         
         if ([SMClient defaultClient] == nil)
         {
@@ -168,7 +170,7 @@ static SMClient *defaultClient = nil;
         }
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:username, self.userPrimaryKeyField, password, self.userPasswordField, nil];
-        [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options onSuccess:successBlock onFailure:failureBlock]; 
+        [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
     }
 }
 
@@ -197,7 +199,7 @@ static SMClient *defaultClient = nil;
         NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:username, self.userPrimaryKeyField, 
                               tempPassword, self.userPasswordField, 
                               newPassword, @"new_password", nil];
-        [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options onSuccess:successBlock onFailure:failureBlock]; 
+        [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
     }
 }
 
@@ -326,11 +328,11 @@ static SMClient *defaultClient = nil;
         if (username != nil) {
             [args setValue:username forKey:self.userPrimaryKeyField];
         }
-        [self.dataStore readObjectWithId:@"createUserWithFacebook" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] onSuccess:^(NSDictionary *theObject, NSString *schema) {
+        [self.dataStore createObject:args inSchema:[NSString stringWithFormat:@"%@/createUserWithFacebook", self.userSchema] onSuccess:^(NSDictionary *theObject, NSString *schema) {
             if (successBlock) {
                 successBlock(theObject);
             }
-        } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+        } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
             if (failureBlock) {
                 failureBlock(theError);
             }
@@ -343,7 +345,7 @@ static SMClient *defaultClient = nil;
                                 onFailure:(SMFailureBlock)failureBlock
 {
     NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:fbToken, FB_TOKEN_KEY, nil];
-    [self.dataStore readObjectWithId:@"linkUserWithFacebook" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] onSuccess:^(NSDictionary *theObject, NSString *schema) {
+    [self.dataStore readObjectWithId:@"linkUserWithFacebook" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
         if (successBlock) {
             successBlock(theObject);
         }
@@ -373,7 +375,7 @@ static SMClient *defaultClient = nil;
         }
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:fbToken, FB_TOKEN_KEY, nil];
-        [self.session doTokenRequestWithEndpoint:@"facebookAccessToken" credentials:args options:options onSuccess:successBlock onFailure:failureBlock]; 
+        [self.session doTokenRequestWithEndpoint:@"facebookAccessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
     }
 }
 
@@ -389,7 +391,7 @@ static SMClient *defaultClient = nil;
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObject:message forKey:@"message"];
 
-        [self.dataStore readObjectWithId:@"postFacebookMessage" inSchema:self.userSchema parameters:args options:[SMRequestOptions options] onSuccess:^(NSDictionary *theObject, NSString *schema) {
+        [self.dataStore readObjectWithId:@"postFacebookMessage" inSchema:self.userSchema parameters:args options:[SMRequestOptions options] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
             if (successBlock) {
                 successBlock(theObject);
             }
@@ -440,7 +442,7 @@ static SMClient *defaultClient = nil;
         if (username != nil) {
             [args setValue:username forKey:self.userPrimaryKeyField];
         }
-        [self.dataStore readObjectWithId:@"createUserWithTwitter" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] onSuccess:^(NSDictionary *theObject, NSString *schema) {
+        [self.dataStore readObjectWithId:@"createUserWithTwitter" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
             if (successBlock) {
                 successBlock(theObject);
             }
@@ -458,7 +460,7 @@ static SMClient *defaultClient = nil;
                                onFailure:(SMFailureBlock)failureBlock
 {
     NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:twitterToken, TW_TOKEN_KEY, twitterSecret, TW_SECRET_KEY, nil];
-    [self.dataStore readObjectWithId:@"linkUserWithTwitter" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] onSuccess:^(NSDictionary *theObject, NSString *schema) {
+    [self.dataStore readObjectWithId:@"linkUserWithTwitter" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
         if (successBlock) {
             successBlock(theObject);
         }
@@ -490,7 +492,7 @@ static SMClient *defaultClient = nil;
         }
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:twitterToken, TW_TOKEN_KEY, twitterSecret, TW_SECRET_KEY, nil];
-        [self.session doTokenRequestWithEndpoint:@"twitterAccessToken" credentials:args options:options onSuccess:successBlock onFailure:failureBlock]; 
+        [self.session doTokenRequestWithEndpoint:@"twitterAccessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock]; 
     }
 }
 
@@ -506,7 +508,7 @@ static SMClient *defaultClient = nil;
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObject:message forKey:@"tw_st"];
         
-        [self.dataStore readObjectWithId:@"twitterStatusUpdate" inSchema:self.userSchema parameters:args options:[SMRequestOptions options] onSuccess:^(NSDictionary *theObject, NSString *schema) {
+        [self.dataStore readObjectWithId:@"twitterStatusUpdate" inSchema:self.userSchema parameters:args options:[SMRequestOptions options] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
             if (successBlock) {
                 successBlock(theObject);
             }

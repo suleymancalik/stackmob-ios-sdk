@@ -14,4 +14,13 @@
  * limitations under the License.
  */
 
-#define SDK_VERSION @"1.2.0"
+#import "AFHTTPClient.h"
+
+@interface AFHTTPClient (StackMob)
+
+- (void)enqueueBatchOfHTTPRequestOperations:(NSArray *)operations
+                       completionBlockQueue:(dispatch_queue_t)queue
+                              progressBlock:(void (^)(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations))progressBlock
+                            completionBlock:(void (^)(NSArray *operations))completionBlock;
+
+@end

@@ -30,7 +30,7 @@
  
  @return An instance of `SMQuery` representing the received fetch request.
  */
-+ (SMQuery *)queryForFetchRequest:(NSFetchRequest *)fetchRequest 
+- (SMQuery *)queryForFetchRequest:(NSFetchRequest *)fetchRequest
                             error:(NSError *__autoreleasing *)error;
 /**
  Given a fetch request with a predicate, returns the equivalent query to be sent to StackMob.
@@ -41,8 +41,9 @@
  
  @return An instance of `SMQuery` representing the received fetch request.
  */
-+ (SMQuery *)queryForEntity:(NSEntityDescription *)entityDescription 
-                  predicate:(NSPredicate *)predicate 
+- (SMQuery *)queryForEntity:(NSEntityDescription *)entityDescription
+                  predicate:(NSPredicate *)predicate
                       error:(NSError *__autoreleasing *)error;
+
 
 @end

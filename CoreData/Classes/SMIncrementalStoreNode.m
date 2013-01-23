@@ -14,4 +14,20 @@
  * limitations under the License.
  */
 
-#define SDK_VERSION @"1.2.0"
+#import "SMIncrementalStoreNode.h"
+
+@implementation SMIncrementalStoreNode
+
+- (id)valueForUndefinedKey:(NSString *)key
+{
+    NSManagedObjectID *theID = [self objectID];
+    NSPersistentStoreCoordinator *psc = [[theID persistentStore] persistentStoreCoordinator];
+    NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    [context setPersistentStoreCoordinator:psc];
+    NSManagedObject *theObj = [context objectWithID:theID];
+    id theValue = [theObj valueForKey:key];
+    
+    return theValue;
+}
+
+@end

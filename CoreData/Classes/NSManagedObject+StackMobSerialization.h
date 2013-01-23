@@ -24,12 +24,12 @@
 /**
  Returns the StackMob equivalent schema for the entity name.
  */
-- (NSString *)sm_schema;
+- (NSString *)SMSchema;
 
 /**
  Returns the unique StackMob ID for this object using the designated primary key attribute for the `NSManagedObject` instance entity.
  */
-- (NSString *)sm_objectId;
+- (NSString *)SMObjectId;
 
 /**
  Assigns a unique ID to the `NSManagedObject` instance.
@@ -46,7 +46,7 @@
 /**
  Converts the value returned from <primaryKeyField> to its StackMob equivalent field.
  */
-- (NSString *)sm_primaryKeyField;
+- (NSString *)SMPrimaryKeyField;
 
 /**
  Returns the primary key field name for this entity.
@@ -60,6 +60,35 @@
 /**
  Converts an `NSManagedObject` into an equivalent dictionary form for StackMob to process.
  */
-- (NSDictionary *)sm_dictionarySerialization;
+- (NSDictionary *)SMDictionarySerialization;
+
+/**
+ Use to retrieve the value of a relationship.  
+ 
+ If an error is provided, it will come back non-nil if the relationship fault could not be filled. The only time this would happen is if the value of the relationship is not in memory and the network is not reachable.  The error code in this case will be -107 (SMErrorCouldNotFillRelationshipFault).
+ 
+ Example usage:
+ 
+        // Assume obj is the parent managed object
+        NSError *error = nil;
+        NSManagedObject *relatedObject = [obj valueForRelationshipKey:@"toOne" error:&error];
+        if (error) {
+            // handle error
+            // relatedObject will equal nil but [obj hasFaultForRelationshipNamed:@"toOne"] will return NO
+        }
+
+        error = nil;
+        NSSet *relatedObjects = [obj valueForRelationshipKey:@"toMany" error:&error];
+        if (error) {
+            // handle error
+            // relatedObjects will remain a fault (instance of _NSFaultingMutableSet), [obj hasFaultForRelationshipNamed:@"toMany"] will return YES
+        }
+ 
+ @param key The relationship name.
+ @param error The error address.
+ 
+ @return The value for the relationship. If an error occurs this method will return nil for a to-one relationship and a to-many relationship will stay faulted.
+ */
+- (id)valueForRelationshipKey:(NSString *)key error:(NSError *__autoreleasing*)error;
 
 @end

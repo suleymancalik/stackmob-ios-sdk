@@ -90,7 +90,9 @@
 - (void)signRequest:(NSMutableURLRequest *)request path:(NSString *)path
 {
     if ([self hasValidCredentials]) {
-        NSString *queryString = [[[request URL] query] length] == 0 ? @"" : [NSString stringWithFormat:@"?%@", [[request URL] query]];
+        static NSString * const charactersToLeaveEscaped = @":/.?&=;+!@#$()~ ";
+        NSString *decodedQuery = (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(kCFAllocatorDefault, (__bridge CFStringRef)[[request URL] query], (__bridge CFStringRef)(charactersToLeaveEscaped), CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
+        NSString *queryString = [[[request URL] query] length] == 0 ? @"" : [NSString stringWithFormat:@"?%@", decodedQuery];
         NSString *pathAndQuery = [NSString stringWithFormat:@"%@%@", path, queryString];
         NSString *macHeader = [self createMACHeaderForHttpMethod:[request HTTPMethod] path:pathAndQuery];
         [request setValue:macHeader forHTTPHeaderField:@"Authorization"];

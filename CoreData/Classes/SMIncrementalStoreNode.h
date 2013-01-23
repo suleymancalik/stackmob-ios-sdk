@@ -14,4 +14,10 @@
  * limitations under the License.
  */
 
-#define SDK_VERSION @"1.2.0"
+#import <CoreData/CoreData.h>
+
+@interface SMIncrementalStoreNode : NSIncrementalStoreNode
+
+- (id)valueForUndefinedKey:(NSString *)key;
+
+@end

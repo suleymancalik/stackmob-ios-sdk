@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 #import "AFHTTPClient.h"
+#import "SMDataStore.h"
+#import "SMCoreDataStore.h"
 
 extern NSString * SMNetworkStatusDidChangeNotification;
 extern NSString * SMCurrentNetworkStatusKey;
@@ -121,5 +123,14 @@ typedef enum {
  @param block The block to execute when the network status changes.
  */
 - (void)setNetworkStatusChangeBlock:(void (^)(SMNetworkStatus status))block;
+
+/**
+ Provide a block to execute whenever there is a change in network reachability.
+ 
+ The block must return an SMCachePolicy.  This method is useful when you want to set the cache policy based on the network status.
+ 
+ @param block The block to execute when the network status changes.
+ */
+- (void)setNetworkStatusChangeBlockWithCachePolicyReturn:(SMCachePolicy (^)(SMNetworkStatus status))block;
 
 @end

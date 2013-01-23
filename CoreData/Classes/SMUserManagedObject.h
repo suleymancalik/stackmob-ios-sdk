@@ -21,20 +21,11 @@
 /**
  Inherit from SMUserManagedObject when your managed object subclass is defining user objects.
  
- This class provides a method to securely set a password for the user object, without directly setting any attributes in Core Data.  When a save call is made to Core Data, the password is persisted along with the object to StackMob.
+ This class provides a method <setPassword:> used to securely set a password for the user object, without directly setting any attributes in Core Data.  When a save call is made to Core Data, the password is persisted along with the object to StackMob.
  
  `SMUserManagedObject` references an instance of <SMClient> for returning the primary key field name. In your managed object subclass's init method you should be calling Core Data's designated initializer `initWithEntity:insertIntoManagedObjectContext:`. This will reference `[SMClient defaultClient]`. Optionally, if you wish to reference a specific client instance, use the <initWithEntity:client:insertIntoManagedObjectContext:> initializer instead.
  */
 @interface SMUserManagedObject : NSManagedObject
-
-///-------------------------------
-/// @name Properties
-///-------------------------------
-
-/**
- A unique string used to retrieve the password when persisting to StackMob.
- */
-@property (nonatomic, readonly) NSString *passwordIdentifier;
 
 ///-------------------------------
 /// @name Initialize
@@ -75,7 +66,7 @@
 /**
  Removes the password.
  
- This method is called upon successful persistence of the user object on StackMob to delete the passsword any prevent further accessing. 
+ This method is called upon successful persistence of the user object on StackMob to delete the password any prevent further accessing. 
  
  **Important:** Call this method if the creation of a user object fails and you delete or undo the original insert of the user object.
  */
