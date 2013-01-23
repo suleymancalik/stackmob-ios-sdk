@@ -23,11 +23,13 @@ NSString * SMNetworkStatusDidChangeNotification = @"SMNetworkStatusDidChangeNoti
 NSString * SMCurrentNetworkStatusKey = @"SMCurrentNetworkStatusKey";
 
 typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
+typedef SMCachePolicy (^SMCachePolicyReturnBlock)(SMNetworkStatus status);
 
 @interface SMNetworkReachability ()
 
 @property (nonatomic) int networkStatus;
 @property (readwrite, nonatomic, copy) SMNetworkStatusBlock localNetworkStatusBlock;
+@property (readwrite, nonatomic, copy) SMCachePolicyReturnBlock localNetworkStatusBlockWithReturn;
 
 - (void)addNetworkStatusDidChangeObserver;
 - (void)removeNetworkStatusDidChangeObserver;
@@ -72,6 +74,11 @@ typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
     self.localNetworkStatusBlock = block;
 }
 
+- (void)setNetworkStatusChangeBlockWithCachePolicyReturn:(SMCachePolicy (^)(SMNetworkStatus))block
+{
+    self.localNetworkStatusBlockWithReturn = block;
+}
+
 - (void)networkChangeNotificationFromAFNetworking:(NSNotification *)notification
 {
     int notificationNetworkStatus = [self translateAFNetworkingStatus:[[[notification userInfo] objectForKey:AFNetworkingReachabilityNotificationStatusItem] intValue]];
@@ -83,6 +90,10 @@ typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
             self.localNetworkStatusBlock(self.networkStatus);
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:SMNetworkStatusDidChangeNotification object:nil userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:self.currentNetworkStatus], SMCurrentNetworkStatusKey, nil]];
+        if (self.localNetworkStatusBlockWithReturn) {
+            SMCachePolicy newCachePolicy = self.localNetworkStatusBlockWithReturn(self.networkStatus);
+            [[NSNotificationCenter defaultCenter] postNotificationName:SMSetCachePolicyNotification object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:newCachePolicy], @"NewCachePolicy", nil]];
+        }
     }
     
 }
@@ -106,6 +117,11 @@ typedef void (^SMNetworkStatusBlock)(SMNetworkStatus status);
             return Unknown;
             break;
     }
+}
+
+- (void)dealloc
+{
+    [self removeNetworkStatusDidChangeObserver];
 }
 
 @end

@@ -22,19 +22,17 @@
 #define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 
 static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey";
-NSString *const SMEnableCacheNotification = @"SMEnableCacheNotification";
-NSString *const SMDisableCacheNotification = @"SMDisableCacheNotification";
-NSString *const SMCacheWasEnabledNotification = @"SMCacheWasEnabledNotification";
-NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotification";
+NSString *const SMSetCachePolicyNotification = @"SMSetCachePolicyNotification";
 
 @interface SMCoreDataStore ()
 
 @property(nonatomic, readwrite, strong)NSManagedObjectModel *managedObjectModel;
 @property (nonatomic, strong) NSManagedObjectContext *privateContext;
 @property (nonatomic, strong) id defaultMergePolicy;
-@property (nonatomic) BOOL cacheIsActive;
+@property (nonatomic) dispatch_queue_t cachePurgeQueue;
 
 - (NSManagedObjectContext *)SM_newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
+- (void)SM_didReceiveSetCachePolicyNotification:(NSNotification *)notification;
 
 @end
 
@@ -46,7 +44,8 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
 @synthesize mainThreadContext = _mainThreadContext;
 @synthesize privateContext = _privateContext;
 @synthesize defaultMergePolicy = _defaultMergePolicy;
-@synthesize cacheIsActive = _cacheIsActive;
+@synthesize cachePurgeQueue = _cachePurgeQueue;
+@synthesize cachePolicy = _cachePolicy;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
@@ -54,7 +53,10 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
     if (self) {
         _managedObjectModel = managedObjectModel;
         _defaultMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
-        self.cacheIsActive = NO;
+        self.cachePurgeQueue = dispatch_queue_create("Purge Cache Of Object Queue", NULL);
+        [self setCachePolicy:SMTryNetworkOnly];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveSetCachePolicyNotification:) name:SMSetCachePolicyNotification object:self.session.networkMonitor];
     }
     
     return self;
@@ -160,25 +162,53 @@ NSString *const SMCacheWasDisabledNotification = @"SMCacheWasDisabledNotificatio
     }
 }
 
-- (void)enableCache
+- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID
 {
-    if (SM_CORE_DATA_DEBUG) { DLog(); }
-    if (!self.cacheIsEnabled) {
-        self.cacheIsActive = YES;
-    }
+    dispatch_async(self.cachePurgeQueue, ^{
+        NSDictionary *notificationUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:objectID, SMCachePurgeManagedObjectID, nil];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:SMPurgeObjectFromCacheNotification object:self userInfo:notificationUserInfo];
+    });
 }
 
-- (void)disableCache
+- (void)purgeCacheOfMangedObjects:(NSArray *)managedObjects
 {
-    if (SM_CORE_DATA_DEBUG) { DLog(); }
-    if (self.cacheIsEnabled) {
-        self.cacheIsActive = NO;
-    }
+    NSMutableArray *arrayOfObjectIDs = [NSMutableArray arrayWithCapacity:[managedObjects count]];
+    [managedObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [arrayOfObjectIDs addObject:[obj objectID]];
+    }];
+    [self purgeCacheOfManagedObjectsIDs:arrayOfObjectIDs];
 }
 
-- (BOOL)cacheIsEnabled
+- (void)purgeCacheOfManagedObjectsIDs:(NSArray *)managedObjectIDs
 {
-    return self.cacheIsActive;
+    dispatch_async(self.cachePurgeQueue, ^{
+        NSDictionary *notificationUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:managedObjectIDs, SMCachePurgeArrayOfManageObjectIDs, nil];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:SMPurgeObjectsFromCacheNotification object:self userInfo:notificationUserInfo];
+    });
+}
+
+- (void)purgeCacheOfObjectsWithEntityName:(NSString *)entityName
+{
+    dispatch_async(self.cachePurgeQueue, ^{
+        NSDictionary *notificationUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:entityName, SMCachePurgeOfObjectsFromEntityName, nil];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:SMPurgeObjectsFromCacheByEntityNotification object:self userInfo:notificationUserInfo];
+    });
+}
+
+- (void)resetCache
+{
+    dispatch_async(self.cachePurgeQueue, ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:SMResetCacheNotification object:self userInfo:nil];
+    });
+}
+
+- (void)SM_didReceiveSetCachePolicyNotification:(NSNotification *)notification
+{
+    SMCachePolicy newCachePolicy = [[[notification userInfo] objectForKey:@"NewCachePolicy"] intValue];
+    [self setCachePolicy:newCachePolicy];
 }
 
 @end

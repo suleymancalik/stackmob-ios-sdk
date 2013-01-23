@@ -39,7 +39,7 @@
 
 @synthesize regularOAuthClient = _SM_regularOAuthClient;
 @synthesize secureOAuthClient = _SM_secureOAuthClient;
-@synthesize tokenClient = _SM_tokenClient;  
+@synthesize tokenClient = _SM_tokenClient;
 @synthesize userSchema = _SM_userSchema;
 @synthesize userPrimaryKeyField = _userPrimaryKeyField;
 @synthesize userPasswordField = _SM_userPasswordField;
@@ -50,9 +50,9 @@
 @synthesize networkMonitor = _SM_networkMonitor;
 @synthesize userIdentifierMap = _SM_userIdentifierMap;
 
-- (id)initWithAPIVersion:(NSString *)version 
-                 apiHost:(NSString *)apiHost 
-               publicKey:(NSString *)publicKey 
+- (id)initWithAPIVersion:(NSString *)version
+                 apiHost:(NSString *)apiHost
+               publicKey:(NSString *)publicKey
               userSchema:(NSString *)userSchema
      userPrimaryKeyField:(NSString *)userPrimaryKeyField
        userPasswordField:(NSString *)userPasswordField
@@ -61,9 +61,9 @@
     if (self) {
         self.regularOAuthClient = [[SMOAuth2Client alloc] initWithAPIVersion:version scheme:@"http" apiHost:apiHost publicKey:publicKey];
         self.secureOAuthClient = [[SMOAuth2Client alloc] initWithAPIVersion:version scheme:@"https" apiHost:apiHost publicKey:publicKey];
-        self.tokenClient = [[AFHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@", apiHost]]];    
+        self.tokenClient = [[AFHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://%@", apiHost]]];
         NSString *acceptHeader = [NSString stringWithFormat:@"application/vnd.stackmob+json; version=%@", version];
-        [self.tokenClient setDefaultHeader:@"Accept" value:acceptHeader]; 
+        [self.tokenClient setDefaultHeader:@"Accept" value:acceptHeader];
         [self.tokenClient setDefaultHeader:@"X-StackMob-API-Key" value:publicKey];
         [self.tokenClient setDefaultHeader:@"Content-Type" value:@"application/x-www-form-urlencoded"];
         [self.tokenClient setDefaultHeader:@"User-Agent" value:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, smDeviceModel(), smSystemVersion(), [[NSLocale currentLocale] localeIdentifier]]];
@@ -127,7 +127,7 @@
 }
 
 - (void)doTokenRequestWithEndpoint:(NSString *)endpoint
-                       credentials:(NSDictionary *)credentials 
+                       credentials:(NSDictionary *)credentials
                            options:(SMRequestOptions *)options
               successCallbackQueue:(dispatch_queue_t)successCallbackQueue
               failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
@@ -140,9 +140,9 @@
     NSMutableURLRequest *request = [self.tokenClient requestWithMethod:@"POST" path:[self.userSchema stringByAppendingPathComponent:endpoint] parameters:args];
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
-        [request setValue:headerValue forHTTPHeaderField:headerField]; 
+        [request setValue:headerValue forHTTPHeaderField:headerField];
     }];
-    SMFullResponseSuccessBlock successHandler = ^void(NSURLRequest *req, NSHTTPURLResponse *response, id JSON) {   
+    SMFullResponseSuccessBlock successHandler = ^void(NSURLRequest *req, NSHTTPURLResponse *response, id JSON) {
         if (successBlock) {
             successBlock([self parseTokenResults:JSON]);
         }
@@ -183,7 +183,7 @@
     [resultsToSave setObject:expirationDate forKey:EXPIRES_IN];
     [self saveAccessTokenInfo:resultsToSave];
     [[NSUserDefaults standardUserDefaults] setObject:resultsToSave forKey:self.oauthStorageKey];
-    return [[result valueForKey:@"stackmob"] valueForKey:@"user"];   
+    return [[result valueForKey:@"stackmob"] valueForKey:@"user"];
 }
 
 - (void)saveAccessTokenInfo:(NSDictionary *)result
@@ -221,7 +221,13 @@
     NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
     NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
     
-    NSString *defaultName = @"UserIdentifierMap.plist";
+    NSString *userIDMapName = nil;
+    if (applicationName != nil)
+    {
+        userIDMapName = [NSString stringWithFormat:@"%@-%@-UserIdentifierMap.plist", applicationName, self.regularOAuthClient.publicKey];
+    } else {
+        userIDMapName = [NSString stringWithFormat:@"%@-UserIdentifierMap.plist", self.regularOAuthClient.publicKey];
+    }
     
     NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
     
@@ -229,7 +235,7 @@
     
     for (NSString *path in paths)
     {
-        NSString *filepath = [path stringByAppendingPathComponent:defaultName];
+        NSString *filepath = [path stringByAppendingPathComponent:userIDMapName];
         if ([fm fileExistsAtPath:filepath])
         {
             return [NSURL fileURLWithPath:filepath];
@@ -237,7 +243,7 @@
         
     }
     
-    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:userIDMapName]];
     return aURL;
 }
 
@@ -276,11 +282,9 @@
         } else {
             self.userIdentifierMap = [temp mutableCopy];
         }
+    } else {
+        self.userIdentifierMap = [NSMutableDictionary dictionary];
     }
-    
-    self.userIdentifierMap = [NSMutableDictionary dictionary];
-    
-    
     
 }
 

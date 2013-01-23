@@ -30,10 +30,10 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 
 + (NSManagedObjectContext *)moc;
 + (NSEntityDescription *)entityForName:(NSString *)entityName;
-+ (NSFetchRequest *)makePersonFetchRequest:(NSPredicate *)predicate;
-+ (NSFetchRequest *)makeSuperpowerFetchRequest:(NSPredicate *)predicate;
-+ (NSFetchRequest *)makeFavoriteFetchRequest:(NSPredicate *)predicate;
-+ (NSFetchRequest *)makeInterestFetchRequest:(NSPredicate *)predicate;
++ (NSFetchRequest *)makePersonFetchRequest:(NSPredicate *)predicate context:(NSManagedObjectContext *)moc;
++ (NSFetchRequest *)makeSuperpowerFetchRequest:(NSPredicate *)predicate context:(NSManagedObjectContext *)moc;;
++ (NSFetchRequest *)makeFavoriteFetchRequest:(NSPredicate *)predicate context:(NSManagedObjectContext *)moc;;
++ (NSFetchRequest *)makeInterestFetchRequest:(NSPredicate *)predicate context:(NSManagedObjectContext *)moc;;
 + (void)executeSynchronousFetch:(NSManagedObjectContext *)moc withRequest:(NSFetchRequest *)fetchRequest andBlock:(SynchronousFetchBlock)block;
 + (void)executeSynchronousSave:(NSManagedObjectContext *)moc withBlock:(SynchronousErrorBlock)block;
 + (void)executeSynchronousUpdate:(NSManagedObjectContext *)moc withObject:(NSManagedObjectID *)objectID andBlock:(SynchronousErrorBlock)block;
@@ -43,7 +43,9 @@ typedef void (^SynchronousErrorBlock)(NSError *error);
 + (void)MOCDidChange:(NSNotification *)notification;
 + (void)MOCDidSave:(NSNotification *)notification;
 + (void)MOCWillSave:(NSNotification *)notification;
-+ (void)removeSQLiteDatabaseAndMaps;
++ (void)removeSQLiteDatabaseAndMapsWithPublicKey:(NSString *)publicKey;
++ (NSURL *)SM_getStoreURLForCacheMapTableWithPublicKey:(NSString *)publicKey;
++ (NSDictionary *)getContentsOfFileAtPath:(NSString *)path;
 
 @end
 

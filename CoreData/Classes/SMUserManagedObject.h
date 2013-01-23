@@ -66,7 +66,7 @@
 /**
  Removes the password.
  
- This method is called upon successful persistence of the user object on StackMob to delete the passsword any prevent further accessing. 
+ This method is called upon successful persistence of the user object on StackMob to delete the password any prevent further accessing. 
  
  **Important:** Call this method if the creation of a user object fails and you delete or undo the original insert of the user object.
  */

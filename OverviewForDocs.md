@@ -228,7 +228,7 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 		
 3. **NSManagedObject Subclasses:** Creating an NSManagedObject subclass for each of your entities is highly recommended for convenience. You can add an init method to each subclass and include the ID assignment line from above - then you don't have to remember to do it each time you create a new object!
 4. **SMUserManagedObject Subclasses:** After creating an NSManagedObject subclass for an entity that maps to a user object on StackMob, change the inherited class to SMUserManagedObject.  This class will give you a method to securely set a password for the user object, without directly setting any attributes in Core Data.  It is important to make sure you initialize an SMUserManagedObject instance properly.
-
+5. **Create and Save Objects Before Relating Them:**  Before saving updated objects and depending on the merge policy, Core Data will grab persistent values from the server to compare against.  Problems arise when a relationship is updated with an object that hasn't been saved on the server yet.  To play it safe, try to create and save objects before relating them to one another. 
 
 <a name="commonly_used_classes">&nbsp;</a>
 ## Commonly Used Classes
