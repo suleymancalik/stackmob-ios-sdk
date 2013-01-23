@@ -23,6 +23,7 @@
 
 static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey";
 NSString *const SMSetCachePolicyNotification = @"SMSetCachePolicyNotification";
+BOOL SM_CACHE_ENABLED = YES;
 
 @interface SMCoreDataStore ()
 
@@ -103,8 +104,7 @@ NSString *const SMSetCachePolicyNotification = @"SMSetCachePolicyNotification";
     if (_managedObjectContext == nil) {
         _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
         [_managedObjectContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
-        [_managedObjectContext setParentContext:self.privateContext];
-        [_managedObjectContext setContextShouldObtainPermanentIDsBeforeSaving:YES];
+        [_managedObjectContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
     }
     return _managedObjectContext;
 }
