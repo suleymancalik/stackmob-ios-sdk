@@ -32,9 +32,9 @@ describe(@"SMUserManagedObject", ^{
     __block SMCoreDataStore *cds = nil;
     __block NSString *passwordID = nil;
     beforeEach(^{
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         
         [client setUserSchema:@"user3"];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
@@ -119,11 +119,10 @@ describe(@"can set a client with different password field name and everything st
     __block User4 *person = nil;
     __block SMCoreDataStore *cds = nil;
     beforeEach(^{
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         SM_CORE_DATA_DEBUG = YES;
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
         moc = [cds contextForCurrentThread];
     });
@@ -166,9 +165,9 @@ describe(@"creating and saving two users should not conflict with each other", ^
     __block User3 *person2 = nil;
     __block SMCoreDataStore *cds = nil;
     beforeEach(^{
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         [client setUserSchema:@"User3"];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
         moc = [cds contextForCurrentThread];
@@ -262,9 +261,9 @@ describe(@"should be able to create a user, relate to other object, and save eve
     __block NSManagedObject *todo = nil;
     __block SMCoreDataStore *cds = nil;
     beforeEach(^{
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         [client setUserSchema:@"User3"];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
         moc = [cds contextForCurrentThread];
@@ -319,9 +318,9 @@ describe(@"userPrimaryKeyField works", ^{
     __block User3 *user3 = nil;
     __block SMCoreDataStore *cds = nil;
     beforeEach(^{
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         [client setUserSchema:@"User3"];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
         moc = [cds contextForCurrentThread];
@@ -374,9 +373,9 @@ describe(@"testing someting", ^{
     __block User3 *successObject = nil;
     __block SMCoreDataStore *cds = nil;
     beforeEach(^{
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMaps];
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         [client setUserSchema:@"User3"];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
         moc = [cds contextForCurrentThread];

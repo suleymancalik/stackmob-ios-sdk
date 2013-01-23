@@ -64,7 +64,7 @@ describe(@"with fixtures", ^{
             
             it(@"inserts an object", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     people = results;
                     beforeInsert = [people count];
@@ -84,7 +84,7 @@ describe(@"with fixtures", ^{
                     }
                 }];
                 DLog(@"inserted objects after save are %@", [moc insertedObjects]);
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -133,7 +133,7 @@ describe(@"with fixtures", ^{
                 __block NSManagedObject *person;
                 __block NSManagedObject *superpower;
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"last_name = 'Bobberson'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -146,7 +146,7 @@ describe(@"with fixtures", ^{
                     
                 }];
                 
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeSuperpowerFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeSuperpowerFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -224,7 +224,7 @@ describe(@"with fixtures", ^{
                 __block NSString *tennisId = [tennis valueForKey:[tennis primaryKeyField]];
                 
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"last_name = 'Bobberson'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -247,7 +247,7 @@ describe(@"with fixtures", ^{
                 }];
                 
                 predicate = [NSPredicate predicateWithFormat:@"name = 'basketball'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -334,7 +334,7 @@ describe(@"with fixtures", ^{
                 __block NSString *jackId = [jack valueForKey:[jack primaryKeyField]];
                 
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"last_name = 'Bobberson'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -357,7 +357,7 @@ describe(@"with fixtures", ^{
                 }];
                 
                 predicate = [NSPredicate predicateWithFormat:@"last_name = 'Jackerson'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -380,7 +380,7 @@ describe(@"with fixtures", ^{
                 }];
                 
                 predicate = [NSPredicate predicateWithFormat:@"genre = 'movies'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeFavoriteFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeFavoriteFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -403,7 +403,7 @@ describe(@"with fixtures", ^{
                 }];
                 
                 predicate = [NSPredicate predicateWithFormat:@"genre = 'coffee'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeFavoriteFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeFavoriteFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -448,7 +448,7 @@ describe(@"with fixtures", ^{
         describe(@"update", ^{
             it(@"updates an object", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -466,7 +466,7 @@ describe(@"with fixtures", ^{
                     DLog(@"Executed syncronous update");
                 }];
                 NSLog(@"updated objects after update %@", [moc updatedObjects]);
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -480,7 +480,7 @@ describe(@"with fixtures", ^{
             
             it(@"deletes objects from StackMob", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -495,7 +495,7 @@ describe(@"with fixtures", ^{
                         [error shouldBeNil];
                     }
                 }];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -515,7 +515,7 @@ describe(@"with fixtures", ^{
                 __block int countOfPeopleBeforeDelete;
                 __block int countOfPeopleAfterDelete;
                 // grab a person
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -560,7 +560,7 @@ describe(@"with fixtures", ^{
                 }];
                 
                 // make sure everything is cool
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -585,7 +585,7 @@ describe(@"with fixtures", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 __block Person *firstPerson;
                 __block NSString *firstPersonName;
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -625,7 +625,7 @@ describe(@"with fixtures", ^{
                 }];
                 
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"first_name = %@", firstPersonName];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     if (error != nil) {
                         DLog(@"Error userInfo is %@", [error userInfo]);
                         [error shouldBeNil];
@@ -713,7 +713,7 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
                 [error shouldBeNil];
             }
         }];
-        NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         [fetchRequest setEntity:entity];
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"yearBorn == 1900"];

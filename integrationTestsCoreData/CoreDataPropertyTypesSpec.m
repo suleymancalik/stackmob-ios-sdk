@@ -69,7 +69,7 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
                 [error shouldBeNil];
             }
         }];
-        NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         [fetchRequest setEntity:entity];
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
@@ -105,7 +105,7 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
             }
         }];
         
-        NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         [fetchRequest setEntity:entity];
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
@@ -167,7 +167,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
                 [error shouldBeNil];
             }
         }];
-        NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         [fetchRequest setEntity:entity];
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
@@ -197,7 +197,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
             }
         }];
         
-        NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         [fetchRequest setEntity:entity];
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
@@ -261,7 +261,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to false", ^{
                  [error shouldBeNil];
              }
          }];
-     NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
+     NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
      NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
      [fetchRequest setEntity:entity];
      [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
@@ -292,7 +292,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to false", ^{
              }
          }];
      
-         NSEntityDescription *entity = [SMCoreDataIntegrationTestHelpers entityForName:@"Random"];
+         NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
          NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
          [fetchRequest setEntity:entity];
          [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {

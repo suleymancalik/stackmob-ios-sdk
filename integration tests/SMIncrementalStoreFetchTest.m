@@ -31,7 +31,7 @@ describe(@"with fixtures", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
     __block NSPredicate *predicate;
-    [SMCoreDataIntegrationTestHelpers registerForMOCNotificationsWithContext:[SMCoreDataIntegrationTestHelpers moc]];
+    //[SMCoreDataIntegrationTestHelpers registerForMOCNotificationsWithContext:[SMCoreDataIntegrationTestHelpers moc]];
     
     beforeEach(^{
         fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
@@ -58,7 +58,7 @@ describe(@"with fixtures", ^{
             });
             it(@"works correctly", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[results should] haveCountOf:1];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Jonah"];  
@@ -72,7 +72,7 @@ describe(@"with fixtures", ^{
             });
             it(@"returns an error", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [[error should] beNonNil];
                 }];
             });    
@@ -87,7 +87,7 @@ describe(@"with fixtures", ^{
             });
             it(@"returns an error", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [[error should] beNonNil];
                 }];
             });
@@ -107,7 +107,7 @@ describe(@"with fixtures", ^{
         it(@"applies one sort descriptor correctly", ^{
             [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
             sortDescriptors = [NSArray arrayWithObject:firstNameSD];
-            fetchRequest = [SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil];
+            fetchRequest = [SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc];
             [fetchRequest setSortDescriptors:sortDescriptors];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
                 [error shouldBeNil];
@@ -119,7 +119,7 @@ describe(@"with fixtures", ^{
         it(@"applies multiple sort descriptors correctly", ^{
             [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
             sortDescriptors = [NSArray arrayWithObjects:companyNameSD, armorClassSD, nil];
-            fetchRequest = [SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil];
+            fetchRequest = [SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc];
             [fetchRequest setSortDescriptors:sortDescriptors];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
                 [error shouldBeNil];
@@ -134,7 +134,7 @@ describe(@"with fixtures", ^{
         __block NSFetchRequest *fetchRequest;
         describe(@"fetchLimit", ^{
             beforeEach(^{
-                fetchRequest = [SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil];
+                fetchRequest = [SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc];
                 [fetchRequest setFetchLimit:1];
             });
             it(@"returns the expected results", ^{
@@ -149,7 +149,7 @@ describe(@"with fixtures", ^{
         
         describe(@"fetchOffset", ^{
             beforeEach(^{
-                fetchRequest = [SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil];
+                fetchRequest = [SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc];
                 [fetchRequest setFetchOffset:1];
             });
             it(@"returns the expected results", ^{
@@ -165,7 +165,7 @@ describe(@"with fixtures", ^{
         
         describe(@"fetchBatchSize", ^{
             beforeEach(^{
-                fetchRequest = [SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil];
+                fetchRequest = [SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc];
                 [fetchRequest setFetchBatchSize:1];
                 [fetchRequest setFetchLimit:1];
                 [fetchRequest setFetchOffset:1];
@@ -193,7 +193,7 @@ describe(@"with fixtures", ^{
                 });
                 it(@"returns an error", ^{
                     [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                    [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                    [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                         [[error should] beNonNil];
                         [results shouldBeNil];
                     }];
@@ -205,7 +205,7 @@ describe(@"with fixtures", ^{
                 });
                 it(@"returns an error", ^{
                     [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                    [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                    [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                         [[error should] beNonNil];
                         [results shouldBeNil];  
                     }];
@@ -219,7 +219,7 @@ describe(@"with fixtures", ^{
             });
             it(@"works", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[results should] haveCountOf:1];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Jon"];   
@@ -232,7 +232,7 @@ describe(@"with fixtures", ^{
             });
             it(@"works", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[results should] haveCountOf:1];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Jon"];   
@@ -245,7 +245,7 @@ describe(@"with fixtures", ^{
             });
             it(@"works", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[results should] haveCountOf:2];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Jon"];   
@@ -259,7 +259,7 @@ describe(@"with fixtures", ^{
             });
             it(@"works", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[results should] haveCountOf:2];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Jon"];   
@@ -273,7 +273,7 @@ describe(@"with fixtures", ^{
             });
             it(@"works", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[results should] haveCountOf:1];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Jon"];
@@ -286,7 +286,7 @@ describe(@"with fixtures", ^{
             });
             it(@"works", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[results should] haveCountOf:1];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Matt"];                    
@@ -299,7 +299,7 @@ describe(@"with fixtures", ^{
             });
             it(@"works", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[results should] haveCountOf:2];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Jon"];   
@@ -313,7 +313,7 @@ describe(@"with fixtures", ^{
             });
             it(@"works", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[results should] haveCountOf:2];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Jon"];   
@@ -327,7 +327,7 @@ describe(@"with fixtures", ^{
             });
             it(@"works", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[results should] haveCountOf:2];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Matt"];   
@@ -341,7 +341,7 @@ describe(@"with fixtures", ^{
             });
             it(@"works", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[results should] haveCountOf:2];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Matt"];   
@@ -349,17 +349,14 @@ describe(@"with fixtures", ^{
                 }];
             });        
         });
+        
         describe(@"BETWEEN", ^{
             beforeEach(^{
-                NSArray *range = [NSArray arrayWithObjects:
-                                  [NSNumber numberWithInt:12],
-                                  [NSNumber numberWithInt:15], 
-                                  nil];
-                predicate = [NSPredicate predicateWithFormat:@"armor_class BETWEEN %@", range];
+                predicate = [NSPredicate predicateWithFormat:@"(armor_class >= %@) AND (armor_class <= %@)", [NSNumber numberWithInt:12], [NSNumber numberWithInt:15]];
             });
             it(@"works", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[results should] haveCountOf:2];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Jon"];   
@@ -367,6 +364,7 @@ describe(@"with fixtures", ^{
                 }];
             });
         });
+        
         describe(@"IN", ^{
             __block NSArray *first_names;
             beforeEach(^{
@@ -375,7 +373,7 @@ describe(@"with fixtures", ^{
             });
             it(@"works", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Matt"];   
                 }];

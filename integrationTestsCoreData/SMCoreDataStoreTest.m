@@ -45,6 +45,7 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
             moc = [coreDataStore contextForCurrentThread];
             [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         });
+        
         describe(@"inserting an object", ^{
             __block NSManagedObject *aPerson = nil;
             beforeEach(^{
@@ -90,17 +91,18 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
                     [error shouldBeNil]; 
                 }];
             });
-            describe(@"reads the object", ^{
+            it(@"reads the object", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:@"last_name = 'dude'"];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate] andBlock:^(NSArray *results, NSError *error) {
+                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
                     [error shouldBeNil];
                     [[theValue([results count]) should] equal:theValue(1)];
                     NSManagedObject *theDude = [results objectAtIndex:0];
-                    [[theValue([theDude valueForKey:@"first_name"]) should] equal:theValue(@"the")];
+                    [[[theDude valueForKey:@"first_name"] should] equal:@"the"];
                 }];
             });
-            describe(@"updates the object", ^{
+            
+            it(@"updates the object", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 [aPerson setValue:@"matt" forKey:@"first_name"];
                 [aPerson setValue:@"StackMob" forKey:@"company"];
@@ -114,7 +116,7 @@ describe(@"create an instance of SMCoreDataStore from SMClient", ^{
                 beforeEach(^{
                     [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"not_a_field = 'hello'"];
-                    theRequest = [SMCoreDataIntegrationTestHelpers makeFavoriteFetchRequest:predicate];
+                    theRequest = [SMCoreDataIntegrationTestHelpers makeFavoriteFetchRequest:predicate context:moc];
                 });
                 it(@"the fetch request should fail, and the error should contain the info", ^{
                     [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];

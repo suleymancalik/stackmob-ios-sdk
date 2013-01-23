@@ -190,7 +190,7 @@ typedef enum {
 /**
  Removes all the cache entries whose entity matches the provided entity name.
  
- @param entityName
+ @param entityName The name of the entity.
  */
 - (void)purgeCacheOfObjectsWithEntityName:(NSString *)entityName;
 
