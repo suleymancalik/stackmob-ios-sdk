@@ -1028,20 +1028,25 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     if (SM_CACHE_ENABLED) {
         id resultsToReturn = nil;
+        NSError *tempError = nil;
         switch ([self.coreDataStore cachePolicy]) {
             case SMCachePolicyTryNetworkOnly:
+                if (SM_CORE_DATA_DEBUG) { DLog(@"Fetch switch: SMCachePolicyTryNetworkOnly") }
                 resultsToReturn = [self SM_fetchObjectsFromNetwork:fetchRequest withContext:context error:error];
                 break;
             case SMCachePolicyTryCacheOnly:
+                if (SM_CORE_DATA_DEBUG) { DLog(@"Fetch switch: SMCachePolicyTryCacheOnly") }
                 resultsToReturn = [self SM_fetchObjectsFromCache:fetchRequest withContext:context error:error];
                 break;
             case SMCachePolicyTryNetworkElseCache:
-                resultsToReturn = [self SM_fetchObjectsFromNetwork:fetchRequest withContext:context error:error];
-                if (*error && [*error code] == SMErrorNetworkNotReachable) {
+                if (SM_CORE_DATA_DEBUG) { DLog(@"Fetch switch: SMCachePolicyTryNetworkElseCache") }
+                resultsToReturn = [self SM_fetchObjectsFromNetwork:fetchRequest withContext:context error:&tempError];
+                if (tempError && [tempError code] == SMErrorNetworkNotReachable) {
                     resultsToReturn = [self SM_fetchObjectsFromCache:fetchRequest withContext:context error:error];
                 }
                 break;
             case SMCachePolicyTryCacheElseNetwork:
+                if (SM_CORE_DATA_DEBUG) { DLog(@"Fetch switch: SMCachePolicyTryCacheElseNetwork") }
                 resultsToReturn = [self SM_fetchObjectsFromCache:fetchRequest withContext:context error:error];
                 if (*error) {
                     return nil;
@@ -1051,6 +1056,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 }
                 break;
             default:
+                if (SM_CORE_DATA_DEBUG) { DLog(@"Fetch switch: default") }
                 if (error != NULL) {
                     NSError *errorToReturn = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:nil];
                     *error = (__bridge id)(__bridge_retained CFTypeRef)errorToReturn;
@@ -1058,6 +1064,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 break;
         }
         
+        if (SM_CORE_DATA_DEBUG) { DLog(@"Fetch results to return are %@ with error %@", resultsToReturn, *error) }
         return resultsToReturn;
     } else {
         id resultsToReturn = nil;
