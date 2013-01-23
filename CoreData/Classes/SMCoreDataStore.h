@@ -17,6 +17,7 @@
 #import "SMDataStore.h"
 
 extern NSString *const SMSetCachePolicyNotification;
+extern BOOL SM_CACHE_ENABLED;
 
 typedef enum {
     SMTryNetworkOnly = 0,
@@ -50,7 +51,9 @@ typedef enum {
  
  After successfully performing a fetch from the StackMob database, an equivalent fetch is performed locally on the cache and those results are replaced with the up-to-date objects from the server.  The results are returned as faulted managed objects and accessing an object's values will cause Core Data to fill the fault using the cache.
  
- **Important:** There are a few scenarios where filling faults require network calls.  The first is when an object is faulted but does not have an entry in the cache.  This happens when a managed object context obtains a managed object ID reference to a faulted object that is not in the cache.  The second is when trying to access values of related objects which themselves have not been cached.  If either of these situations arise and there is no network connection Core Data may throw the "Core Data could not fulfill a fault" exception.  
+ **Important:** Regardless of the cache policy, results from fetches on the network are cached and used internally to fill faults.  This prevents a network call from happening everytime an object's values are brought into memory by Core Data.
+ 
+ **Also Important:** There are a few scenarios where filling faults require network calls.  The first is when an object is faulted but does not have an entry in the cache.  This happens when a managed object context obtains a managed object ID reference to a faulted object that is not in the cache.  The second is when trying to access values of related objects which themselves have not been cached.  If either of these situations arise and there is no network connection Core Data may throw the "Core Data could not fulfill a fault" exception.  
  
  ### Caching Policies ###
  
@@ -88,6 +91,10 @@ typedef enum {
  * The entire cache (Reset the thing).
  
  Check out the Manually Purging the Cache section for all the methods.
+ 
+ ### Turning Off the Cache Completely ###
+ 
+ To turn off all caching functionality, including internal caching used for fault filling, set the **SM_CACHE_ENABLED** flag to NO in your App Delegate file, before you initialize a instance of SMCoreDataStore.
  
  
  @note You should not have to initialize an instance of this class directly.  Instead, initialize an instance of <SMClient> and use the method <coreDataStoreWithManagedObjectModel:> to retrieve an instance completely configured and ready to communicate to StackMob.

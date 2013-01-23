@@ -23,6 +23,7 @@
 
 static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey";
 NSString *const SMSetCachePolicyNotification = @"SMSetCachePolicyNotification";
+BOOL SM_CACHE_ENABLED = YES;
 
 @interface SMCoreDataStore ()
 
