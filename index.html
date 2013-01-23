@@ -36,7 +36,7 @@
 						
 						<h1>Welcome to the docs for the StackMob iOS SDK!</h1>
 
-<h3>Current Version: 1.1.3</h3>
+<h3>Current Version: 1.2.0</h3>
 
 <h3>Jump To:</h3>
 
@@ -48,7 +48,7 @@
 
 <p><a href="http://stackmob.github.com/stackmob-ios-sdk/CoreDataSupportSpecs.html">StackMob &lt;&mdash;> Core Data Support Specifications</a></p>
 
-<p><a href="#classes_to_check_out">Classes To Check Out</a></p>
+<p><a href="#commonly_used_classes">Commonly Used Classes</a></p>
 
 <p><a href="#tutorials">Tutorials</a></p>
 
@@ -90,7 +90,7 @@
 <br/>
 
 
-<h3>What&rsquo;s supported with our Core Data integration?</h3>
+<h3>What Core Data functionality is supported with our integration?</h3>
 
 <p>Check out the <a href="http://stackmob.github.com/stackmob-ios-sdk/CoreDataSupportSpecs.html">StackMob &lt;&mdash;> Core Data Support Specifications</a>.</p>
 
@@ -171,10 +171,27 @@ client = [[SMClient alloc] initWithAPIVersion:@"YOUR_API_VERSION" publicKey:@"YO
 SMCoreDataStore *coreDataStore = [client coreDataStoreWithManagedObjectModel:aManagedObjectModel];
 
 // assuming you have a variable called managedObjectContext
-self.managedObjectContext = [coreDataStore managedObjectContext];
+self.managedObjectContext = [coreDataStore contextForCurrentThread];
 </code></pre>
 
-<p>Use this instance of NSManagedObjectContext throughout your application. Other than that, use Core Data like you normally would!</p>
+<p>Use this instance of NSManagedObjectContext for the current thread you are on. You can always call contextForCurrentThread at any time to obtain an initialized managed object context if you are not sure what thread you are on.</p>
+
+<br/>
+
+
+<p><strong>Saving in the background</strong></p>
+
+<p>When you are ready to save your context, the <a href="http://stackmob.github.com/stackmob-ios-sdk/Categories/NSManagedObjectContext+Concurrency.html">NSManagedObjectContext+Concurrency</a> class offers asynchronous callback-based methods that perform off of the main thread, as well as methods that wait for the save to complete before continuing execution.  Both take advantage of the child / parent context pattern for optimized performance.</p>
+
+<br/>
+
+
+<p><strong>Fetching in the background</strong></p>
+
+<p>When you want to fetch objects, the <a href="http://stackmob.github.com/stackmob-ios-sdk/Categories/NSManagedObjectContext+Concurrency.html">NSManagedObjectContext+Concurrency</a> class offers asynchronous callback-based methods that perform off of the main thread, as well as methods that wait for the fetch to complete before continuing execution.  You also have the option of returning instances of NSManagedObject or NSManagedObjectID.  Both take advantage of a pattern involving fetching object IDs from a private queue context and passing those IDs to the calling context.</p>
+
+<br/>
+
 
 <p><strong>Important:</strong> Make sure you adhere to the <a href="#coding_practices">StackMob &lt;&mdash;> Core Data Coding Practices</a>!</p>
 
@@ -184,6 +201,13 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <h4>Lower Level Datastore API</h4>
 
 <p>If you want to make direct REST-based calls to the Datastore, check out the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html">SMDataStore</a> class.</p>
+
+<br/>
+
+
+<h3>Caching System</h3>
+
+<p>Included with version 1.2.0+ of the SDK is a caching system built in to the Core Data Integration to allow for local fetching of objects which have previously been fetched from the server.  See the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html">SMCoreDataStore class reference</a> for details on how to turn on the cache, set the cache policy, manually purge the cache, etc.</p>
 
 <br/>
 
@@ -215,6 +239,16 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <h3>Checking Network Reachability</h3>
 
 <p>While the SDK has built in support for returning errors when there is no network connection, SMNetworkReachability provides an interface for developers to manually check if the device is connected to the network and can in turn reach StackMob.  All the details, including how to subscribe to notifications and set blocks to be executed when the network status changes, can be found in the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMNetworkReachability.html">SMNetworkReachability class reference</a>.</p>
+
+<br/>
+
+
+<h3>Error Codes</h3>
+
+<p>The <code>SMError</code> class translates numeric error codes into readable errors, so you know what went wrong.  SDK specific error codes have also been defined for even more specific errors.  Check out the <a href="http://stackmob.github.com/stackmob-ios-sdk/ErrorCodeTranslations.html">Error Code Translations</a> page for all the details.</p>
+
+<br/>
+
 
 <h3>Debugging</h3>
 
@@ -280,7 +314,7 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <pre><code>  // assuming your instance is called newManagedObject
   [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]];
 
-  // now you can make a call to save: on your managed object context
+  // now you can save your context
 </code></pre>
 
 <p>  The other 10% of the time is when you want to assign your own ids that aren&rsquo;t unique strings based on a UUID algorithm. A great example of this is user objects, where you would probably assign the user&rsquo;s name to the primary key field.  In that case, your code might look more like this:</p>
@@ -288,38 +322,29 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <pre><code>  // assuming your instance is called newManagedObject
   [newManagedObject setValue:@"bob" forKey:[newManagedObject primaryKeyField]];
 
-  // now you can make a call to save: on your managed object context 
+  // now you can save your context
 </code></pre></li>
 <li><p><strong>NSManagedObject Subclasses:</strong> Creating an NSManagedObject subclass for each of your entities is highly recommended for convenience. You can add an init method to each subclass and include the ID assignment line from above &ndash; then you don&rsquo;t have to remember to do it each time you create a new object!</p></li>
-<li><p><strong>Asynchronous Save Calls:</strong> Core Data performs synchronous calls to its Persistent Store. To get the effect of asynchronous save: calls on your managed object context, allowing you to continue working on the main thread, you can use NSManagedObjectContext&rsquo;s performBlock: method like this:</p>
-
-<pre><code> // assuming your context is called self.managedObjectContext
- [self.managedObjectContext performBlock:^{
-     NSError *error = nil;
-     if (![context save:&amp;error]) {
-         // Code to handle the error appropriately.
-     } else {
-         // Code to handle success.
-     }
- }];
-</code></pre>
-
-<p> Optionally you can use dispatch queues from Apple&rsquo;s <a href="http://developer.apple.com/library/ios/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html" target="_blank">Grand Central Dispatch</a>. <strong>Important:</strong> You should not perform other methods such as creating, updating or deleting objects on the managed object context while a save is in progress.</p></li>
+<li><strong>SMUserManagedObject Subclasses:</strong> After creating an NSManagedObject subclass for an entity that maps to a user object on StackMob, change the inherited class to SMUserManagedObject.  This class will give you a method to securely set a password for the user object, without directly setting any attributes in Core Data.  It is important to make sure you initialize an SMUserManagedObject instance properly.</li>
+<li><strong>Create and Save Objects Before Relating Them:</strong>  Before saving updated objects and depending on the merge policy, Core Data will grab persistent values from the server to compare against.  Problems arise when a relationship is updated with an object that hasn&rsquo;t been saved on the server yet.  To play it safe, try to create and save objects before relating them to one another.</li>
 </ol>
 
 
-<p><a name="classes_to_check_out">&nbsp;</a></p>
+<p><a name="commonly_used_classes">&nbsp;</a></p>
 
-<h2>Classes To Check Out</h2>
+<h2>Commonly Used Classes</h2>
 
 <ul>
 <li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html">SMClient</a> &ndash; Gives you access to everything you need to communicate with StackMob.</li>
-<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html">SMCoreDataStore</a> &ndash;  Gives you access to a configured NSManagedObjectContext communicate with StackMob directly through Core Data.</li>
+<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html">SMCoreDataStore</a> &ndash;  Gives you access to configured NSManagedObjectContext instances to communicate with StackMob directly through Core Data.  Includes the necessary methods for interacting with the cache.</li>
+<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Categories/NSManagedObjectContext+Concurrency.html">NSManagedObjectContext+Concurrency</a> &ndash; Provides methods to save and fetch in the background.</li>
 <li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html">SMDataStore</a> &ndash; Gives you access to make direct REST-based calls to StackMob.</li>
 <li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMRequestOptions.html">SMRequestOptions</a> &ndash; When making direct calls to StackMob, an instance of SMRequestOptions gives you request configuration options.</li>
 <li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMUserManagedObject.html">SMUserManagedObject</a> &ndash; The managed object subclass that defines your users should inherit from SMUserManagedObject.</li>
 <li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCustomCodeRequest.html">SMCustomCodeRequest</a> &ndash; Starting place for making custom code calls.</li>
 <li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMBinaryDataConversion.html">SMBinaryDataConversion</a> &ndash; Convert NSData to NSString for persisting to a field on StackMob with type Binary Data (s3 Integration).</li>
+<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMPushClient.html">SMPushClient</a> &ndash; Guide to sending push notifications.</li>
+<li><a href="http://stackmob.github.com/stackmob-ios-sdk/ErrorCodeTranslations.html">Error Code Translations</a> &ndash; A copy of what&rsquo;s listed in <code>SMError</code>, this shows all the readable typedefs for specific error codes.</li>
 </ul>
 
 
@@ -334,7 +359,8 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 <h2>Core Data References</h2>
 
 <ul>
-<li><a href="http://www.raywenderlich.com/934/core-data-on-ios-5-tutorial-getting-started">Getting Started With Core Data</a> &ndash; Ray Wenderlich does a great tutorial on the basics of Core Data.  I would definitely start here.</li>
+<li><a href="http://go.stackmob.com/learncoredata.html">Core Data Primer eBook</a> &ndash; StackMob has put together an eBook based on one of our tutorial series which walks you through the full implementation of an app that uses Core Data.</li>
+<li><a href="http://www.raywenderlich.com/934/core-data-on-ios-5-tutorial-getting-started">Getting Started With Core Data</a> &ndash; Ray Wenderlich does a great tutorial on the basics of Core Data.</li>
 <li><a href="http://mobile.tutsplus.com/tutorials/iphone/iphone-core-data/">iPhone Core Data: Your First Steps</a> &ndash; Well organized tutorial on Core Data.</li>
 <li><a href="https://developer.apple.com/library/ios/#documentation/Cocoa/Conceptual/CoreData/cdProgrammingGuide.html#//apple_ref/doc/uid/TP40001075">Introduction To Core Data</a> &ndash; Apple&rsquo;s Core Data Programming Guide</li>
 <li><a href="https://developer.apple.com/library/ios/#documentation/Cocoa/Conceptual/Predicates/predicates.html#//apple_ref/doc/uid/TP40001789">Introduction To Predicates</a> &ndash; Apple&rsquo;s Predicates Programming Guide</li>
@@ -405,6 +431,8 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 							
 							<li><a href="Categories/NSManagedObject+StackMobSerialization.html">NSManagedObject(StackMobSerialization)</a></li>
 							
+							<li><a href="Categories/NSManagedObjectContext+Concurrency.html">NSManagedObjectContext(Concurrency)</a></li>
+							
 							<li><a href="Categories/NSMutableDictionary+AtomicCounter.html">NSMutableDictionary(AtomicCounter)</a></li>
 							
 							<li><a href="Categories/SMDataStore+SpecialCondition.html">SMDataStore(SpecialCondition)</a></li>
@@ -422,7 +450,7 @@ self.managedObjectContext = [coreDataStore managedObjectContext];
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-11-20)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-01-23)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

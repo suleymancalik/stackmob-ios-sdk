@@ -38,11 +38,6 @@
 	
 	
 	
-	<option value="properties">Properties</option>
-	
-	<option value="//api/name/passwordIdentifier">&nbsp;&nbsp;&nbsp;&nbsp;passwordIdentifier</option>
-	
-	
 	
 	
 	
@@ -73,8 +68,6 @@
 
 <li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Properties">Properties</a></span></li>
-	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Initialize">Initialize</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Setting and Removing Password">Setting and Removing Password</a></span></li>
@@ -84,12 +77,6 @@
 
 
 
-
-<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#properties">Properties</a></span><ul>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/passwordIdentifier">passwordIdentifier</a></span></li>
-	
-</ul></li>
 
 
 
@@ -144,7 +131,7 @@
 						<h2 class="subtitle subtitle-overview">Overview</h2>
 						<p>Inherit from SMUserManagedObject when your managed object subclass is defining user objects.</p>
 
-<p>This class provides a method to securely set a password for the user object, without directly setting any attributes in Core Data.  When a save call is made to Core Data, the password is persisted along with the object to StackMob.</p>
+<p>This class provides a method <a href="#//api/name/setPassword:">setPassword:</a> used to securely set a password for the user object, without directly setting any attributes in Core Data.  When a save call is made to Core Data, the password is persisted along with the object to StackMob.</p>
 
 <p><code>SMUserManagedObject</code> references an instance of <a href="../Classes/SMClient.html">SMClient</a> for returning the primary key field name. In your managed object subclass&rsquo;s init method you should be calling Core Data&rsquo;s designated initializer <code>initWithEntity:insertIntoManagedObjectContext:</code>. This will reference <code>[SMClient defaultClient]</code>. Optionally, if you wish to reference a specific client instance, use the <a href="#//api/name/initWithEntity:client:insertIntoManagedObjectContext:">initWithEntity:client:insertIntoManagedObjectContext:</a> initializer instead.</p>
 					</div>
@@ -156,21 +143,6 @@
 					<div class="section section-tasks">
 						<a title="Tasks" name="tasks"></a>
 						<h2 class="subtitle subtitle-tasks">Tasks</h2>
-						
-						
-						<a title="Properties" name="task_Properties"></a>
-						<h3 class="subsubtitle task-title">Properties</h3>
-
-						<ul class="task-list">
-							<li>
-	<span class="tooltip">
-		<code><a href="#//api/name/passwordIdentifier">&nbsp;&nbsp;passwordIdentifier</a></code>
-		<span class="tooltip"><p>A unique string used to retrieve the password when persisting to StackMob.</p></span>
-	</span>
-	<span class="task-item-suffix">property</span>
-	
-</li>
-						</ul>
 						
 						
 						<a title="Initialize" name="task_Initialize"></a>
@@ -221,48 +193,6 @@
 					
 					
 					
-					
-					<div class="section section-methods">
-						<a title="Properties" name="properties"></a>
-						<h2 class="subtitle subtitle-methods">Properties</h2>
-						
-						<div class="section-method">
-	<a name="//api/name/passwordIdentifier" title="passwordIdentifier"></a>
-	<h3 class="subsubtitle method-title">passwordIdentifier</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>A unique string used to retrieve the password when persisting to StackMob.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>@property (nonatomic, readonly) NSString *passwordIdentifier</code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">SMUserManagedObject.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-					</div>
 					
 					
 					
@@ -413,7 +343,7 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>This method is called upon successful persistence of the user object on StackMob to delete the passsword any prevent further accessing.</p>
+		<p>This method is called upon successful persistence of the user object on StackMob to delete the password any prevent further accessing.</p>
 
 <p><strong>Important:</strong> Call this method if the creation of a user object fails and you delete or undo the original insert of the user object.</p>
 	</div>
@@ -491,7 +421,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-11-20)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-01-23)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

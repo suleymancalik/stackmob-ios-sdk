@@ -1,0 +1,222 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>StackMob iOS SDK Reference</title>
+		<link rel="stylesheet" type="text/css" href="css/styles.css" media="all" />
+		<link rel="stylesheet" type="text/css" media="print" href="css/stylesPrint.css" />
+		<meta name="generator" content="appledoc 2.0.5 (build 789)" />
+	</head>
+	<style>
+	.leftmap 
+	{
+	float:left;
+	margin-right:100px;
+	}
+	.rightmap
+	{
+	float:left;
+	}
+	.clearmap
+	{
+	clear:both;
+	}
+	</style>
+	<body>
+		<header id="top_header">
+			<div id="library" class="hideInXcode">
+				<h1><a id="libraryTitle" href="index.html">StackMob iOS SDK </a></h1>
+				<a id="developerHome" href="index.html">StackMob</a>
+			</div>
+			
+			<div id="title" role="banner">
+				<h1 class="hideInXcode">StackMob iOS SDK Reference</h1>
+			</div>
+			<ul id="headerButtons" role="toolbar"></ul>
+		</header>
+		<article>
+			<div id="overview_contents" role="main">
+				<div class="main-navigation navigation-top">
+					<a href="hierarchy.html">Next</a>
+				</div>
+				<div id="header">
+					<div class="section-header">
+						<h1 class="title title-header">Error Code Translations</h1>
+					</div>		
+				</div>
+				<div id="container">
+					
+					<div class="section section-overview index-overview">
+<h2>Overview</h2>
+
+<p>Below is a list of translated error codes you might receive from a failed request in the iOS SDK.  Your code can make checks against the typedefs, making it easier remember what errors you are actually looking out for!</p>
+
+<h2>StackMob Specific Errors</h2>
+
+<table cellpadding="8px" width="600px">
+    <tr align="center">
+        <th>Error Code</th>
+        <th>Typedef</th>
+    </tr>
+    <tr>
+        <td>-100</td>
+        <td>SMErrorInvalidArguments</td>
+    </tr>
+    <tr>
+        <td>-101</td>
+        <td>SMErrorTemporaryPasswordResetRequired</td>
+    </tr>
+    <tr>
+        <td>-102</td>
+        <td>SMErrorNoCountAvailable</td>
+    </tr>
+    <tr>
+        <td>-103</td>
+        <td>SMErrorRefreshTokenInProgress</td>
+    </tr>
+    <tr>
+        <td>-104</td>
+        <td>SMErrorPasswordForUserObjectNotFound</td>
+    </tr>
+    <tr>
+        <td>-105</td>
+        <td>SMErrorNetworkNotReachable</td>
+    </tr>
+    <tr>
+        <td>-106</td>
+        <td>SMErrorCacheIDNotFound</td>
+    </tr>
+    <tr>
+        <td>-107</td>
+        <td>SMErrorCouldNotFillRelationshipFault</td>
+    </tr>
+    <tr>
+        <td>-108</td>
+        <td>SMErrorCoreDataSave</td>
+    </tr>
+    <tr>
+        <td>-109</td>
+        <td>SMErrorRefreshTokenFailed</td>
+    </tr>
+</table>
+
+<h2>General HTTP Errors</h2>
+
+<table cellpadding="8px" width="600px">
+    <tr align="center">
+        <th>Error Code</th>
+        <th>Typedef</th>
+    </tr>
+    <tr>
+        <td>400</td>
+        <td>SMErrorBadRequest</td>
+    </tr>
+    <tr>
+        <td>401</td>
+        <td>SMErrorUnauthorized</td>
+    </tr>
+    <tr>
+        <td>403</td>
+        <td>SMErrorForbidden</td>
+    </tr>
+    <tr>
+        <td>404</td>
+        <td>SMErrorNotFound</td>
+    </tr>
+    <tr>
+        <td>408</td>
+        <td>SMErrorTimeout</td>
+    </tr>
+    <tr>
+        <td>409</td>
+        <td>SMErrorConflict</td>
+    </tr>
+    <tr>
+        <td>500</td>
+        <td>SMErrorInternalServerError</td>
+    </tr>
+    <tr>
+        <td>501</td>
+        <td>SMErrorNotImplemented</td>
+    </tr>
+    <tr>
+        <td>502</td>
+        <td>SMErrorBadGateway</td>
+    </tr>
+    <tr>
+        <td>503</td>
+        <td>SMErrorServiceUnavailable</td>
+    </tr>
+    <tr>
+        <td>504</td>
+        <td>SMErrorGatewayTimeout</td>
+    </tr>
+    
+</table>
+
+<h2>String Constants</h2>
+
+<p>The following is a list of string contants used for the domains of errors and names of exceptions.</p>
+
+<table cellpadding="8px" width="600px">
+    <tr align="center">
+        <th>Constant</th>
+        <th>String Value</th>
+    </tr>
+    <tr>
+        <td>SMErrorDomain</td>
+        <td>@"SMError"</td>
+    </tr>
+    <tr>
+        <td>HTTPErrorDomain</td>
+        <td>@"HTTP"</td>
+    </tr>
+    <tr>
+        <td>SMExceptionIncompatibleObject</td>
+        <td>@"SMExceptionIncompatibleObject"</td>
+    </tr>
+    <tr>
+        <td>SMExceptionUnknownSchema</td>
+        <td>@"SMExceptionUnknownSchema"</td>
+    </tr>
+    <tr>
+        <td>SMExceptionAddPersistentStore</td>
+        <td>@"SMExceptionAddPersistentStore"</td>
+    </tr>
+    <tr>
+        <td>SMExceptionCannotFillRelationshipFault</td>
+        <td>@"SMExceptionCannotFillRelationshipFault"</td>
+    </tr>
+    <tr>
+        <td>SMExceptionCacheError</td>
+        <td>@"SMExceptionCacheError"</td>
+    </tr>
+    <tr>
+        <td>SMOriginalErrorCausingRefreshKey</td>
+        <td>@"SMOriginalErrorCausingRefresh"</td>
+    </tr>
+    <tr>
+        <td>SMRefreshErrorObjectKey</td>
+        <td>@"SMRefreshErrorObject"</td>
+    </tr>
+    
+</table>
+					
+				</div>
+				<div class="main-navigation navigation-bottom">
+					<a href="hierarchy.html">Next</a>
+				</div>
+				<div id="footer">
+					<hr />
+					<div class="footer-copyright">
+						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-11-20)</span><br />
+						
+						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
+						
+	
+					</div>
+				</div>
+			</div>
+		</article>		
+	</body>
+</html>

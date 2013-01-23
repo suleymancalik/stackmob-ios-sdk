@@ -1,0 +1,1068 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
+		<title>NSManagedObjectContext(Concurrency) Category Reference</title>
+		<meta id="xcode-display" name="xcode-display" content="render"/>
+		<meta name="viewport" content="width=550" />
+		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
+		<link rel="stylesheet" type="text/css" media="print" href="../css/stylesPrint.css" />
+		<meta name="generator" content="appledoc 2.0.5 (build 789)" />
+	</head>
+	<body>
+		<header id="top_header">
+			<div id="library" class="hideInXcode">
+				<h1><a id="libraryTitle" href="../index.html">StackMob iOS SDK </a></h1>
+				<a id="developerHome" href="../index.html">StackMob</a>
+			</div>
+			
+			<div id="title" role="banner">
+				<h1 class="hideInXcode">NSManagedObjectContext(Concurrency) Category Reference</h1>
+			</div>
+			<ul id="headerButtons" role="toolbar">
+				<li id="toc_button">
+					<button aria-label="Show Table of Contents" role="checkbox" class="open" id="table_of_contents"><span class="disclosure"></span>Table of Contents</button>
+				</li>
+				<li id="jumpto_button" role="navigation">
+					<select id="jumpTo">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+	
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<option value="instance_methods">Instance Methods</option>
+	
+	<option value="//api/name/executeFetchRequest:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- executeFetchRequest:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/executeFetchRequest:returnManagedObjectIDs:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- executeFetchRequest:returnManagedObjectIDs:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/executeFetchRequestAndWait:error:">&nbsp;&nbsp;&nbsp;&nbsp;- executeFetchRequestAndWait:error:</option>
+	
+	<option value="//api/name/executeFetchRequestAndWait:returnManagedObjectIDs:error:">&nbsp;&nbsp;&nbsp;&nbsp;- executeFetchRequestAndWait:returnManagedObjectIDs:error:</option>
+	
+	<option value="//api/name/observeContext:">&nbsp;&nbsp;&nbsp;&nbsp;- observeContext:</option>
+	
+	<option value="//api/name/saveAndWait:">&nbsp;&nbsp;&nbsp;&nbsp;- saveAndWait:</option>
+	
+	<option value="//api/name/saveOnSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- saveOnSuccess:onFailure:</option>
+	
+	<option value="//api/name/saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/setContextShouldObtainPermanentIDsBeforeSaving:">&nbsp;&nbsp;&nbsp;&nbsp;- setContextShouldObtainPermanentIDsBeforeSaving:</option>
+	
+	<option value="//api/name/stopObservingContext:">&nbsp;&nbsp;&nbsp;&nbsp;- stopObservingContext:</option>
+	
+	
+	
+</select>
+				</li>
+			</ul>
+		</header>
+		<nav id="tocContainer" class="isShowingTOC">
+			<ul id="toc" role="tree">
+				
+<li role="treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#overview">Overview</a></span></li>
+
+
+
+
+<li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
+	
+</ul></li>
+
+
+
+
+
+
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/executeFetchRequest:onSuccess:onFailure:">executeFetchRequest:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:">executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/executeFetchRequest:returnManagedObjectIDs:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">executeFetchRequest:returnManagedObjectIDs:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/executeFetchRequestAndWait:error:">executeFetchRequestAndWait:error:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/executeFetchRequestAndWait:returnManagedObjectIDs:error:">executeFetchRequestAndWait:returnManagedObjectIDs:error:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/observeContext:">observeContext:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/saveAndWait:">saveAndWait:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/saveOnSuccess:onFailure:">saveOnSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setContextShouldObtainPermanentIDsBeforeSaving:">setContextShouldObtainPermanentIDsBeforeSaving:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/stopObservingContext:">stopObservingContext:</a></span></li>
+	
+</ul></li>
+
+
+			</ul>
+		</nav>
+		<article>
+			<div id="contents" class="isShowingTOC" role="main">
+				<a title="NSManagedObjectContext(Concurrency) Category Reference" name="top"></a>
+				<div class="main-navigation navigation-top">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="header">
+					<div class="section-header">
+						<h1 class="title title-header">NSManagedObjectContext(Concurrency) Category Reference</h1>
+					</div>		
+				</div>
+				<div id="container">	
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<td class="specification-title">Declared in</td>
+	<td class="specification-value">NSManagedObjectContext+Concurrency.h<br />NSManagedObjectContext+Concurrency.m</td>
+</tr>
+						</tbody></table></div>
+					
+					
+					
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>Category which provides methods for performing asynchronous callback-based saves and fetches.  Synchronous versions are also provided which wait for operations to complete before returning.</p>
+
+<p><strong>Important:</strong> These methods are designed for use with managed object context instances obtained from <code>SMCoreDataStore,</code> as they take advantage of the parent / child context pattern.</p>
+
+<h2>Saves</h2>
+
+<p>The <a href="#//api/name/saveOnSuccess:onFailure:">saveOnSuccess:onFailure:</a> method is a callback-based method which will perform the save asynchronously, off of the main thread.  Callbacks will be performed on the main thread.  To specify queues to callbacks, use <a href="#//api/name/saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a>.</p>
+
+<p>Saves methods work by nesting performBlock: calls, pushing save requests to the top of the chain, a private queue parent context with an initialized persistent store coordinator.</p>
+
+<p>The <a href="#//api/name/saveAndWait:">saveAndWait:</a> method works similarly to the Core Data save: method, taking the parent / child pattern into account.</p>
+
+<h2>Fetches</h2>
+
+<p>The <a href="#//api/name/executeFetchRequest:onSuccess:onFailure:">executeFetchRequest:onSuccess:onFailure:</a> method is a callback-based method which will perform the fetch asynchronously, off of the main thread.  Callbacks will be performed on the main thread.</p>
+
+<p>Fetch methods work by copying the fetch over to a background context, which operates on a differnt queue and returns <code>NSManagedObjectID</code> isntances to the calling context.  Those IDs are then translated into faulted instances of <code>NSManagedObject</code> by the calling context, unless otherwise specified.</p>
+
+<p>To specify whether to return instances of <code>NSManagedObject</code> or <code>NSManagedObjectID</code>, use <a href="#//api/name/executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:">executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:</a>.</p>
+
+<p>To specify queues to callbacks, use <a href="#//api/name/executeFetchRequest:returnManagedObjectIDs:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">executeFetchRequest:returnManagedObjectIDs:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a>.</p>
+
+<p>The <a href="#//api/name/executeFetchRequestAndWait:error:">executeFetchRequestAndWait:error:</a> and <a href="#//api/name/executeFetchRequestAndWait:returnManagedObjectIDs:error:">executeFetchRequestAndWait:returnManagedObjectIDs:error:</a> methods work similarly to the Core Data executeFetchRequest:error: method.</p>
+
+<h2>Observing Contexts</h2>
+
+<p><a href="#//api/name/observeContext:">observeContext:</a> and <a href="#//api/name/stopObservingContext:">stopObservingContext:</a> are helper methods which simply add / remove observers for <code>NSManagedObjectContextDidSaveNotification</code>, if you need to implement manual merging.</p>
+
+<h2>Hooking Up to the Chain Of Contexts</h2>
+
+<p>If you create your own context and make it a child of a context provided by <a href="../Classes/SMCoreDataStore.html">SMCoreDataStore</a>, and you plan to save on your created context, use <a href="#//api/name/setContextShouldObtainPermanentIDsBeforeSaving:">setContextShouldObtainPermanentIDsBeforeSaving:</a> so that permanent IDs for newly inserted objects are created on your child context level.  Otherwise objects in your context will appear to have temporary IDs even after they have been saved!</p>
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						<h2 class="subtitle subtitle-tasks">Tasks</h2>
+						
+						
+						
+						
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/saveOnSuccess:onFailure:">&ndash;&nbsp;saveOnSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Asynchronous save method.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">&ndash;&nbsp;saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Asynchronous save method.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/saveAndWait:">&ndash;&nbsp;saveAndWait:</a></code>
+		<span class="tooltip"><p>Synchronous save method.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/executeFetchRequest:onSuccess:onFailure:">&ndash;&nbsp;executeFetchRequest:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Asynchronous fetch method.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:">&ndash;&nbsp;executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Asynchronous fetch method with the option of returning instances of NSManagedObjectID.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/executeFetchRequest:returnManagedObjectIDs:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">&ndash;&nbsp;executeFetchRequest:returnManagedObjectIDs:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Asynchronous fetch method with the option of returning instances of NSManagedObjectID as well as specifying callback queues.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/executeFetchRequestAndWait:error:">&ndash;&nbsp;executeFetchRequestAndWait:error:</a></code>
+		<span class="tooltip"><p>Synchronous fetch method.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/executeFetchRequestAndWait:returnManagedObjectIDs:error:">&ndash;&nbsp;executeFetchRequestAndWait:returnManagedObjectIDs:error:</a></code>
+		<span class="tooltip"><p>Synchronous fetch method with the option to return results as instances of NSManagedObjectID.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/observeContext:">&ndash;&nbsp;observeContext:</a></code>
+		<span class="tooltip"><p>Allows context to be notified when contextToObserve posts the NSManagedObjectContextDidSaveNotification notification.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/stopObservingContext:">&ndash;&nbsp;stopObservingContext:</a></code>
+		<span class="tooltip"><p>Removes context from observing NSManagedObjectContextDidSaveNotification notifications from contextToStopObserving.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setContextShouldObtainPermanentIDsBeforeSaving:">&ndash;&nbsp;setContextShouldObtainPermanentIDsBeforeSaving:</a></code>
+		<span class="tooltip"><p>Adds/Removes observer for NSManagedObjectContextWillSaveNotification notification.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+					</div>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Instance Methods" name="instance_methods"></a>
+						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/executeFetchRequest:onSuccess:onFailure:" title="executeFetchRequest:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">executeFetchRequest:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Asynchronous fetch method.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)executeFetchRequest:(NSFetchRequest *)<em>request</em> onSuccess:(SMResultsSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>request</em></dt>
+			<dd><p>The fetch request to perform against the database.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p><i>typedef void (^SMResultsSuccessBlock)(NSArray *results)</i> A block object to call on the main thread upon successful save of the managed object context, containing an array of results as instances of NSManagedObject.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i> A block object to call on the main thread upon unsuccessful save.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>A callback based fetch method which executes fetch on a background context, off of the main thread.  Managed object IDs that are returned are converted to instances of NSManagedObject by the calling context.</p>
+
+<p>Callbacks are performed on the main thread.  Use &lt;executeFetchRequest:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:> to specify queues to perform callbacks on.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObjectContext+Concurrency.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:" title="executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Asynchronous fetch method with the option of returning instances of NSManagedObjectID.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)executeFetchRequest:(NSFetchRequest *)<em>request</em> returnManagedObjectIDs:(BOOL)<em>returnIDs</em> onSuccess:(SMResultsSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>request</em></dt>
+			<dd><p>The fetch request to perform against the database.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>returnIDs</em></dt>
+			<dd><p>Whether or not results should contain instances of NSManagedObject or NSManagedObjectID.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p><i>typedef void (^SMResultsSuccessBlock)(NSArray *results)</i> A block object to call on the main thread upon successful save of the managed object context.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i> A block object to call on the main thread upon unsuccessful save.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>A callback based fetch method which executes fetch on a background context, off of the main thread.  If returnIDs is YES, managed object IDs that are returned by the fetch are converted to instances of NSManagedObject by the calling context.</p>
+
+<p>Callbacks are performed on the main thread.  Use &lt;executeFetchRequest:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:> to specify queues to perform callbacks on.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObjectContext+Concurrency.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/executeFetchRequest:returnManagedObjectIDs:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:" title="executeFetchRequest:returnManagedObjectIDs:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">executeFetchRequest:returnManagedObjectIDs:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Asynchronous fetch method with the option of returning instances of NSManagedObjectID as well as specifying callback queues.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)executeFetchRequest:(NSFetchRequest *)<em>request</em> returnManagedObjectIDs:(BOOL)<em>returnIDs</em> successCallbackQueue:(dispatch_queue_t)<em>successCallbackQueue</em> failureCallbackQueue:(dispatch_queue_t)<em>failureCallbackQueue</em> onSuccess:(SMResultsSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>request</em></dt>
+			<dd><p>The fetch request to perform against the database.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>returnIDs</em></dt>
+			<dd><p>Whether or not results should contain instances of NSManagedObject or NSManagedObjectID.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successCallbackQueue</em></dt>
+			<dd><p>Upon successful fetch, the queue to perform the success block on.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureCallbackQueue</em></dt>
+			<dd><p>Upon unsuccessful fetch, the queue to perform the failure block on.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p><i>typedef void (^SMResultsSuccessBlock)(NSArray *results)</i> A block object to call on the main thread upon successful save of the managed object context.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i> A block object to call on the main thread upon unsuccessful save.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>A callback based fetch method which executes fetch on a background context, off of the main thread.  If returnIDs is YES, managed object IDs that are returned by the fetch are converted to instances of NSManagedObject by the calling context.</p>
+
+<p>Callbacks are performed on the main thread.  Use &lt;executeFetchRequest:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:> to specify queues to perform callbacks on.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObjectContext+Concurrency.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/executeFetchRequestAndWait:error:" title="executeFetchRequestAndWait:error:"></a>
+	<h3 class="subsubtitle method-title">executeFetchRequestAndWait:error:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Synchronous fetch method.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)<em>request</em> error:(NSError *__autoreleasing *)<em>error</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>request</em></dt>
+			<dd><p>The fetch to perform on the database.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>error</em></dt>
+			<dd><p>Points to the error object if the fetch is unsuccessful.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An array of NSManagedObject instances matching the request, nil if there was an error.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This method works like the NSManagedObjectContext executeFetchRequest:error: method, but executes fetch request on background context.  Managed object IDs that are returned are converted to managed objects on the calling context.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObjectContext+Concurrency.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/executeFetchRequestAndWait:returnManagedObjectIDs:error:" title="executeFetchRequestAndWait:returnManagedObjectIDs:error:"></a>
+	<h3 class="subsubtitle method-title">executeFetchRequestAndWait:returnManagedObjectIDs:error:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Synchronous fetch method with the option to return results as instances of NSManagedObjectID.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)<em>request</em> returnManagedObjectIDs:(BOOL)<em>returnIDs</em> error:(NSError *__autoreleasing *)<em>error</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>request</em></dt>
+			<dd><p>The fetch to perform on the database.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>returnIDs</em></dt>
+			<dd><p>Whether or not results should contain instances of NSManagedObject or NSManagedObjectID.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>error</em></dt>
+			<dd><p>Points to the error object if the fetch is unsuccessful.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An array of NSManagedObject or NSManagedObjectID instances matching the request, nil if there was an error.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This method works like the NSManagedObjectContext executeFetchRequest:error: method, but executes fetch request on background context.  Managed object IDs that are returned are converted to managed objects on the calling context.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObjectContext+Concurrency.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/observeContext:" title="observeContext:"></a>
+	<h3 class="subsubtitle method-title">observeContext:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Allows context to be notified when contextToObserve posts the NSManagedObjectContextDidSaveNotification notification.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)observeContext:(NSManagedObjectContext *)<em>contextToObserve</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>contextToObserve</em></dt>
+			<dd><p>The object to observe for notification posts.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>When notification arrives, mergeChangesFromContextDidSaveNotification: is called.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObjectContext+Concurrency.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/saveAndWait:" title="saveAndWait:"></a>
+	<h3 class="subsubtitle method-title">saveAndWait:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Synchronous save method.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (BOOL)saveAndWait:(NSError *__autoreleasing *)<em>error</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>error</em></dt>
+			<dd><p>Points to the error object if the save is unsuccessful.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Whether the save was successful or not.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This method works like the NSManagedObjectContext save: method, but pushes changes to private parent context which in turns saves to the persistent store.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObjectContext+Concurrency.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/saveOnSuccess:onFailure:" title="saveOnSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">saveOnSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Asynchronous save method.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)saveOnSuccess:(SMSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p><i>typedef void (^SMSuccessBlock)())</i> A block object to call on the main thread upon successful save of the managed object context.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i> A block object to call on the main thread upon unsuccessful save.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>A callback based save method which pushes changes to private parent context and saves in the background, off of the main thread.  Callbacks are performed on the main thread.  Use <a href="#//api/name/saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a> to specify queues to perform callbacks.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObjectContext+Concurrency.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:" title="saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">saveWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Asynchronous save method.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)saveWithSuccessCallbackQueue:(dispatch_queue_t)<em>successCallbackQueue</em> failureCallbackQueue:(dispatch_queue_t)<em>failureCallbackQueue</em> onSuccess:(SMSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successCallbackQueue</em></dt>
+			<dd><p>Upon successful save, the queue to perform the success block on.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureCallbackQueue</em></dt>
+			<dd><p>Upon unsuccessful save, the queue to perform the failure block on.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p><i>typedef void (^SMSuccessBlock)())</i> A block object to call on the main thread upon successful save of the managed object context.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i> A block object to call on the main thread upon unsuccessful save.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>A callback based save method which pushes changes to private parent context and saves in the background, off of the main thread.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObjectContext+Concurrency.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setContextShouldObtainPermanentIDsBeforeSaving:" title="setContextShouldObtainPermanentIDsBeforeSaving:"></a>
+	<h3 class="subsubtitle method-title">setContextShouldObtainPermanentIDsBeforeSaving:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Adds/Removes observer for NSManagedObjectContextWillSaveNotification notification.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)setContextShouldObtainPermanentIDsBeforeSaving:(BOOL)<em>value</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>value</em></dt>
+			<dd><p>If YES, adds an observer for NSManagedObjectContextWillSaveNotification, which upon receiving a notification calls obtainPermanentIDsForObjects:, passing the context&rsquo;s inserted objects.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>When using the child / parent context pattern, child contexts should obtain permanent IDs for newly inserted objects before pushing save requests to parent contexts.  This method is automatically set to YES for mainThreadContext as well as private queue contexts that are created by contextForCurrentThread.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObjectContext+Concurrency.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/stopObservingContext:" title="stopObservingContext:"></a>
+	<h3 class="subsubtitle method-title">stopObservingContext:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Removes context from observing NSManagedObjectContextDidSaveNotification notifications from contextToStopObserving.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)stopObservingContext:(NSManagedObjectContext *)<em>contextToStopObserving</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>contextToStopObserving</em></dt>
+			<dd><p>The object to stop observing for notification posts.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObjectContext+Concurrency.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+				</div>
+				<div class="main-navigation navigation-bottom">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="footer">
+					<hr />
+					<div class="footer-copyright">
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-01-23)</span><br />
+						
+						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
+						
+					</div>
+				</div>
+			</div>
+		</article>
+		<script type="text/javascript">
+			function jumpToChange()
+			{
+				window.location.hash = this.options[this.selectedIndex].value;
+			}
+			
+			function toggleTOC()
+			{
+				var contents = document.getElementById('contents');
+				var tocContainer = document.getElementById('tocContainer');
+				
+				if (this.getAttribute('class') == 'open')
+				{
+					this.setAttribute('class', '');
+					contents.setAttribute('class', '');
+					tocContainer.setAttribute('class', '');
+					
+					window.name = "hideTOC";
+				}
+				else
+				{
+					this.setAttribute('class', 'open');
+					contents.setAttribute('class', 'isShowingTOC');
+					tocContainer.setAttribute('class', 'isShowingTOC');
+					
+					window.name = "";
+				}
+				return false;
+			}
+			
+			function toggleTOCEntryChildren(e)
+			{
+				e.stopPropagation();
+				var currentClass = this.getAttribute('class');
+				if (currentClass == 'children') {
+					this.setAttribute('class', 'children open');
+				}
+				else if (currentClass == 'children open') {
+					this.setAttribute('class', 'children');
+				}
+				return false;
+			}
+			
+			function tocEntryClick(e)
+			{
+				e.stopPropagation();
+				return true;
+			}
+			
+			function init()
+			{
+				var selectElement = document.getElementById('jumpTo');
+				selectElement.addEventListener('change', jumpToChange, false);
+				
+				var tocButton = document.getElementById('table_of_contents');
+				tocButton.addEventListener('click', toggleTOC, false);
+				
+				var taskTreeItem = document.getElementById('task_treeitem');
+				if (taskTreeItem.getElementsByTagName('li').length > 0)
+				{
+					taskTreeItem.setAttribute('class', 'children');
+					taskTreeItem.firstChild.setAttribute('class', 'disclosure');
+				}
+				
+				var tocList = document.getElementById('toc');
+				
+				var tocEntries = tocList.getElementsByTagName('li');
+				for (var i = 0; i < tocEntries.length; i++) {
+					tocEntries[i].addEventListener('click', toggleTOCEntryChildren, false);
+				}
+				
+				var tocLinks = tocList.getElementsByTagName('a');
+				for (var i = 0; i < tocLinks.length; i++) {
+					tocLinks[i].addEventListener('click', tocEntryClick, false);
+				}
+				
+				if (window.name == "hideTOC") {
+					toggleTOC.call(tocButton);
+				}
+			}
+			
+			window.onload = init;
+			
+			// If showing in Xcode, hide the TOC and Header
+			if (navigator.userAgent.match(/xcode/i)) {
+				document.getElementById("contents").className = "hideInXcode"
+				document.getElementById("tocContainer").className = "hideInXcode"
+				document.getElementById("top_header").className = "hideInXcode"
+			}
+			
+		</script>
+	</body>
+</html>

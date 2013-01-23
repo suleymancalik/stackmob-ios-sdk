@@ -44,17 +44,19 @@
 	
 	<option value="instance_methods">Instance Methods</option>
 	
+	<option value="//api/name/SMDictionarySerialization">&nbsp;&nbsp;&nbsp;&nbsp;- SMDictionarySerialization</option>
+	
+	<option value="//api/name/SMObjectId">&nbsp;&nbsp;&nbsp;&nbsp;- SMObjectId</option>
+	
+	<option value="//api/name/SMPrimaryKeyField">&nbsp;&nbsp;&nbsp;&nbsp;- SMPrimaryKeyField</option>
+	
+	<option value="//api/name/SMSchema">&nbsp;&nbsp;&nbsp;&nbsp;- SMSchema</option>
+	
 	<option value="//api/name/assignObjectId">&nbsp;&nbsp;&nbsp;&nbsp;- assignObjectId</option>
 	
 	<option value="//api/name/primaryKeyField">&nbsp;&nbsp;&nbsp;&nbsp;- primaryKeyField</option>
 	
-	<option value="//api/name/sm_dictionarySerialization">&nbsp;&nbsp;&nbsp;&nbsp;- sm_dictionarySerialization</option>
-	
-	<option value="//api/name/sm_objectId">&nbsp;&nbsp;&nbsp;&nbsp;- sm_objectId</option>
-	
-	<option value="//api/name/sm_primaryKeyField">&nbsp;&nbsp;&nbsp;&nbsp;- sm_primaryKeyField</option>
-	
-	<option value="//api/name/sm_schema">&nbsp;&nbsp;&nbsp;&nbsp;- sm_schema</option>
+	<option value="//api/name/valueForRelationshipKey:error:">&nbsp;&nbsp;&nbsp;&nbsp;- valueForRelationshipKey:error:</option>
 	
 	
 	
@@ -84,17 +86,19 @@
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/SMDictionarySerialization">SMDictionarySerialization</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/SMObjectId">SMObjectId</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/SMPrimaryKeyField">SMPrimaryKeyField</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/SMSchema">SMSchema</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/assignObjectId">assignObjectId</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/primaryKeyField">primaryKeyField</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_dictionarySerialization">sm_dictionarySerialization</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_objectId">sm_objectId</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_primaryKeyField">sm_primaryKeyField</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_schema">sm_schema</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/valueForRelationshipKey:error:">valueForRelationshipKey:error:</a></span></li>
 	
 </ul></li>
 
@@ -148,14 +152,14 @@
 						<ul class="task-list">
 							<li>
 	<span class="tooltip">
-		<code><a href="#//api/name/sm_schema">&ndash;&nbsp;sm_schema</a></code>
+		<code><a href="#//api/name/SMSchema">&ndash;&nbsp;SMSchema</a></code>
 		<span class="tooltip"><p>Returns the StackMob equivalent schema for the entity name.</p></span>
 	</span>
 	
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/sm_objectId">&ndash;&nbsp;sm_objectId</a></code>
+		<code><a href="#//api/name/SMObjectId">&ndash;&nbsp;SMObjectId</a></code>
 		<span class="tooltip"><p>Returns the unique StackMob ID for this object using the designated primary key attribute for the <code>NSManagedObject</code> instance entity.</p></span>
 	</span>
 	
@@ -169,7 +173,7 @@
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/sm_primaryKeyField">&ndash;&nbsp;sm_primaryKeyField</a></code>
+		<code><a href="#//api/name/SMPrimaryKeyField">&ndash;&nbsp;SMPrimaryKeyField</a></code>
 		<span class="tooltip"><p>Converts the value returned from <a href="#//api/name/primaryKeyField">primaryKeyField</a> to its StackMob equivalent field.</p></span>
 	</span>
 	
@@ -183,8 +187,15 @@
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/sm_dictionarySerialization">&ndash;&nbsp;sm_dictionarySerialization</a></code>
+		<code><a href="#//api/name/SMDictionarySerialization">&ndash;&nbsp;SMDictionarySerialization</a></code>
 		<span class="tooltip"><p>Converts an <code>NSManagedObject</code> into an equivalent dictionary form for StackMob to process.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/valueForRelationshipKey:error:">&ndash;&nbsp;valueForRelationshipKey:error:</a></code>
+		<span class="tooltip"><p>Use to retrieve the value of a relationship.</p></span>
 	</span>
 	
 	
@@ -204,6 +215,150 @@
 					<div class="section section-methods">
 						<a title="Instance Methods" name="instance_methods"></a>
 						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/SMDictionarySerialization" title="SMDictionarySerialization"></a>
+	<h3 class="subsubtitle method-title">SMDictionarySerialization</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Converts an <code>NSManagedObject</code> into an equivalent dictionary form for StackMob to process.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSDictionary *)SMDictionarySerialization</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObject+StackMobSerialization.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/SMObjectId" title="SMObjectId"></a>
+	<h3 class="subsubtitle method-title">SMObjectId</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns the unique StackMob ID for this object using the designated primary key attribute for the <code>NSManagedObject</code> instance entity.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSString *)SMObjectId</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObject+StackMobSerialization.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/SMPrimaryKeyField" title="SMPrimaryKeyField"></a>
+	<h3 class="subsubtitle method-title">SMPrimaryKeyField</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Converts the value returned from <a href="#//api/name/primaryKeyField">primaryKeyField</a> to its StackMob equivalent field.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSString *)SMPrimaryKeyField</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObject+StackMobSerialization.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/SMSchema" title="SMSchema"></a>
+	<h3 class="subsubtitle method-title">SMSchema</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns the StackMob equivalent schema for the entity name.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSString *)SMSchema</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSManagedObject+StackMobSerialization.h</code><br />
+	</div>				
+	
+	
+</div>
 						
 						<div class="section-method">
 	<a name="//api/name/assignObjectId" title="assignObjectId"></a>
@@ -291,134 +446,69 @@
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/sm_dictionarySerialization" title="sm_dictionarySerialization"></a>
-	<h3 class="subsubtitle method-title">sm_dictionarySerialization</h3>
+	<a name="//api/name/valueForRelationshipKey:error:" title="valueForRelationshipKey:error:"></a>
+	<h3 class="subsubtitle method-title">valueForRelationshipKey:error:</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Converts an <code>NSManagedObject</code> into an equivalent dictionary form for StackMob to process.</p>
+		<p>Use to retrieve the value of a relationship.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (NSDictionary *)sm_dictionarySerialization</code></div>
+	<div class="method-subsection method-declaration"><code>- (id)valueForRelationshipKey:(NSString *)<em>key</em> error:(NSError *__autoreleasing *)<em>error</em></code></div>
 
     
 	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>key</em></dt>
+			<dd><p>The relationship name.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>error</em></dt>
+			<dd><p>The error address.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>The value for the relationship. If an error occurs this method will return nil for a to-one relationship and a to-many relationship will stay faulted.</p>
+	</div>
 	
 	
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">NSManagedObject+StackMobSerialization.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/sm_objectId" title="sm_objectId"></a>
-	<h3 class="subsubtitle method-title">sm_objectId</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Returns the unique StackMob ID for this object using the designated primary key attribute for the <code>NSManagedObject</code> instance entity.</p>
-	</div>		
-	
-    
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If an error is provided, it will come back non-nil if the relationship fault could not be filled. The only time this would happen is if the value of the relationship is not in memory and the network is not reachable.  The error code in this case will be -107 (SMErrorCouldNotFillRelationshipFault).</p>
 
-	<div class="method-subsection method-declaration"><code>- (NSString *)sm_objectId</code></div>
+<p>Example usage:</p>
 
-    
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">NSManagedObject+StackMobSerialization.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/sm_primaryKeyField" title="sm_primaryKeyField"></a>
-	<h3 class="subsubtitle method-title">sm_primaryKeyField</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Converts the value returned from <a href="#//api/name/primaryKeyField">primaryKeyField</a> to its StackMob equivalent field.</p>
-	</div>		
-	
-    
+<pre><code>    // Assume obj is the parent managed object
+    NSError *error = nil;
+    NSManagedObject *relatedObject = [obj valueForRelationshipKey:@"toOne" error:&amp;error];
+    if (error) {
+        // handle error
+        // relatedObject will equal nil but [obj hasFaultForRelationshipNamed:@"toOne"] will return NO
+    }
 
-	<div class="method-subsection method-declaration"><code>- (NSString *)sm_primaryKeyField</code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">NSManagedObject+StackMobSerialization.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/sm_schema" title="sm_schema"></a>
-	<h3 class="subsubtitle method-title">sm_schema</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Returns the StackMob equivalent schema for the entity name.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>- (NSString *)sm_schema</code></div>
-
-    
-	
-	
-	
-	
-	
-	
+    error = nil;
+    NSSet *relatedObjects = [obj valueForRelationshipKey:@"toMany" error:&amp;error];
+    if (error) {
+        // handle error
+        // relatedObjects will remain a fault (instance of _NSFaultingMutableSet), [obj hasFaultForRelationshipNamed:@"toMany"] will return YES
+    }
+</code></pre>
+	</div>
 	
 	
 	
@@ -447,7 +537,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-11-20)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-01-23)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

@@ -44,11 +44,17 @@
 	
 	<option value="instance_methods">Instance Methods</option>
 	
+	<option value="//api/name/SMReadUserIdentifierMap">&nbsp;&nbsp;&nbsp;&nbsp;- SMReadUserIdentifierMap</option>
+	
+	<option value="//api/name/SMSaveUserIdentifierMap">&nbsp;&nbsp;&nbsp;&nbsp;- SMSaveUserIdentifierMap</option>
+	
 	<option value="//api/name/accessTokenHasExpired">&nbsp;&nbsp;&nbsp;&nbsp;- accessTokenHasExpired</option>
 	
 	<option value="//api/name/clearSessionInfo">&nbsp;&nbsp;&nbsp;&nbsp;- clearSessionInfo</option>
 	
-	<option value="//api/name/doTokenRequestWithEndpoint:credentials:options:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- doTokenRequestWithEndpoint:credentials:options:onSuccess:onFailure:</option>
+	<option value="//api/name/doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/eligibleForTokenRefresh:">&nbsp;&nbsp;&nbsp;&nbsp;- eligibleForTokenRefresh:</option>
 	
 	<option value="//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:</option>
 	
@@ -57,6 +63,8 @@
 	<option value="//api/name/parseTokenResults:">&nbsp;&nbsp;&nbsp;&nbsp;- parseTokenResults:</option>
 	
 	<option value="//api/name/refreshTokenOnSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- refreshTokenOnSuccess:onFailure:</option>
+	
+	<option value="//api/name/refreshTokenWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- refreshTokenWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</option>
 	
 	<option value="//api/name/saveAccessTokenInfo:">&nbsp;&nbsp;&nbsp;&nbsp;- saveAccessTokenInfo:</option>
 	
@@ -90,11 +98,17 @@
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/SMReadUserIdentifierMap">SMReadUserIdentifierMap</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/SMSaveUserIdentifierMap">SMSaveUserIdentifierMap</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/accessTokenHasExpired">accessTokenHasExpired</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/clearSessionInfo">clearSessionInfo</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/doTokenRequestWithEndpoint:credentials:options:onSuccess:onFailure:">doTokenRequestWithEndpoint:credentials:options:onSuccess:onFailure:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/eligibleForTokenRefresh:">eligibleForTokenRefresh:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:">initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:</a></span></li>
 	
@@ -103,6 +117,8 @@
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/parseTokenResults:">parseTokenResults:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/refreshTokenOnSuccess:onFailure:">refreshTokenOnSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/refreshTokenWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">refreshTokenWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/saveAccessTokenInfo:">saveAccessTokenInfo:</a></span></li>
 	
@@ -191,6 +207,13 @@
 	
 </li><li>
 	<span class="tooltip">
+		<code><a href="#//api/name/refreshTokenWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">&ndash;&nbsp;refreshTokenWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Makes a request to refresh the current user session using the refresh token.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
 		<code><a href="#//api/name/initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:">&ndash;&nbsp;initWithAPIVersion:apiHost:publicKey:userSchema:userPrimaryKeyField:userPasswordField:</a></code>
 		<span class="tooltip"><p>Initialize a user session.</p></span>
 	</span>
@@ -205,7 +228,7 @@
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/doTokenRequestWithEndpoint:credentials:options:onSuccess:onFailure:">&ndash;&nbsp;doTokenRequestWithEndpoint:credentials:options:onSuccess:onFailure:</a></code>
+		<code><a href="#//api/name/doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">&ndash;&nbsp;doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a></code>
 		<span class="tooltip"><p>Sends a request to get an access token from the server for a given user session.</p></span>
 	</span>
 	
@@ -231,6 +254,27 @@
 	</span>
 	
 	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/eligibleForTokenRefresh:">&ndash;&nbsp;eligibleForTokenRefresh:</a></code>
+		<span class="tooltip"><p>Whether the calling session is eligible to perform an access token refresh request.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/SMReadUserIdentifierMap">&ndash;&nbsp;SMReadUserIdentifierMap</a></code>
+		<span class="tooltip"><p>Internal method used to read a file which maps users to unique strings.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/SMSaveUserIdentifierMap">&ndash;&nbsp;SMSaveUserIdentifierMap</a></code>
+		<span class="tooltip"><p>Internal method used to save a file which maps users to unique strings.</p></span>
+	</span>
+	
+	
 </li>
 						</ul>
 						
@@ -247,6 +291,78 @@
 					<div class="section section-methods">
 						<a title="Instance Methods" name="instance_methods"></a>
 						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/SMReadUserIdentifierMap" title="SMReadUserIdentifierMap"></a>
+	<h3 class="subsubtitle method-title">SMReadUserIdentifierMap</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Internal method used to read a file which maps users to unique strings.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)SMReadUserIdentifierMap</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMUserSession.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/SMSaveUserIdentifierMap" title="SMSaveUserIdentifierMap"></a>
+	<h3 class="subsubtitle method-title">SMSaveUserIdentifierMap</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Internal method used to save a file which maps users to unique strings.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)SMSaveUserIdentifierMap</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMUserSession.h</code><br />
+	</div>				
+	
+	
+</div>
 						
 						<div class="section-method">
 	<a name="//api/name/accessTokenHasExpired" title="accessTokenHasExpired"></a>
@@ -326,8 +442,8 @@
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/doTokenRequestWithEndpoint:credentials:options:onSuccess:onFailure:" title="doTokenRequestWithEndpoint:credentials:options:onSuccess:onFailure:"></a>
-	<h3 class="subsubtitle method-title">doTokenRequestWithEndpoint:credentials:options:onSuccess:onFailure:</h3>
+	<a name="//api/name/doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:" title="doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</h3>
 	
 	
 	
@@ -337,7 +453,7 @@
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (void)doTokenRequestWithEndpoint:(NSString *)<em>endpoint</em> credentials:(NSDictionary *)<em>credentials</em> options:(SMRequestOptions *)<em>options</em> onSuccess:(void ( ^ ) ( NSDictionary *userObject ))<em>successBlock</em> onFailure:(void ( ^ ) ( NSError *theError ))<em>failureBlock</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)doTokenRequestWithEndpoint:(NSString *)<em>endpoint</em> credentials:(NSDictionary *)<em>credentials</em> options:(SMRequestOptions *)<em>options</em> successCallbackQueue:(dispatch_queue_t)<em>successCallbackQueue</em> failureCallbackQueue:(dispatch_queue_t)<em>failureCallbackQueue</em> onSuccess:(void ( ^ ) ( NSDictionary *userObject ))<em>successBlock</em> onFailure:(void ( ^ ) ( NSError *theError ))<em>failureBlock</em></code></div>
 
     
 	
@@ -360,6 +476,16 @@
 		</dl>
 		
 		<dl class="argument-def parameter-def">
+			<dt><em>successCallbackQueue</em></dt>
+			<dd><p>The queue to perform successBlock on.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureCallbackQueue</em></dt>
+			<dd><p>The queue to perform failureBlock on.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
 			<dt><em>successBlock</em></dt>
 			<dd><p>Upon success provides the user object.</p></dd>
 		</dl>
@@ -372,6 +498,57 @@
 	</div>
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMUserSession.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/eligibleForTokenRefresh:" title="eligibleForTokenRefresh:"></a>
+	<h3 class="subsubtitle method-title">eligibleForTokenRefresh:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Whether the calling session is eligible to perform an access token refresh request.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (BOOL)eligibleForTokenRefresh:(SMRequestOptions *)<em>options</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>options</em></dt>
+			<dd><p>The tryRefreshToken property is used.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Whether the calling session is eligible to perform an access token refresh request.</p>
+	</div>
 	
 	
 	
@@ -606,6 +783,72 @@
 	
 	
 	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Callback blocks are performed on the main thread.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMUserSession.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/refreshTokenWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:" title="refreshTokenWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">refreshTokenWithSuccessCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Makes a request to refresh the current user session using the refresh token.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)refreshTokenWithSuccessCallbackQueue:(dispatch_queue_t)<em>successCallbackQueue</em> failureCallbackQueue:(dispatch_queue_t)<em>failureCallbackQueue</em> onSuccess:(void ( ^ ) ( NSDictionary *userObject ))<em>successBlock</em> onFailure:(void ( ^ ) ( NSError *theError ))<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successCallbackQueue</em></dt>
+			<dd><p>The queue to perform successBlock on.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureCallbackQueue</em></dt>
+			<dd><p>The queue to perform failureBlock on.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p>Upon success provides the user object.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p>Upon failure to refresh the session, provides the error.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -730,7 +973,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-11-20)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-01-23)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

@@ -44,13 +44,15 @@
 	
 	<option value="instance_methods">Instance Methods</option>
 	
+	<option value="//api/name/SMFieldNameForProperty:">&nbsp;&nbsp;&nbsp;&nbsp;- SMFieldNameForProperty:</option>
+	
+	<option value="//api/name/SMPrimaryKeyField">&nbsp;&nbsp;&nbsp;&nbsp;- SMPrimaryKeyField</option>
+	
+	<option value="//api/name/SMSchema">&nbsp;&nbsp;&nbsp;&nbsp;- SMSchema</option>
+	
 	<option value="//api/name/primaryKeyField">&nbsp;&nbsp;&nbsp;&nbsp;- primaryKeyField</option>
 	
-	<option value="//api/name/sm_fieldNameForProperty:">&nbsp;&nbsp;&nbsp;&nbsp;- sm_fieldNameForProperty:</option>
-	
-	<option value="//api/name/sm_propertyForField:">&nbsp;&nbsp;&nbsp;&nbsp;- sm_propertyForField:</option>
-	
-	<option value="//api/name/sm_schema">&nbsp;&nbsp;&nbsp;&nbsp;- sm_schema</option>
+	<option value="//api/name/propertyForSMFieldName:">&nbsp;&nbsp;&nbsp;&nbsp;- propertyForSMFieldName:</option>
 	
 	
 	
@@ -80,13 +82,15 @@
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/SMFieldNameForProperty:">SMFieldNameForProperty:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/SMPrimaryKeyField">SMPrimaryKeyField</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/SMSchema">SMSchema</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/primaryKeyField">primaryKeyField</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_fieldNameForProperty:">sm_fieldNameForProperty:</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_propertyForField:">sm_propertyForField:</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sm_schema">sm_schema</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/propertyForSMFieldName:">propertyForSMFieldName:</a></span></li>
 	
 </ul></li>
 
@@ -140,7 +144,7 @@
 						<ul class="task-list">
 							<li>
 	<span class="tooltip">
-		<code><a href="#//api/name/sm_schema">&ndash;&nbsp;sm_schema</a></code>
+		<code><a href="#//api/name/SMSchema">&ndash;&nbsp;SMSchema</a></code>
 		<span class="tooltip"><p>Returns the StackMob equivalent schema for the entity name.</p></span>
 	</span>
 	
@@ -154,14 +158,21 @@
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/sm_fieldNameForProperty:">&ndash;&nbsp;sm_fieldNameForProperty:</a></code>
+		<code><a href="#//api/name/SMPrimaryKeyField">&ndash;&nbsp;SMPrimaryKeyField</a></code>
+		<span class="tooltip"><p>Converts the value returned from <a href="#//api/name/primaryKeyField">primaryKeyField</a> to its StackMob equivalent field.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/SMFieldNameForProperty:">&ndash;&nbsp;SMFieldNameForProperty:</a></code>
 		<span class="tooltip"><p>Given a property description, returns the equivalent field name on StackMob.</p></span>
 	</span>
 	
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/sm_propertyForField:">&ndash;&nbsp;sm_propertyForField:</a></code>
+		<code><a href="#//api/name/propertyForSMFieldName:">&ndash;&nbsp;propertyForSMFieldName:</a></code>
 		<span class="tooltip"><p>Given a StackMob field name, returns the equivalent <code>NSPropertyDescription</code> for the Core Data attribute or relationship.</p></span>
 	</span>
 	
@@ -184,49 +195,8 @@
 						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
 						
 						<div class="section-method">
-	<a name="//api/name/primaryKeyField" title="primaryKeyField"></a>
-	<h3 class="subsubtitle method-title">primaryKeyField</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Returns the primary key field name for this entity.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>- (NSString *)primaryKeyField</code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>lowercaseEntityNameId or lowercaseEntityName_id is returned, if found as an attribute.</p><div class="note"><p><strong>Note:</strong> If lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity&rsquo;s attributes, a <code>SMExceptionIncompatibleObject</code> exception is thrown.</p></div>
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">NSEntityDescription+StackMobSerialization.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/sm_fieldNameForProperty:" title="sm_fieldNameForProperty:"></a>
-	<h3 class="subsubtitle method-title">sm_fieldNameForProperty:</h3>
+	<a name="//api/name/SMFieldNameForProperty:" title="SMFieldNameForProperty:"></a>
+	<h3 class="subsubtitle method-title">SMFieldNameForProperty:</h3>
 	
 	
 	
@@ -236,7 +206,7 @@
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (NSString *)sm_fieldNameForProperty:(NSPropertyDescription *)<em>property</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (NSString *)SMFieldNameForProperty:(NSPropertyDescription *)<em>property</em></code></div>
 
     
 	
@@ -281,8 +251,121 @@
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/sm_propertyForField:" title="sm_propertyForField:"></a>
-	<h3 class="subsubtitle method-title">sm_propertyForField:</h3>
+	<a name="//api/name/SMPrimaryKeyField" title="SMPrimaryKeyField"></a>
+	<h3 class="subsubtitle method-title">SMPrimaryKeyField</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Converts the value returned from <a href="#//api/name/primaryKeyField">primaryKeyField</a> to its StackMob equivalent field.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSString *)SMPrimaryKeyField</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSEntityDescription+StackMobSerialization.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/SMSchema" title="SMSchema"></a>
+	<h3 class="subsubtitle method-title">SMSchema</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns the StackMob equivalent schema for the entity name.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSString *)SMSchema</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSEntityDescription+StackMobSerialization.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/primaryKeyField" title="primaryKeyField"></a>
+	<h3 class="subsubtitle method-title">primaryKeyField</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns the primary key field name for this entity.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSString *)primaryKeyField</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>lowercaseEntityNameId or lowercaseEntityName_id is returned, if found as an attribute.</p><div class="note"><p><strong>Note:</strong> If lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity&rsquo;s attributes, a <code>SMExceptionIncompatibleObject</code> exception is thrown.</p></div>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">NSEntityDescription+StackMobSerialization.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/propertyForSMFieldName:" title="propertyForSMFieldName:"></a>
+	<h3 class="subsubtitle method-title">propertyForSMFieldName:</h3>
 	
 	
 	
@@ -292,7 +375,7 @@
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (NSPropertyDescription *)sm_propertyForField:(NSString *)<em>fieldName</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (NSPropertyDescription *)propertyForSMFieldName:(NSString *)<em>fieldName</em></code></div>
 
     
 	
@@ -331,42 +414,6 @@
 	
 </div>
 						
-						<div class="section-method">
-	<a name="//api/name/sm_schema" title="sm_schema"></a>
-	<h3 class="subsubtitle method-title">sm_schema</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Returns the StackMob equivalent schema for the entity name.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>- (NSString *)sm_schema</code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">NSEntityDescription+StackMobSerialization.h</code><br />
-	</div>				
-	
-	
-</div>
-						
 					</div>
 					
 					
@@ -380,7 +427,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-11-20)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-01-23)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

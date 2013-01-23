@@ -40,6 +40,10 @@
 	
 	<option value="properties">Properties</option>
 	
+	<option value="//api/name/cachePolicy">&nbsp;&nbsp;&nbsp;&nbsp;cachePolicy</option>
+	
+	<option value="//api/name/mainThreadContext">&nbsp;&nbsp;&nbsp;&nbsp;mainThreadContext</option>
+	
 	<option value="//api/name/managedObjectContext">&nbsp;&nbsp;&nbsp;&nbsp;managedObjectContext</option>
 	
 	<option value="//api/name/persistentStoreCoordinator">&nbsp;&nbsp;&nbsp;&nbsp;persistentStoreCoordinator</option>
@@ -51,7 +55,21 @@
 	
 	<option value="instance_methods">Instance Methods</option>
 	
+	<option value="//api/name/contextForCurrentThread">&nbsp;&nbsp;&nbsp;&nbsp;- contextForCurrentThread</option>
+	
 	<option value="//api/name/initWithAPIVersion:session:managedObjectModel:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAPIVersion:session:managedObjectModel:</option>
+	
+	<option value="//api/name/purgeCacheOfManagedObjectsIDs:">&nbsp;&nbsp;&nbsp;&nbsp;- purgeCacheOfManagedObjectsIDs:</option>
+	
+	<option value="//api/name/purgeCacheOfMangedObjectID:">&nbsp;&nbsp;&nbsp;&nbsp;- purgeCacheOfMangedObjectID:</option>
+	
+	<option value="//api/name/purgeCacheOfMangedObjects:">&nbsp;&nbsp;&nbsp;&nbsp;- purgeCacheOfMangedObjects:</option>
+	
+	<option value="//api/name/purgeCacheOfObjectsWithEntityName:">&nbsp;&nbsp;&nbsp;&nbsp;- purgeCacheOfObjectsWithEntityName:</option>
+	
+	<option value="//api/name/resetCache">&nbsp;&nbsp;&nbsp;&nbsp;- resetCache</option>
+	
+	<option value="//api/name/setDefaultMergePolicy:applyToMainThreadContextAndParent:">&nbsp;&nbsp;&nbsp;&nbsp;- setDefaultMergePolicy:applyToMainThreadContextAndParent:</option>
 	
 	
 	
@@ -73,6 +91,10 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Initialize">Initialize</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Obtaining a Managed Object Context">Obtaining a Managed Object Context</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Manually Purging the Cache">Manually Purging the Cache</a></span></li>
+	
 </ul></li>
 
 
@@ -80,6 +102,10 @@
 
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#properties">Properties</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/cachePolicy">cachePolicy</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/mainThreadContext">mainThreadContext</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/managedObjectContext">managedObjectContext</a></span></li>
 	
@@ -93,7 +119,21 @@
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/contextForCurrentThread">contextForCurrentThread</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithAPIVersion:session:managedObjectModel:">initWithAPIVersion:session:managedObjectModel:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/purgeCacheOfManagedObjectsIDs:">purgeCacheOfManagedObjectsIDs:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/purgeCacheOfMangedObjectID:">purgeCacheOfMangedObjectID:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/purgeCacheOfMangedObjects:">purgeCacheOfMangedObjects:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/purgeCacheOfObjectsWithEntityName:">purgeCacheOfObjectsWithEntityName:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/resetCache">resetCache</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setDefaultMergePolicy:applyToMainThreadContextAndParent:">setDefaultMergePolicy:applyToMainThreadContextAndParent:</a></span></li>
 	
 </ul></li>
 
@@ -132,11 +172,81 @@
 					<div class="section section-overview">
 						<a title="Overview" name="overview"></a>
 						<h2 class="subtitle subtitle-overview">Overview</h2>
-						<p>The <code>SMCoreDataStore</code> class provides an <code>NSPersistentStoreCoordinator</code> and <code>NSManagedObjectContext</code> instance to the developer, configured to StackMob using the <code>SMUserSession</code> credentials.</p>
+						<p>The <code>SMCoreDataStore</code> class provides all the necessary properties and methods to interact with StackMob&rsquo;s Core Data integration.</p>
 
 <h2>Using SMCoreDataStore</h2>
 
-<p>With your <code>SMCoreDataStore</code> object you can retrieve a managed object context configured with a <code>SMIncrementalStore</code> as it&rsquo;s persistent store to allow communication to StackMob from Core Data.  This instance of <code>NSManagedObjectContext</code> should be used throughout the duration of your application by being passed to each controller&rsquo;s separate <code>NSManagedObjectContext</code> instance.</p><div class="note"><p><strong>Note:</strong> You should not have to initialize an instance of this class directly.  Instead, initialize an instance of <a href="../Classes/SMClient.html">SMClient</a> and use the method &lt;coreDataStoreWithManagedObjectModel:> to retrieve an instance completely configured and ready to communicate to StackMob.</p></div>
+<p>With your <code>SMCoreDataStore</code> object you can retrieve a managed object context configured with a <code>SMIncrementalStore</code> as it&rsquo;s persistent store to allow communication to StackMob from Core Data.  Obtain a managed object context for your thread using <a href="#//api/name/contextForCurrentThread">contextForCurrentThread</a>.  You can obtain the managed object context for the main thread at any time with <a href="#//api/name/mainThreadContext">mainThreadContext</a>.</p>
+
+<p>When saving or fetching from the context, use methods from the &lt;NSManagedObjectContext+Concurrency> category to ensure proper asynchronous saving and fetching off of the main thread.</p>
+
+<p>If you want to do your own context creation, use the <a href="#//api/name/persistentStoreCoordinator">persistentStoreCoordinator</a> property to ensure your objects are being saved to the StackMob server.</p>
+
+<p>The default merge policy set for all contexts created by this class is NSMergeByPropertyObjectTrumpMergePolicy.  Use <a href="#//api/name/setDefaultMergePolicy:applyToMainThreadContextAndParent:">setDefaultMergePolicy:applyToMainThreadContextAndParent:</a> to change the default.</p>
+
+<h2>Using the Cache</h2>
+
+<p>The Core Data integration in version 1.2.0 includes a caching system to allow for local fetching of objects which have previously been fetched from the server.  It is also used to fill faulted objects which have been previously fetched.</p>
+
+<p>The caching system is off by default.  To turn it on, simply set the SM_CACHE_ENABLED flag to YES in your App Delegate file, before you initialize a Core Data store.</p>
+
+<h3>How It Works</h3>
+
+<p>The cache itself is a Core Data stack, equipped with its own private managed object context and persistent store coordinator.  It uses SQLite as the persistent store, which is what most standard applications using Core Data use as the local persistent store.  By implementing the cache as a Core Data stack, results from fetches performed on the network can be cached independently of their original request. You can then perform subsequent local fetches that are able to return subsets of the originally cached data.  For example, suppose you are building a To-Do application which has the option to filter tasks by date, subject, etc.  These filters would translate to conditional fetches on the same list of tasks.  Rather than needing to execute a fetch on the network every time your query conditions change, you can instead grab all the tasks with one network call at the beginning and perform the conditional fetches on that data locally, without needing to fetch from the network again.</p>
+
+<p>After successfully performing a fetch from the StackMob database, an equivalent fetch is performed locally on the cache and those results are replaced with the up-to-date objects from the server.  The results are returned as faulted managed objects and accessing an object&rsquo;s values will cause Core Data to fill the fault using the cache.</p>
+
+<p><strong>Important:</strong> Regardless of the cache policy, results from fetches on the network are cached and used internally to fill faults.  This prevents a network call from happening everytime an object&rsquo;s values are brought into memory by Core Data.</p>
+
+<p><strong>Also Important:</strong> There are a few scenarios where filling faults require network calls.  The first is when an object is faulted but does not have an entry in the cache.  This happens when a managed object context obtains a managed object ID reference to a faulted object that is not in the cache.  The second is when trying to access values of related objects which themselves have not been cached.  If either of these situations arise and there is no network connection Core Data may throw the &ldquo;Core Data could not fulfill a fault&rdquo; exception.</p>
+
+<h3>Caching Policies</h3>
+
+<p>There are 4 policies</p>
+
+<ul>
+<li>SMCachePolicyTryNetworkOnly &ndash; This is the default policy, the equivalent of not fetching from the cache at all.</li>
+<li>SMCachePolicyTryCacheOnly &ndash; This policy directs all fetches to the cache, never trying the network.</li>
+<li>SMCachePolicyTryNetworkElseCache &ndash; This policy will try to fetch from the network, and if an error occurs because there is no network connection the fetch is performed on the cache.</li>
+<li>SMCachePolicyTryCacheElseNetwork &ndash; This policy will start by performing the fetch on the cache and returning if there are results.  If there are no results, the fetch is performed on the network and those up-to-date results from the server will be cached and returned.  If there is an error because there is no network connection the original empty array is returned.</li>
+</ul>
+
+
+<h3>How To Change the Caching Policy</h3>
+
+<p>You can change the caching policy for your SMCoreDataStore instance at any time by setting its cachePolicy property.</p>
+
+<p>If you know you want one cache policy when you are online and one when you are offline, you can use the SMNetworkReachability method setNetworkStatusChangeBlockWithCachePolicyReturn: and return which cache policy to set based on the network status.  An SMNetworkReachability instance is initialized in the user session, under the networkMonitor property.  For example, to set a network status change block after you initialize your client, do the following:</p>
+
+<pre><code>    SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXX"];
+    SMCoreDataStore *coreDataStore = [client coreDataStoreWithManagedObjectModel:myModel];
+    [client.session.networkMonitor setNetworkStatusChangeBlockWithCachePolicyReturn:^SMCachePolicy(SMNetworkStatus status) {
+            if (status == Reachable) {
+                return SMCachePolicyTryNetworkElseCache;
+            } else {
+                return SMCachePolicyTryCacheOnly;
+            }
+    }];
+</code></pre>
+
+<h3>Manually Purging the Cache</h3>
+
+<p>At any time you can purge the cache manually of:</p>
+
+<ul>
+<li>An object by providing it&rsquo;s managed object ID.</li>
+<li>A group of objects by providing an array of managed object IDs.</li>
+<li>A group of objects by providing an array of managed objects, which are converted to IDs before processed on a background thread.</li>
+<li>A group of objects by providing the name of their entity.</li>
+<li>The entire cache (Reset the thing).</li>
+</ul>
+
+
+<p>Check out the Manually Purging the Cache section for all the methods.</p>
+
+<h3>Turning Off the Cache Completely</h3>
+
+<p>To turn off all caching functionality, including internal caching used for fault filling, set the <strong>SM_CACHE_ENABLED</strong> flag to NO in your App Delegate file, before you initialize a instance of SMCoreDataStore.</p><div class="note"><p><strong>Note:</strong> You should not have to initialize an instance of this class directly.  Instead, initialize an instance of <a href="../Classes/SMClient.html">SMClient</a> and use the method &lt;coreDataStoreWithManagedObjectModel:> to retrieve an instance completely configured and ready to communicate to StackMob.</p></div>
 					</div>
 					
 					
@@ -161,8 +271,22 @@
 	
 </li><li>
 	<span class="tooltip">
+		<code><a href="#//api/name/mainThreadContext">&nbsp;&nbsp;mainThreadContext</a></code>
+		<span class="tooltip"><p>An instance of <code>NSManagedObjectContext</code> set to use on the main thread.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
 		<code><a href="#//api/name/managedObjectContext">&nbsp;&nbsp;managedObjectContext</a></code>
-		<span class="tooltip"><p>An instance of <code>NSManagedObjectContext</code> set with this class&rsquo;s persistent store coordinator.</p></span>
+		<span class="tooltip"><p>An instance of <code>NSManagedObjectContext</code> set to use on the main thread.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/cachePolicy">&nbsp;&nbsp;cachePolicy</a></code>
+		<span class="tooltip"><p>The cache policy to adhere by.</p></span>
 	</span>
 	<span class="task-item-suffix">property</span>
 	
@@ -184,6 +308,71 @@
 </li>
 						</ul>
 						
+						
+						<a title="Obtaining a Managed Object Context" name="task_Obtaining a Managed Object Context"></a>
+						<h3 class="subsubtitle task-title">Obtaining a Managed Object Context</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/contextForCurrentThread">&ndash;&nbsp;contextForCurrentThread</a></code>
+		<span class="tooltip"><p>Returns an initialized context for the current thread.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setDefaultMergePolicy:applyToMainThreadContextAndParent:">&ndash;&nbsp;setDefaultMergePolicy:applyToMainThreadContextAndParent:</a></code>
+		<span class="tooltip"><p>Sets the merge policy that is set by default to any context returned from <a href="#//api/name/contextForCurrentThread">contextForCurrentThread</a>.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Manually Purging the Cache" name="task_Manually Purging the Cache"></a>
+						<h3 class="subsubtitle task-title">Manually Purging the Cache</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/purgeCacheOfMangedObjectID:">&ndash;&nbsp;purgeCacheOfMangedObjectID:</a></code>
+		<span class="tooltip"><p>Removes the cache entry for the provided NSManagedObjectID.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/purgeCacheOfMangedObjects:">&ndash;&nbsp;purgeCacheOfMangedObjects:</a></code>
+		<span class="tooltip"><p>Removes the cache entries for the provided array of NSManagedObject instances.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/purgeCacheOfManagedObjectsIDs:">&ndash;&nbsp;purgeCacheOfManagedObjectsIDs:</a></code>
+		<span class="tooltip"><p>Removes the cache entries for the provided array of NSManagedObjectID instances.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/purgeCacheOfObjectsWithEntityName:">&ndash;&nbsp;purgeCacheOfObjectsWithEntityName:</a></code>
+		<span class="tooltip"><p>Removes all the cache entries whose entity matches the provided entity name.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/resetCache">&ndash;&nbsp;resetCache</a></code>
+		<span class="tooltip"><p>Clears the cache of all entries.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
 					</div>
 					
 					
@@ -195,13 +384,90 @@
 						<h2 class="subtitle subtitle-methods">Properties</h2>
 						
 						<div class="section-method">
+	<a name="//api/name/cachePolicy" title="cachePolicy"></a>
+	<h3 class="subsubtitle method-title">cachePolicy</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The cache policy to adhere by.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) SMCachePolicy cachePolicy</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/mainThreadContext" title="mainThreadContext"></a>
+	<h3 class="subsubtitle method-title">mainThreadContext</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>An instance of <code>NSManagedObjectContext</code> set to use on the main thread.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong) NSManagedObjectContext *mainThreadContext</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This managed object context has a private queue parent context set to ensure proper parent/child asynchronous saving.  The persistent store coordinator is set on the parent context. Merge policy is set to NSMergeByPropertyObjectTrumpMergePolicy.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/managedObjectContext" title="managedObjectContext"></a>
 	<h3 class="subsubtitle method-title">managedObjectContext</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>An instance of <code>NSManagedObjectContext</code> set with this class&rsquo;s persistent store coordinator.</p>
+		<p>An instance of <code>NSManagedObjectContext</code> set to use on the main thread.</p>
 	</div>		
 	
     
@@ -218,7 +484,7 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>This is the managed object context to use throughout your application.</p>
+		<p>This property is deprecated. Use <a href="#//api/name/contextForCurrentThread">contextForCurrentThread</a> to obtain a properly initialized managed object context.</p>
 	</div>
 	
 	
@@ -287,6 +553,49 @@
 						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
 						
 						<div class="section-method">
+	<a name="//api/name/contextForCurrentThread" title="contextForCurrentThread"></a>
+	<h3 class="subsubtitle method-title">contextForCurrentThread</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns an initialized context for the current thread.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSManagedObjectContext *)contextForCurrentThread</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Merge policy is set to NSMergeByPropertyObjectTrumpMergePolicy.</p>
+
+<p>If the current thread is the main thread, returns a context initialized with a NSMainQueueConcurrencyType.  Otherwise, returns a context initialized with a NSPrivateQueueConcurrencyType, with the mainThreadContext as its parent.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/initWithAPIVersion:session:managedObjectModel:" title="initWithAPIVersion:session:managedObjectModel:"></a>
 	<h3 class="subsubtitle method-title">initWithAPIVersion:session:managedObjectModel:</h3>
 	
@@ -342,6 +651,282 @@
 	
 </div>
 						
+						<div class="section-method">
+	<a name="//api/name/purgeCacheOfManagedObjectsIDs:" title="purgeCacheOfManagedObjectsIDs:"></a>
+	<h3 class="subsubtitle method-title">purgeCacheOfManagedObjectsIDs:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Removes the cache entries for the provided array of NSManagedObjectID instances.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)purgeCacheOfManagedObjectsIDs:(NSArray *)<em>managedObjectIDs</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>managedObjectIDs</em></dt>
+			<dd><p>An array of managed object IDs whose objects should be removed from the cache, if entries exist.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/purgeCacheOfMangedObjectID:" title="purgeCacheOfMangedObjectID:"></a>
+	<h3 class="subsubtitle method-title">purgeCacheOfMangedObjectID:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Removes the cache entry for the provided NSManagedObjectID.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)<em>objectID</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>objectID</em></dt>
+			<dd><p>The managed object ID of the object to remove from the cache, if an entry exists.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/purgeCacheOfMangedObjects:" title="purgeCacheOfMangedObjects:"></a>
+	<h3 class="subsubtitle method-title">purgeCacheOfMangedObjects:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Removes the cache entries for the provided array of NSManagedObject instances.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)purgeCacheOfMangedObjects:(NSArray *)<em>managedObjects</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>managedObjects</em></dt>
+			<dd><p>An array of managed objects to remove from the cache, if entries exist.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/purgeCacheOfObjectsWithEntityName:" title="purgeCacheOfObjectsWithEntityName:"></a>
+	<h3 class="subsubtitle method-title">purgeCacheOfObjectsWithEntityName:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Removes all the cache entries whose entity matches the provided entity name.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)purgeCacheOfObjectsWithEntityName:(NSString *)<em>entityName</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>entityName</em></dt>
+			<dd><p>The name of the entity.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/resetCache" title="resetCache"></a>
+	<h3 class="subsubtitle method-title">resetCache</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Clears the cache of all entries.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)resetCache</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setDefaultMergePolicy:applyToMainThreadContextAndParent:" title="setDefaultMergePolicy:applyToMainThreadContextAndParent:"></a>
+	<h3 class="subsubtitle method-title">setDefaultMergePolicy:applyToMainThreadContextAndParent:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Sets the merge policy that is set by default to any context returned from <a href="#//api/name/contextForCurrentThread">contextForCurrentThread</a>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)setDefaultMergePolicy:(id)<em>mergePolicy</em> applyToMainThreadContextAndParent:(BOOL)<em>apply</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>mergePolicy</em></dt>
+			<dd><p>The default merge policy to use going forward.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>apply</em></dt>
+			<dd><p>Whether or not to set mergePolicy as the merge policy for the existing mainThreadContext and its private parent context.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If apply is YES, sets the merge policy of mainThreadContext and its private parent context to mergePolicy.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
 					</div>
 					
 					
@@ -355,7 +940,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 StackMob. All rights reserved. (Last updated: 2012-11-20)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-01-23)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						
