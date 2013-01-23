@@ -133,7 +133,7 @@ If you want to make direct REST-based calls to the Datastore, check out the [SMD
 
 ### Caching System
 
-Included with version 1.2.0+ of the SDK is a caching system built in to the Core Data Integration to allow for local fetching of objects which have previously been fetched from the server.  See the [SMCoreDataStore class reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) for how to turn on the cache, set the cache policy, manually purge the cache, etc.
+Included with version 1.2.0+ of the SDK is a caching system built in to the Core Data Integration to allow for local fetching of objects which have previously been fetched from the server.  See the [SMCoreDataStore class reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) for details on how to turn on the cache, set the cache policy, manually purge the cache, etc.
 
 <br/>
 
