@@ -51,6 +51,30 @@
 
 <p>Below is a list of translated error codes you might receive from a failed request in the iOS SDK.  Your code can make checks against the typedefs, making it easier remember what errors you are actually looking out for!</p>
 
+<h2>Core Data Save Failure Errors</h2>
+
+<p>When a Core Data save fails because objects could not be inserted/updated/deleted on StackMob, the error returned is formatted in the following way:</p>
+
+<ul>
+	<li>The error code will be -108, <b>SMErrorCoreDataSave</b></li>
+	<li>The error userInfo property may contain any of the following keys, which are constants you can reference, depending on what the save request consisted of: <b>SMInsertedObjectFailures</b>, <b>SMUpdatedObjectFailures</b>, <b>SMDeletedObjectFailures</b>.</li>
+	<li>If any of those keys exist, its value will be an NSArray instance of NSDictionary instances, one dictionary for each failed object.</li>
+	<li>Each dictionary will include 2 key constants: <b>SMFailedManagedObjectID</b>, whose value is an NSManagedObjectID instance of the managed object that was not saved properly, and <b>SMFailedManagedObjectError</b>, whose value is an NSError instance of what caused the object to not get saved properly.</li>
+</ul>
+
+<p>Here's an example of an error returned when trying to save a user object with primary key "Jack" when a user named "Jack" already exists on the server:</p>
+<pre>
+Error Domain=SMError Code=-108 "The operation couldn’t be completed. (SMError error -108.)" UserInfo=0xc99d030 {
+  SMInsertedObjectFailures=(
+    {
+      SMFailedManagedObjectError = "Error Domain=HTTP Code=409 \"The operation couldn\U2019t be completed. 
+          (HTTP error 409.)\" UserInfo=0x8661680 {error=Duplicate key for schema user: \"jack\"}";
+      SMFailedManagedObjectID = "0xc9a0210 <x-coredata://FDCF65C5-02D3-45E9-BA03-793E1A125FCE-12897-00000C7A7DD73EAA/User/pjack>";
+    }
+  )
+}
+</pre>
+
 <h2>StackMob Specific Errors</h2>
 
 <table cellpadding="8px" width="600px">
