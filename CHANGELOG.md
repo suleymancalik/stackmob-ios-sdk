@@ -2,6 +2,8 @@
 
 <h3>v1.2.0 - January 24, 2013</h3>
 
+Get all the details on the features of this release from <a href="https://blog.stackmob.com/2013/01/ios-sdk-v1-2-0-released/">this blogpost</a>.
+
 **Features**
 
 * Caching system to allow for local fetching of objects which have previously been fetched from the server.  See SMCoreDataStore class reference for how to.
