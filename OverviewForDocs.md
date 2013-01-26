@@ -1,6 +1,6 @@
 # Welcome to the docs for the StackMob iOS SDK!
 
-### Current Version: 1.1.3
+### Current Version: 1.2.0
 
 ### Jump To:
 <a href="#overview">Overview</a>
@@ -235,6 +235,15 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 3. **NSManagedObject Subclasses:** Creating an NSManagedObject subclass for each of your entities is highly recommended for convenience. You can add an init method to each subclass and include the ID assignment line from above - then you don't have to remember to do it each time you create a new object!
 4. **SMUserManagedObject Subclasses:** After creating an NSManagedObject subclass for an entity that maps to a user object on StackMob, change the inherited class to SMUserManagedObject.  This class will give you a method to securely set a password for the user object, without directly setting any attributes in Core Data.  It is important to make sure you initialize an SMUserManagedObject instance properly.
 5. **Create and Save Objects Before Relating Them:**  Before saving updated objects and depending on the merge policy, Core Data will grab persistent values from the server to compare against.  Problems arise when a relationship is updated with an object that hasn't been saved on the server yet.  To play it safe, try to create and save objects before relating them to one another. 
+6. **Working With NSDate Attributes:** As of v1.2.0, NSDate attribute values are serialized to the StackMob server as integers in ms.  Declare the fields on StackMob as Integer.  By keeping consistency with the way the auto-generated **createddate** and **lastmoddate** fields are stored (ms), NSDate attributes for them will be deserialized correctly.
+
+	If you want to check if one date is equal to another, use the <i>timeIntervalSinceDate:</i> method.  Dates being equal is equivalent to the time interval being < 1.  Using methods like <i>isEqualToDate:</i> track sub-second differences between dates, which are not present in the serialized integers.  Here's an example of how to check if two dates are equal:
+	
+		NSDate *date1 = [object1 valueForKey:@"date"];
+		NSDate *date2 = [object2 valueForKey:@"date"];
+		if ([date1 timeIntervalSinceDate:date2] < 1) {
+			// The dates are equal.
+		}
 
 <a name="commonly_used_classes">&nbsp;</a>
 ## Commonly Used Classes
