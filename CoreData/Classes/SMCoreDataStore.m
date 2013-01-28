@@ -23,7 +23,7 @@
 
 static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey";
 NSString *const SMSetCachePolicyNotification = @"SMSetCachePolicyNotification";
-BOOL SM_CACHE_ENABLED = YES;
+BOOL SM_CACHE_ENABLED = NO;
 
 @interface SMCoreDataStore ()
 
@@ -55,7 +55,7 @@ BOOL SM_CACHE_ENABLED = YES;
         _managedObjectModel = managedObjectModel;
         _defaultMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
         self.cachePurgeQueue = dispatch_queue_create("Purge Cache Of Object Queue", NULL);
-        [self setCachePolicy:SMTryNetworkOnly];
+        [self setCachePolicy:SMCachePolicyTryNetworkOnly];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveSetCachePolicyNotification:) name:SMSetCachePolicyNotification object:self.session.networkMonitor];
     }

@@ -21,8 +21,6 @@
 #define EARTH_RADIAN_MILES 3956.6
 #define EARTH_RADIAN_KM    6367.5
 
-// TODO: header keys to #defines?
-
 @implementation SMQuery
 
 @synthesize requestParameters = _requestParameters;

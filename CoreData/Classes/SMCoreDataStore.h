@@ -20,10 +20,10 @@ extern NSString *const SMSetCachePolicyNotification;
 extern BOOL SM_CACHE_ENABLED;
 
 typedef enum {
-    SMTryNetworkOnly = 0,
-    SMTryCacheOnly  = 1,
-    SMTryNetworkElseCache = 2,
-    SMTryCacheElseNetwork = 3,
+    SMCachePolicyTryNetworkOnly = 0,
+    SMCachePolicyTryCacheOnly  = 1,
+    SMCachePolicyTryNetworkElseCache = 2,
+    SMCachePolicyTryCacheElseNetwork = 3,
 } SMCachePolicy;
 
 @class SMIncrementalStore;
@@ -43,11 +43,13 @@ typedef enum {
  
  ## Using the Cache ##
  
- The Core Data integration includes a caching system to allow for local fetching without needing to make a network request.  It is also used to fill faulted objects which have been previously fetched.
+ The Core Data integration in version 1.2.0 includes a caching system to allow for local fetching of objects which have previously been fetched from the server.  It is also used to fill faulted objects which have been previously fetched.
+ 
+ The caching system is off by default.  To turn it on, simply set the SM_CACHE_ENABLED flag to YES in your App Delegate file, before you initialize a Core Data store.
  
  ### How It Works ###
  
- The cache itself is a Core Data stack, equipped with its own private managed object context and persistent store coordinator.  It uses SQLite as the persistent store, which is what most standard applications using Core Data use as the local persistent store.  By setting up the cache this way results from fetches to be cached independently of their original request, meaning you can perform fetches locally that can return subsets of the originally cached data.  For example, suppose you are building a To-Do application which has the option to filter tasks by date, subject, etc.  These filters would translate to conditional fetches on the same list of tasks.  Rather than needing to execute a fetch on the network every time your query conditions change, you can instead grab all the tasks with one network call at the beginning and perform the conditional fetches on that data locally, without needing to fetch from the network again. 
+ The cache itself is a Core Data stack, equipped with its own private managed object context and persistent store coordinator.  It uses SQLite as the persistent store, which is what most standard applications using Core Data use as the local persistent store.  By implementing the cache as a Core Data stack, results from fetches performed on the network can be cached independently of their original request. You can then perform subsequent local fetches that are able to return subsets of the originally cached data.  For example, suppose you are building a To-Do application which has the option to filter tasks by date, subject, etc.  These filters would translate to conditional fetches on the same list of tasks.  Rather than needing to execute a fetch on the network every time your query conditions change, you can instead grab all the tasks with one network call at the beginning and perform the conditional fetches on that data locally, without needing to fetch from the network again. 
  
  After successfully performing a fetch from the StackMob database, an equivalent fetch is performed locally on the cache and those results are replaced with the up-to-date objects from the server.  The results are returned as faulted managed objects and accessing an object's values will cause Core Data to fill the fault using the cache.
  
@@ -57,12 +59,12 @@ typedef enum {
  
  ### Caching Policies ###
  
- There are 4 policies 
+ There are 4 policies
  
- * SMTryNetworkOnly - This is the default policy, the equivalent of not using the cache at all.
- * SMTryCacheOnly - This policy directs all fetches to the cache, never trying the network.
- * SMTryNetworkElseCache - This policy will try to fetch from the network, and if an error occurs because there is no network connection the fetch is performed on the cache.
- * SMTryCacheElseNetwork - This policy will start by performing the fetch on the cache and returning if there are results.  If there are no results, the fetch is performed on the network and those up-to-date results from the server will be cached and returned.  If there is an error because there is no network connection the original empty array is returned.
+ * SMCachePolicyTryNetworkOnly - This is the default policy, the equivalent of not fetching from the cache at all.
+ * SMCachePolicyTryCacheOnly - This policy directs all fetches to the cache, never trying the network.
+ * SMCachePolicyTryNetworkElseCache - This policy will try to fetch from the network, and if an error occurs because there is no network connection the fetch is performed on the cache.
+ * SMCachePolicyTryCacheElseNetwork - This policy will start by performing the fetch on the cache and returning if there are results.  If there are no results, the fetch is performed on the network and those up-to-date results from the server will be cached and returned.  If there is an error because there is no network connection the original empty array is returned.
  
  ### How To Change the Caching Policy ###
  
@@ -74,9 +76,9 @@ typedef enum {
         SMCoreDataStore *coreDataStore = [client coreDataStoreWithManagedObjectModel:myModel];
         [client.session.networkMonitor setNetworkStatusChangeBlockWithCachePolicyReturn:^SMCachePolicy(SMNetworkStatus status) {
                 if (status == Reachable) {
-                    return SMTryNetworkElseCache;
+                    return SMCachePolicyTryNetworkElseCache;
                 } else {
-                    return SMTryCacheOnly;
+                    return SMCachePolicyTryCacheOnly;
                 }
         }];
  
