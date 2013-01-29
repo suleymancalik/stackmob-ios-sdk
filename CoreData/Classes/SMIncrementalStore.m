@@ -996,7 +996,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         return nil;
     }
     
-    NSString *primaryKeyField = nil;
+    __block NSString *primaryKeyField = nil;
     @try {
         primaryKeyField = [fetchRequest.entity primaryKeyField];
     }
@@ -1004,20 +1004,21 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
     }
     
-    NSArray *results = [localCacheResults map:^id(id item) {
-        id remoteID = [item valueForKey:primaryKeyField];
-        if (!remoteID) {
-            [NSException raise:SMExceptionIncompatibleObject format:@"No key for supposed primary key field %@ for item %@", primaryKeyField, item];
+    __block NSMutableArray *results = [NSMutableArray array];
+    
+    [localCacheResults enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        id remoteID = [obj valueForKey:primaryKeyField];
+        if (remoteID != nil) {
+            NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
+            
+            // Allows us to always return object, faulted or not
+            NSManagedObject *sm_managedObject = [context objectWithID:sm_managedObjectID];
+            
+            [results addObject:sm_managedObject];
         }
-        NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
-        
-        // Allows us to always return object, faulted or not
-        NSManagedObject *sm_managedObject = [context objectWithID:sm_managedObjectID];
-        
-        return sm_managedObject;
     }];
     
-    return results;
+    return [NSArray arrayWithArray:results];
     
 }
 
