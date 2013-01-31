@@ -19,8 +19,12 @@
 #import "StackMob.h"
 #import "SMCoreDataIntegrationTestHelpers.h"
 #import "SMIntegrationTestHelpers.h"
+#import "User3.h"
+#import "Person.h"
+#import "Superpower.h"
 
 SPEC_BEGIN(NSManagedObjectContext_ConcurrencySpec)
+
 
 describe(@"fetching runs in the background", ^{
     __block SMClient *client = nil;
@@ -203,6 +207,98 @@ describe(@"Returning managed object vs. ids", ^{
         
     });
 });
+
+/*
+describe(@"sending options with requests", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    beforeAll(^{
+        SM_CORE_DATA_DEBUG = YES;
+        client = [SMIntegrationTestHelpers defaultClient];
+        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
+        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        moc = [cds contextForCurrentThread];
+    });
+    it(@"saveAndWait:options:", ^{
+        NSManagedObject *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        [person setValue:@"bob" forKey:@"first_name"];
+        
+        NSError *error = nil;
+        BOOL success = [moc saveAndWait:&error];
+        if (success) {
+            NSLog(@"success");
+        }
+        
+        User3 *user = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
+        [user setUsername:[user assignObjectId]];
+        [user setPassword:@"smith"];
+        
+        [person setValue:@"smith" forKey:@"last_name"];
+        
+        SMRequestOptions *options = [SMRequestOptions optionsWithHeaders:[NSDictionary dictionaryWithObjectsAndKeys:@"random", @"header", nil]];
+        options.isSecure = YES;
+        error = nil;
+        success = [moc saveAndWait:&error options:options];
+        if (success) {
+            NSLog(@"success");
+        }
+        
+        
+        
+        
+    });
+});
+*/
+/*
+describe(@"testing getting 500s", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    beforeAll(^{
+        SM_CORE_DATA_DEBUG = YES;
+        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"d87cee00-c574-437d-a4cb-ab841e263b52"];
+        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
+        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        moc = [cds contextForCurrentThread];
+    });
+    it(@"getting a 500:", ^{
+        Person *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setPerson_id:[person assignObjectId]];
+        [person setFirst_name:@"bob"];
+        
+        NSManagedObject *favorite = [NSEntityDescription insertNewObjectForEntityForName:@"Favorite" inManagedObjectContext:moc];
+        [favorite setValue:[favorite assignObjectId] forKey:[favorite primaryKeyField]];
+        [favorite setValue:@"fav" forKey:@"genre"];
+        
+        NSManagedObject *interest = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
+        [interest setValue:[interest assignObjectId] forKey:[interest primaryKeyField]];
+        [interest setValue:@"cool" forKey:@"name"];
+        
+        Superpower *superpower = [NSEntityDescription insertNewObjectForEntityForName:@"Superpower" inManagedObjectContext:moc];
+        [superpower setSuperpower_id:[superpower assignObjectId]];
+        [superpower setName:@"super"];
+        
+        [person setInterests:[NSSet setWithObject:interest]];
+        [person setFavorites:[NSSet setWithObject:favorite]];
+        [person setSuperpower:superpower];
+        
+        [superpower setPerson:person];
+        //[interest setValue:person forKey:@"person"];
+        
+        
+        NSError *error = nil;
+        BOOL success = [moc saveAndWait:&error];
+        if (success) {
+            NSLog(@"success");
+        }
+        
+    });
+});
+*/
 
 /*
  describe(@"async save method tests", ^{

@@ -272,7 +272,7 @@
     
     
     
-    if (self.session.refreshToken != nil && options.tryRefreshToken && [self.session accessTokenHasExpired]) {
+    if ([self.session eligibleForTokenRefresh:options]) {
         [self refreshAndRetry:request originalError:nil requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
     } 
     else {

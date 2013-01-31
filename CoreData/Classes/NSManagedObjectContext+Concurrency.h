@@ -78,6 +78,11 @@
 - (void)saveWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /**
+ TODO add comments here
+ */
+//- (void)saveWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
+
+/**
  Synchronous save method.
  
  This method works like the NSManagedObjectContext save: method, but pushes changes to private parent context which in turns saves to the persistent store.
@@ -87,6 +92,11 @@
  @return Whether the save was successful or not.
  */
 - (BOOL)saveAndWait:(NSError *__autoreleasing*)error;
+
+/**
+ TODO add comments here
+ */
+- (BOOL)saveAndWait:(NSError *__autoreleasing *)error options:(SMRequestOptions *)options;
 
 /**
  Asynchronous fetch method.

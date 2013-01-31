@@ -155,7 +155,11 @@
 
 - (BOOL)saveAndWait:(NSError *__autoreleasing*)error
 {
-    
+    return [self saveAndWait:error options:nil];
+}
+
+- (BOOL)saveAndWait:(NSError *__autoreleasing *)error options:(SMRequestOptions *)options
+{
     
     NSManagedObjectContext *mainContext = nil;
     NSManagedObjectContext *temporaryContext = nil;
@@ -187,6 +191,12 @@
             
             // Save Main Context
             [mainContext performBlockAndWait:^{
+                
+                if (options) {
+                    SMRequestOptions *newOptions = options;
+                    NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
+                    [threadDict setObject:newOptions forKey:SMRequestSpecificOptions];
+                }
                 
                 if ([mainContext save:&saveError]) {
                     

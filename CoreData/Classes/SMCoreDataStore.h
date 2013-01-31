@@ -133,6 +133,8 @@ typedef enum {
  */
 @property (nonatomic) SMCachePolicy cachePolicy;
 
+//@property (nonatomic, strong) SMRequestOptions *globalOptions;
+
 
 ///-------------------------------
 /// @name Initialize

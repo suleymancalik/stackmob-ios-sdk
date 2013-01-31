@@ -144,6 +144,7 @@ BOOL SM_CACHE_ENABLED = NO;
 		{
 			threadContext = [self SM_newPrivateQueueContextWithParent:self.mainThreadContext];
 			[threadDict setObject:threadContext forKey:SM_ManagedObjectContextKey];
+            //[threadDict setObject:[SMRequestOptions options] forKey:SMThreadDefaultOptions];
 		}
 		return threadContext;
 	}
