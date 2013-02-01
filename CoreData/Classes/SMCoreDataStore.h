@@ -133,7 +133,10 @@ typedef enum {
  */
 @property (nonatomic) SMCachePolicy cachePolicy;
 
-//@property (nonatomic, strong) SMRequestOptions *globalOptions;
+/**
+ TODO add comments here
+ */
+@property (nonatomic, strong) SMRequestOptions *globalRequestOptions;
 
 
 ///-------------------------------

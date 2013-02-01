@@ -47,6 +47,7 @@ BOOL SM_CACHE_ENABLED = NO;
 @synthesize defaultMergePolicy = _defaultMergePolicy;
 @synthesize cachePurgeQueue = _cachePurgeQueue;
 @synthesize cachePolicy = _cachePolicy;
+@synthesize globalRequestOptions = _globalRequestOptions;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
@@ -56,6 +57,8 @@ BOOL SM_CACHE_ENABLED = NO;
         _defaultMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
         self.cachePurgeQueue = dispatch_queue_create("Purge Cache Of Object Queue", NULL);
         [self setCachePolicy:SMCachePolicyTryNetworkOnly];
+        
+        self.globalRequestOptions = [SMRequestOptions options];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveSetCachePolicyNotification:) name:SMSetCachePolicyNotification object:self.session.networkMonitor];
     }
@@ -144,7 +147,6 @@ BOOL SM_CACHE_ENABLED = NO;
 		{
 			threadContext = [self SM_newPrivateQueueContextWithParent:self.mainThreadContext];
 			[threadDict setObject:threadContext forKey:SM_ManagedObjectContextKey];
-            //[threadDict setObject:[SMRequestOptions options] forKey:SMThreadDefaultOptions];
 		}
 		return threadContext;
 	}

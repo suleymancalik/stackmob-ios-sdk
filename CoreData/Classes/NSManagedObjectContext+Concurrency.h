@@ -80,7 +80,7 @@
 /**
  TODO add comments here
  */
-//- (void)saveWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
+- (void)saveWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /**
  Synchronous save method.
@@ -94,7 +94,8 @@
 - (BOOL)saveAndWait:(NSError *__autoreleasing*)error;
 
 /**
- TODO add comments here
+ Synchronous save method with options parameter.
+ 
  */
 - (BOOL)saveAndWait:(NSError *__autoreleasing *)error options:(SMRequestOptions *)options;
 
@@ -142,6 +143,11 @@
 - (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /**
+ TODO add comments
+ */
+- (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
+
+/**
  Synchronous fetch method.
  
  This method works like the NSManagedObjectContext executeFetchRequest:error: method, but executes fetch request on background context.  Managed object IDs that are returned are converted to managed objects on the calling context.
@@ -165,6 +171,11 @@
  @return An array of NSManagedObject or NSManagedObjectID instances matching the request, nil if there was an error.
  */
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs error:(NSError *__autoreleasing *)error;
+
+/**
+ TODO add comments
+ */
+- (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
 
 /**
  Allows context to be notified when contextToObserve posts the NSManagedObjectContextDidSaveNotification notification.

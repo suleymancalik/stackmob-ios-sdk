@@ -191,7 +191,7 @@
 		DEBBBCBE15CC441900650D75 /* NSArray+Enumerable.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBA15CC441900650D75 /* NSArray+Enumerable.m */; };
 		DEBBBCBF15CC441900650D75 /* Synchronization.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCBB15CC441900650D75 /* Synchronization.h */; };
 		DEBBBCC015CC441900650D75 /* Synchronization.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBC15CC441900650D75 /* Synchronization.m */; };
-		DEBC8C4516BB0C0600B6597F /* NSManagedObjectContext+ConcurrencySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB68FBF169F95EE00CC45F4 /* NSManagedObjectContext+ConcurrencySpec.m */; };
+		DEBC8C5F16BB5DD400B6597F /* NSManagedObjectContext+ConcurrencySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB68FBF169F95EE00CC45F4 /* NSManagedObjectContext+ConcurrencySpec.m */; };
 		DEC5F9FA169B979B00A44722 /* SMIncrementalStoreNode.h in Headers */ = {isa = PBXBuildFile; fileRef = DEC5F9F8169B979B00A44722 /* SMIncrementalStoreNode.h */; };
 		DEC5F9FB169B979B00A44722 /* SMIncrementalStoreNode.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC5F9F9169B979B00A44722 /* SMIncrementalStoreNode.m */; };
 		DED7D2A81655749900FBAF06 /* SMNetworkReachability.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE079B9A16499B0900C8AAA0 /* SMNetworkReachability.h */; };
@@ -1305,7 +1305,7 @@
 				DE0CC7CF15CB6B1F00E491C4 /* SMIntegrationTestHelpers.m in Sources */,
 				DE0CC7D215CB6B3800E491C4 /* SMCoreDataIntegrationTestHelpers.m in Sources */,
 				DE64D608162389A600237570 /* Person.m in Sources */,
-				DEBC8C4516BB0C0600B6597F /* NSManagedObjectContext+ConcurrencySpec.m in Sources */,
+				DEBC8C5F16BB5DD400B6597F /* NSManagedObjectContext+ConcurrencySpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

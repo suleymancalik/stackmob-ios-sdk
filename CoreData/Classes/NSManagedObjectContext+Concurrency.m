@@ -68,7 +68,11 @@
 
 - (void)saveWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
-    
+    [self saveWithSuccessCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue options:nil onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)saveWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
     NSManagedObjectContext *mainContext = nil;
     NSManagedObjectContext *temporaryContext = nil;
     if ([self concurrencyType] == NSMainQueueConcurrencyType) {
@@ -106,8 +110,17 @@
             // Save Main Context
             [mainContext performBlock:^{
                 
+                if (options) {
+                    SMRequestOptions *newOptions = options;
+                    NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
+                    [threadDict setObject:newOptions forKey:SMRequestSpecificOptions];
+                }
+                
                 if (![mainContext save:&saveError]) {
                     
+                    if (options) {
+                        [[[NSThread currentThread] threadDictionary] removeObjectForKey:SMRequestSpecificOptions];
+                    }
                     if (failureBlock) {
                         dispatch_async(failureCallbackQueue, ^{
                             failureBlock(saveError);
@@ -122,7 +135,9 @@
                         [privateContext performBlock:^{
                             
                             if (![privateContext save:&saveError]) {
-                                
+                                if (options) {
+                                    [[[NSThread currentThread] threadDictionary] removeObjectForKey:SMRequestSpecificOptions];
+                                }
                                 if (failureBlock) {
                                     dispatch_async(failureCallbackQueue, ^{
                                         failureBlock(saveError);
@@ -130,6 +145,9 @@
                                 }
                                 
                             } else {
+                                if (options) {
+                                    [[[NSThread currentThread] threadDictionary] removeObjectForKey:SMRequestSpecificOptions];
+                                }
                                 // Dispatch success block to main thread
                                 if (successBlock) {
                                     dispatch_async(successCallbackQueue, ^{
@@ -204,7 +222,7 @@
                     [privateContext performBlockAndWait:^{
                         
                         if ([privateContext save:&saveError]) {
-                            
+
                             success = YES;
                         }
                         
@@ -220,6 +238,10 @@
     
     if (saveError != nil && error != NULL) {
         *error = saveError;
+    }
+    
+    if (options) {
+        [[[NSThread currentThread] threadDictionary] removeObjectForKey:SMRequestSpecificOptions];
     }
     
     return success;
@@ -280,6 +302,11 @@
     
 }
 
+- (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    
+}
+
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request error:(NSError *__autoreleasing *)error
 {
     return [self executeFetchRequestAndWait:request returnManagedObjectIDs:NO error:error];
@@ -328,6 +355,11 @@
             return objectFromCurrentContext;
         }];
     }
+}
+
+- (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error
+{
+    return [NSArray array];
 }
 
 
