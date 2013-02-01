@@ -124,6 +124,13 @@
                             [objectDictionary setObject:[NSNumber numberWithBool:NO] forKey:[selfEntity SMFieldNameForProperty:property]];
                         }
                     }
+                }  else if (attributeDescription.attributeType == NSTransformableAttributeType) {
+                    
+                    // make sure geopoint values are serialized as dictionaries
+                    NSData *data = propertyValue;
+                    NSDictionary *geoDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+                    [objectDictionary setObject:geoDictionary forKey:[selfEntity SMFieldNameForProperty:property]];
+                    
                 } else {
                     id value = propertyValue;
                     if (value != nil) {

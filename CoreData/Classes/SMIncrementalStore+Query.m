@@ -203,6 +203,10 @@
 
 - (BOOL)buildQuery:(SMQuery *__autoreleasing *)query forPredicate:(NSPredicate *)predicate error:(NSError *__autoreleasing *)error;
 {
+    if ([predicate isKindOfClass:[SMPredicate class]]) {
+        SMPredicate *pred = (SMPredicate *)predicate;
+        NSLog(@"%@", pred.predicateDictionary);
+    }
     if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
         [self buildQuery:query forCompoundPredicate:(NSCompoundPredicate *)predicate error:error];
     }

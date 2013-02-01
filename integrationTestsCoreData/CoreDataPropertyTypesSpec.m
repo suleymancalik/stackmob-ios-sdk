@@ -21,7 +21,7 @@
 #import "Random.h"
 
 SPEC_BEGIN(CoreDataPropertyTypesSpec)
-
+/*
 describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
     __block NSManagedObjectContext *moc = nil;
     __block NSManagedObject *camelCaseObject = nil;
@@ -307,6 +307,125 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to false", ^{
      
     });
      
+});
+*/
+
+describe(@"Testing CRUD on an Entity with a GeoPoint attribute", ^{
+    __block NSManagedObjectContext *moc = nil;
+    __block NSManagedObject *geoObject = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSDictionary *location = nil;
+    beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
+        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        geoObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
+        
+        NSNumber *lat = [NSNumber numberWithDouble:37.77215879638275];
+        NSNumber *lon = [NSNumber numberWithDouble:-122.4064476357965];
+        
+        location = [NSDictionary dictionaryWithObjectsAndKeys:
+                                  lat
+                                  ,@"lat"
+                                  ,lon
+                                  ,@"lon", nil];
+        
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:location];
+        
+        [geoObject setValue:data forKey:@"geopoint"];
+        [geoObject setValue:[geoObject assignObjectId] forKey:[geoObject primaryKeyField]];
+    });
+    afterEach(^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [moc deleteObject:geoObject];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    it(@"Will save without error after creation", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    it(@"Will successfully read", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+          
+            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
+            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
+            
+            [[comparisonDictionary should] equal:location];
+        }];
+    });
+    
+    /*
+    it(@"Will successfully read with query", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        CLLocationCoordinate2D coordinate;
+        coordinate.latitude = 37.77215879638275;
+        coordinate.longitude = -122.4064476357965;
+        
+        SMPredicate *geoPredicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5
+                                                        milesOf:coordinate];
+        [fetchRequest setPredicate:geoPredicate];
+        
+    
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            
+            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
+            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
+            
+            [[comparisonDictionary should] equal:location];
+        }];
+    });
+    */
+    
+    
 });
 
 SPEC_END

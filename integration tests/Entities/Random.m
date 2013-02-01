@@ -2,8 +2,8 @@
 //  Random.m
 //  stackmob-ios-sdk
 //
-//  Created by Matt Vaznaian on 11/1/12.
-//  Copyright (c) 2012 StackMob. All rights reserved.
+//  Created by Carl Atupem on 1/30/13.
+//  Copyright (c) 2013 StackMob. All rights reserved.
 //
 
 #import "Random.h"
@@ -11,12 +11,13 @@
 
 @implementation Random
 
+@dynamic createddate;
 @dynamic done;
 @dynamic name;
 @dynamic randomId;
 @dynamic server_id;
 @dynamic time;
 @dynamic yearBorn;
-@dynamic createddate;
+@dynamic geopoint;
 
 @end

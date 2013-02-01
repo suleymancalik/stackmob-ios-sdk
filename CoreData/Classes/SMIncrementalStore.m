@@ -2306,6 +2306,11 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     unsigned long long convertedValue = [value unsignedLongLongValue] / 1000;
                     NSDate *convertedDate = [NSDate dateWithTimeIntervalSince1970:convertedValue];
                     [serializedDictionary setObject:convertedDate forKey:attributeName];
+                } else if (value && attributeDescription.attributeType == NSTransformableAttributeType) {
+                    // we know it's a dictionary
+                    [value isKindOfClass:[NSDictionary class]];
+                    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:value];
+                    [serializedDictionary setObject:data forKey:attributeName];
                 } else {
                     [serializedDictionary setObject:value forKey:attributeName];
                 }
