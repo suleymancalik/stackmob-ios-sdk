@@ -44,9 +44,10 @@ describe(@"LocalReadCacheInitialization", ^{
     __block SMCoreDataStore *cds = nil;
     __block NSManagedObjectContext *moc = nil;
     beforeEach(^{
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         SM_CACHE_ENABLED = YES;
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
     });
     it(@"Initializes the sqlite database", ^{
         
@@ -67,11 +68,12 @@ describe(@"Successful fetching replaces equivalent results of fetching from cach
     __block NSDictionary *fixtures;
     beforeEach(^{
         SM_CACHE_ENABLED = YES;
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         
         fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
         fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
@@ -82,6 +84,7 @@ describe(@"Successful fetching replaces equivalent results of fetching from cach
     afterEach(^{
         [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+        SM_CACHE_ENABLED = NO;
     });
     it(@"works", ^{
         // Add another Matt
@@ -150,7 +153,7 @@ describe(@"Fetch with Cache", ^{
     __block NSDictionary *fixtures;
     beforeEach(^{
         SM_CACHE_ENABLED = YES;
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         
         fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
         fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
@@ -166,6 +169,7 @@ describe(@"Fetch with Cache", ^{
     afterEach(^{
         [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+        SM_CACHE_ENABLED = NO;
     });
     describe(@"Cache else network logic", ^{
         it(@"behaves properly", ^{
@@ -953,7 +957,7 @@ describe(@"Purging the Cache", ^{
     __block NSDictionary *fixtures;
     beforeEach(^{
         SM_CACHE_ENABLED = YES;
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
@@ -968,6 +972,7 @@ describe(@"Purging the Cache", ^{
     afterEach(^{
         [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+        SM_CACHE_ENABLED = NO;
     });
     it(@"Should clear the cache of objects that are deleted", ^{
         __block NSArray *resultfOfFetch = nil;
@@ -1071,7 +1076,7 @@ describe(@"purging cache of multiple objects at a time", ^{
     __block NSDictionary *fixtures;
     beforeEach(^{
         SM_CACHE_ENABLED = YES;
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
@@ -1085,6 +1090,7 @@ describe(@"purging cache of multiple objects at a time", ^{
     });
     afterEach(^{
         [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
+        SM_CACHE_ENABLED = NO;
     });
     it(@"interface for purging the cache of objects", ^{
         __block NSArray *resultfOfFetch = nil;
@@ -1161,7 +1167,7 @@ describe(@"cache references should not be returned during fetches", ^{
     __block NSDictionary *fixtures;
     beforeEach(^{
         SM_CACHE_ENABLED = YES;
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
@@ -1218,6 +1224,7 @@ describe(@"cache references should not be returned during fetches", ^{
             [error shouldBeNil];
         }];
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+        SM_CACHE_ENABLED = NO;
     });
     it(@"works", ^{
         

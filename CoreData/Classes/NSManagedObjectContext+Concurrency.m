@@ -97,8 +97,21 @@
     [temporaryContext performBlock:^{
         
         __block NSError *saveError;
+        
+        if (options) {
+            SMRequestOptions *newOptions = options;
+            NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
+            [threadDict setObject:newOptions forKey:SMRequestSpecificOptions];
+        }
+        
         // Save Temporary Context
-        if (![temporaryContext save:&saveError]) {
+        BOOL tempContextSaveSuccess = [temporaryContext save:&saveError];
+        
+        if (options) {
+            [[[NSThread currentThread] threadDictionary] removeObjectForKey:SMRequestSpecificOptions];
+        }
+        
+        if (!tempContextSaveSuccess) {
             
             if (failureBlock) {
                 dispatch_async(failureCallbackQueue, ^{
@@ -116,11 +129,14 @@
                     [threadDict setObject:newOptions forKey:SMRequestSpecificOptions];
                 }
                 
-                if (![mainContext save:&saveError]) {
+                BOOL mainContextSaveSuccess = [mainContext save:&saveError];
+                
+                if (options) {
+                    [[[NSThread currentThread] threadDictionary] removeObjectForKey:SMRequestSpecificOptions];
+                }
+                
+                if (!mainContextSaveSuccess) {
                     
-                    if (options) {
-                        [[[NSThread currentThread] threadDictionary] removeObjectForKey:SMRequestSpecificOptions];
-                    }
                     if (failureBlock) {
                         dispatch_async(failureCallbackQueue, ^{
                             failureBlock(saveError);
@@ -134,10 +150,20 @@
                         // Save Private Context to disk
                         [privateContext performBlock:^{
                             
-                            if (![privateContext save:&saveError]) {
-                                if (options) {
-                                    [[[NSThread currentThread] threadDictionary] removeObjectForKey:SMRequestSpecificOptions];
-                                }
+                            if (options) {
+                                SMRequestOptions *newOptions = options;
+                                NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
+                                [threadDict setObject:newOptions forKey:SMRequestSpecificOptions];
+                            }
+                            
+                            BOOL privateContextSaveSuccess = [privateContext save:&saveError];
+                            
+                            if (options) {
+                                [[[NSThread currentThread] threadDictionary] removeObjectForKey:SMRequestSpecificOptions];
+                            }
+                            
+                            if (!privateContextSaveSuccess) {
+                                
                                 if (failureBlock) {
                                     dispatch_async(failureCallbackQueue, ^{
                                         failureBlock(saveError);
@@ -145,9 +171,7 @@
                                 }
                                 
                             } else {
-                                if (options) {
-                                    [[[NSThread currentThread] threadDictionary] removeObjectForKey:SMRequestSpecificOptions];
-                                }
+                                
                                 // Dispatch success block to main thread
                                 if (successBlock) {
                                     dispatch_async(successCallbackQueue, ^{
@@ -204,17 +228,17 @@
     __block NSError *saveError = nil;
     [temporaryContext performBlockAndWait:^{
         
+        if (options) {
+            SMRequestOptions *newOptions = options;
+            NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
+            [threadDict setObject:newOptions forKey:SMRequestSpecificOptions];
+        }
+        
         // Save Temporary Context
         if ([temporaryContext save:&saveError]) {
             
             // Save Main Context
             [mainContext performBlockAndWait:^{
-                
-                if (options) {
-                    SMRequestOptions *newOptions = options;
-                    NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
-                    [threadDict setObject:newOptions forKey:SMRequestSpecificOptions];
-                }
                 
                 if ([mainContext save:&saveError]) {
                     
