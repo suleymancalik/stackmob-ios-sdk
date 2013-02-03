@@ -208,7 +208,8 @@ describe(@"Returning managed object vs. ids", ^{
     });
 });
 
-describe(@"sending options with requests", ^{
+
+describe(@"sending options with requests, saves", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
     __block NSManagedObjectContext *moc = nil;
@@ -350,7 +351,7 @@ describe(@"sending options with requests", ^{
         options.isSecure = YES;
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [moc saveWithSuccessCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() options:options onSuccess:^{
+            [moc saveWithSuccessCallbackQueue:dispatch_get_current_queue() failureCallbackQueue:dispatch_get_current_queue() options:options onSuccess:^{
                 NSLog(@"success");
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
@@ -393,7 +394,7 @@ describe(@"sending options with requests", ^{
         SMRequestOptions *options = [SMRequestOptions optionsWithHeaders:[NSDictionary dictionaryWithObjectsAndKeys:@"random", @"header", nil]];
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [moc saveWithSuccessCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() options:options onSuccess:^{
+            [moc saveWithSuccessCallbackQueue:dispatch_get_current_queue() failureCallbackQueue:dispatch_get_current_queue() options:options onSuccess:^{
                 NSLog(@"success");
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
@@ -407,8 +408,7 @@ describe(@"sending options with requests", ^{
 });
 
 
-
-describe(@"creating global request options", ^{
+describe(@"creating global request options, saves", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
     __block NSManagedObjectContext *moc = nil;
@@ -595,6 +595,152 @@ describe(@"creating global request options", ^{
         });
     });
     
+});
+
+describe(@"sending options with requests, fetches", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    beforeAll(^{
+        //SM_CORE_DATA_DEBUG = YES;
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
+        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        moc = [cds contextForCurrentThread];
+        
+        NSManagedObject *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
+        [person setValue:@"bob" forKey:@"first_name"];
+        
+        User3 *user = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
+        [user setUsername:[user assignObjectId]];
+        [user setPassword:@"smith"];
+        
+        NSError *error = nil;
+        BOOL success = [moc saveAndWait:&error];
+        [[theValue(success) should] beYes];
+    });
+    afterAll(^{
+        NSArray *arrayOfSchemaObjectsToDelete = [NSArray arrayWithObjects:@"User3", @"Person", nil];
+        __block NSFetchRequest *fetch = nil;
+        __block NSError *error = nil;
+        __block NSArray *results = nil;
+        [arrayOfSchemaObjectsToDelete enumerateObjectsUsingBlock:^(id schemaName, NSUInteger idx, BOOL *stop) {
+            
+            fetch = [[NSFetchRequest alloc] initWithEntityName:schemaName];
+            error = nil;
+            results = [moc executeFetchRequestAndWait:fetch error:&error];
+            if (!error) {
+                [results enumerateObjectsUsingBlock:^(id obj, NSUInteger index, BOOL *innerstop) {
+                    [moc deleteObject:obj];
+                }];
+            }
+            
+        }];
+        
+        error = nil;
+        [moc saveAndWait:&error];
+        [error shouldBeNil];
+        
+    });
+    
+    it(@"executeFetchRequestAndWait:error:, sending HTTPS", ^{
+        
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
+        
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
+        
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
+        
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+        
+        SMRequestOptions *options = [SMRequestOptions optionsWithHeaders:[NSDictionary dictionaryWithObjectsAndKeys:@"random", @"header", nil]];
+        options.isSecure = YES;
+        NSError *error = nil;
+        NSArray *results = [moc executeFetchRequestAndWait:fetchRequest returnManagedObjectIDs:NO options:options error:&error];
+        
+        [error shouldBeNil];
+        [[theValue([results count]) should] equal:theValue(1)];
+        
+        
+    });
+    
+    it(@"executeFetchRequestAndWait:error:, not sending HTTPS", ^{
+        
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
+        
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
+        
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
+        
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+        
+        SMRequestOptions *options = [SMRequestOptions optionsWithHeaders:[NSDictionary dictionaryWithObjectsAndKeys:@"random", @"header", nil]];
+        NSError *error = nil;
+        NSArray *results = [moc executeFetchRequestAndWait:fetchRequest returnManagedObjectIDs:NO options:options error:&error];
+        
+        [error shouldBeNil];
+        [[theValue([results count]) should] equal:theValue(1)];
+        
+    });
+    
+    it(@"executeFetchRequest:onSuccess, sending HTTPS", ^{
+        
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
+        
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
+        
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
+        
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+        
+        SMRequestOptions *options = [SMRequestOptions optionsWithHeaders:[NSDictionary dictionaryWithObjectsAndKeys:@"random", @"header", nil]];
+        options.isSecure = YES;
+        
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [moc executeFetchRequest:fetchRequest returnManagedObjectIDs:NO successCallbackQueue:dispatch_get_current_queue() failureCallbackQueue:dispatch_get_current_queue() options:options onSuccess:^(NSArray *results) {
+                [[theValue([results count]) should] equal:theValue(1)];
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                [error shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        
+    });
+    
+    it(@"executeFetchRequest:onSuccess, not sending HTTPS", ^{
+        
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
+        
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
+        
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
+        
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+        
+        SMRequestOptions *options = [SMRequestOptions optionsWithHeaders:[NSDictionary dictionaryWithObjectsAndKeys:@"random", @"header", nil]];
+        
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [moc executeFetchRequest:fetchRequest returnManagedObjectIDs:NO successCallbackQueue:dispatch_get_current_queue() failureCallbackQueue:dispatch_get_current_queue() options:options onSuccess:^(NSArray *results) {
+                [[theValue([results count]) should] equal:theValue(1)];
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                [error shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+    });
 });
 
 

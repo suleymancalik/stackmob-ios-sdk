@@ -283,6 +283,11 @@
 
 - (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
+    [self executeFetchRequest:request returnManagedObjectIDs:returnIDs successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue options:nil onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
     dispatch_queue_t aQueue = dispatch_queue_create("Fetch Queue", NULL);
     __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
     
@@ -297,7 +302,18 @@
         NSFetchRequest *fetchCopy = [request copy];
         [fetchCopy setResultType:NSManagedObjectIDResultType];
         
+        if (options) {
+            SMRequestOptions *newOptions = options;
+            NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
+            [threadDict setObject:newOptions forKey:SMRequestSpecificOptions];
+        }
+        
         NSArray *resultsOfFetch = [backgroundContext executeFetchRequest:fetchCopy error:&fetchError];
+        
+        if (options) {
+            [[[NSThread currentThread] threadDictionary] removeObjectForKey:SMRequestSpecificOptions];
+        }
+        
         if (fetchError) {
             if (failureBlock) {
                 dispatch_async(failureCallbackQueue, ^{
@@ -323,12 +339,6 @@
             }
         }
     });
-    
-}
-
-- (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
-{
-    
 }
 
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request error:(NSError *__autoreleasing *)error
@@ -337,6 +347,11 @@
 }
 
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs error:(NSError *__autoreleasing *)error
+{
+    return [self executeFetchRequestAndWait:request returnManagedObjectIDs:returnIDs options:nil error:error];
+}
+
+- (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error
 {
     dispatch_queue_t queue = dispatch_queue_create("Fetch And Wait Queue", NULL);
     dispatch_group_t group = dispatch_group_create();
@@ -359,7 +374,18 @@
     }
     
     [backgroundContext performBlockAndWait:^{
+        
+        if (options) {
+            SMRequestOptions *newOptions = options;
+            NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
+            [threadDict setObject:newOptions forKey:SMRequestSpecificOptions];
+        }
+        
         resultsOfFetch = [backgroundContext executeFetchRequest:fetchCopy error:&fetchError];
+        
+        if (options) {
+            [[[NSThread currentThread] threadDictionary] removeObjectForKey:SMRequestSpecificOptions];
+        }
     }];
     
     if (fetchError && error != NULL) {
@@ -379,11 +405,6 @@
             return objectFromCurrentContext;
         }];
     }
-}
-
-- (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error
-{
-    return [NSArray array];
 }
 
 
