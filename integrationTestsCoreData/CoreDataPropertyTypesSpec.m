@@ -21,7 +21,7 @@
 #import "Random.h"
 
 SPEC_BEGIN(CoreDataPropertyTypesSpec)
-/*
+
 describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
     __block NSManagedObjectContext *moc = nil;
     __block NSManagedObject *camelCaseObject = nil;
@@ -308,7 +308,6 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to false", ^{
     });
      
 });
-*/
 
 describe(@"Testing CRUD on an Entity with a GeoPoint attribute", ^{
     __block NSManagedObjectContext *moc = nil;
@@ -337,6 +336,7 @@ describe(@"Testing CRUD on an Entity with a GeoPoint attribute", ^{
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:location];
         
         [geoObject setValue:data forKey:@"geopoint"];
+        [geoObject setValue:@"StackMob" forKey:@"name"];
         [geoObject setValue:[geoObject assignObjectId] forKey:[geoObject primaryKeyField]];
     });
     afterEach(^{
@@ -349,6 +349,7 @@ describe(@"Testing CRUD on an Entity with a GeoPoint attribute", ^{
             }
         }];
     });
+    
     it(@"Will save without error after creation", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -385,8 +386,8 @@ describe(@"Testing CRUD on an Entity with a GeoPoint attribute", ^{
         }];
     });
     
-    /*
-    it(@"Will successfully read with query", ^{
+    
+    it(@"Will successfully read with miles query", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
@@ -398,13 +399,14 @@ describe(@"Testing CRUD on an Entity with a GeoPoint attribute", ^{
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         [fetchRequest setEntity:entity];
         
+        // Fisherman's Wharf
         CLLocationCoordinate2D coordinate;
-        coordinate.latitude = 37.77215879638275;
-        coordinate.longitude = -122.4064476357965;
+        coordinate.latitude = 37.810317;
+        coordinate.longitude = -122.418167;
         
-        SMPredicate *geoPredicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5
+        SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5
                                                         milesOf:coordinate];
-        [fetchRequest setPredicate:geoPredicate];
+        [fetchRequest setPredicate:predicate];
         
     
         
@@ -423,7 +425,251 @@ describe(@"Testing CRUD on an Entity with a GeoPoint attribute", ^{
             [[comparisonDictionary should] equal:location];
         }];
     });
-    */
+    
+    it(@"Will successfully read with kilometers query", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        // Fisherman's Wharf
+        CLLocationCoordinate2D coordinate;
+        coordinate.latitude = 37.810317;
+        coordinate.longitude = -122.418167;
+        
+        SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" isWithin:1.0 kilometersOf:coordinate];
+        [fetchRequest setPredicate:predicate];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(0)];
+        }];
+    });
+    
+    it(@"Will successfully read with bounds query", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        // Twin Peaks
+        CLLocationCoordinate2D swCoordinate;
+        swCoordinate.latitude = 37.755245;
+        swCoordinate.longitude = -122.447741;
+        
+        // Fisherman's Wharf
+        CLLocationCoordinate2D neCoordinate;
+        neCoordinate.latitude = 37.810317;
+        neCoordinate.longitude = -122.418167;
+        
+        SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" isWithinBoundsWithSWCorner:swCoordinate andNECorner:neCoordinate];
+        [fetchRequest setPredicate:predicate];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(0)];
+        }];
+    });
+    
+    it(@"Will successfully read with near query", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        // Twin Peaks
+        CLLocationCoordinate2D coordinate;
+        coordinate.latitude = 37.755245;
+        coordinate.longitude = -122.447741;
+        
+        SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" near:coordinate];
+        [fetchRequest setPredicate:predicate];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            
+            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
+            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
+            
+            [[comparisonDictionary should] equal:location];
+        }];
+        
+    });
+
+    it(@"Will successfully read when instantiated as an NSPredicate", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        SMPredicate *predicate = (SMPredicate *)[SMPredicate predicateWithFormat:@"name == %@", @"StackMob"];
+        [fetchRequest setPredicate:predicate];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            
+            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
+            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
+            
+            [[comparisonDictionary should] equal:location];
+        }];
+        
+    });
+    it(@"Will successfully read with an NSPredicate", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        SMPredicate *predicate = (SMPredicate *)[NSPredicate predicateWithFormat:@"name == %@", @"Swag"];
+        [fetchRequest setPredicate:predicate];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(0)];
+        }];
+        
+    });
+    it(@"Will successfully read with compound query", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        // Fisherman's Wharf
+        CLLocationCoordinate2D coordinate;
+        coordinate.latitude = 37.810317;
+        coordinate.longitude = -122.418167;
+        
+        SMPredicate *geoPredicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5
+                                                        milesOf:coordinate];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name == %@", @"Swag"];
+        NSArray *predicates = [NSArray arrayWithObjects:geoPredicate, predicate, nil];
+        
+        NSPredicate *compoundPredicate =[NSCompoundPredicate andPredicateWithSubpredicates:predicates];
+        [fetchRequest setPredicate:compoundPredicate];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(0)];
+        }];
+        
+    });
+    
+    it(@"Will save and read without error after update", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        
+        // Fisherman's Wharf
+        NSNumber *lat = [NSNumber numberWithDouble:37.810317];
+        NSNumber *lon = [NSNumber numberWithDouble:-122.418167];
+        
+        NSDictionary *newLocation = [NSDictionary dictionaryWithObjectsAndKeys:
+                    lat
+                    ,@"lat"
+                    ,lon
+                    ,@"lon", nil];
+        
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:newLocation];
+        
+        [geoObject setValue:data forKey:@"geopoint"];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
+            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
+            
+            [[comparisonDictionary should] equal:newLocation];
+            
+        }];
+        
+    });
     
     
 });

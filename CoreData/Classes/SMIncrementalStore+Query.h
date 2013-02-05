@@ -16,7 +16,6 @@
 
 #import "SMIncrementalStore.h"
 #import "SMQuery.h"
-#import "SMPredicate.h"
 
 /**
  A category on <SMIncrementalStore> providing methods to translate fetch requests into instances of <SMQuery>.
