@@ -32,6 +32,9 @@ extern NSString *const SMCachePurgeManagedObjectID;
 extern NSString *const SMCachePurgeArrayOfManageObjectIDs;
 extern NSString *const SMCachePurgeOfObjectsFromEntityName;
 
+extern NSString *const SMThreadDefaultOptions;
+extern NSString *const SMRequestSpecificOptions;
+
 extern BOOL SM_CORE_DATA_DEBUG;
 extern unsigned int SM_MAX_LOG_LENGTH;
 
