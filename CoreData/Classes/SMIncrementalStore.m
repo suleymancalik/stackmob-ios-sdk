@@ -889,7 +889,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         return nil;
     }
     
-    if (SM_CACHE_ENABLED) {
+    if (SM_CACHE_ENABLED && ![self containsSMPredicate:[fetchRequest predicate]]) {
         
         // Network fetch was successful, run same fetch on local cache and delete results
         NSError *fetchOnCacheError = nil;
@@ -996,9 +996,31 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
+- (BOOL) containsSMPredicate:(NSPredicate *)predicate {
+    
+    if ([predicate isKindOfClass:[SMPredicate class]]) {
+        return YES;
+    }
+    else if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
+        NSCompoundPredicate *compoundPredicate = (NSCompoundPredicate *)predicate;
+        for (NSPredicate *subPredicate in [compoundPredicate subpredicates]) {
+             if([self containsSMPredicate:subPredicate])
+                 return YES;
+        }
+        
+    }
+    
+    return NO;
+}
+
 - (id)SM_fetchObjectsFromCache:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
     
     if (SM_CORE_DATA_DEBUG) { DLog() }
+    
+    if ([self containsSMPredicate:[fetchRequest predicate]]) {
+        return [NSArray array];
+    }
+    
     
     __block NSArray *localCacheResults = nil;
     __block NSError *localCacheError = nil;
@@ -2390,6 +2412,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     unsigned long long convertedValue = [value unsignedLongLongValue] / 1000;
                     NSDate *convertedDate = [NSDate dateWithTimeIntervalSince1970:convertedValue];
                     [serializedDictionary setObject:convertedDate forKey:attributeName];
+                } else if (value && attributeDescription.attributeType == NSTransformableAttributeType) {
+                    if ([value isKindOfClass:[NSDictionary class]]) {
+                        // we know it's a geopoint dictionary
+                        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:value];
+                        [serializedDictionary setObject:data forKey:attributeName];
+                    }
                 } else {
                     [serializedDictionary setObject:value forKey:attributeName];
                 }

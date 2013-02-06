@@ -40,3 +40,4 @@
 #import "NSManagedObjectContext+Concurrency.h"
 #import "AFHTTPClient+StackMob.h"
 #import "SMIncrementalStore+Query.h"
+#import "SMPredicate.h"

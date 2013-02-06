@@ -17,6 +17,7 @@
 #import "SMIncrementalStore+Query.h"
 #import "NSEntityDescription+StackMobSerialization.h"
 #import "SMError.h"
+#import "SMPredicate.h"
 
 @implementation SMIncrementalStore (Query)
 
@@ -201,13 +202,135 @@
     return YES;
 }
 
-- (BOOL)buildQuery:(SMQuery *__autoreleasing *)query forPredicate:(NSPredicate *)predicate error:(NSError *__autoreleasing *)error;
+
+-(BOOL)buildQuery:(SMQuery *__autoreleasing *)query forSMPredicate:(SMPredicate *)predicate error:(NSError *__autoreleasing *)error
+{
+    switch (predicate.sm_predicateOperatorType) {
+            
+        case SMGeoQueryWithinMilesOperatorType:
+            [self buildGeoQueryMiles:query forSMPredicate:predicate error:error];
+            break;
+        case SMGeoQueryWithinKilometersOperatorType:
+            [self buildGeoQueryKilometers:query forSMPredicate:predicate error:error];
+            break;
+        case SMGeoQueryWithinBoundsOperatorType:
+            [self buildGeoQueryBounds:query forSMPredicate:predicate error:error];
+            break;
+        case SMGeoQueryNearOperatorType:
+            [self buildGeoQueryNear:query forSMPredicate:predicate error:error];
+            break;
+        default:
+            [self setError:error withReason:@"Predicate type not supported."];
+            break;
+    }
+    
+    
+    return YES;
+}
+
+-(BOOL)buildGeoQueryMiles:(SMQuery *__autoreleasing *)query forSMPredicate:(SMPredicate *)predicate error:(NSError *__autoreleasing *)error
+{
+    NSDictionary *geoDictionary = [NSDictionary dictionaryWithDictionary:predicate.predicateDictionary];
+    
+    NSDictionary *coordinate = [geoDictionary objectForKey:GEOQUERY_COORDINATE];
+    NSNumber *latitude = [coordinate objectForKey:GEOQUERY_LAT];
+    NSNumber *longitude = [coordinate objectForKey:GEOQUERY_LONG];
+    
+    CLLocationCoordinate2D point;
+    point.latitude = [latitude doubleValue];
+    point.longitude = [longitude doubleValue];
+    
+    NSNumber *distance = [geoDictionary objectForKey:GEOQUERY_MILES];
+    CLLocationDistance miles = [distance doubleValue];
+    
+    NSString *field = [geoDictionary objectForKey:GEOQUERY_FIELD];
+    
+    [*query where:field isWithin:miles milesOf:point];
+    
+    return YES; 
+}
+
+-(BOOL)buildGeoQueryKilometers:(SMQuery *__autoreleasing *)query forSMPredicate:(SMPredicate *)predicate error:(NSError *__autoreleasing *)error
+{
+    NSDictionary *geoDictionary = [NSDictionary dictionaryWithDictionary:predicate.predicateDictionary];
+    
+    NSDictionary *coordinate = [geoDictionary objectForKey:GEOQUERY_COORDINATE];
+    NSNumber *latitude = [coordinate objectForKey:GEOQUERY_LAT];
+    NSNumber *longitude = [coordinate objectForKey:GEOQUERY_LONG];
+    
+    CLLocationCoordinate2D point;
+    point.latitude = [latitude doubleValue];
+    point.longitude = [longitude doubleValue];
+    
+    NSNumber *distance = [geoDictionary objectForKey:GEOQUERY_KILOMETERS];
+    CLLocationDistance kilometers = [distance doubleValue];
+    
+    NSString *field = [geoDictionary objectForKey:GEOQUERY_FIELD];
+    
+    [*query where:field isWithin:kilometers kilometersOf:point];
+    
+    return YES; 
+}
+
+-(BOOL)buildGeoQueryBounds:(SMQuery *__autoreleasing *)query forSMPredicate:(SMPredicate *)predicate error:(NSError *__autoreleasing *)error
+{
+    NSDictionary *geoDictionary = [NSDictionary dictionaryWithDictionary:predicate.predicateDictionary];
+    
+    NSDictionary *swCoordinate = [geoDictionary objectForKey:GEOQUERY_SW_BOUND];
+    NSNumber *swLatitude = [swCoordinate objectForKey:GEOQUERY_LAT];
+    NSNumber *swLongitude = [swCoordinate objectForKey:GEOQUERY_LONG];
+    
+    CLLocationCoordinate2D swPoint;
+    swPoint.latitude = [swLatitude doubleValue];
+    swPoint.longitude = [swLongitude doubleValue];
+    
+    
+    NSDictionary *neCoordinate = [geoDictionary objectForKey:GEOQUERY_NE_BOUND];
+    NSNumber *neLatitude = [neCoordinate objectForKey:GEOQUERY_LAT];
+    NSNumber *neLongitude = [neCoordinate objectForKey:GEOQUERY_LONG];
+    
+    CLLocationCoordinate2D nePoint;
+    nePoint.latitude = [neLatitude doubleValue];
+    nePoint.longitude = [neLongitude doubleValue];
+    
+    NSString *field = [geoDictionary objectForKey:GEOQUERY_FIELD];
+    
+    [*query where:field isWithinBoundsWithSWCorner:swPoint andNECorner:nePoint];
+    
+    
+    return YES;
+}
+
+-(BOOL)buildGeoQueryNear:(SMQuery *__autoreleasing *)query forSMPredicate:(SMPredicate *)predicate error:(NSError *__autoreleasing *)error
+{
+    NSDictionary *geoDictionary = [NSDictionary dictionaryWithDictionary:predicate.predicateDictionary];
+    
+    NSDictionary *coordinate = [geoDictionary objectForKey:GEOQUERY_COORDINATE];
+    NSNumber *latitude = [coordinate objectForKey:GEOQUERY_LAT];
+    NSNumber *longitude = [coordinate objectForKey:GEOQUERY_LONG];
+    
+    CLLocationCoordinate2D point;
+    point.latitude = [latitude doubleValue];
+    point.longitude = [longitude doubleValue];
+    
+    NSString *field = [geoDictionary objectForKey:GEOQUERY_FIELD];
+    
+    [*query where:field near:point];
+    
+    return YES;  
+}
+
+
+- (BOOL)buildQuery:(SMQuery *__autoreleasing *)query forPredicate:(NSPredicate *)predicate error:(NSError *__autoreleasing *)error
 {
     if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
         [self buildQuery:query forCompoundPredicate:(NSCompoundPredicate *)predicate error:error];
     }
     else if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
         [self buildQuery:query forComparisonPredicate:(NSComparisonPredicate *)predicate error:error];
+    }
+    else if ([predicate isKindOfClass:[SMPredicate class]]) {
+        [self buildQuery:query forSMPredicate:(SMPredicate *)predicate error:error];
     }
     
     return YES;
