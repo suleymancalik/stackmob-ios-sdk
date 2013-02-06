@@ -22,9 +22,7 @@
 
 SPEC_BEGIN(LocalReadCacheSpec)
 
-pending_(@"setting reachability block to change cache policy works", ^{
-    
-});
+
 pending_(@"fetch request that errors returns properly", ^{
     
 });
@@ -37,15 +35,19 @@ pending_(@"sending request options that overwrite the cache policy", ^{
 pending_(@"sending request options that overwrite the expand depth", ^{
     
 });
+pending_(@"completion block when purging is sucessful", ^{
+    
+});
 
 describe(@"LocalReadCacheInitialization", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
     __block NSManagedObjectContext *moc = nil;
     beforeEach(^{
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         SM_CACHE_ENABLED = YES;
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
     });
     it(@"Initializes the sqlite database", ^{
         
@@ -66,11 +68,12 @@ describe(@"Successful fetching replaces equivalent results of fetching from cach
     __block NSDictionary *fixtures;
     beforeEach(^{
         SM_CACHE_ENABLED = YES;
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         
         fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
         fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
         client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
         [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
@@ -81,6 +84,7 @@ describe(@"Successful fetching replaces equivalent results of fetching from cach
     afterEach(^{
         [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+        SM_CACHE_ENABLED = NO;
     });
     it(@"works", ^{
         // Add another Matt
@@ -149,7 +153,7 @@ describe(@"Fetch with Cache", ^{
     __block NSDictionary *fixtures;
     beforeEach(^{
         SM_CACHE_ENABLED = YES;
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         
         fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
         fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
@@ -165,6 +169,7 @@ describe(@"Fetch with Cache", ^{
     afterEach(^{
         [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+        SM_CACHE_ENABLED = NO;
     });
     describe(@"Cache else network logic", ^{
         it(@"behaves properly", ^{
@@ -1025,7 +1030,7 @@ describe(@"Purging the Cache", ^{
     __block NSDictionary *fixtures;
     beforeEach(^{
         SM_CACHE_ENABLED = YES;
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
@@ -1040,6 +1045,7 @@ describe(@"Purging the Cache", ^{
     afterEach(^{
         [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+        SM_CACHE_ENABLED = NO;
     });
     it(@"Should clear the cache of objects that are deleted", ^{
         __block NSArray *resultfOfFetch = nil;
@@ -1143,7 +1149,7 @@ describe(@"purging cache of multiple objects at a time", ^{
     __block NSDictionary *fixtures;
     beforeEach(^{
         SM_CACHE_ENABLED = YES;
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
@@ -1157,6 +1163,7 @@ describe(@"purging cache of multiple objects at a time", ^{
     });
     afterEach(^{
         [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
+        SM_CACHE_ENABLED = NO;
     });
     it(@"interface for purging the cache of objects", ^{
         __block NSArray *resultfOfFetch = nil;
@@ -1224,6 +1231,346 @@ describe(@"purging cache of multiple objects at a time", ^{
         
     });
 });
+
+describe(@"cache references should not be returned during fetches", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    __block NSArray *fixturesToLoad;
+    __block NSDictionary *fixtures;
+    beforeEach(^{
+        SM_CACHE_ENABLED = YES;
+        //SM_CORE_DATA_DEBUG = YES;
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        moc = [cds contextForCurrentThread];
+        fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
+        fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
+        
+        // Fetch all persons
+        __block NSArray *resultsOfFetch = nil;
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
+            [error shouldBeNil];
+            resultsOfFetch = results;
+        }];
+        
+        // Make a relationship
+        // add some related objects
+        NSManagedObject *interest1 = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
+        [interest1 setValue:[interest1 assignObjectId] forKey:[interest1 primaryKeyField]];
+        [interest1 setValue:@"interest1" forKey:@"name"];
+        
+        NSManagedObject *interest2 = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
+        [interest2 setValue:[interest2 assignObjectId] forKey:[interest2 primaryKeyField]];
+        [interest2 setValue:@"interest2" forKey:@"name"];
+        
+        // save them to the server
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        
+        [[resultsOfFetch objectAtIndex:0] addInterests:[NSSet setWithObjects:interest1, interest2, nil]];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        
+        // Fetch all persons again to create nil references
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
+            resultsOfFetch = results;
+        }];
+    });
+    afterEach(^{
+        // delete
+        [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
+            [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                [moc deleteObject:obj];
+            }];
+        }];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+        SM_CACHE_ENABLED = NO;
+    });
+    it(@"works", ^{
+        
+        [cds setCachePolicy:SMCachePolicyTryCacheElseNetwork];
+        
+        [[cds should] receive:@selector(performQuery:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:) withCount:1];
+        
+        // Fetch that entity, should not throw an exception
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
+            [error shouldBeNil];
+            [[theValue([results count]) should] equal:theValue(2)];
+        }];
+    });
+});
+
+describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
+    __block NSManagedObjectContext *moc = nil;
+    __block NSManagedObject *geoObject = nil;
+    __block NSManagedObject *geoObject2 = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSDictionary *location = nil;
+    beforeEach(^{
+        SM_CACHE_ENABLED = YES;
+        SM_CORE_DATA_DEBUG = YES;
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient: client];
+        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
+        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        
+        geoObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
+        
+        NSNumber *lat = [NSNumber numberWithDouble:37.77215879638275];
+        NSNumber *lon = [NSNumber numberWithDouble:-122.4064476357965];
+        
+        location = [NSDictionary dictionaryWithObjectsAndKeys:
+                    lat
+                    ,@"lat"
+                    ,lon
+                    ,@"lon", nil];
+        
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:location];
+        
+        [geoObject setValue:data forKey:@"geopoint"];
+        [geoObject setValue:@"StackMob" forKey:@"name"];
+        [geoObject setValue:[geoObject assignObjectId] forKey:[geoObject primaryKeyField]];
+        
+        geoObject2 = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
+        NSNumber *lat2 = [NSNumber numberWithDouble:42.280373];
+        NSNumber *lon2 = [NSNumber numberWithDouble:-71.416669];
+        
+        NSDictionary *location2 = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   lat2
+                                   ,@"lat"
+                                   ,lon2
+                                   ,@"lon", nil];
+        
+        NSData *data2 = [NSKeyedArchiver archivedDataWithRootObject:location2];
+        [geoObject2 setValue:data2 forKey:@"geopoint"];
+        [geoObject2 setValue:@"Framingahm" forKey:@"name"];
+        [geoObject2 setValue:[geoObject2 assignObjectId] forKey:[geoObject2 primaryKeyField]];
+        
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    afterEach(^{
+        [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [moc deleteObject:geoObject];
+        [moc deleteObject:geoObject2];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+    });
+    it(@"Will prevent SMPredicate query on read cache", ^{
+        
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        // Fisherman's Wharf
+        CLLocationCoordinate2D coordinate;
+        coordinate.latitude = 37.810317;
+        coordinate.longitude = -122.418167;
+        
+        SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5
+                                                     milesOf:coordinate];
+        [fetchRequest setPredicate:predicate];
+        
+        
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            
+            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
+            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
+            
+            [[comparisonDictionary should] equal:location];
+        }];
+        
+        [cds setCachePolicy:SMCachePolicyTryCacheOnly];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            
+            [[theValue([results count]) should] equal:theValue(0)];
+        }];
+    });
+    it(@"Will successfully read with an NSPredicate on read cache", ^{
+        
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        SMPredicate *predicate = (SMPredicate *)[NSPredicate predicateWithFormat:@"name == %@", @"StackMob"];
+        [fetchRequest setPredicate:predicate];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            
+            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
+            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
+            
+            [[comparisonDictionary should] equal:location];
+        }];
+        
+        [cds setCachePolicy:SMCachePolicyTryCacheOnly];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            
+            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
+            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
+            
+            [[comparisonDictionary should] equal:location];
+        }];
+        
+    });
+    it(@"Will prevent compound query with SMPredicate on read cache", ^{
+        
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        // Fisherman's Wharf
+        CLLocationCoordinate2D coordinate;
+        coordinate.latitude = 37.810317;
+        coordinate.longitude = -122.418167;
+        
+        SMPredicate *geoPredicate = [SMPredicate predicateWhere:@"geopoint" isWithin:1000
+                                                        milesOf:coordinate];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name == %@", @"StackMob"];
+        NSArray *predicates = [NSArray arrayWithObjects:geoPredicate, predicate, nil];
+        
+        NSPredicate *compoundPredicate =[NSCompoundPredicate andPredicateWithSubpredicates:predicates];
+        [fetchRequest setPredicate:compoundPredicate];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            
+            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
+            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
+            
+            [[comparisonDictionary should] equal:location];
+        }];
+        
+        [cds setCachePolicy:SMCachePolicyTryCacheOnly];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            
+            [[theValue([results count]) should] equal:theValue(0)];
+        }];
+    });
+    
+    it(@"Will prevent compound query with SMPredicate (embedded two levels deep) on read cache", ^{
+        
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        // Fisherman's Wharf
+        CLLocationCoordinate2D coordinate;
+        coordinate.latitude = 37.810317;
+        coordinate.longitude = -122.418167;
+        
+        SMPredicate *geoPredicate = [SMPredicate predicateWhere:@"geopoint" isWithin:1000
+                                                        milesOf:coordinate];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name == %@", @"StackMob"];
+        NSArray *predicates = [NSArray arrayWithObjects:geoPredicate, predicate, nil];
+        
+        NSPredicate *compoundPredicate =[NSCompoundPredicate andPredicateWithSubpredicates:predicates];
+        
+        NSPredicate *predicate2 = [NSPredicate predicateWithFormat:@"name == %@", @"StackMob"];
+        NSArray *predicates2 = [NSArray arrayWithObjects:predicate2, compoundPredicate, nil];
+        
+        NSPredicate *compoundPredicate2 =[NSCompoundPredicate andPredicateWithSubpredicates:predicates2];
+        [fetchRequest setPredicate:compoundPredicate2];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            [[theValue([results count]) should] equal:theValue(1)];
+            
+            
+            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
+            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
+            
+            [[comparisonDictionary should] equal:location];
+        }];
+        
+        [cds setCachePolicy:SMCachePolicyTryCacheOnly];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            NSLog(@"results is %@", results);
+            
+            [[theValue([results count]) should] equal:theValue(0)];
+        }];
+    });
+});
+
+
 /*
 describe(@"calls to save when not online", ^{
     __block SMClient *client = nil;
@@ -1592,262 +1939,81 @@ describe(@"cache enabling and disabling", ^{
 });
 */
 
+// extra
 
-describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
-    __block NSManagedObjectContext *moc = nil;
-    __block NSManagedObject *geoObject = nil;
-    __block NSManagedObject *geoObject2 = nil;
-    __block SMClient *client = nil;
-    __block SMCoreDataStore *cds = nil;
-    __block NSDictionary *location = nil;
-    beforeEach(^{
-        SM_CACHE_ENABLED = YES;
-        SM_CORE_DATA_DEBUG = YES;
-        client = [SMIntegrationTestHelpers defaultClient];
-        [SMClient setDefaultClient: client];
-        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
-        cds = [client coreDataStoreWithManagedObjectModel:mom];
-        [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
-        moc = [cds contextForCurrentThread];
-        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        
-        geoObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
-        
-        NSNumber *lat = [NSNumber numberWithDouble:37.77215879638275];
-        NSNumber *lon = [NSNumber numberWithDouble:-122.4064476357965];
-        
-        location = [NSDictionary dictionaryWithObjectsAndKeys:
-                    lat
-                    ,@"lat"
-                    ,lon
-                    ,@"lon", nil];
-        
-        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:location];
-        
-        [geoObject setValue:data forKey:@"geopoint"];
-        [geoObject setValue:@"StackMob" forKey:@"name"];
-        [geoObject setValue:[geoObject assignObjectId] forKey:[geoObject primaryKeyField]];
-        
-        geoObject2 = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
-        NSNumber *lat2 = [NSNumber numberWithDouble:42.280373];
-        NSNumber *lon2 = [NSNumber numberWithDouble:-71.416669];
-        
-        NSDictionary *location2 = [NSDictionary dictionaryWithObjectsAndKeys:
-                                   lat2
-                                   ,@"lat"
-                                   ,lon2
-                                   ,@"lon", nil];
-        
-        NSData *data2 = [NSKeyedArchiver archivedDataWithRootObject:location2];
-        [geoObject2 setValue:data2 forKey:@"geopoint"];
-        [geoObject2 setValue:@"Framingahm" forKey:@"name"];
-        [geoObject2 setValue:[geoObject2 assignObjectId] forKey:[geoObject2 primaryKeyField]];
-        
-        
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-        }];
-    });
-    afterEach(^{
-        [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
-        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        [moc deleteObject:geoObject];
-        [moc deleteObject:geoObject2];
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-        }];
-    });
-    it(@"Will prevent SMPredicate query on read cache", ^{
-        
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        [fetchRequest setEntity:entity];
-        
-        // Fisherman's Wharf
-        CLLocationCoordinate2D coordinate;
-        coordinate.latitude = 37.810317;
-        coordinate.longitude = -122.418167;
-        
-        SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5
-                                                     milesOf:coordinate];
-        [fetchRequest setPredicate:predicate];
-        
-        
-        
-        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-            NSLog(@"results is %@", results);
-            [[theValue([results count]) should] equal:theValue(1)];
-            
-            
-            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
-            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
-            
-            [[comparisonDictionary should] equal:location];
-        }];
-        
-        [cds setCachePolicy:SMCachePolicyTryCacheOnly];
-        
-        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-            NSLog(@"results is %@", results);
-            
-            [[theValue([results count]) should] equal:theValue(0)];
-        }];
-    });
-    it(@"Will successfully read with an NSPredicate on read cache", ^{
-        
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        [fetchRequest setEntity:entity];
-        
-        SMPredicate *predicate = (SMPredicate *)[NSPredicate predicateWithFormat:@"name == %@", @"StackMob"];
-        [fetchRequest setPredicate:predicate];
-        
-        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-            NSLog(@"results is %@", results);
-            [[theValue([results count]) should] equal:theValue(1)];
-            
-            
-            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
-            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
-            
-            [[comparisonDictionary should] equal:location];
-        }];
-        
-        [cds setCachePolicy:SMCachePolicyTryCacheOnly];
-        
-        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-            NSLog(@"results is %@", results);
-            [[theValue([results count]) should] equal:theValue(1)];
-            
-            
-            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
-            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
-            
-            [[comparisonDictionary should] equal:location];
-        }];
-        
-    });
-    it(@"Will prevent compound query with SMPredicate on read cache", ^{
-        
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        [fetchRequest setEntity:entity];
-        
-        // Fisherman's Wharf
-        CLLocationCoordinate2D coordinate;
-        coordinate.latitude = 37.810317;
-        coordinate.longitude = -122.418167;
-        
-        SMPredicate *geoPredicate = [SMPredicate predicateWhere:@"geopoint" isWithin:1000
-                                                        milesOf:coordinate];
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name == %@", @"StackMob"];
-        NSArray *predicates = [NSArray arrayWithObjects:geoPredicate, predicate, nil];
-        
-        NSPredicate *compoundPredicate =[NSCompoundPredicate andPredicateWithSubpredicates:predicates];
-        [fetchRequest setPredicate:compoundPredicate];
-        
-        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-            NSLog(@"results is %@", results);
-            [[theValue([results count]) should] equal:theValue(1)];
-            
-            
-            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
-            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
-            
-            [[comparisonDictionary should] equal:location];
-        }];
-        
-        [cds setCachePolicy:SMCachePolicyTryCacheOnly];
-        
-        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-            NSLog(@"results is %@", results);
-            
-            [[theValue([results count]) should] equal:theValue(0)];
-        }];
-    });
-    
-    it(@"Will prevent compound query with SMPredicate (embedded two levels deep) on read cache", ^{
-        
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        [fetchRequest setEntity:entity];
-        
-        // Fisherman's Wharf
-        CLLocationCoordinate2D coordinate;
-        coordinate.latitude = 37.810317;
-        coordinate.longitude = -122.418167;
-        
-        SMPredicate *geoPredicate = [SMPredicate predicateWhere:@"geopoint" isWithin:1000
-                                                        milesOf:coordinate];
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name == %@", @"StackMob"];
-        NSArray *predicates = [NSArray arrayWithObjects:geoPredicate, predicate, nil];
-        
-        NSPredicate *compoundPredicate =[NSCompoundPredicate andPredicateWithSubpredicates:predicates];
-        
-        NSPredicate *predicate2 = [NSPredicate predicateWithFormat:@"name == %@", @"StackMob"];
-        NSArray *predicates2 = [NSArray arrayWithObjects:predicate2, compoundPredicate, nil];
-        
-        NSPredicate *compoundPredicate2 =[NSCompoundPredicate andPredicateWithSubpredicates:predicates2];
-        [fetchRequest setPredicate:compoundPredicate2];
-        
-        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-            NSLog(@"results is %@", results);
-            [[theValue([results count]) should] equal:theValue(1)];
-            
-            
-            NSData *comparisonData = [[results objectAtIndex:0] valueForKey:@"geopoint"];
-            NSDictionary *comparisonDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:comparisonData];
-            
-            [[comparisonDictionary should] equal:location];
-        }];
-        
-        [cds setCachePolicy:SMCachePolicyTryCacheOnly];
-        
-        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
-            if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
-                [error shouldBeNil];
-            }
-            NSLog(@"results is %@", results);
-            
-            [[theValue([results count]) should] equal:theValue(0)];
-        }];
-    });
-});
+/*
+ it(@"To-Many relationship fault fill without internet when related object has been previously fetched returns properly", ^{
+ __block NSManagedObject *jonObject = nil;
+ 
+ [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
+ 
+ // fetch new object, which will fault
+ [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
+ [[theValue([results count]) should] equal:theValue(1)];
+ jonObject = [results objectAtIndex:0];
+ NSManagedObject *nullSuperpower = [jonObject valueForKey:@"superpower"];
+ [nullSuperpower shouldBeNil];
+ }];
+ 
+ // add some related objects
+ NSManagedObject *interest1 = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
+ [interest1 setValue:[interest1 assignObjectId] forKey:[interest1 primaryKeyField]];
+ [interest1 setValue:@"interest1" forKey:@"name"];
+ 
+ NSManagedObject *interest2 = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
+ [interest2 setValue:[interest2 assignObjectId] forKey:[interest2 primaryKeyField]];
+ [interest2 setValue:@"interest2" forKey:@"name"];
+ 
+ // save them to the server
+ [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+ [error shouldBeNil];
+ }];
+ 
+ // relate and save
+ [jonObject setValue:[NSSet setWithObjects:interest1, interest2, nil] forKey:@"interests"];
+ 
+ [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+ [error shouldBeNil];
+ }];
+ 
+ [moc reset];
+ 
+ [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
+ [[theValue([results count]) should] equal:theValue(1)];
+ jonObject = [results objectAtIndex:0];
+ }];
+ 
+ [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+ [[theValue([results count]) should] equal:theValue(2)];
+ }];
+ 
+ [cds setCachePolicy:SMCachePolicyTryCacheOnly];
+ 
+ NSArray *jonInterests = nil;
+ @try {
+ jonInterests = [[jonObject valueForKey:@"interests"] allObjects];
+ }
+ @catch (NSException *exception) {
+ [exception shouldBeNil];
+ }
+ 
+ [jonInterests shouldNotBeNil];
+ [[theValue([jonInterests count]) should] equal:theValue(2)];
+ NSString *interestName = [[jonInterests objectAtIndex:0] valueForKey:@"name"];
+ NSArray *interestsArray = [NSArray arrayWithObjects:@"interest1", @"interest2", nil];
+ [[interestsArray should] contain:interestName];
+ 
+ 
+ [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
+ [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
+ [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+ [moc deleteObject:obj];
+ }];
+ }];
+ [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+ [error shouldBeNil];
+ }];
+ });
+ */
 
 SPEC_END

@@ -129,9 +129,23 @@ typedef enum {
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext __attribute__((deprecated));
 
 /**
- The cache policy to adhere by.
+ The cache policy to adhere by during fetch requests.
  */
 @property (nonatomic) SMCachePolicy cachePolicy;
+
+/**
+ An instance of SMRequestOptions that will be used as the default for all save and fetch calls.
+ 
+ When an instance of this class is initialized, this property is assigned a value of [SMRequestOptions options].  Set this property to customize default options.
+ 
+ **Note:** Not all options provided by the SMRequestOptions class are taken into account during save/fetch requests.  The following options are currently safe to customize:
+ 
+ * isSecure property (HTTPS)
+ 
+ Customizing other options can result in unexpected requests, which can lead to save/fetch failures.
+ 
+ */
+@property (nonatomic, strong) SMRequestOptions *globalRequestOptions;
 
 
 ///-------------------------------
