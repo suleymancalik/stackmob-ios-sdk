@@ -16,29 +16,12 @@
 
 #import "SMPredicate.h"
 
-typedef enum {
-    SMGeoQueryWithinMilesOperatorType = 0,
-    SMGeoQueryWithinKilometersOperatorType = 1,
-    SMGeoQueryWithinBoundsOperatorType = 2,
-    SMGeoQueryNearOperatorType = 3
-} SMPredicateOperatorType;
-
-#define GEOQUERY_FIELD @"field"
-#define GEOQUERY_MILES @"miles"
-#define GEOQUERY_KILOMETERS @"kilometers"
-#define GEOQUERY_LAT @"latitude"
-#define GEOQUERY_LONG @"longitude"
-#define GEOQUERY_COORDINATE @"coordinate"
-#define GEOQUERY_SW_BOUND @"sw"
-#define GEOQUERY_NE_BOUND @"ne"
-
 @interface SMPredicate ()
 
-@property (strong, nonatomic) NSDictionary *predicateDictionary;
-@property (nonatomic) SMPredicateOperatorType sm_predicateOperatorType;
+@property (strong, nonatomic, readwrite) NSDictionary *predicateDictionary;
+@property (nonatomic, readwrite) SMPredicateOperatorType sm_predicateOperatorType;
 
 @end
-
 
 @implementation SMPredicate
 
@@ -49,7 +32,7 @@ typedef enum {
     
     self = [super init];
     if (self) {
-        
+        self.predicateDictionary = [NSDictionary dictionary];
     }
     
     return self;
@@ -62,7 +45,7 @@ typedef enum {
     NSNumber *latitude = [NSNumber numberWithDouble:point.latitude];
     NSNumber *longitude = [NSNumber numberWithDouble:point.longitude];
     
-    NSDictionary *coordinate = [NSDictionary dictionaryWithObjectsAndKeys:latitude, @"latitude", longitude, @"longitude", nil];
+    NSDictionary *coordinate = [NSDictionary dictionaryWithObjectsAndKeys:latitude, GEOQUERY_LAT, longitude, GEOQUERY_LONG, nil];
     
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:1];
     [dictionary setValue:field forKey:GEOQUERY_FIELD];

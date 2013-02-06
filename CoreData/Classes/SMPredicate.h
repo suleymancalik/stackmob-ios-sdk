@@ -17,6 +17,22 @@
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 
+#define GEOQUERY_FIELD @"field"
+#define GEOQUERY_MILES @"miles"
+#define GEOQUERY_KILOMETERS @"kilometers"
+#define GEOQUERY_LAT @"latitude"
+#define GEOQUERY_LONG @"longitude"
+#define GEOQUERY_COORDINATE @"coordinate"
+#define GEOQUERY_SW_BOUND @"sw"
+#define GEOQUERY_NE_BOUND @"ne"
+
+typedef enum {
+    SMGeoQueryWithinMilesOperatorType = 0,
+    SMGeoQueryWithinKilometersOperatorType = 1,
+    SMGeoQueryWithinBoundsOperatorType = 2,
+    SMGeoQueryNearOperatorType = 3
+} SMPredicateOperatorType;
+
 /**
  `SMPredicate` is a subclass of NSPredicate, with additional methods to build predicates that are specific to the StackMob API.  
  
@@ -30,16 +46,8 @@
 
 @interface SMPredicate : NSPredicate
 
-
-#pragma mark - Creating an SMPredicate
-///-------------------------------
-/// @name Initialize
-///-------------------------------
-
-/**
- Initializes an `SMPredicate` object.
- */
-- (id)init;
+@property (strong, nonatomic, readonly) NSDictionary *predicateDictionary;
+@property (nonatomic, readonly) SMPredicateOperatorType sm_predicateOperatorType;
 
 
 #pragma mark - Where clauses
@@ -50,11 +58,13 @@
 /**
  Add the predicate criteria: `field`'s location is within `miles` of `point`.
  
- @note StackMob will generate a field `distance` and insert it into the response. This field is the distance between the query `field`'s location and `point`.
+ StackMob will generate a field `distance` and insert it into the response. This field is the distance between the query `field`'s location and `point`.
  
  @param field The geo field in the StackMob schema that is to be compared.
  @param miles Distance in miles.
  @param point The point around which to search.
+ 
+ @return An SMPredicate instance ready to be added to a fetch request.
  */
 
 +(SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)miles milesOf:(CLLocationCoordinate2D)point;
@@ -62,11 +72,13 @@
 /**
  Add the predicate criteria: `field`'s location is within `kilometers` of `point`.
  
- @note StackMob will generate a field `distance` and insert it into the response. This field is the distance between the query `field`'s location and `point`.
+ StackMob will generate a field `distance` and insert it into the response. This field is the distance between the query `field`'s location and `point`.
  
  @param field The geo field in the StackMob schema that is to be compared.
  @param kilometers Distance in kilometers.
  @param point The point around which to search.
+ 
+ @return An SMPredicate instance ready to be added to a fetch request.
  */
 
 +(SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point;
@@ -77,17 +89,23 @@
  @param field The geo field in the StackMob schema that is to be compared.
  @param sw Location of the bounding box's southwest corner.
  @param ne Location of the bounding box's northeast corner.
+ 
+ @return An SMPredicate instance ready to be added to a fetch request.
  */
 
 +(SMPredicate *)predicateWhere:(NSString *)field isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)sw andNECorner:(CLLocationCoordinate2D)ne;
 
 /**
+ Add the predicate criteria: `field`'s location near point.
+ 
  StackMob will insert a field `distance` and insert it into the response. This field is the distance between the query `field`'s location and `location`.
  
  @note You probably want to apply a limit when including this predicate or you may end up with more results than intended.
  
  @param field The geo field in the StackMob schema that is to be compared.
  @param location The reference location.
+ 
+ @return An SMPredicate instance ready to be added to a fetch request.
  */
 
 +(SMPredicate *)predicateWhere:(NSString *)field near:(CLLocationCoordinate2D)point;

@@ -446,13 +446,11 @@ describe(@"Fetch with Cache", ^{
             __block NSArray *lcResults = nil;
             [[theValue([cds cachePolicy]) should] equal:theValue(SMCachePolicyTryNetworkOnly)];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 smResults = results;
             }];
             
             [cds setCachePolicy:SMCachePolicyTryCacheOnly];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 lcResults = results;
             }];
             [[theValue([smResults count]) should] equal:theValue([lcResults count])];
@@ -486,12 +484,10 @@ describe(@"Fetch with Cache", ^{
             
             [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 smResults = results;
             }];
             [cds setCachePolicy:SMCachePolicyTryCacheOnly];
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 lcResults = results;
             }];
             [[theValue([smResults count]) should] equal:theValue([lcResults count])];
@@ -527,7 +523,6 @@ describe(@"Fetch with Cache", ^{
             NSPredicate *jonPredicate = [NSPredicate predicateWithFormat:@"first_name == 'Jon'"];
             __block NSArray *jonFetchResults = nil;
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:jonPredicate context:moc] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 [[theValue([results count]) should] equal:theValue(1)];
                 jonFetchResults = results;
             }];
@@ -541,7 +536,6 @@ describe(@"Fetch with Cache", ^{
             
             // Should then be able to fetch updated object, go offline and fetch updated again
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Ty'"] context:moc] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 [[theValue([results count]) should] equal:theValue(1)];
                 NSManagedObject *tyObject = [results objectAtIndex:0];
                 [[[tyObject valueForKey:@"first_name"] should] equal:@"Ty"];
@@ -552,7 +546,6 @@ describe(@"Fetch with Cache", ^{
             [cds setCachePolicy:SMCachePolicyTryCacheOnly];
             
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Ty'"] context:moc] andBlock:^(NSArray *results, NSError *error) {
-                NSLog(@"results are %@", results);
                 [[theValue([results count]) should] equal:theValue(1)];
                 NSManagedObject *tyObject = [results objectAtIndex:0];
                 [[[tyObject valueForKey:@"first_name"] should] equal:@"Ty"];
@@ -1404,10 +1397,8 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
             if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
             }
-            NSLog(@"results is %@", results);
             [[theValue([results count]) should] equal:theValue(1)];
             
             
@@ -1421,11 +1412,8 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
             if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
-            }
-            NSLog(@"results is %@", results);
-            
+            }            
             [[theValue([results count]) should] equal:theValue(0)];
         }];
     });
@@ -1440,10 +1428,8 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
             if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
             }
-            NSLog(@"results is %@", results);
             [[theValue([results count]) should] equal:theValue(1)];
             
             
@@ -1457,10 +1443,8 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
             if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
             }
-            NSLog(@"results is %@", results);
             [[theValue([results count]) should] equal:theValue(1)];
             
             
@@ -1492,10 +1476,8 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
             if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
             }
-            NSLog(@"results is %@", results);
             [[theValue([results count]) should] equal:theValue(1)];
             
             
@@ -1509,11 +1491,8 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
             if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
-            }
-            NSLog(@"results is %@", results);
-            
+            }            
             [[theValue([results count]) should] equal:theValue(0)];
         }];
     });
@@ -1544,10 +1523,8 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
             if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
             }
-            NSLog(@"results is %@", results);
             [[theValue([results count]) should] equal:theValue(1)];
             
             
@@ -1561,11 +1538,8 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
             if (error != nil) {
-                DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
             }
-            NSLog(@"results is %@", results);
-            
             [[theValue([results count]) should] equal:theValue(0)];
         }];
     });

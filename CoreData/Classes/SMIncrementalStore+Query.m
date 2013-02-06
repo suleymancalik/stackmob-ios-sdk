@@ -17,7 +17,7 @@
 #import "SMIncrementalStore+Query.h"
 #import "NSEntityDescription+StackMobSerialization.h"
 #import "SMError.h"
-#import "SMPredicate.m"
+#import "SMPredicate.h"
 
 @implementation SMIncrementalStore (Query)
 
