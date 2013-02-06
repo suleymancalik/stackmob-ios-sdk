@@ -220,14 +220,7 @@
             [self buildGeoQueryNear:query forSMPredicate:predicate error:error];
             break;
         default:
-            if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
-                [self buildQuery:query forCompoundPredicate:(NSCompoundPredicate *)predicate error:error];
-            }
-            else if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
-                [self buildQuery:query forComparisonPredicate:(NSComparisonPredicate *)predicate error:error];
-            }
-            else
-                [self setError:error withReason:@"Predicate type not supported."];
+            [self setError:error withReason:@"Predicate type not supported."];
             break;
     }
     
@@ -330,14 +323,14 @@
 
 - (BOOL)buildQuery:(SMQuery *__autoreleasing *)query forPredicate:(NSPredicate *)predicate error:(NSError *__autoreleasing *)error
 {
-    if ([predicate isKindOfClass:[SMPredicate class]]) {
-        [self buildQuery:query forSMPredicate:(SMPredicate *)predicate error:error];
-    }
     if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
         [self buildQuery:query forCompoundPredicate:(NSCompoundPredicate *)predicate error:error];
     }
     else if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
         [self buildQuery:query forComparisonPredicate:(NSComparisonPredicate *)predicate error:error];
+    }
+    else if ([predicate isKindOfClass:[SMPredicate class]]) {
+        [self buildQuery:query forSMPredicate:(SMPredicate *)predicate error:error];
     }
     
     return YES;

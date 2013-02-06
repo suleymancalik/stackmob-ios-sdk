@@ -871,7 +871,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         return nil;
     }
     
-    if (SM_CACHE_ENABLED) {
+    if (SM_CACHE_ENABLED && ![self containsSMPredicate:[fetchRequest predicate]]) {
         
         // Network fetch was successful, run same fetch on local cache and delete results
         NSError *fetchOnCacheError = nil;
@@ -978,22 +978,16 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
-- (BOOL) containsGeoQueryPredicate:(NSPredicate *)predicate {
+- (BOOL) containsSMPredicate:(NSPredicate *)predicate {
     
     if ([predicate isKindOfClass:[SMPredicate class]]) {
         return YES;
     }
     else if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
-        NSCompoundPredicate *cp = (NSCompoundPredicate *)predicate;
-        for (NSPredicate *subPredicate in [cp subpredicates]) {
-            
-            if ([predicate isKindOfClass:[SMPredicate class]]) {
-                return YES;
-            }
-            
-            if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
-                return [self containsGeoQueryPredicate:predicate];
-            }
+        NSCompoundPredicate *compoundPredicate = (NSCompoundPredicate *)predicate;
+        for (NSPredicate *subPredicate in [compoundPredicate subpredicates]) {
+             if([self containsSMPredicate:subPredicate])
+                 return YES;
         }
         
     }
@@ -1005,7 +999,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     if (SM_CORE_DATA_DEBUG) { DLog() }
     
-    if ([self containsGeoQueryPredicate:[fetchRequest predicate]]) {
+    if ([self containsSMPredicate:[fetchRequest predicate]]) {
         return [NSArray array];
     }
     

@@ -16,6 +16,22 @@
 
 #import "SMPredicate.h"
 
+typedef enum {
+    SMGeoQueryWithinMilesOperatorType = 0,
+    SMGeoQueryWithinKilometersOperatorType = 1,
+    SMGeoQueryWithinBoundsOperatorType = 2,
+    SMGeoQueryNearOperatorType = 3
+} SMPredicateOperatorType;
+
+#define GEOQUERY_FIELD @"field"
+#define GEOQUERY_MILES @"miles"
+#define GEOQUERY_KILOMETERS @"kilometers"
+#define GEOQUERY_LAT @"latitude"
+#define GEOQUERY_LONG @"longitude"
+#define GEOQUERY_COORDINATE @"coordinate"
+#define GEOQUERY_SW_BOUND @"sw"
+#define GEOQUERY_NE_BOUND @"ne"
+
 @interface SMPredicate ()
 
 @property (strong, nonatomic) NSDictionary *predicateDictionary;
@@ -31,8 +47,10 @@
 
 - (id)init {
     
-    if (!(self = [super init]))
-        return nil;
+    self = [super init];
+    if (self) {
+        
+    }
     
     return self;
 }
