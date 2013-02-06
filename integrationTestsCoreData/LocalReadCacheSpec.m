@@ -1322,7 +1322,7 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
     __block NSDictionary *location = nil;
     beforeEach(^{
         SM_CACHE_ENABLED = YES;
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient: client];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
@@ -1383,6 +1383,7 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
                 [error shouldBeNil];
             }
         }];
+        SM_CACHE_ENABLED = NO;
     });
     it(@"Will prevent SMPredicate query on read cache", ^{
         
