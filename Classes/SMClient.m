@@ -534,4 +534,22 @@ static SMClient *defaultClient = nil;
     }];
 }
 
+- (void)loginWithGigyaUID:(NSString *)uid UIDSignature:(NSString *)uidSignature timestamp:(NSString *)timestamp onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    [self loginWithGigyaUID:uid UIDSignature:uidSignature timestamp:timestamp options:[SMRequestOptions options] onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)loginWithGigyaUID:(NSString *)uid UIDSignature:(NSString *)uidSignature timestamp:(NSString *)timestamp options:(SMRequestOptions *)options onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    if (uid == nil || uidSignature == nil || timestamp == nil) {
+        if (failureBlock) {
+            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Nil argument(s) provided.", NSLocalizedDescriptionKey, nil]];
+            failureBlock(error);
+        }
+    } else {
+        NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:uid, @"gigya_uid", uidSignature, @"gigya_sid", timestamp, @"gigya_ts", nil];
+        [self.session doTokenRequestWithEndpoint:@"gigyaAccessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
+    }
+}
+
 @end

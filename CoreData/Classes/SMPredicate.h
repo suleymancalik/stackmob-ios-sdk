@@ -67,7 +67,7 @@ typedef enum {
  @return An SMPredicate instance ready to be added to a fetch request.
  */
 
-+(SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)miles milesOf:(CLLocationCoordinate2D)point;
++ (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)miles milesOf:(CLLocationCoordinate2D)point;
 
 /**
  Add the predicate criteria: `field`'s location is within `kilometers` of `point`.
@@ -81,7 +81,7 @@ typedef enum {
  @return An SMPredicate instance ready to be added to a fetch request.
  */
 
-+(SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point;
++ (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point;
 
 /**
  Add the predicate criteria: `field`'s location falls within the bounding box with corners `sw` and `ne`.
@@ -93,7 +93,7 @@ typedef enum {
  @return An SMPredicate instance ready to be added to a fetch request.
  */
 
-+(SMPredicate *)predicateWhere:(NSString *)field isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)sw andNECorner:(CLLocationCoordinate2D)ne;
++ (SMPredicate *)predicateWhere:(NSString *)field isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)sw andNECorner:(CLLocationCoordinate2D)ne;
 
 /**
  Add the predicate criteria: `field`'s location near point.
@@ -108,6 +108,6 @@ typedef enum {
  @return An SMPredicate instance ready to be added to a fetch request.
  */
 
-+(SMPredicate *)predicateWhere:(NSString *)field near:(CLLocationCoordinate2D)point;
++ (SMPredicate *)predicateWhere:(NSString *)field near:(CLLocationCoordinate2D)point;
 
 @end

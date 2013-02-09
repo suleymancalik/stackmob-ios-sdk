@@ -617,7 +617,18 @@
 
 #pragma mark - Gigya
 
-- (void)loginWithGigya;
+- (void)loginWithGigyaUID:(NSString *)uid
+                 UIDSignature:(NSString *)uidSignature
+                    timestamp:(NSString *)timestamp
+                    onSuccess:(SMResultSuccessBlock)successBlock
+                    onFailure:(SMFailureBlock)failureBlock;
+
+- (void)loginWithGigyaUID:(NSString *)uid
+             UIDSignature:(NSString *)uidSignature
+                timestamp:(NSString *)timestamp
+                  options:(SMRequestOptions *)options
+                onSuccess:(SMResultSuccessBlock)successBlock
+                onFailure:(SMFailureBlock)failureBlock;
 
 
 @end
