@@ -34,7 +34,9 @@ void syncWithSemaphore(void (^block)(dispatch_semaphore_t semaphore)) {
     while(dispatch_semaphore_wait(s, DISPATCH_TIME_NOW)) {
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:10.0]];
     }
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(s);
+#endif
 }
 
 void syncReturn(dispatch_semaphore_t semaphore) {

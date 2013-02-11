@@ -453,8 +453,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     [options setIsSecure:previousStateOfHTTPSOption];
 
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
     dispatch_release(queue);
+#endif
     return success;
     
 }
@@ -532,8 +534,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests error:error];
     
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
     dispatch_release(queue);
+#endif
     return success;
     
 }
@@ -603,8 +607,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         [self SM_purgeObjectsFromCacheByStackMobID:deletedObjectIDs];
     }
     
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
     dispatch_release(queue);
+#endif
     return success;
     
 }
@@ -882,8 +888,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     
-    dispatch_release(queue);
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
+    dispatch_release(queue);
+#endif
     
     if (*error != nil) {
         return nil;
@@ -1258,7 +1266,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                         
                         if ([matchingKeys count] != 1) {
                             // This means the object was never placed in the cache map, or duplicated
-                            [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %d", [matchingKeys count]];
+                            [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %ld", (unsigned long)[matchingKeys count]];
                         } else {
                             NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationshipValue entity] referenceObject:[matchingKeys lastObject]];
                             [dictionaryRepresentationOfCacheObject setObject:relationshipObjectID forKey:relationshipName];
@@ -1725,7 +1733,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                                               errorDescription:&errorDesc];
         
         if (!temp) {
-            [NSException raise:SMExceptionCacheError format:@"Error reading cachemap: %@, format: %d", errorDesc, format];
+            [NSException raise:SMExceptionCacheError format:@"Error reading cachemap: %@, format: %ld", errorDesc, (unsigned long)format];
         } else {
             self.cacheMappingTable = [temp mutableCopy];
         }
@@ -1820,8 +1828,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         return nil;
     }
     
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
     dispatch_release(queue);
+#endif
     
     return objectFromServer;
     
@@ -2251,7 +2261,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
         } else if ([matchingKeys count] > 1) {
             // This means the object was never placed in the cache map, or duplicated
-            [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %d", [matchingKeys count]];
+            [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %ld", (unsigned long)[matchingKeys count]];
         }
         [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
         [self SM_saveCacheMap];
@@ -2328,7 +2338,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
                 } else if ([matchingKeys count] > 1) {
                     // This means the object was never placed in the cache map, or duplicated
-                    [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %d", [matchingKeys count]];
+                    [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %ld", (unsigned long)[matchingKeys count]];
                 }
             }];
             [self SM_saveCacheMap];

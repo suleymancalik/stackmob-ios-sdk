@@ -393,8 +393,10 @@
         return nil;
     }
     
-    dispatch_release(queue);
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
+    dispatch_release(queue);
+#endif
     
     if (returnIDs) {
         return resultsOfFetch;

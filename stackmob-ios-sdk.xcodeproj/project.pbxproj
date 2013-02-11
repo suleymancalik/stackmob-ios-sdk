@@ -229,6 +229,13 @@
 		DEE18F61160A704000BDCCC6 /* NSDictionary+AtomicCounterSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18515E2C08B00224E4E /* NSDictionary+AtomicCounterSpec.m */; };
 		DEE18F62160A77A200BDCCC6 /* NSEntityDescription_StackMobSerializationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18615E2C08B00224E4E /* NSEntityDescription_StackMobSerializationSpec.m */; };
 		DEE18F63160A77AD00BDCCC6 /* NSManagedObject+StackMobSerializationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18715E2C08B00224E4E /* NSManagedObject+StackMobSerializationSpec.m */; };
+		DEEDC32816C984B4008B1CC2 /* Common.h in Headers */ = {isa = PBXBuildFile; fileRef = DEEDC32616C984B4008B1CC2 /* Common.h */; };
+		DEEDC32B16C988BA008B1CC2 /* CRUDTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C33B0641591355A00BE2570 /* CRUDTests.m */; };
+		DEEDC32C16C988C0008B1CC2 /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
+		DEEDC32D16C988C7008B1CC2 /* QueryTestsWithPermissionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE1BDE2D1682BFEC009282BA /* QueryTestsWithPermissionsSpec.m */; };
+		DEEDC32E16C988CA008B1CC2 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
+		DEEDC32F16C988CD008B1CC2 /* SMPushClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED78164B1D43006B7326 /* SMPushClientIntegrationSpec.m */; };
+		DEEDC33016C988D0008B1CC2 /* SMNetworkReachabilitySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9EEBE164B4F24006B7326 /* SMNetworkReachabilitySpec.m */; };
 		DEF756B61624918E006FD554 /* KeychainWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF756B41624918E006FD554 /* KeychainWrapper.h */; };
 		DEF756B71624918E006FD554 /* KeychainWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF756B51624918E006FD554 /* KeychainWrapper.m */; };
 		DEF756C81624D4BE006FD554 /* User3.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF756C61624D4BE006FD554 /* User3.h */; };
@@ -467,6 +474,7 @@
 		DEC5F9F9169B979B00A44722 /* SMIncrementalStoreNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMIncrementalStoreNode.m; sourceTree = "<group>"; };
 		DEE18F59160A611E00BDCCC6 /* SMRelationshipHeadersSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMRelationshipHeadersSpec.m; sourceTree = "<group>"; };
 		DEE585271631F3C40009A1DE /* SMUpdateObjectsOptimizationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMUpdateObjectsOptimizationSpec.m; sourceTree = "<group>"; };
+		DEEDC32616C984B4008B1CC2 /* Common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
 		DEF756B41624918E006FD554 /* KeychainWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeychainWrapper.h; sourceTree = "<group>"; };
 		DEF756B51624918E006FD554 /* KeychainWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeychainWrapper.m; sourceTree = "<group>"; };
 		DEF756C61624D4BE006FD554 /* User3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User3.h; sourceTree = "<group>"; };
@@ -855,6 +863,7 @@
 				DE13864115DC7BAB00610EE1 /* Base64EncodedStringFromData.m */,
 				DEF756B41624918E006FD554 /* KeychainWrapper.h */,
 				DEF756B51624918E006FD554 /* KeychainWrapper.m */,
+				DEEDC32616C984B4008B1CC2 /* Common.h */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -904,6 +913,7 @@
 				DE3AE12A16810FAC000B2E80 /* AFHTTPClient+StackMob.h in Headers */,
 				DEC5F9FA169B979B00A44722 /* SMIncrementalStoreNode.h in Headers */,
 				1D8351BD16C04C6400814C71 /* SMPredicate.h in Headers */,
+				DEEDC32816C984B4008B1CC2 /* Common.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1246,6 +1256,12 @@
 				1D8351CF16C08D7000814C71 /* Random.m in Sources */,
 				1D8351DF16C0969900814C71 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */,
 				DE16335E16C2E76E004B5597 /* SMClientIntegrationSpec.m in Sources */,
+				DEEDC32B16C988BA008B1CC2 /* CRUDTests.m in Sources */,
+				DEEDC32C16C988C0008B1CC2 /* QueryTests.m in Sources */,
+				DEEDC32D16C988C7008B1CC2 /* QueryTestsWithPermissionsSpec.m in Sources */,
+				DEEDC32E16C988CA008B1CC2 /* SMCusCodeReqIntegrationSpec.m in Sources */,
+				DEEDC32F16C988CD008B1CC2 /* SMPushClientIntegrationSpec.m in Sources */,
+				DEEDC33016C988D0008B1CC2 /* SMNetworkReachabilitySpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

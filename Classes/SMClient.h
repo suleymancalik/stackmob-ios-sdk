@@ -615,9 +615,5 @@
 - (void)getLoggedInUserTwitterInfoOnSuccess:(SMResultSuccessBlock)successBlock
                                       onFailure:(SMFailureBlock)failureBlock;
 
-#pragma mark - Gigya
-
-- (void)loginWithGigya;
-
 
 @end
