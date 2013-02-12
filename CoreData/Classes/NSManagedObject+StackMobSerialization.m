@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,6 +124,13 @@
                             [objectDictionary setObject:[NSNumber numberWithBool:NO] forKey:[selfEntity SMFieldNameForProperty:property]];
                         }
                     }
+                }  else if (attributeDescription.attributeType == NSTransformableAttributeType) {
+                    
+                    // make sure geopoint values are serialized as dictionaries
+                    NSData *data = propertyValue;
+                    NSDictionary *geoDictionary = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+                    [objectDictionary setObject:geoDictionary forKey:[selfEntity SMFieldNameForProperty:property]];
+                    
                 } else {
                     id value = propertyValue;
                     if (value != nil) {

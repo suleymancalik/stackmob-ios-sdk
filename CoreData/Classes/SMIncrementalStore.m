@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -453,8 +453,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     [options setIsSecure:previousStateOfHTTPSOption];
 
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
     dispatch_release(queue);
+#endif
     return success;
     
 }
@@ -532,8 +534,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests error:error];
     
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
     dispatch_release(queue);
+#endif
     return success;
     
 }
@@ -603,8 +607,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         [self SM_purgeObjectsFromCacheByStackMobID:deletedObjectIDs];
     }
     
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
     dispatch_release(queue);
+#endif
     return success;
     
 }
@@ -882,14 +888,16 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     
-    dispatch_release(queue);
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
+    dispatch_release(queue);
+#endif
     
     if (*error != nil) {
         return nil;
     }
     
-    if (SM_CACHE_ENABLED) {
+    if (SM_CACHE_ENABLED && ![self containsSMPredicate:[fetchRequest predicate]]) {
         
         // Network fetch was successful, run same fetch on local cache and delete results
         NSError *fetchOnCacheError = nil;
@@ -996,9 +1004,31 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
+- (BOOL) containsSMPredicate:(NSPredicate *)predicate {
+    
+    if ([predicate isKindOfClass:[SMPredicate class]]) {
+        return YES;
+    }
+    else if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
+        NSCompoundPredicate *compoundPredicate = (NSCompoundPredicate *)predicate;
+        for (NSPredicate *subPredicate in [compoundPredicate subpredicates]) {
+             if([self containsSMPredicate:subPredicate])
+                 return YES;
+        }
+        
+    }
+    
+    return NO;
+}
+
 - (id)SM_fetchObjectsFromCache:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error {
     
     if (SM_CORE_DATA_DEBUG) { DLog() }
+    
+    if ([self containsSMPredicate:[fetchRequest predicate]]) {
+        return [NSArray array];
+    }
+    
     
     __block NSArray *localCacheResults = nil;
     __block NSError *localCacheError = nil;
@@ -1236,7 +1266,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                         
                         if ([matchingKeys count] != 1) {
                             // This means the object was never placed in the cache map, or duplicated
-                            [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %d", [matchingKeys count]];
+                            [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %ld", (unsigned long)[matchingKeys count]];
                         } else {
                             NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationshipValue entity] referenceObject:[matchingKeys lastObject]];
                             [dictionaryRepresentationOfCacheObject setObject:relationshipObjectID forKey:relationshipName];
@@ -1703,7 +1733,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                                               errorDescription:&errorDesc];
         
         if (!temp) {
-            [NSException raise:SMExceptionCacheError format:@"Error reading cachemap: %@, format: %d", errorDesc, format];
+            [NSException raise:SMExceptionCacheError format:@"Error reading cachemap: %@, format: %ld", errorDesc, (unsigned long)format];
         } else {
             self.cacheMappingTable = [temp mutableCopy];
         }
@@ -1798,8 +1828,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         return nil;
     }
     
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
     dispatch_release(queue);
+#endif
     
     return objectFromServer;
     
@@ -2229,7 +2261,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
         } else if ([matchingKeys count] > 1) {
             // This means the object was never placed in the cache map, or duplicated
-            [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %d", [matchingKeys count]];
+            [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %ld", (unsigned long)[matchingKeys count]];
         }
         [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
         [self SM_saveCacheMap];
@@ -2306,7 +2338,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     [self.cacheMappingTable removeObjectForKey:[matchingKeys lastObject]];
                 } else if ([matchingKeys count] > 1) {
                     // This means the object was never placed in the cache map, or duplicated
-                    [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %d", [matchingKeys count]];
+                    [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %ld", (unsigned long)[matchingKeys count]];
                 }
             }];
             [self SM_saveCacheMap];
@@ -2390,6 +2422,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     unsigned long long convertedValue = [value unsignedLongLongValue] / 1000;
                     NSDate *convertedDate = [NSDate dateWithTimeIntervalSince1970:convertedValue];
                     [serializedDictionary setObject:convertedDate forKey:attributeName];
+                } else if (value && attributeDescription.attributeType == NSTransformableAttributeType) {
+                    if ([value isKindOfClass:[NSDictionary class]]) {
+                        // we know it's a geopoint dictionary
+                        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:value];
+                        [serializedDictionary setObject:data forKey:attributeName];
+                    }
                 } else {
                     [serializedDictionary setObject:value forKey:attributeName];
                 }

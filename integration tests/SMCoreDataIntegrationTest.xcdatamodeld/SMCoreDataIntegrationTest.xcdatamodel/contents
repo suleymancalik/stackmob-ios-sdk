@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1810" systemVersion="11G63b" minimumToolsVersion="Xcode 4.1" macOSVersion="Automatic" iOSVersion="Automatic">
+<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1810" systemVersion="11E2617" minimumToolsVersion="Xcode 4.1" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Category" syncable="YES">
         <attribute name="categoryId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
@@ -33,6 +33,7 @@
     <entity name="Random" representedClassName="Random" syncable="YES">
         <attribute name="createddate" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="done" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="geopoint" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="randomId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="server_id" optional="YES" attributeType="String" syncable="YES"/>
@@ -66,7 +67,7 @@
         <element name="Interest" positionX="0" positionY="0" width="128" height="105"/>
         <element name="Oauth2test" positionX="0" positionY="0" width="128" height="75"/>
         <element name="Person" positionX="0" positionY="0" width="128" height="165"/>
-        <element name="Random" positionX="187" positionY="-108" width="128" height="150"/>
+        <element name="Random" positionX="187" positionY="-108" width="128" height="165"/>
         <element name="Superpower" positionX="-171" positionY="123" width="128" height="120"/>
         <element name="Todo" positionX="-218" positionY="396" width="128" height="105"/>
         <element name="User3" positionX="-306" positionY="0" width="128" height="75"/>
