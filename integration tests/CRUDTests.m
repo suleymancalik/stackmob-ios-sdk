@@ -19,6 +19,64 @@
 
 SPEC_BEGIN(CRUDTests)
 
+describe(@"CRUD with GeoPoints", ^{
+    __block SMDataStore *dataStore = nil;
+    __block SMGeoPoint *point = nil;
+    __block NSDictionary *object = nil;
+    
+    beforeEach(^{;
+        dataStore = [SMIntegrationTestHelpers dataStore];
+        [NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:@"api.stackmob.com"];
+        
+        // Fisherman's Wharf
+        NSNumber *lat = [NSNumber numberWithDouble:37.810317];
+        NSNumber *lon = [NSNumber numberWithDouble:-122.418167];
+        point = [SMGeoPoint geoPointWithLatitude:lat Longitude:lon];
+        
+        NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:@"StackMob", @"name", point, @"geopoint", nil];
+        
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [dataStore createObject:args inSchema:@"random" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                object = theObject;
+                syncReturn(semaphore);
+                NSLog(@"Created %@", theObject);
+            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                NSLog(@"Failed to create a new %@: %@", schema, theError);
+                syncReturn(semaphore);
+            }];
+        });
+    });
+    afterEach(^{
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [dataStore deleteObjectId:[object objectForKey:@"random_id"] inSchema:@"random" onSuccess:^(NSString *theObjectId, NSString *schema) {
+                syncReturn(semaphore);
+                NSLog(@"Deleted %@", theObjectId);
+            } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                syncReturn(semaphore);
+                NSLog(@"Failed to delete %@", [object objectForKey:@"random_id"]);
+            }];
+        });
+        object = nil;
+    });
+    
+    it(@"Saves SMGeoPoint without error", ^{
+        [object shouldNotBeNil];
+    });
+    
+    it(@"Reads SMGeoPoints correctly", ^{
+        
+        SMGeoPoint *geopoint = [object objectForKey:@"geopoint"];
+        
+        [[geopoint.latitude should] equal:point.latitude];
+        [[geopoint.longitude should] equal:point.longitude];
+        
+     
+    });
+    
+    
+});
+
+/*
 describe(@"CRUD", ^{
     __block SMDataStore *dataStore = nil;
     beforeEach(^{
@@ -532,5 +590,6 @@ describe(@"setExpandDepth", ^{
     
     
 });
+ */
 
 SPEC_END

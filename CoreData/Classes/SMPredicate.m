@@ -38,27 +38,7 @@
     return self;
 }
 
-+(SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point {
-
-    SMPredicate *predicate = [[SMPredicate alloc] init];
-    
-    NSNumber *latitude = [NSNumber numberWithDouble:point.latitude];
-    NSNumber *longitude = [NSNumber numberWithDouble:point.longitude];
-    
-    NSDictionary *coordinate = [NSDictionary dictionaryWithObjectsAndKeys:latitude, GEOQUERY_LAT, longitude, GEOQUERY_LONG, nil];
-    
-    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:1];
-    [dictionary setValue:field forKey:GEOQUERY_FIELD];
-    [dictionary setValue:[NSNumber numberWithDouble:kilometers] forKey:GEOQUERY_KILOMETERS];
-    [dictionary setValue:coordinate forKey:GEOQUERY_COORDINATE];
-    
-    predicate.predicateDictionary = [NSDictionary dictionaryWithDictionary:dictionary];
-    predicate.sm_predicateOperatorType = SMGeoQueryWithinKilometersOperatorType;
-    
-    return predicate;
-}
-
-+(SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)miles milesOf:(CLLocationCoordinate2D)point {
++ (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)miles milesOf:(CLLocationCoordinate2D)point {
    
     SMPredicate *predicate = [[SMPredicate alloc] init];
     
@@ -79,7 +59,45 @@
     return predicate;
 }
 
-+(SMPredicate *)predicateWhere:(NSString *)field isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)sw andNECorner:(CLLocationCoordinate2D)ne {
++ (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)miles milesOfGeoPoint:(SMGeoPoint *)geoPoint {
+    
+    CLLocationCoordinate2D point;
+    point.latitude = [geoPoint.latitude doubleValue];
+    point.longitude = [geoPoint.longitude doubleValue];
+    
+    return [self predicateWhere:field isWithin:miles milesOf:point];
+}
+
++ (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point {
+    
+    SMPredicate *predicate = [[SMPredicate alloc] init];
+    
+    NSNumber *latitude = [NSNumber numberWithDouble:point.latitude];
+    NSNumber *longitude = [NSNumber numberWithDouble:point.longitude];
+    
+    NSDictionary *coordinate = [NSDictionary dictionaryWithObjectsAndKeys:latitude, GEOQUERY_LAT, longitude, GEOQUERY_LONG, nil];
+    
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:1];
+    [dictionary setValue:field forKey:GEOQUERY_FIELD];
+    [dictionary setValue:[NSNumber numberWithDouble:kilometers] forKey:GEOQUERY_KILOMETERS];
+    [dictionary setValue:coordinate forKey:GEOQUERY_COORDINATE];
+    
+    predicate.predicateDictionary = [NSDictionary dictionaryWithDictionary:dictionary];
+    predicate.sm_predicateOperatorType = SMGeoQueryWithinKilometersOperatorType;
+    
+    return predicate;
+}
+
++ (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOfGeoPoint:(SMGeoPoint *)geoPoint {
+    
+    CLLocationCoordinate2D point;
+    point.latitude = [geoPoint.latitude doubleValue];
+    point.longitude = [geoPoint.longitude doubleValue];
+    
+    return [self predicateWhere:field isWithin:kilometers kilometersOf:point];
+}
+
++ (SMPredicate *)predicateWhere:(NSString *)field isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)sw andNECorner:(CLLocationCoordinate2D)ne {
     
     SMPredicate *predicate = [[SMPredicate alloc] init];
     
@@ -102,7 +120,20 @@
     return predicate;
 }
 
-+(SMPredicate *)predicateWhere:(NSString *)field near:(CLLocationCoordinate2D)point {
++ (SMPredicate *)predicateWhere:(NSString *)field isWithinBoundsWithSWGeoPoint:(SMGeoPoint *)sw andNEGeoPoint:(SMGeoPoint *)ne {
+    
+    CLLocationCoordinate2D swCorner;
+    swCorner.latitude = [sw.latitude doubleValue];
+    swCorner.longitude = [sw.longitude doubleValue];
+    
+    CLLocationCoordinate2D neCorner;
+    neCorner.latitude = [ne.latitude doubleValue];
+    neCorner.longitude = [ne.longitude doubleValue];
+    
+    return [self predicateWhere:field isWithinBoundsWithSWCorner:swCorner andNECorner:neCorner];
+}
+
++ (SMPredicate *)predicateWhere:(NSString *)field near:(CLLocationCoordinate2D)point {
     
     SMPredicate *predicate = [[SMPredicate alloc] init];
     
@@ -119,6 +150,15 @@
     predicate.sm_predicateOperatorType = SMGeoQueryNearOperatorType;
     
     return predicate;
+}
+
++ (SMPredicate *)predicateWhere:(NSString *)field nearGeoPoint:(SMGeoPoint *)geoPoint {
+    
+    CLLocationCoordinate2D point;
+    point.latitude = [geoPoint.latitude doubleValue];
+    point.longitude = [geoPoint.longitude doubleValue];
+    
+    return [self predicateWhere:field near:point];
 }
 
 @end

@@ -16,6 +16,7 @@
 
 #import <CoreData/CoreData.h>
 #import <CoreLocation/CoreLocation.h>
+#import "SMGeoPoint.h"
 
 /**
  `SMQuery` exposes an interface for defining a query against StackMob's Datastore API.
@@ -145,6 +146,18 @@
 - (void)where:(NSString *)field isWithin:(double)miles milesOf:(CLLocationCoordinate2D)point;
 
 /**
+ Add the query criteria: `field`'s location is within `miles` of `geoPoint`.
+ 
+ @note StackMob will generate a field `distance` and insert it into the response. This field is the distance between the query `field`'s location and `geoPoint`.
+ 
+ @param field The geo field in the StackMob schema that is to be compared.
+ @param miles Distance in miles.
+ @param geoPoint The SMGeoPoint around which to search.
+ */
+
+- (void)where:(NSString *)field isWithin:(double)miles milesOfGeoPoint:(SMGeoPoint *)geoPoint;
+
+/**
  Add the query criteria: `field`'s location is within `kilometers` of `point`.
  
  @note StackMob will generate a field `distance` and insert it into the response. This field is the distance between the query `field`'s location and `point`.
@@ -156,6 +169,17 @@
 - (void)where:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point;
 
 /**
+ Add the query criteria: `field`'s location is within `kilometers` of `geoPoint`.
+ 
+ @note StackMob will generate a field `distance` and insert it into the response. This field is the distance between the query `field`'s location and `geoPoint`.
+ 
+ @param field The geo field in the StackMob schema that is to be compared.
+ @param kilometers Distance in kilometers.
+ @param geoPoint The SMGeoPoint around which to search.
+ */
+- (void)where:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOfGeoPoint:(SMGeoPoint *)geoPoint;
+
+/**
  Add the query criteria: `field`'s location falls within the bounding box with corners `sw` and `ne`.
  
  @param field The geo field in the StackMob schema that is to be compared.
@@ -163,6 +187,15 @@
  @param ne Location of the bounding box's northeast corner.
  */
 - (void)where:(NSString *)field isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)sw andNECorner:(CLLocationCoordinate2D)ne;
+
+/**
+ Add the query criteria: `field`'s location falls within the bounding box with geoPoints `sw` and `ne`.
+ 
+ @param field The geo field in the StackMob schema that is to be compared.
+ @param sw Location of the bounding box's southwest SMGeoPoint.
+ @param ne Location of the bounding box's northeast SMGeoPoint.
+ */
+- (void)where:(NSString *)field isWithinBoundsWithSWGeoPoint:(SMGeoPoint *)sw andNEGeoPoint:(SMGeoPoint *)ne;
 
 /**
  StackMob will insert a field `distance` and insert it into the response. This field is the distance between the query `field`'s location and `location`.
@@ -173,6 +206,16 @@
  @param location The reference location.
  */
 - (void)where:(NSString *)field near:(CLLocationCoordinate2D)location;
+
+/**
+ StackMob will insert a field `distance` and insert it into the response. This field is the distance between the query `field`'s location and `geoPoint`.
+ 
+ @note You probably want to apply a limit when including this clause or you may end up with more results than intended.
+ 
+ @param field The geo field in the StackMob schema that is to be compared.
+ @param geoPoint The reference SMGeoPoint.
+ */
+- (void)where:(NSString *)field nearGeoPoint:(SMGeoPoint *)geoPoint;
 
 #pragma mark - Pagination / Limiting
 ///-------------------------------

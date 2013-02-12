@@ -37,6 +37,10 @@
 		1D8351D016C08D7000814C71 /* Random.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D8351CE16C08D6F00814C71 /* Random.m */; };
 		1D8351DF16C0969900814C71 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A115CB5E0200E491C4 /* SMCoreDataIntegrationTest.xcdatamodeld */; };
 		1D8351E016C0969A00814C71 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A115CB5E0200E491C4 /* SMCoreDataIntegrationTest.xcdatamodeld */; };
+		1D83529616C5ACD300814C71 /* SMGeoPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 1D83529416C5ACD000814C71 /* SMGeoPoint.h */; };
+		1D83529716C5ACD300814C71 /* SMGeoPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D83529516C5ACD100814C71 /* SMGeoPoint.m */; };
+		1D8352A916C8512800814C71 /* SMLocationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 1D8352A716C8512400814C71 /* SMLocationManager.h */; };
+		1D8352AA16C8512900814C71 /* SMLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D8352A816C8512600814C71 /* SMLocationManager.m */; };
 		1DDAE4691656EF15001DFAEF /* SMNetworkReachabilityHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9EEC1164B4F7E006B7326 /* SMNetworkReachabilityHelper.m */; };
 		6102E0CF1593B60500B0C774 /* people.json in Resources */ = {isa = PBXBuildFile; fileRef = 6102E0CE1593B60500B0C774 /* people.json */; };
 		619EDF16159292CF0075BB93 /* SMIntegrationTestHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF15159292CF0075BB93 /* SMIntegrationTestHelpers.m */; };
@@ -125,11 +129,6 @@
 		DE13864215DC7BAB00610EE1 /* Base64EncodedStringFromData.h in Headers */ = {isa = PBXBuildFile; fileRef = DE13864015DC7BAB00610EE1 /* Base64EncodedStringFromData.h */; };
 		DE13864315DC7BAB00610EE1 /* Base64EncodedStringFromData.m in Sources */ = {isa = PBXBuildFile; fileRef = DE13864115DC7BAB00610EE1 /* Base64EncodedStringFromData.m */; };
 		DE16335416C2E50A004B5597 /* CoreDataPropertyTypesSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DF4D7EF1631EBF400875E0F /* CoreDataPropertyTypesSpec.m */; };
-		DE16335A16C2E763004B5597 /* SMNetworkReachabilitySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9EEBE164B4F24006B7326 /* SMNetworkReachabilitySpec.m */; };
-		DE16335B16C2E766004B5597 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
-		DE16335C16C2E769004B5597 /* QueryTestsWithPermissionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE1BDE2D1682BFEC009282BA /* QueryTestsWithPermissionsSpec.m */; };
-		DE16335D16C2E76C004B5597 /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
-		DE16335E16C2E76E004B5597 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
 		DE16335F16C2E771004B5597 /* CRUDTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C33B0641591355A00BE2570 /* CRUDTests.m */; };
 		DE16336016C2EC5D004B5597 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A115CB5E0200E491C4 /* SMCoreDataIntegrationTest.xcdatamodeld */; };
 		DE16336116C2F1C3004B5597 /* SMIncrementalStoreFetchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A615CB5EA200E491C4 /* SMIncrementalStoreFetchTest.m */; };
@@ -151,7 +150,6 @@
 		DE1BDE3B1682C151009282BA /* blogpostspermissions.json in Resources */ = {isa = PBXBuildFile; fileRef = DE1BDE341682C111009282BA /* blogpostspermissions.json */; };
 		DE3AE12A16810FAC000B2E80 /* AFHTTPClient+StackMob.h in Headers */ = {isa = PBXBuildFile; fileRef = DE3AE12816810FAC000B2E80 /* AFHTTPClient+StackMob.h */; };
 		DE3AE12B16810FAC000B2E80 /* AFHTTPClient+StackMob.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3AE12916810FAC000B2E80 /* AFHTTPClient+StackMob.m */; };
-		DE5AE0E616AB9FAE00D8A2A8 /* SMPushClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED78164B1D43006B7326 /* SMPushClientIntegrationSpec.m */; };
 		DE64D6011623777900237570 /* SMUserManagedObject.h in Headers */ = {isa = PBXBuildFile; fileRef = DE64D5FF1623777900237570 /* SMUserManagedObject.h */; };
 		DE64D6021623777900237570 /* SMUserManagedObject.m in Sources */ = {isa = PBXBuildFile; fileRef = DE64D6001623777900237570 /* SMUserManagedObject.m */; };
 		DE64D608162389A600237570 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = DE64D607162389A600237570 /* Person.m */; };
@@ -323,6 +321,10 @@
 		1D83519516B9CD8B00814C71 /* SMPredicate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMPredicate.m; sourceTree = "<group>"; };
 		1D8351CD16C08D6F00814C71 /* Random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Random.h; sourceTree = "<group>"; };
 		1D8351CE16C08D6F00814C71 /* Random.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Random.m; sourceTree = "<group>"; };
+		1D83529416C5ACD000814C71 /* SMGeoPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMGeoPoint.h; sourceTree = "<group>"; };
+		1D83529516C5ACD100814C71 /* SMGeoPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMGeoPoint.m; sourceTree = "<group>"; };
+		1D8352A716C8512400814C71 /* SMLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMLocationManager.h; sourceTree = "<group>"; };
+		1D8352A816C8512600814C71 /* SMLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMLocationManager.m; sourceTree = "<group>"; };
 		1DF4D7EF1631EBF400875E0F /* CoreDataPropertyTypesSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataPropertyTypesSpec.m; sourceTree = "<group>"; };
 		569CB63915BA2D84003AC6AF /* SMOAuth2ClientSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMOAuth2ClientSpec.m; sourceTree = "<group>"; };
 		6102E0CE1593B60500B0C774 /* people.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = people.json; path = "Integration Tests/Fixtures/people.json"; sourceTree = SOURCE_ROOT; };
@@ -730,6 +732,10 @@
 				DE05E16215E2C02200224E4E /* StackMob.h */,
 				DE079B9A16499B0900C8AAA0 /* SMNetworkReachability.h */,
 				DE079B9B16499B0900C8AAA0 /* SMNetworkReachability.m */,
+				1D83529416C5ACD000814C71 /* SMGeoPoint.h */,
+				1D83529516C5ACD100814C71 /* SMGeoPoint.m */,
+				1D8352A716C8512400814C71 /* SMLocationManager.h */,
+				1D8352A816C8512600814C71 /* SMLocationManager.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -910,6 +916,8 @@
 				DE3AE12A16810FAC000B2E80 /* AFHTTPClient+StackMob.h in Headers */,
 				DEC5F9FA169B979B00A44722 /* SMIncrementalStoreNode.h in Headers */,
 				1D8351BD16C04C6400814C71 /* SMPredicate.h in Headers */,
+				1D83529616C5ACD300814C71 /* SMGeoPoint.h in Headers */,
+				1D8352A916C8512800814C71 /* SMLocationManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1249,14 +1257,8 @@
 				619EDF16159292CF0075BB93 /* SMIntegrationTestHelpers.m in Sources */,
 				DE0CC7B115CB605900E491C4 /* Superpower.m in Sources */,
 				1DDAE4691656EF15001DFAEF /* SMNetworkReachabilityHelper.m in Sources */,
-				DE5AE0E616AB9FAE00D8A2A8 /* SMPushClientIntegrationSpec.m in Sources */,
 				1D8351CF16C08D7000814C71 /* Random.m in Sources */,
 				1D8351DF16C0969900814C71 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */,
-				DE16335A16C2E763004B5597 /* SMNetworkReachabilitySpec.m in Sources */,
-				DE16335B16C2E766004B5597 /* SMCusCodeReqIntegrationSpec.m in Sources */,
-				DE16335C16C2E769004B5597 /* QueryTestsWithPermissionsSpec.m in Sources */,
-				DE16335D16C2E76C004B5597 /* QueryTests.m in Sources */,
-				DE16335E16C2E76E004B5597 /* SMClientIntegrationSpec.m in Sources */,
 				DE16335F16C2E771004B5597 /* CRUDTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1298,6 +1300,8 @@
 				DE3AE12B16810FAC000B2E80 /* AFHTTPClient+StackMob.m in Sources */,
 				DEC5F9FB169B979B00A44722 /* SMIncrementalStoreNode.m in Sources */,
 				1D8351BF16C04C8700814C71 /* SMPredicate.m in Sources */,
+				1D83529716C5ACD300814C71 /* SMGeoPoint.m in Sources */,
+				1D8352AA16C8512900814C71 /* SMLocationManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

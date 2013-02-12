@@ -642,7 +642,8 @@ describe(@"Testing CRUD on an Entity with a GeoPoint attribute", ^{
             [[comparisonDictionary should] equal:newLocation];
             
         }];
-    }); 
+    });
+    
 });
 
 SPEC_END

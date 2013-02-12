@@ -15,6 +15,7 @@
  */
 
 @class SMRequestOptions;
+@class SMGeoPoint;
 
 /**
  A success block that returns nothing.
@@ -35,6 +36,11 @@ typedef void (^SMResultsSuccessBlock)(NSArray *results);
  The block parameters expected for any failure response.
  */
 typedef void (^SMFailureBlock)(NSError *error);
+
+/**
+ The block parameters expected for a success response which returns an `SMGeoPoint`.
+ */
+typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint);
 
 /**
  The block parameters expected for a success response that needs the raw request, response, and JSON result.

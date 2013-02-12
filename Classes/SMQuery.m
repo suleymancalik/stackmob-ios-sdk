@@ -134,6 +134,14 @@
     self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
+- (void)where:(NSString *)field isWithin:(double)miles milesOfGeoPoint:(SMGeoPoint *)geoPoint {
+    CLLocationCoordinate2D point;
+    point.latitude = [geoPoint.latitude doubleValue];
+    point.longitude = [geoPoint.longitude doubleValue];
+    
+    [self where:field isWithin:miles milesOf:point];
+}
+
 - (void)where:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point
 {
     NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
@@ -145,6 +153,14 @@
     [requestParametersCopy setObject:withinParam
                               forKey:CONCAT(field, @"[within]")];
     self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
+}
+
+- (void)where:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOfGeoPoint:(SMGeoPoint *)geoPoint {
+    CLLocationCoordinate2D point;
+    point.latitude = [geoPoint.latitude doubleValue];
+    point.longitude = [geoPoint.longitude doubleValue];
+    
+    [self where:field isWithin:kilometers kilometersOf:point];
 }
 
 - (void)where:(NSString *)field isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)sw andNECorner:(CLLocationCoordinate2D)ne
@@ -160,6 +176,18 @@
     self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
 
+- (void)where:(NSString *)field isWithinBoundsWithSWGeoPoint:(SMGeoPoint *)sw andNEGeoPoint:(SMGeoPoint *)ne {
+    CLLocationCoordinate2D swCorner;
+    swCorner.latitude = [sw.latitude doubleValue];
+    swCorner.longitude = [sw.longitude doubleValue];
+    
+    CLLocationCoordinate2D neCorner;
+    neCorner.latitude = [ne.latitude doubleValue];
+    neCorner.longitude = [ne.longitude doubleValue];
+    
+    [self where:field isWithinBoundsWithSWCorner:swCorner andNECorner:neCorner];
+}
+
 // TODO: how do we highlight to the user that this is going to add a 'distance' field and will ignore order by criteria
 - (void)where:(NSString *)field near:(CLLocationCoordinate2D)point {
     NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
@@ -169,6 +197,14 @@
     [requestParametersCopy setObject:nearParam 
                               forKey:CONCAT(field, @"[near]")];
     self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
+}
+
+- (void)where:(NSString *)field nearGeoPoint:(SMGeoPoint *)geoPoint {
+    CLLocationCoordinate2D point;
+    point.latitude = [geoPoint.latitude doubleValue];
+    point.longitude = [geoPoint.longitude doubleValue];
+    
+    [self where:field near:point];
 }
 
 - (void)fromIndex:(NSUInteger)start toIndex:(NSUInteger)end

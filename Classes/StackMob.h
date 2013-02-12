@@ -41,3 +41,4 @@
 #import "AFHTTPClient+StackMob.h"
 #import "SMIncrementalStore+Query.h"
 #import "SMPredicate.h"
+#import "SMGeoPoint.h"

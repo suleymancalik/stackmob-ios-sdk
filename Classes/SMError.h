@@ -40,6 +40,7 @@ typedef enum {
     SMErrorCouldNotFillRelationshipFault = -107,
     SMErrorCoreDataSave = -108,
     SMErrorRefreshTokenFailed = -109,
+    SMErrorLocationManagerFailed = -110,
     //Success messages. These shouldn't normally be encountered
     SMErrorOK = 200,
     SMErrorCreated = 201,
