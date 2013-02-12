@@ -353,8 +353,6 @@
 
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error
 {
-    dispatch_queue_t queue = dispatch_queue_create("Fetch And Wait Queue", NULL);
-    dispatch_group_t group = dispatch_group_create();
     __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
     
     // Error checks
@@ -392,11 +390,6 @@
         *error = fetchError;
         return nil;
     }
-    
-#if !OS_OBJECT_USE_OBJC
-    dispatch_release(group);
-    dispatch_release(queue);
-#endif
     
     if (returnIDs) {
         return resultsOfFetch;
