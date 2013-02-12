@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#endif
+
 #import "SMPushClient.h"
 #import "SMPushToken.h"
 #import "SMOAuth1Client.h"
 #import "AFJSONRequestOperation.h"
 #import "SMJSONRequestOperation.h"
 #import "SMVersion.h"
+#import <stdlib.h>
+#import <stdio.h>
+#import <sys/types.h>
+#import <sys/sysctl.h>
 
 static SMPushClient *defaultClient = nil;
 
@@ -46,6 +53,7 @@ static SMPushClient *defaultClient = nil;
 {
     return [self initWithAPIVersion:appAPIVersion publicKey:publicKey privateKey:privateKey pushHost:DEFAULT_PUSH_HOST];
 }
+
 - (id)initWithAPIVersion:(NSString *)appAPIVersion publicKey:(NSString *)publicKey privateKey:(NSString *)privateKey pushHost:(NSString *)pushHost;
 {
     self = [self init];
@@ -59,7 +67,29 @@ static SMPushClient *defaultClient = nil;
         self.oauthClient = [[SMOAuth1Client alloc] initWithBaseURL:url consumerKey:publicKey secret:privateKey];
         NSString *acceptHeader = [NSString stringWithFormat:@"application/vnd.stackmob+json; version=%@", appAPIVersion];
         [self.oauthClient setDefaultHeader:@"Accept" value:acceptHeader];
-        [self.oauthClient setDefaultHeader:@"User-Agent" value:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, [[UIDevice currentDevice] model], [[UIDevice currentDevice] systemVersion], [[NSLocale currentLocale] localeIdentifier]]];
+        
+#if TARGET_OS_MAC
+        /** Get this for mac **/
+        NSString *deviceModel;
+        NSString *systemVersion = [[NSProcessInfo processInfo] operatingSystemVersionString];
+        
+        size_t len = 0;
+        sysctlbyname("hw.model", NULL, &len, NULL, 0);
+        if(len)
+        {
+            char *model = malloc(len*sizeof(char));
+            sysctlbyname("hw.model", model, &len, NULL, 0);
+            
+            deviceModel = [[NSString alloc] initWithCString:model encoding:NSUTF8StringEncoding];
+            
+            free(model);
+        }
+#else
+        NSString *deviceModel   = [[UIDevice currentDevice] model];
+        NSString *systemVersion = [[UIDevice currentDevice] systemVersion];
+#endif
+        
+        [self.oauthClient setDefaultHeader:@"User-Agent" value:[NSString stringWithFormat:@"StackMob/%@ (%@/%@; %@;)", SDK_VERSION, deviceModel, systemVersion, [[NSLocale currentLocale] localeIdentifier]]];
         [self.oauthClient setParameterEncoding:AFJSONParameterEncoding];
         if ([SMPushClient defaultClient] == nil)
         {

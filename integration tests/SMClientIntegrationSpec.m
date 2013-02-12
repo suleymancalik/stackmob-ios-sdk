@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -721,6 +721,59 @@ describe(@"basic login/logout works as it should", ^{
     });
 });
 
+/*
+describe(@"basic login/logout with Gigya", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    
+    beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
+        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        moc = [cds contextForCurrentThread];
+        
+        [[theValue(client.isLoggedIn) should] beNo];
+        
+    });
+    afterEach(^{
+        [[theValue(client.isLoggedIn) should] beNo];
+    });
+    it(@"login/logout", ^{
+        // login
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            // TODO edit for gigya
+            [client loginWithUsername:@"dude" password:@"sweet" onSuccess:^(NSDictionary *result) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                [error shouldNotBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        
+        // check values
+        [[theValue([client isLoggedIn]) should] beYes];
+        [[theValue([client isLoggedOut]) should] beNo];
+        [[client.session refreshToken] shouldNotBeNil];
+        
+        // logout, if logged in
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [client logoutOnSuccess:^(NSDictionary *result) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                [error shouldNotBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        
+        // check values
+        [[theValue([client isLoggedIn]) should] beNo];
+        [[theValue([client isLoggedOut]) should] beYes];
+        [[client.session refreshToken] shouldBeNil];
+    });
+});
+*/
 
 
 SPEC_END

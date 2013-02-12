@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -393,8 +393,10 @@
         return nil;
     }
     
-    dispatch_release(queue);
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
+    dispatch_release(queue);
+#endif
     
     if (returnIDs) {
         return resultsOfFetch;
