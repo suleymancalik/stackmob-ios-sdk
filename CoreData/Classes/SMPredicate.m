@@ -38,7 +38,7 @@
     return self;
 }
 
-+(SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point {
++ (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point {
 
     SMPredicate *predicate = [[SMPredicate alloc] init];
     
@@ -58,7 +58,7 @@
     return predicate;
 }
 
-+(SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)miles milesOf:(CLLocationCoordinate2D)point {
++ (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)miles milesOf:(CLLocationCoordinate2D)point {
    
     SMPredicate *predicate = [[SMPredicate alloc] init];
     
@@ -79,7 +79,7 @@
     return predicate;
 }
 
-+(SMPredicate *)predicateWhere:(NSString *)field isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)sw andNECorner:(CLLocationCoordinate2D)ne {
++ (SMPredicate *)predicateWhere:(NSString *)field isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)sw andNECorner:(CLLocationCoordinate2D)ne {
     
     SMPredicate *predicate = [[SMPredicate alloc] init];
     
@@ -102,7 +102,7 @@
     return predicate;
 }
 
-+(SMPredicate *)predicateWhere:(NSString *)field near:(CLLocationCoordinate2D)point {
++ (SMPredicate *)predicateWhere:(NSString *)field near:(CLLocationCoordinate2D)point {
     
     SMPredicate *predicate = [[SMPredicate alloc] init];
     
