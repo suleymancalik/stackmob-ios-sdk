@@ -94,7 +94,7 @@
 @interface SMGeoPoint : NSDictionary
 
 /**
- Initializes an `SMGeoPoint` with the latitude and longitude provided.
+ Returns an instance of `SMGeoPoint` with the latitude and longitude provided.
  
  @param latitude The latitude, represented as an `NSNumber`.
  @param longitude The longitude, represented as an `NSNumber`.
@@ -104,7 +104,7 @@
 + (SMGeoPoint *)geoPointWithLatitude:(NSNumber *)latitude longitude:(NSNumber *)longitude;
 
 /**
- Initializes an `SMGeoPoint` with the `CLLocationCoordinate2D` provided
+ Returns an instance of `SMGeoPoint` with the `CLLocationCoordinate2D` provided
  
  @param coordinate The `CLLocationCoordinate2D` coordinate
  
@@ -113,7 +113,7 @@
 + (SMGeoPoint *)geoPointWithCoordinate:(CLLocationCoordinate2D)coordinate;
 
 /**
- Initializes an `SMGeoPoint` with coordinates provided by `SMLocationManager`
+ Returns an instance of `SMGeoPoint` with coordinates provided by `SMLocationManager`
  
  @param successBlock <i>typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
@@ -121,7 +121,7 @@
 + (void)getGeoPointForCurrentLocationOnSuccess:(SMGeoPointSuccessBlock)successBlock onFailure:(SMFailureBlock) failureBlock;
 
 /**
- Initializes an `SMGeoPoint` with coordinates provided by `SMLocationManager`
+ Returns an instance of `SMGeoPoint` with coordinates provided by `SMLocationManager`
  
  @param options An options object that contains configurations for this request.
  @param successBlock <i>typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint)</i>. A block object to execute upon success.
@@ -132,7 +132,7 @@
                                        onFailure:(SMFailureBlock)failureBlock;
 
 /**
- Initializes an `SMGeoPoint` with coordinates provided by `SMLocationManager`
+ Returns an instance of `SMGeoPoint` with coordinates provided by `SMLocationManager`
  
  @param options An options object that contains configurations for this request.
  @param successCallbackQueue The dispatch queue used to execute the success block. If nil is passed, the main queue is used.
