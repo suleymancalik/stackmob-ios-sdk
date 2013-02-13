@@ -26,6 +26,9 @@
 #import "SMIncrementalStoreNode.h"
 
 #define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
+#define CACHE_MAP_FILE @"CacheMap.plist"
+#define SQL_DB @"CoreDataStore.sqlite"
+#define DIRTY_QUEUE_FILE @"DirtyObjects.plist"
 
 NSString *const SMIncrementalStoreType = @"SMIncrementalStore";
 NSString *const SM_DataStoreKey = @"SM_DataStoreKey";
@@ -51,7 +54,9 @@ NSString *const SMCachePurgeOfObjectsFromEntityName = @"SMCachePurgeOfObjectsFro
 NSString *const SMThreadDefaultOptions = @"SMThreadDefaultOptions";
 NSString *const SMRequestSpecificOptions = @"SMRequestSpecificOptions";
 
-// Internal
+///-------------------------------
+/// Internal Constants
+///-------------------------------
 
 NSString *const SMFailedRequestError = @"SMFailedRequestError";
 NSString *const SMFailedRequestObjectPrimaryKey = @"SMFailedRequestObjectPrimaryKey";
@@ -74,6 +79,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
+///-------------------------------
+/// Properties
+///-------------------------------
+
 @property (nonatomic, strong) __block SMCoreDataStore *coreDataStore;
 @property (nonatomic, strong) __block NSManagedObjectContext *localManagedObjectContext;
 @property (nonatomic, strong) NSPersistentStoreCoordinator *localPersistentStoreCoordinator;
@@ -81,15 +90,25 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 // Cache mapping table appears as Key: StackMob object ID, Value:
 @property (nonatomic, strong) __block NSMutableDictionary *cacheMappingTable;
+// TODO add comments
+@property (nonatomic, strong) __block NSMutableArray *dirtyQueue;
+
 @property (nonatomic) dispatch_queue_t callbackQueue;
+
+///-------------------------------
+/// Saves and Fetches
+///-------------------------------
 
 - (id)SM_handleSaveRequest:(NSPersistentStoreRequest *)request
                withContext:(NSManagedObjectContext *)context
                      error:(NSError *__autoreleasing *)error;
 
-- (BOOL)SM_handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
-- (BOOL)SM_handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
-- (BOOL)SM_handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
+- (BOOL)SM_handleInsertedObjectsWhenOnline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
+- (BOOL)SM_handleInsertedObjectsWhenOffline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
+- (BOOL)SM_handleUpdatedObjectsWhenOnline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
+- (BOOL)SM_handleUpdatedObjectsWhenOffline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
+- (BOOL)SM_handleDeletedObjectsWhenOnline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
+- (BOOL)SM_handleDeletedObjectsWhenOffline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
 
 - (id)SM_handleFetchRequest:(NSPersistentStoreRequest *)request
                 withContext:(NSManagedObjectContext *)context
@@ -102,17 +121,32 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (id)SM_fetchObjectsFromCache:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error;
 
+///-------------------------------
+/// Cache Configuration
+///-------------------------------
+
 - (void)SM_configureCache;
-- (NSURL *)SM_getStoreURLForCacheDatabase;
-- (NSURL *)SM_getStoreURLForCacheMapTable;
+- (NSURL *)SM_getStoreURLForFileComponent:(NSString *)fileComponent;
 - (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL;
+
 - (void)SM_saveCacheMap;
 - (void)SM_readCacheMap;
+
+- (void)SM_readDirtyQueue;
+- (void)SM_saveDirtyQueue;
+
+///-------------------------------
+/// New Values For Relationship
+///-------------------------------
 
 - (id)SM_newValueForRelationship:(NSRelationshipDescription *)relationship
                  forObjectWithID:(NSManagedObjectID *)objectID
                      withContext:(NSManagedObjectContext *)context
                            error:(NSError *__autoreleasing *)error;
+
+///-------------------------------
+/// Retrieving Objects
+///-------------------------------
 
 - (NSDictionary *)SM_retrieveObjectWithID:(NSString *)objectID entity:(NSEntityDescription *)entity options:(SMRequestOptions *)options context:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error;
 
@@ -122,12 +156,20 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (id)SM_retrieveAndCacheRelatedObjectForRelationship:(NSRelationshipDescription *)relationship parentObject:(NSManagedObject *)parentObject referenceID:(NSString *)referenceID options:(SMRequestOptions *)options context:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error;
 
+///-------------------------------
+/// Caching Objects
+///-------------------------------
+
 - (void)SM_cacheObjectWithID:(NSString *)objectID values:(NSDictionary *)values entity:(NSEntityDescription *)entity context:(NSManagedObjectContext *)context;
 - (NSManagedObjectID *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName;
 - (void)SM_populateManagedObject:(NSManagedObject *)object withDictionary:(NSDictionary *)dictionary entity:(NSEntityDescription *)entity;
 - (void)SM_populateCacheManagedObject:(NSManagedObject *)object withDictionary:(NSDictionary *)dictionary entity:(NSEntityDescription *)entity;
 
 - (BOOL)SM_saveCache:(NSError *__autoreleasing*)error;
+
+///-------------------------------
+/// Purging from the Cache
+///-------------------------------
 
 - (void)SM_didRecievePurgeObjectFromCacheNotification:(NSNotification *)notification;
 - (void)SM_didRecievePurgeObjectsFromCacheNotification:(NSNotification *)notification;
@@ -139,9 +181,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (BOOL)SM_purgeObjectFromCacheWithStackMobID:(NSString *)objectID error:(NSError *__autoreleasing*)error;
 - (BOOL)SM_purgeCacheManagedObjectFromCache:(NSManagedObject *)object;
 
-- (NSString *)SM_remoteKeyForEntityName:(NSString *)entityName;
-- (NSDictionary *)SM_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context includeRelationships:(BOOL)includeRelationships;
-- (BOOL)SM_addPasswordToSerializedDictionary:(NSDictionary **)originalDictionary originalObject:(SMUserManagedObject *)object;
+///-------------------------------
+/// Operational Methods
+///-------------------------------
 
 - (void)SM_enqueueOperations:(NSArray *)ops dispatchGroup:(dispatch_group_t)group completionBlockQueue:(dispatch_queue_t)queue secure:(BOOL)isSecure;
 
@@ -152,6 +194,18 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (BOOL)SM_doTokenRefreshIfNeededWithGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue  options:(SMRequestOptions *)options error:(NSError *__autoreleasing*)error;
 
 - (BOOL)SM_enqueueRegularOperations:(NSMutableArray *)regularOperations secureOperations:(NSMutableArray *)secureOperations withGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue options:(SMRequestOptions *)options refreshAndRetryUnauthorizedRequests:(NSMutableArray *)failedRequestsWithUnauthorizedResponse failedRequests:(NSMutableArray *)failedRequests error:(NSError *__autoreleasing*)error;
+
+///-------------------------------
+/// Misc
+///-------------------------------
+
+- (NSString *)SM_remoteKeyForEntityName:(NSString *)entityName;
+- (NSDictionary *)SM_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context includeRelationships:(BOOL)includeRelationships;
+- (BOOL)SM_addPasswordToSerializedDictionary:(NSDictionary **)originalDictionary originalObject:(SMUserManagedObject *)object;
+
+///-------------------------------
+/// Notifications
+///-------------------------------
 
 - (void)SM_handleWillSave:(NSNotification *)notification;
 - (void)SM_handleDidSave:(NSNotification *)notification;
@@ -170,6 +224,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 @synthesize localManagedObjectContext = _localManagedObjectContext;
 @synthesize localPersistentStoreCoordinator = _localPersistentStoreCoordinator;
 @synthesize cacheMappingTable = _cacheMappingTable;
+@synthesize dirtyQueue = _dirtyQueue;
 @synthesize callbackQueue = _callbackQueue;
 @synthesize isSaving = _isSaving;
 
@@ -345,21 +400,21 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     NSSet *insertedObjects = [saveRequest insertedObjects];
     if ([insertedObjects count] > 0) {
-        BOOL insertSuccess = [self SM_handleInsertedObjects:insertedObjects inContext:context options:options error:error];
+        BOOL insertSuccess = [self SM_handleInsertedObjectsWhenOnline:insertedObjects inContext:context options:options error:error];
         if (!insertSuccess) {
             return nil;
         }
     }
     NSSet *updatedObjects = [saveRequest updatedObjects];
     if ([updatedObjects count] > 0) {
-        BOOL updateSuccess = [self SM_handleUpdatedObjects:updatedObjects inContext:context options:options error:error];
+        BOOL updateSuccess = [self SM_handleUpdatedObjectsWhenOnline:updatedObjects inContext:context options:options error:error];
         if (!updateSuccess) {
             return nil;
         }
     }
     NSSet *deletedObjects = [saveRequest deletedObjects];
     if ([deletedObjects count] > 0) {
-        BOOL deleteSuccess = [self SM_handleDeletedObjects:deletedObjects inContext:context options:options error:error];
+        BOOL deleteSuccess = [self SM_handleDeletedObjectsWhenOnline:deletedObjects inContext:context options:options error:error];
         if (!deleteSuccess) {
             return nil;
         }
@@ -368,7 +423,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     return [NSArray array];
 }
 
-- (BOOL)SM_handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
+- (BOOL)SM_handleInsertedObjectsWhenOnline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     
     if (SM_CORE_DATA_DEBUG) { DLog() }
     if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be inserted are %@", truncateOutputIfExceedsMaxLogLength(insertedObjects))}
@@ -461,7 +516,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
-- (BOOL)SM_handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
+- (BOOL)SM_handleInsertedObjectsWhenOffline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
+    
+    return YES;
+}
+
+- (BOOL)SM_handleUpdatedObjectsWhenOnline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     
     if (SM_CORE_DATA_DEBUG) { DLog() }
     if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be updated are %@", truncateOutputIfExceedsMaxLogLength(updatedObjects)) }
@@ -542,7 +602,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
-- (BOOL)SM_handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context  options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
+- (BOOL)SM_handleUpdatedObjectsWhenOffline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
+    
+    return YES;
+}
+
+- (BOOL)SM_handleDeletedObjectsWhenOnline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context  options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     
     if (SM_CORE_DATA_DEBUG) { DLog() }
     if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be deleted are %@", truncateOutputIfExceedsMaxLogLength(deletedObjects)) }
@@ -562,12 +627,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [deletedObjects enumerateObjectsUsingBlock:^(id managedObject, BOOL *stop) {
         
         // Create operation for updated object
-        
-        NSDictionary *serializedObjDict = [managedObject SMDictionarySerialization];
         NSString *schemaName = [managedObject SMSchema];
         __block NSString *deletedObjectID = [managedObject SMObjectId];
-        
-        if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)) }
         
         // Create success/failure blocks
         SMResultSuccessBlock operationSuccesBlock = ^(NSDictionary *theObject){
@@ -603,7 +664,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests error:error];
     
-    if ([deletedObjectIDs count] > 0) {
+    if (success && [deletedObjectIDs count] > 0) {
         [self SM_purgeObjectsFromCacheByStackMobID:deletedObjectIDs];
     }
     
@@ -614,6 +675,33 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     return success;
     
 }
+
+- (BOOL)SM_handleDeletedObjectsWhenOffline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context  options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
+    
+    if (SM_CORE_DATA_DEBUG) { DLog() }
+    if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be deleted are %@", truncateOutputIfExceedsMaxLogLength(deletedObjects)) }
+    
+    __block BOOL success = YES;
+    
+    [deletedObjects enumerateObjectsUsingBlock:^(id managedObject, BOOL *stop) {
+        
+        //NSEntityDescription *objectEntity = [managedObject entity];
+        NSString *stackmobObjectID = [managedObject SMObjectId];
+        
+        // delete from cache
+        NSError *purgeError = nil;
+        [self SM_purgeObjectFromCacheWithStackMobID:stackmobObjectID error:&purgeError];
+        if (purgeError) {
+            *stop = YES;
+        } else {
+            // Add object to dirty queue
+            
+        }
+    }];
+    
+    return success;
+}
+
 
 - (BOOL)SM_enqueueRegularOperations:(NSMutableArray *)regularOperations secureOperations:(NSMutableArray *)secureOperations withGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue options:(SMRequestOptions *)options refreshAndRetryUnauthorizedRequests:(NSMutableArray *)failedRequestsWithUnauthorizedResponse failedRequests:(NSMutableArray *)failedRequests error:(NSError *__autoreleasing*)error
 {
@@ -1568,6 +1656,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     _localManagedObjectContext = self.localManagedObjectContext;
     _localPersistentStoreCoordinator = self.localPersistentStoreCoordinator;
     [self SM_readCacheMap];
+    [self SM_readDirtyQueue];
     if (SM_CORE_DATA_DEBUG) {DLog(@"STACKMOB SYSTEM UPDATE: Cache initialized and ready to go.")}
     
 }
@@ -1599,7 +1688,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         _localPersistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.localManagedObjectModel];
         
-        NSURL *storeURL = [self SM_getStoreURLForCacheDatabase];
+        NSURL *storeURL = [self SM_getStoreURLForFileComponent:SQL_DB];
         [self SM_createStoreURLPathIfNeeded:storeURL];
         
         NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSMigratePersistentStoresAutomaticallyOption, [NSNumber numberWithBool:YES], NSInferMappingModelAutomaticallyOption, nil];
@@ -1616,7 +1705,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     return _localPersistentStoreCoordinator;
 }
 
-- (NSURL *)SM_getStoreURLForCacheDatabase
+- (NSURL *)SM_getStoreURLForFileComponent:(NSString *)fileComponent
 {
     if (SM_CORE_DATA_DEBUG) {DLog()}
     
@@ -1624,12 +1713,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
     NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
     
-    NSString *databaseName = nil;
+    NSString *fullFileName = nil;
     if (applicationName != nil)
     {
-        databaseName = [NSString stringWithFormat:@"%@-%@-CoreDataStore.sqlite", applicationName, self.coreDataStore.session.regularOAuthClient.publicKey];
+        fullFileName = [NSString stringWithFormat:@"%@-%@-%@", applicationName, self.coreDataStore.session.regularOAuthClient.publicKey, fileComponent];
     } else {
-        databaseName = [NSString stringWithFormat:@"%@-CoreDataStore.sqlite", self.coreDataStore.session.regularOAuthClient.publicKey];
+        fullFileName = [NSString stringWithFormat:@"%@-%@", self.coreDataStore.session.regularOAuthClient.publicKey, fileComponent];
     }
     
     
@@ -1639,7 +1728,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     for (NSString *path in paths)
     {
-        NSString *filepath = [path stringByAppendingPathComponent:databaseName];
+        NSString *filepath = [path stringByAppendingPathComponent:fullFileName];
         if ([fm fileExistsAtPath:filepath])
         {
             return [NSURL fileURLWithPath:filepath];
@@ -1647,41 +1736,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
     }
     
-    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:databaseName]];
-    return aURL;
-}
-
-- (NSURL *)SM_getStoreURLForCacheMapTable
-{
-    if (SM_CORE_DATA_DEBUG) {DLog()}
-    
-    NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
-    NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
-    NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
-    
-    NSString *cacheMapName = nil;
-    if (applicationName != nil)
-    {
-        cacheMapName = [NSString stringWithFormat:@"%@-%@-CacheMap.plist", applicationName, self.coreDataStore.session.regularOAuthClient.publicKey];
-    } else {
-        cacheMapName = [NSString stringWithFormat:@"%@-CacheMap.plist", self.coreDataStore.session.regularOAuthClient.publicKey];
-    }
-    
-    NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
-    
-    NSFileManager *fm = [[NSFileManager alloc] init];
-    
-    for (NSString *path in paths)
-    {
-        NSString *filepath = [path stringByAppendingPathComponent:cacheMapName];
-        if ([fm fileExistsAtPath:filepath])
-        {
-            return [NSURL fileURLWithPath:filepath];
-        }
-        
-    }
-    
-    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:cacheMapName]];
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:fullFileName]];
     return aURL;
 }
 
@@ -1722,7 +1777,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     NSString *errorDesc = nil;
     NSPropertyListFormat format;
-    NSURL *mapPath = [self SM_getStoreURLForCacheMapTable];
+    NSURL *mapPath = [self SM_getStoreURLForFileComponent:CACHE_MAP_FILE];
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:[mapPath path]]) {
         NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:[mapPath path]];
@@ -1740,8 +1795,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     } else {
         self.cacheMappingTable = [NSMutableDictionary dictionary];
     }
-    
-    
 }
 
 - (void)SM_saveCacheMap
@@ -1750,7 +1803,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     NSString *errorDesc = nil;
     NSError *error = nil;
-    NSURL *mapPath = [self SM_getStoreURLForCacheMapTable];
+    NSURL *mapPath = [self SM_getStoreURLForFileComponent:CACHE_MAP_FILE];
     
     NSData *mapData = [NSPropertyListSerialization dataFromPropertyList:self.cacheMappingTable
                                                                  format:NSPropertyListXMLFormat_v1_0
@@ -1763,6 +1816,55 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     BOOL successfulWrite = [mapData writeToFile:[mapPath path] options:NSDataWritingAtomic error:&error];
     if (!successfulWrite) {
         [NSException raise:SMExceptionCacheError format:@"Error saving cachemap data with error %@", error];
+    }
+    
+}
+
+- (void)SM_readDirtyQueue
+{
+    if (SM_CORE_DATA_DEBUG) {DLog()}
+    
+    NSString *errorDesc = nil;
+    NSPropertyListFormat format;
+    NSURL *mapPath = [self SM_getStoreURLForFileComponent:DIRTY_QUEUE_FILE];
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[mapPath path]]) {
+        NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:[mapPath path]];
+        NSDictionary *temp = (NSDictionary *)[NSPropertyListSerialization
+                                              propertyListFromData:plistXML
+                                              mutabilityOption:NSPropertyListMutableContainersAndLeaves
+                                              format:&format
+                                              errorDescription:&errorDesc];
+        
+        if (!temp) {
+            [NSException raise:SMExceptionCacheError format:@"Error reading dirty queue file: %@, format: %ld", errorDesc, (unsigned long)format];
+        } else {
+            self.dirtyQueue = [temp mutableCopy];
+        }
+    } else {
+        self.dirtyQueue = [NSMutableArray array];
+    }
+}
+
+- (void)SM_saveDirtyQueue
+{
+    if (SM_CORE_DATA_DEBUG) {DLog()}
+    
+    NSString *errorDesc = nil;
+    NSError *error = nil;
+    NSURL *mapPath = [self SM_getStoreURLForFileComponent:DIRTY_QUEUE_FILE];
+    
+    NSData *mapData = [NSPropertyListSerialization dataFromPropertyList:self.dirtyQueue
+                                                                 format:NSPropertyListXMLFormat_v1_0
+                                                       errorDescription:&errorDesc];
+    
+    if (!mapData) {
+        [NSException raise:SMExceptionCacheError format:@"Error serializing dirty queue data with error description %@", errorDesc];
+    }
+    
+    BOOL successfulWrite = [mapData writeToFile:[mapPath path] options:NSDataWritingAtomic error:&error];
+    if (!successfulWrite) {
+        [NSException raise:SMExceptionCacheError format:@"Error saving dirty queue data with error %@", error];
     }
     
 }
@@ -2228,7 +2330,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 {
     
     
-    NSURL *storeURL = [self SM_getStoreURLForCacheDatabase];
+    NSURL *storeURL = [self SM_getStoreURLForFileComponent:SQL_DB];
     [self SM_removeStoreURLPath:storeURL];
     
     [self.cacheMappingTable removeAllObjects];
