@@ -17,43 +17,71 @@
 #import <CoreLocation/CoreLocation.h>
 
 /**
- `SMLocationManager` is a CLLocationManager singleton. 
+ `SMLocationManager` provides a `CLLocationManager` singleton. 
  
  ## Using SMLocationManager ##
  
- SMLocationManager is a built-in CLLocationManager singleton for use in retrieving CLLocationCoordinate2D points. Many apps make use of geo location data; SMLocationManager aides in this process by eliminating the boilerplate code needed to build a CLLocationManager singleton.
+ SMLocationManager is a built-in `CLLocationManager` singleton for use in retrieving `CLLocationCoordinate2D` points. Many apps make use of geo location data; `SMLocationManager` aides in this process by eliminating the boilerplate code needed to build a `CLLocationManager` singleton.
  
- You can tell SMLocationManager to start listening for updates:
+ To start retrieving data, first prompt `SMLocationManager` to start listening for updates from the GPS:
+ 
     [[[SMLocationManager sharedInstance] locationManager] startUpdatingLocation];
  
- Retrieving coordinates is straightforward:
+ Next, retrieve coordinates as needed, using the `SMGeoPoint` method <i>getGeoPointForCurrentLocationOnSuccess:onFailure:</i>, which will pass back an instance of [SMGeoPoint](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMGeoPoint.html) in the success block or an `NSError` should the method fail.
+ 
+    [SMGeoPoint getGeoPointForCurrentLocationOnSuccess:^(SMGeoPoint *geoPoint) {
+ 
+        // Do something with geoPoint.latitude and geoPoint.longitude
+ 
+    } onFailure:^(NSError *) {
+ 
+        // Handle error
+ 
+    }];
+ 
+ When you are finished, tell the location manager to stop listening for GPS updates.
+ 
+ [[[SMLocationManager sharedInstance] locationManager] stopUpdatingLocation];
+ 
+ If you wish to pull the latitude and longitude data manually from the location manager, do so with the following:
+ 
     NSNumber *latitude = [[NSNumber alloc] initWithDouble:[[[[SMLocationManager sharedInstance] locationManager] location] coordinate].latitude];
     NSNumber *longitude = [[NSNumber alloc] initWithDouble:[[[[SMLocationManager sharedInstance] locationManager] location] coordinate].longitude];
  
- Alternatively, you can use the SMGeoPoint method <i>getGeoPointForCurrentLocationOnSuccess:successBlock onFailure:failureBlock</i>, which will pass back an SMGeoPoint in the success block or an NSError should the method fail.
+ Often times it may take a few run loops for the location manager to start receiving actual data after <i>startUpdatingLocation</i> is called.  You may need to implement the necessary logic to ensure you are not pulling nil data.
 
  ## Subclassing SMLocationManager ##
  
- If you would like more control and customization for SMLocationManager, it's recommended you subclass it. In the init method of your subclass, you can configure the properties of the CLLocationManager.
+ Out of the box, `SMLocationManager` gives you the ability to start/stop pulling GPS location data, as well as retrieve the current latitude and longitude of the device.  If you would like more control and customization, it's recommended you subclass `SMLocationManager`. In the init method of your subclass, you can configure the properties of the `CLLocationManager` as needed.
  
  ## References ##
  
- [Apple's CLLocationManager class reference](https://developer.apple.com/library/mac/#documentation/CoreLocation/Reference/CLLocationManager_Class/CLLocationManager/CLLocationManager.html )
+ [Apple's CLLocationManager class reference](https://developer.apple.com/library/mac/#documentation/CoreLocation/Reference/CLLocationManager_Class/CLLocationManager/CLLocationManager.html)
  */
 @interface SMLocationManager : NSObject <CLLocationManagerDelegate>
 
+///-------------------------------
+/// @name Properties
+///-------------------------------
+
 /**
- locationManager is the CLLocationManager this singleton uses to recieve updates
+ locationManager is the `CLLocationManager` this singleton uses to receive updates.
  */
 @property (nonatomic, strong) CLLocationManager* locationManager;
 
 /**
- locationManagerError is a property to store errors that the CLLocationManager returns
+ locationManagerError is a property to store errors that the `CLLocationManager` returns.
 */
 @property (nonatomic, strong) NSError *locationManagerError;
 
+///-------------------------------
+/// @name Properties
+///-------------------------------
+
 /**
- sharedInstance returns the instance on SMLocationManager
+ Returns the instance on `SMLocationManager`.
+ 
+ @return The shared instance of `SMLocationManager`.
  */
 + (SMLocationManager *)sharedInstance;
 

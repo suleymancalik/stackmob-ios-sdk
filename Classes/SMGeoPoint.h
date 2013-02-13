@@ -30,7 +30,7 @@
 @end
 
 /**
- `SMGeoPoint` is a subclass of NSDictionary, with helper methods to build GeoPoint dictionaries that are specific to the StackMob API.
+ `SMGeoPoint` is a subclass of `NSDictionary`, with helper methods to build GeoPoint dictionaries that are specific to the StackMob API.
  
  ## Using SMGeoPoint ##
  
@@ -41,7 +41,7 @@
 
     SMGeoPoint *location = [SMGeoPoint geoPointWithLatitude:lat longitude:lon];
  
- Alternatively, you can use a CLLocationCoordinate2D coordinate:
+ Alternatively, you can use a `CLLocationCoordinate2D` coordinate:
  
     CLLocationCoordinate2D renoCoordinate = CLLocationCoordinate2DMake(39.537940, -119.783936);
 
@@ -75,10 +75,9 @@
      
      NSData *data = [NSKeyedArchiver archivedDataWithRootObject:location];
  
- To query with SMGeoPoints, use the special predicate methods in SMPredicate:
+ To query with SMGeoPoints, use the special predicate methods provided by the [SMPredicate](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMPredicate.html) class:
  
-     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-     [fetchRequest setEntity:yourEntity];
+     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"EntityName"];
      
      // Fisherman's Wharf
      CLLocationCoordinate2D coordinate;
@@ -89,7 +88,9 @@
      SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5 milesOfGeoPoint:geoPoint];
      [fetchRequest setPredicate:predicate];
  
- @note Fetching from the cache using SMPredicate is not supported, and will return an empty array of results.
+     // Execute fetch request
+ 
+ @note Fetching from the cache using `SMPredicate` is not supported, and will return an empty array of results. Similarly, when a fetch is performed from the network (StackMob), any results are not cached.
  */
 @interface SMGeoPoint : NSDictionary
 
@@ -99,7 +100,7 @@
  @param latitude The latitude, represented as an `NSNumber`.
  @param longitude The longitude, represented as an `NSNumber`.
  
- @return An `SMGeoPoint`, for use as an attribute or as part of a query.
+ @return An instance of `SMGeoPoint`, for use as an attribute or as part of a query.
  */
 + (SMGeoPoint *)geoPointWithLatitude:(NSNumber *)latitude longitude:(NSNumber *)longitude;
 
@@ -108,7 +109,7 @@
  
  @param coordinate The `CLLocationCoordinate2D` coordinate
  
- @return An `SMGeoPoint`, for use as an attribute or as part of a query.
+ @return An instance of `SMGeoPoint`, for use as an attribute or as part of a query.
  */
 + (SMGeoPoint *)geoPointWithCoordinate:(CLLocationCoordinate2D)coordinate;
 
