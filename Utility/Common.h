@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +14,8 @@
  * limitations under the License.
  */
 
-#import "Superpower.h"
-#import "Person.h"
+#ifndef OS_OBJECT_USE_OBJC 
 
+#define OS_OBJECT_USE_OBJC 0 
 
-@implementation Superpower
-
-@dynamic level;
-@dynamic name;
-@dynamic superpower_id;
-@dynamic person;
-@dynamic pic;
-
-@end
+#endif

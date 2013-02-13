@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@
 {
     if (rangeHeader == nil) {
         //No range header means we've got all the results right here (1 or 0)
-        return [results count];
+        return (int)[results count];
     } else {
         NSArray* parts = [rangeHeader componentsSeparatedByString: @"/"];
         if ([parts count] != 2) return -1;

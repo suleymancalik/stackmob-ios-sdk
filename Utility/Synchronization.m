@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,9 @@ void syncWithSemaphore(void (^block)(dispatch_semaphore_t semaphore)) {
     while(dispatch_semaphore_wait(s, DISPATCH_TIME_NOW)) {
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:10.0]];
     }
+#if !OS_OBJECT_USE_OBJC
     dispatch_release(s);
+#endif
 }
 
 void syncReturn(dispatch_semaphore_t semaphore) {

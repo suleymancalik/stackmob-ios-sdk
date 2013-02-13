@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,9 +56,9 @@
     
     if (fetchOffset) {
         if (fetchLimit) {
-            rangeHeader = [NSString stringWithFormat:@"objects=%i-%i", fetchOffset, fetchOffset+fetchLimit];
+            rangeHeader = [NSString stringWithFormat:@"objects=%ld-%ld", (unsigned long)fetchOffset, (unsigned long)fetchOffset+fetchLimit];
         } else {
-            rangeHeader = [NSString stringWithFormat:@"objects=%i-", fetchOffset];
+            rangeHeader = [NSString stringWithFormat:@"objects=%ld-", (unsigned long)fetchOffset];
         }
         [[query requestHeaders] setValue:rangeHeader forKey:@"Range"];
     }

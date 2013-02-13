@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -353,8 +353,6 @@
 
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error
 {
-    dispatch_queue_t queue = dispatch_queue_create("Fetch And Wait Queue", NULL);
-    dispatch_group_t group = dispatch_group_create();
     __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
     
     // Error checks
@@ -392,9 +390,6 @@
         *error = fetchError;
         return nil;
     }
-    
-    dispatch_release(queue);
-    dispatch_release(group);
     
     if (returnIDs) {
         return resultsOfFetch;

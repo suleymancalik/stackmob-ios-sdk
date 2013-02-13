@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -721,6 +721,7 @@ describe(@"basic login/logout works as it should", ^{
     });
 });
 
+/*
 describe(@"basic login/logout with Gigya", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -738,7 +739,7 @@ describe(@"basic login/logout with Gigya", ^{
     });
     afterEach(^{
         [[theValue(client.isLoggedIn) should] beNo];
-    })
+    });
     it(@"login/logout", ^{
         // login
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
@@ -772,7 +773,7 @@ describe(@"basic login/logout with Gigya", ^{
         [[client.session refreshToken] shouldBeNil];
     });
 });
-
+*/
 
 
 SPEC_END
