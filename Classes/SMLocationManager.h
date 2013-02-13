@@ -24,11 +24,11 @@
  SMLocationManager is a built-in CLLocationManager singleton for use in retrieving CLLocationCoordinate2D points. Many apps make use of geo location data; SMLocationManager aides in this process by eliminating the boilerplate code needed to build a CLLocationManager singleton.
  
  You can tell SMLocationManager to start listening for updates:
-            [[[SMLocationManager sharedInstance] locationManager] startUpdatingLocation];
+    [[[SMLocationManager sharedInstance] locationManager] startUpdatingLocation];
  
  Retrieving coordinates is straightforward:
-            NSNumber *latitude = [[NSNumber alloc] initWithDouble:[[[[SMLocationManager sharedInstance] locationManager] location] coordinate].latitude];
-            NSNumber *longitude = [[NSNumber alloc] initWithDouble:[[[[SMLocationManager sharedInstance] locationManager] location] coordinate].longitude];
+    NSNumber *latitude = [[NSNumber alloc] initWithDouble:[[[[SMLocationManager sharedInstance] locationManager] location] coordinate].latitude];
+    NSNumber *longitude = [[NSNumber alloc] initWithDouble:[[[[SMLocationManager sharedInstance] locationManager] location] coordinate].longitude];
  
  Alternatively, you can use the SMGeoPoint method <i>getGeoPointForCurrentLocationOnSuccess:successBlock onFailure:failureBlock</i>, which will pass back an SMGeoPoint in the success block or an NSError should the method fail.
 
