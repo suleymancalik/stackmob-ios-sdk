@@ -336,7 +336,7 @@ describe(@"with a prepopulated database of people", ^{
         beforeEach(^{
             query = [[SMQuery alloc] initWithSchema:@"placespermissions"];
         });
-        describe(@"-where:near", ^{
+        describe(@"-where:nearGeoPoint", ^{
             beforeEach(^{
                 [query where:@"location" nearGeoPoint:sf];
             });
@@ -356,7 +356,7 @@ describe(@"with a prepopulated database of people", ^{
             });
         });
         
-        it(@"-where:isWithin:milesOf", ^{
+        it(@"-where:isWithin:milesOfGeoPoint", ^{
             [query where:@"location" isWithin:1000.0 milesOfGeoPoint:azerbaijan];
             [query orderByField:@"name" ascending:YES];
             synchronousQuery(sm, query, ^(NSArray *results) {
@@ -366,7 +366,7 @@ describe(@"with a prepopulated database of people", ^{
                 [error shouldBeNil];
             });
         });
-        it(@"-where:isWithin:metersOf", ^{
+        it(@"-where:isWithin:kilometersOfGeoPoint", ^{
             [query where:@"location" isWithin:35.0 kilometersOfGeoPoint:sf];
             [query orderByField:@"name" ascending:YES];
             synchronousQuery(sm, query, ^(NSArray *results) {
@@ -378,7 +378,7 @@ describe(@"with a prepopulated database of people", ^{
             });
         });
         
-        it(@"-where:isWithinBoundsWithSWCorner:andNECorner", ^{
+        it(@"-where:isWithinBoundsWithSWGeoPoint:andNEGeoPoint", ^{
             CLLocationCoordinate2D swOfSanRafaelCoordinate = CLLocationCoordinate2DMake(37.933096, -122.575493);
             CLLocationCoordinate2D renoCoordinate = CLLocationCoordinate2DMake(39.537940, -119.783936);
             

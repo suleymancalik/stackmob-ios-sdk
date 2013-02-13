@@ -44,7 +44,7 @@
     return self;
 }
 
-+ (SMGeoPoint *)geoPointWithLatitude:(NSNumber *)latitude Longitude:(NSNumber *)longitude {
++ (SMGeoPoint *)geoPointWithLatitude:(NSNumber *)latitude longitude:(NSNumber *)longitude {
     
     NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:latitude,LATITUDE,longitude,LONGITUDE,nil];
     
@@ -63,9 +63,7 @@
 + (void)getGeoPointForCurrentLocationOnSuccess:(SMGeoPointSuccessBlock)successBlock
                                      onFailure:(SMFailureBlock) failureBlock {
     
-    SMRequestOptions *options = [SMRequestOptions options];
-    [[[SMLocationManager sharedInstance] locationManager] startUpdatingLocation];
-    [self getGeoPointForCurrentLocationWithOptions:options onSuccess:successBlock onFailure:failureBlock];
+    [self getGeoPointForCurrentLocationWithOptions:[SMRequestOptions options] onSuccess:successBlock onFailure:failureBlock];
 }
 
 + (void)getGeoPointForCurrentLocationWithOptions:(SMRequestOptions *)options
@@ -75,7 +73,14 @@
     [self getGeoPointForCurrentLocationWithOptions:options successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
 }
 
-+ (void)getGeoPointForCurrentLocationWithOptions:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMGeoPointSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock {
++ (void)getGeoPointForCurrentLocationWithOptions:(SMRequestOptions *)options
+                            successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                            failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                                       onSuccess:(SMGeoPointSuccessBlock)successBlock
+                                       onFailure:(SMFailureBlock)failureBlock {
+    
+    // Start updating location
+    [[[SMLocationManager sharedInstance] locationManager] startUpdatingLocation];
     
     // Get the current longitude and latitude
     NSNumber *latitude = [[NSNumber alloc] initWithDouble:[[[[SMLocationManager sharedInstance] locationManager] location] coordinate].latitude];
@@ -91,33 +96,30 @@
             });
         }
         else {
-            // What is the error?
+            [[[SMLocationManager sharedInstance] locationManager] stopUpdatingLocation];
+            
             if ([SMLocationManager sharedInstance].locationManagerError != nil) {
                 dispatch_async(failureCallbackQueue, ^{
                     NSError *error = [[SMLocationManager sharedInstance].locationManagerError copy];
                     failureBlock(error);
                     [SMLocationManager sharedInstance].locationManagerError = nil;
                 });
-                [[[SMLocationManager sharedInstance] locationManager] stopUpdatingLocation];
             }
             else {
                 dispatch_async(failureCallbackQueue, ^{
                     NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorLocationManagerFailed userInfo:nil];
                     failureBlock(error);
                 });
-                [[[SMLocationManager sharedInstance] locationManager] stopUpdatingLocation];
             }
         }
         
     }
     else {
-        
+        [[[SMLocationManager sharedInstance] locationManager] stopUpdatingLocation];
         dispatch_async(successCallbackQueue, ^{
-            SMGeoPoint *geoPoint = [SMGeoPoint geoPointWithLatitude:latitude Longitude:longitude];
+            SMGeoPoint *geoPoint = [SMGeoPoint geoPointWithLatitude:latitude longitude:longitude];
             successBlock(geoPoint);
         });
-        [[[SMLocationManager sharedInstance] locationManager] stopUpdatingLocation];
-        
     }
 }
 

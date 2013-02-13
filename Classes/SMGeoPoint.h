@@ -31,8 +31,66 @@
 
 /**
  `SMGeoPoint` is a subclass of NSDictionary, with helper methods to build GeoPoint dictionaries that are specific to the StackMob API.
+ 
+ ## Using SMGeoPoint ##
+ 
+ You can make an SMGeoPoint with a latitude and a longitude:
+ 
+            NSNumber *lat = [NSNumber numberWithDouble:37.77215879638275];
+            NSNumber *lon = [NSNumber numberWithDouble:-122.4064476357965];
+ 
+            SMGeoPoint *location = [SMGeoPoint geoPointWithLatitude:lat longitude:lon];
+ 
+ Alternatively, you can use a CLLocationCoordinate2D coordinate:
+ 
+            CLLocationCoordinate2D renoCoordinate = CLLocationCoordinate2DMake(39.537940, -119.783936);
+ 
+            SMGeoPoint *reno = [SMGeoPoint geoPointWithCoordinate:renoCoordinate];
+ 
+ To save an SMGeoPoint, store it in a dictionary of arguments to be uploaded to StackMob:
+ 
+             CLLocationCoordinate2D renoCoordinate = CLLocationCoordinate2DMake(39.537940, -119.783936);
+              
+             SMGeoPoint *location = [SMGeoPoint geoPointWithCoordinate:renoCoordinate];
+             
+             NSDictionary *arguments = [NSDictionary dictionaryWithObjectsAndKeys:@"My Location", @"name", location, @"location", nil];
+             
+             [[[SMClient defaultClient] dataStore] createObject:arguments inSchema:@"todo" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+             NSLog(@"Created object %@ in schema %@", theObject, schema);
+             
+             } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+             NSLog(@"Error creating object: %@", theError);
+             }];
+             
+ @note Make sure you configure the proper fields in your schema with the GeoPoint type
+ 
+ ## Using SMGeoPoint with Core Data ##
+ 
+ GeoPoints are stored in Core Data using the NSTransformable type. To save an SMGeoPoint in Core Data, it must be archived into NSData:
+ 
+             NSNumber *lat = [NSNumber numberWithDouble:37.77215879638275];
+             NSNumber *lon = [NSNumber numberWithDouble:-122.4064476357965];
+             
+             SMGeoPoint *location = [SMGeoPoint geoPointWithLatitude:lat longitude:lon];
+             
+             NSData *data = [NSKeyedArchiver archivedDataWithRootObject:location];
+ 
+ To query with SMGeoPoints, use the special predicate methods in SMPredicate:
+ 
+             NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+             [fetchRequest setEntity:yourEntity];
+             
+             // Fisherman's Wharf
+             CLLocationCoordinate2D coordinate;
+             coordinate.latitude = 37.810317;
+             coordinate.longitude = -122.418167;
+             
+             SMGeoPoint *geoPoint = [SMGeoPoint geoPointWithCoordinate:coordinate];
+             SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5 milesOfGeoPoint:geoPoint];
+             [fetchRequest setPredicate:predicate];
+ 
+ @note Fetching from the cache using SMPredicate is not supported, and will return an empty array of results.
  */
-
 @interface SMGeoPoint : NSDictionary
 
 /**
@@ -43,8 +101,7 @@
  
  @return An `SMGeoPoint`, for use as an attribute or as part of a query.
  */
-
-+ (SMGeoPoint *)geoPointWithLatitude:(NSNumber *)latitude Longitude:(NSNumber *)longitude;
++ (SMGeoPoint *)geoPointWithLatitude:(NSNumber *)latitude longitude:(NSNumber *)longitude;
 
 /**
  Initializes an `SMGeoPoint` with the `CLLocationCoordinate2D` provided
@@ -55,15 +112,12 @@
  */
 + (SMGeoPoint *)geoPointWithCoordinate:(CLLocationCoordinate2D)coordinate;
 
-
 /**
  Initializes an `SMGeoPoint` with coordinates provided by `SMLocationManager`
  
  @param successBlock <i>typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
- 
- @return An `SMGeoPoint`, for use as an attribute or as part of a query.
- */
+  */
 + (void)getGeoPointForCurrentLocationOnSuccess:(SMGeoPointSuccessBlock)successBlock onFailure:(SMFailureBlock) failureBlock;
 
 /**
@@ -72,9 +126,7 @@
  @param options An options object that contains configurations for this request.
  @param successBlock <i>typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
- 
- @return An `SMGeoPoint`, for use as an attribute or as part of a query.
- */
+  */
 + (void)getGeoPointForCurrentLocationWithOptions:(SMRequestOptions *)options
                                        onSuccess:(SMGeoPointSuccessBlock)successBlock
                                        onFailure:(SMFailureBlock)failureBlock;
@@ -87,10 +139,12 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block. If nil is passed, the main queue is used.
  @param successBlock <i>typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
- 
- @return An `SMGeoPoint`, for use as an attribute or as part of a query.
- */
-+ (void)getGeoPointForCurrentLocationWithOptions:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMGeoPointSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
+  */
++ (void)getGeoPointForCurrentLocationWithOptions:(SMRequestOptions *)options
+                            successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                            failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                                       onSuccess:(SMGeoPointSuccessBlock)successBlock
+                                       onFailure:(SMFailureBlock)failureBlock;
 
 
 

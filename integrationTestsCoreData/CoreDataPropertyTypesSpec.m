@@ -666,7 +666,7 @@ describe(@"Testing CRUD on an Entity with a SMGeoPoint attribute", ^{
         NSNumber *lat = [NSNumber numberWithDouble:37.77215879638275];
         NSNumber *lon = [NSNumber numberWithDouble:-122.4064476357965];
         
-        location = [SMGeoPoint geoPointWithLatitude:lat Longitude:lon];
+        location = [SMGeoPoint geoPointWithLatitude:lat longitude:lon];
         
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:location];
         
@@ -678,7 +678,7 @@ describe(@"Testing CRUD on an Entity with a SMGeoPoint attribute", ^{
         NSNumber *lat2 = [NSNumber numberWithDouble:42.280373];
         NSNumber *lon2 = [NSNumber numberWithDouble:-71.416669];
         
-        SMGeoPoint *location2 = [SMGeoPoint geoPointWithLatitude:lat2 Longitude:lon2];
+        SMGeoPoint *location2 = [SMGeoPoint geoPointWithLatitude:lat2 longitude:lon2];
         
         NSData *data2 = [NSKeyedArchiver archivedDataWithRootObject:location2];
         [geoObject2 setValue:data2 forKey:@"geopoint"];
@@ -853,7 +853,7 @@ describe(@"Testing CRUD on an Entity with a SMGeoPoint attribute", ^{
         NSNumber *lat = [NSNumber numberWithDouble:37.810317];
         NSNumber *lon = [NSNumber numberWithDouble:-122.418167];
         
-        SMGeoPoint *newLocation = [SMGeoPoint geoPointWithLatitude:lat Longitude:lon];
+        SMGeoPoint *newLocation = [SMGeoPoint geoPointWithLatitude:lat longitude:lon];
         
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:newLocation];
         

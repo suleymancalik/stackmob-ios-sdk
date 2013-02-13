@@ -14,13 +14,27 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 
 /**
- `SMLocationManager` is a CLLocationManager singleton 
+ `SMLocationManager` is a CLLocationManager singleton. 
  
- @note You shouldn't have to access SMLocationManager directly. It's recommended that you subclass SMLocationManager to add more functionality.
+ ## Using SMLocationManager ##
+ 
+ SMLocationManager is a built-in CLLocationManager singleton for use in retrieving CLLocationCoordinate2D points. Many apps make use of geo location data; SMLocationManager aides in this process by eliminating the boilerplate code needed to build a CLLocationManager singleton.
+ 
+ You can tell SMLocationManager to start listening for updates:
+            [[[SMLocationManager sharedInstance] locationManager] startUpdatingLocation];
+ 
+ Retrieving coordinates is straightforward:
+            NSNumber *latitude = [[NSNumber alloc] initWithDouble:[[[[SMLocationManager sharedInstance] locationManager] location] coordinate].latitude];
+            NSNumber *longitude = [[NSNumber alloc] initWithDouble:[[[[SMLocationManager sharedInstance] locationManager] location] coordinate].longitude];
+ 
+ Alternatively, you can use the SMGeoPoint method <i>getGeoPointForCurrentLocationOnSuccess:successBlock onFailure:failureBlock</i>, which will pass back an SMGeoPoint in the success block or an NSError should the method fail.
+
+ ## Subclassing SMLocationManager ##
+ 
+ If you would like more control and customization for SMLocationManager, it's recommended you subclass it. In the init method of your subclass, you can configure the properties of the CLLocationManager.
  
  ## References ##
  
@@ -31,7 +45,6 @@
 /**
  locationManager is the CLLocationManager this singleton uses to recieve updates
  */
-
 @property (nonatomic, strong) CLLocationManager* locationManager;
 
 /**
@@ -39,6 +52,9 @@
 */
 @property (nonatomic, strong) NSError *locationManagerError;
 
+/**
+ sharedInstance returns the instance on SMLocationManager
+ */
 + (SMLocationManager *)sharedInstance;
 
 @end
