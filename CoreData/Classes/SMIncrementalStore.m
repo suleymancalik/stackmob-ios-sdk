@@ -161,7 +161,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 ///-------------------------------
 
 - (void)SM_cacheObjectWithID:(NSString *)objectID values:(NSDictionary *)values entity:(NSEntityDescription *)entity context:(NSManagedObjectContext *)context;
-- (NSManagedObjectID *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName;
+- (NSManagedObjectID *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName createIfNeeded:(BOOL)createIfNeeded;
 - (void)SM_populateManagedObject:(NSManagedObject *)object withDictionary:(NSDictionary *)dictionary entity:(NSEntityDescription *)entity;
 - (void)SM_populateCacheManagedObject:(NSManagedObject *)object withDictionary:(NSDictionary *)dictionary entity:(NSEntityDescription *)entity;
 
@@ -1037,7 +1037,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             
             // Obtain cache object representation, or create if needed
             
-            NSManagedObject *cacheManagedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:remoteID entityName:[[sm_managedObject entity] name]]];
+            NSManagedObject *cacheManagedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:remoteID entityName:[[sm_managedObject entity] name] createIfNeeded:YES]];
             
             [self SM_populateCacheManagedObject:cacheManagedObject withDictionary:serializedObjectDict entity:fetchRequest.entity];
             return sm_managedObject;
@@ -1262,8 +1262,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     if (SM_CACHE_ENABLED) {
         if ([sm_managedObject isFault]) {
-            NSString *cacheReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
-            NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceID]];
+            NSManagedObjectID *cacheObjectID = [self SM_retrieveCacheObjectForRemoteID:sm_managedObjectReferenceID entityName:[[sm_managedObject entity] name] createIfNeeded:NO];
             
             if (!cacheObjectID) {
                 // Scenario: Got here because object was refreshed and is now a fault, but was never cached in the first place.  Grab from the server if possible.
@@ -2000,6 +1999,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     }
     
     // purge cache of parent object existing relationships in cache, followed by parent object, to be replaced by object dictionary from read
+    
     NSString *cacheObjectIDStringRef = [self.cacheMappingTable objectForKey:referenceID];
     NSManagedObjectID *cacheObjectID = [self.localPersistentStoreCoordinator managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheObjectIDStringRef]];
     NSManagedObject *cacheParentObject = [self.localManagedObjectContext objectWithID:cacheObjectID];
@@ -2029,7 +2029,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 
                 // Cache object
                 [self SM_cacheObjectWithID:relatedObjectPrimaryKey values:expandedObject entity:[relationship destinationEntity] context:context];
-                NSManagedObject *newlyCachedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:relatedObjectPrimaryKey entityName:[[relationship destinationEntity] name]]];
+                NSManagedObject *newlyCachedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:relatedObjectPrimaryKey entityName:[[relationship destinationEntity] name] createIfNeeded:YES]];
                 [newRelationshipContents addObject:newlyCachedObject];
             }];
             
@@ -2057,7 +2057,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:relatedObjectPrimaryKey];
             
             [self SM_cacheObjectWithID:relatedObjectPrimaryKey values:relationshipContents entity:[relationship destinationEntity] context:context];
-            NSManagedObject *newlyCachedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:relatedObjectPrimaryKey entityName:[[relationship destinationEntity] name]]];
+            NSManagedObject *newlyCachedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:relatedObjectPrimaryKey entityName:[[relationship destinationEntity] name] createIfNeeded:YES]];
             [cacheParentObject setValue:newlyCachedObject forKey:[relationship name]];
             // Save Cache if has changes
             [self SM_saveCache:error];
@@ -2077,7 +2077,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     if (SM_CORE_DATA_DEBUG) {DLog()}
     
     // Get cached managed object or create if needed
-    NSManagedObject *cacheManagedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:objectID entityName:[entity name]]];
+    NSManagedObject *cacheManagedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:objectID entityName:[entity name] createIfNeeded:YES]];
     
     // Serialize expanded object with relationships
     NSDictionary *serializedObjectDict = [self SM_responseSerializationForDictionary:values schemaEntityDescription:entity managedObjectContext:context includeRelationships:YES];
@@ -2135,7 +2135,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 __block NSMutableSet *objectRelationshipSet = [object mutableSetValueForKey:propertyName];
                 [objectRelationshipSet removeAllObjects];
                 [(NSSet *)propertyValueFromSerializedDict enumerateObjectsUsingBlock:^(id obj, BOOL *stopEnum) {
-                    NSManagedObject *objectToAdd = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:obj] entityName:[[property destinationEntity] name]]];
+                    NSManagedObject *objectToAdd = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:obj] entityName:[[property destinationEntity] name] createIfNeeded:YES]];
                     [objectRelationshipSet addObject:objectToAdd];
                 }];
             } else {
@@ -2144,7 +2144,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     
                 } else {
                     // Translate StackMob ID to Cache managed object ID and store
-                    NSManagedObject *setObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:propertyValueFromSerializedDict] entityName:[[property destinationEntity] name]]];
+                    NSManagedObject *setObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:propertyValueFromSerializedDict] entityName:[[property destinationEntity] name] createIfNeeded:YES]];
                     [object setValue:setObject forKey:propertyName];
                 }
             }
@@ -2160,38 +2160,50 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         if (SM_CORE_DATA_DEBUG) { DLog(@"Did Not Save Cache") }
     }
 }
-/*
- - (NSManagedObjectID *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName {
- if (SM_CORE_DATA_DEBUG) {DLog()}
- 
- NSManagedObject *cacheObject = nil;
- NSString *cacheReferenceId = [self.cacheMappingTable objectForKey:remoteID];
- if (cacheReferenceId) {
- NSManagedObjectID *cacheObjectId = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceId]];
- cacheObject = [self.localManagedObjectContext objectWithID:cacheObjectId];
- } else {
- cacheObject = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.localManagedObjectContext];
- NSError *permanentIdError = nil;
- [self.localManagedObjectContext obtainPermanentIDsForObjects:[NSArray arrayWithObject:cacheObject] error:&permanentIdError];
- // Sanity check
- if (permanentIdError) {
- [NSException raise:SMExceptionCacheError format:@"Could not obtain permanent IDs for objects %@ with error %@", cacheObject, permanentIdError];
- }
- 
- [self.cacheMappingTable setObject:[[[cacheObject objectID] URIRepresentation] absoluteString] forKey:remoteID];
- [self SM_saveCacheMap];
- NSError *saveError = nil;
- [self SM_saveCache:&saveError];
- if (SM_CORE_DATA_DEBUG) { DLog(@"Creating new cache object, %@", cacheObject) }
- }
- 
- return [cacheObject objectID];
- }
- */
 
-- (NSManagedObjectID *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName {
+- (NSManagedObjectID *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName createIfNeeded:(BOOL)createIfNeeded {
     if (SM_CORE_DATA_DEBUG) {DLog()}
     
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:entityName];
+    NSEntityDescription *desc = [NSEntityDescription entityForName:entityName inManagedObjectContext:self.localManagedObjectContext];
+    NSString *primaryKeyField = nil;
+    if ([[entityName lowercaseString] isEqualToString:[self.coreDataStore.session userSchema]]) {
+        primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
+    } else {
+        primaryKeyField = [desc primaryKeyField];
+    }
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == %@", primaryKeyField, remoteID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSError *fetchError = nil;
+    __block NSArray *results = [self.localManagedObjectContext executeFetchRequest:fetchRequest error:&fetchError];
+    if (fetchError || [results count] > 1) {
+        // TODO handle error
+    }
+    
+    __block NSManagedObject *cacheObject = nil;
+    if ([results count] == 0 && createIfNeeded) {
+        // Create new cache object
+        cacheObject = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.localManagedObjectContext];
+        NSError *permanentIdError = nil;
+        [self.localManagedObjectContext obtainPermanentIDsForObjects:[NSArray arrayWithObject:cacheObject] error:&permanentIdError];
+        // Sanity check
+        if (permanentIdError) {
+            [NSException raise:SMExceptionCacheError format:@"Could not obtain permanent IDs for objects %@ with error %@", cacheObject, permanentIdError];
+        }
+        
+        [self SM_saveCacheMap];
+        [self SM_insertRemoteID:remoteID inList:self.cacheMappingTable entityName:entityName];
+        if (SM_CORE_DATA_DEBUG) { DLog(@"Creating new cache object, %@", cacheObject) }
+    } else {
+        // result count == 1
+        cacheObject = [results lastObject];
+    }
+    
+    return cacheObject ? [cacheObject objectID] : nil;
+    
+    /*
     NSManagedObject *cacheObject = nil;
     NSString *cacheReferenceId = [self.cacheMappingTable objectForKey:remoteID];
     if (cacheReferenceId) {
@@ -2210,7 +2222,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         NSError *fetchError = nil;
         NSArray *results = [self.localManagedObjectContext executeFetchRequest:fetchRequest error:&fetchError];
-        NSLog(@"results are %@", results);
         if ([results count] == 0) {
             // delete object we are replacing
             NSManagedObjectID *cacheObjectId = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceId]];
@@ -2228,8 +2239,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 [NSException raise:SMExceptionCacheError format:@"Could not obtain permanent IDs for objects %@ with error %@", cacheObject, permanentIdError];
             }
             
-            [self.cacheMappingTable setObject:[[[cacheObject objectID] URIRepresentation] absoluteString] forKey:remoteID];
             [self SM_saveCacheMap];
+            [self SM_insertStackMobID:remoteID inList:self.cacheMappingTable entityName:entityName];
             if (SM_CORE_DATA_DEBUG) { DLog(@"Creating new cache object, %@", cacheObject) }
         } else {
             return [[results objectAtIndex:0] objectID];
@@ -2243,8 +2254,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             [NSException raise:SMExceptionCacheError format:@"Could not obtain permanent IDs for objects %@ with error %@", cacheObject, permanentIdError];
         }
         
-        [self.cacheMappingTable setObject:[[[cacheObject objectID] URIRepresentation] absoluteString] forKey:remoteID];
         [self SM_saveCacheMap];
+        [self SM_insertStackMobID:remoteID inList:self.cacheMappingTable entityName:entityName];
         if (SM_CORE_DATA_DEBUG) { DLog(@"Creating new cache object, %@", cacheObject) }
     }
     
@@ -2254,6 +2265,43 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         if (SM_CORE_DATA_DEBUG) { DLog(@"Did Not Save Cache") }
     }
     return [cacheObject objectID];
+     */
+}
+
+- (void)SM_insertRemoteID:(NSString *)objectID inList:(NSMutableDictionary *)list entityName:(NSString *)entityName
+{
+    NSArray *tempArray = [list objectForKey:entityName];
+    
+    NSMutableArray *objectIDsForEntity = tempArray ? [tempArray mutableCopy] : [NSMutableArray array];
+    
+    if ([objectIDsForEntity indexOfObject:objectID] == NSNotFound) {
+        [objectIDsForEntity addObject:objectID];
+    }
+    
+    [list setObject:[NSArray arrayWithArray:objectIDsForEntity] forKey:entityName];
+}
+
+- (BOOL)SM_isRemoteIDCached:(NSString *)objectID inList:(NSMutableDictionary *)list entityName:(NSString *)entityName
+{
+    NSArray *objectIDsForEntity = [list objectForKey:entityName];
+    if (objectIDsForEntity && ([objectIDsForEntity indexOfObject:objectID] != NSNotFound) ) {
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (void)SM_removeRemoteID:(NSString *)objectID inList:(NSMutableDictionary *)list entityName:(NSString *)entityName
+{
+    NSArray *tempArray = [list objectForKey:entityName];
+    
+    NSMutableArray *objectIDsForEntity = tempArray ? [tempArray mutableCopy] : [NSMutableArray array];
+    
+    if ([objectIDsForEntity indexOfObject:objectID] != NSNotFound) {
+        [objectIDsForEntity removeObject:objectID];
+    }
+    
+    [list setObject:[NSArray arrayWithArray:objectIDsForEntity] forKey:entityName];
 }
 
 
