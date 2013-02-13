@@ -132,7 +132,7 @@
 {
     if (rangeHeader == nil) {
         //No range header means we've got all the results right here (1 or 0)
-        return [results count];
+        return (int)[results count];
     } else {
         NSArray* parts = [rangeHeader componentsSeparatedByString: @"/"];
         if ([parts count] != 2) return -1;

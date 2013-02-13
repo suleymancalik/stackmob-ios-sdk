@@ -62,7 +62,6 @@ typedef enum {
  
  @return An SMPredicate instance ready to be added to a fetch request.
  */
-
 + (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)miles milesOf:(CLLocationCoordinate2D)point;
 
 /**
@@ -76,7 +75,6 @@ typedef enum {
  
  @return An SMPredicate instance ready to be added to a fetch request.
  */
-
 + (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)miles milesOfGeoPoint:(SMGeoPoint *)geoPoint;
 
 /**
@@ -90,7 +88,6 @@ typedef enum {
  
  @return An SMPredicate instance ready to be added to a fetch request.
  */
-
 + (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point;
 
 /**
@@ -104,7 +101,6 @@ typedef enum {
  
  @return An SMPredicate instance ready to be added to a fetch request.
  */
-
 + (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOfGeoPoint:(SMGeoPoint *)geoPoint;
 
 /**
@@ -116,7 +112,6 @@ typedef enum {
  
  @return An SMPredicate instance ready to be added to a fetch request.
  */
-
 + (SMPredicate *)predicateWhere:(NSString *)field isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)sw andNECorner:(CLLocationCoordinate2D)ne;
 
 /**
@@ -128,7 +123,6 @@ typedef enum {
  
  @return An SMPredicate instance ready to be added to a fetch request.
  */
-
 + (SMPredicate *)predicateWhere:(NSString *)field isWithinBoundsWithSWGeoPoint:(SMGeoPoint *)sw andNEGeoPoint:(SMGeoPoint *)ne;
 
 /**
@@ -143,7 +137,6 @@ typedef enum {
  
  @return An SMPredicate instance ready to be added to a fetch request.
  */
-
 + (SMPredicate *)predicateWhere:(NSString *)field near:(CLLocationCoordinate2D)point;
 
 /**
@@ -158,7 +151,6 @@ typedef enum {
  
  @return An SMPredicate instance ready to be added to a fetch request.
  */
-
 + (SMPredicate *)predicateWhere:(NSString *)field nearGeoPoint:(SMGeoPoint *)geoPoint;
 
 @end
