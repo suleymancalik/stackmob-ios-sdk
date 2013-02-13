@@ -155,7 +155,7 @@
                 NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
                 failureBlock(networkNotReachableError);
             } else {
-                int statusCode = response.statusCode;
+                int statusCode = (int)response.statusCode;
                 NSString *domain = HTTPErrorDomain;
                 if ([[JSON valueForKey:@"error_description"] isEqualToString:@"Temporary password reset required."]) {
                     statusCode = SMErrorTemporaryPasswordResetRequired;
@@ -183,6 +183,7 @@
     [resultsToSave setObject:expirationDate forKey:EXPIRES_IN];
     [self saveAccessTokenInfo:resultsToSave];
     [[NSUserDefaults standardUserDefaults] setObject:resultsToSave forKey:self.oauthStorageKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
     return [[result valueForKey:@"stackmob"] valueForKey:@"user"];
 }
 
@@ -278,7 +279,7 @@
                                               errorDescription:&errorDesc];
         
         if (!temp) {
-            [NSException raise:SMExceptionCacheError format:@"Error reading user identifier: %@, format: %d", errorDesc, format];
+            [NSException raise:SMExceptionCacheError format:@"Error reading user identifier: %@, format: %d", errorDesc, (int)format];
         } else {
             self.userIdentifierMap = [temp mutableCopy];
         }

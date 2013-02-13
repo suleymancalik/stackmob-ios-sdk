@@ -615,4 +615,49 @@
                                       onFailure:(SMFailureBlock)failureBlock;
 
 
+#pragma mark - Gigya
+
+/**
+ Login with Gigya, providing the m_pDict property of the GSObject user parameter provided by the gsLoginUIDidLogin:user:context method.
+ 
+ @param gsUser The dictionary returned by user.m_pDict from the gsLoginUIDidLogin:user:context method.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
+- (void)loginWithGigyaUserDictionary:(NSDictionary *)gsUser
+                           onSuccess:(SMResultSuccessBlock)successBlock
+                           onFailure:(SMFailureBlock)failureBlock;
+
+/**
+ Login with Gigya, providing the values of the `UID`, `UIDSignature` and `timestampSignature` keys from the GSObject user parameter provided by the gsLoginUIDidLogin:user:context method.
+ 
+ @param uid The value of the UID key from the GSObject user parameter.
+ @param uidSignature The value of the UIDSignature key from the GSObject user parameter.
+ @param signatureTimestamp The value of the timestamp key from the GSObject user parameter.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
+- (void)loginWithGigyaUID:(NSString *)uid
+                 uidSignature:(NSString *)uidSignature
+           signatureTimestamp:(NSString *)signatureTimestamp
+                    onSuccess:(SMResultSuccessBlock)successBlock
+                    onFailure:(SMFailureBlock)failureBlock;
+
+/**
+ Login with Gigya with options parameter.
+ 
+ @param uid The value of the `UID` key from the GSObject user parameter.
+ @param uidSignature The value of the `UIDSignature` key from the GSObject user parameter.
+ @param signatureTimestamp The value of the `signatureTimestamp` key from the GSObject user parameter.
+ @param options The request options.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
+- (void)loginWithGigyaUID:(NSString *)uid
+             uidSignature:(NSString *)uidSignature
+       signatureTimestamp:(NSString *)signatureTimestamp
+                  options:(SMRequestOptions *)options
+                onSuccess:(SMResultSuccessBlock)successBlock
+                onFailure:(SMFailureBlock)failureBlock;
+
 @end
