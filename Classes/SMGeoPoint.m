@@ -97,7 +97,6 @@
         }
         else {
             [[[SMLocationManager sharedInstance] locationManager] stopUpdatingLocation];
-            
             if ([SMLocationManager sharedInstance].locationManagerError != nil) {
                 dispatch_async(failureCallbackQueue, ^{
                     NSError *error = [[SMLocationManager sharedInstance].locationManagerError copy];
@@ -107,7 +106,8 @@
             }
             else {
                 dispatch_async(failureCallbackQueue, ^{
-                    NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorLocationManagerFailed userInfo:nil];
+                    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:NSLocalizedString(@"SMLocationManager failed to retrieve lat/lon after 3 attempts", nil) forKey:NSLocalizedFailureReasonErrorKey];
+                    NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorLocationManagerFailed userInfo:userInfo];
                     failureBlock(error);
                 });
             }
