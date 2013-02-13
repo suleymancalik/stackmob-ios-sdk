@@ -183,6 +183,7 @@
     [resultsToSave setObject:expirationDate forKey:EXPIRES_IN];
     [self saveAccessTokenInfo:resultsToSave];
     [[NSUserDefaults standardUserDefaults] setObject:resultsToSave forKey:self.oauthStorageKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
     return [[result valueForKey:@"stackmob"] valueForKey:@"user"];
 }
 
