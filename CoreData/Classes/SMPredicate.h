@@ -36,7 +36,7 @@ typedef enum {
 /**
  `SMPredicate` is a subclass of NSPredicate, with additional methods to build predicates that are specific to the StackMob API.  
  
- @note Fetching from the cache using SMPredicate is not supported, and will return an empty array of results.
+ **Important:** Fetching from the cache using SMPredicate is not supported, and will return an empty array of results.
  
  
  ## References ##
@@ -51,10 +51,6 @@ typedef enum {
 
 
 #pragma mark - Where clauses
-///-------------------------------
-/// @name Geo Location Clauses
-///-------------------------------
-
 /**
  Add the predicate criteria: `field`'s location is within `miles` of `point`.
  
