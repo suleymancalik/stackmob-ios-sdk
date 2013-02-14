@@ -133,11 +133,12 @@
 					<div class="section section-overview">
 						<a title="Overview" name="overview"></a>
 						<h2 class="subtitle subtitle-overview">Overview</h2>
-						<p><code>SMLocationManager</code> provides a <code>CLLocationManager</code> singleton.</p>
+						<p><code>SMLocationManager</code> is a built-in <code>CLLocationManager</code> singleton for use in retrieving <code>CLLocationCoordinate2D</code> points.</p>
+						<p>Many apps make use of geo location data; <code>SMLocationManager</code> aides in this process by eliminating the boilerplate code needed to build a <code>CLLocationManager</code> singleton.</p>
 
 <h2>Using SMLocationManager</h2>
 
-<p>SMLocationManager is a built-in <code>CLLocationManager</code> singleton for use in retrieving <code>CLLocationCoordinate2D</code> points. Many apps make use of geo location data; <code>SMLocationManager</code> aides in this process by eliminating the boilerplate code needed to build a <code>CLLocationManager</code> singleton.</p>
+<p>First, import the class where needed: <code>#import "SMLocationManager.h"</code>.</p>
 
 <p>To start retrieving data, first prompt <code>SMLocationManager</code> to start listening for updates from the GPS:</p>
 
