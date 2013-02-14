@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
-		<title>SMPushToken Class Reference</title>
+		<title>NSDictionary(GeoPoint) Category Reference</title>
 		<meta id="xcode-display" name="xcode-display" content="render"/>
 		<meta name="viewport" content="width=550" />
 		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
@@ -17,7 +17,7 @@
 			</div>
 			
 			<div id="title" role="banner">
-				<h1 class="hideInXcode">SMPushToken Class Reference</h1>
+				<h1 class="hideInXcode">NSDictionary(GeoPoint) Category Reference</h1>
 			</div>
 			<ul id="headerButtons" role="toolbar">
 				<li id="toc_button">
@@ -44,9 +44,9 @@
 	
 	<option value="instance_methods">Instance Methods</option>
 	
-	<option value="//api/name/initWithString:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithString:</option>
+	<option value="//api/name/latitude">&nbsp;&nbsp;&nbsp;&nbsp;- latitude</option>
 	
-	<option value="//api/name/initWithString:type:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithString:type:</option>
+	<option value="//api/name/longitude">&nbsp;&nbsp;&nbsp;&nbsp;- longitude</option>
 	
 	
 	
@@ -76,9 +76,9 @@
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithString:">initWithString:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/latitude">latitude</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithString:type:">initWithString:type:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/longitude">longitude</a></span></li>
 	
 </ul></li>
 
@@ -87,7 +87,7 @@
 		</nav>
 		<article>
 			<div id="contents" class="isShowingTOC" role="main">
-				<a title="SMPushToken Class Reference" name="top"></a>
+				<a title="NSDictionary(GeoPoint) Category Reference" name="top"></a>
 				<div class="main-navigation navigation-top">
 					<ul>
 	<li><a href="../index.html">Index</a></li>
@@ -96,18 +96,15 @@
 				</div>
 				<div id="header">
 					<div class="section-header">
-						<h1 class="title title-header">SMPushToken Class Reference</h1>
+						<h1 class="title title-header">NSDictionary(GeoPoint) Category Reference</h1>
 					</div>		
 				</div>
 				<div id="container">	
 					
 					<div class="section section-specification"><table cellspacing="0"><tbody>
 						<tr>
-	<td class="specification-title">Inherits from</td>
-	<td class="specification-value">NSObject</td>
-</tr><tr>
 	<td class="specification-title">Declared in</td>
-	<td class="specification-value">SMPushToken.h<br />SMPushToken.m</td>
+	<td class="specification-value">SMGeoPoint.h<br />SMGeoPoint.m</td>
 </tr>
 						</tbody></table></div>
 					
@@ -117,9 +114,7 @@
 					<div class="section section-overview">
 						<a title="Overview" name="overview"></a>
 						<h2 class="subtitle subtitle-overview">Overview</h2>
-						<p>Represents the info needed to register a device for push with StackMob</p>
-
-<p>This corresponds to what&rsquo;s sored about each token on server: token string paired with a platform and some supplemental information.</p><div class="note"><p><strong>Note:</strong> In most cases you&rsquo;ll want to just use the device token string you get from apple directly rather than using one of these.</p></div>
+						<p>Category on <code>NSDictionary</code> which provides helper methods to get the latitude and longitude from a GeoPoint.</p>
 					</div>
 					
 					
@@ -137,15 +132,15 @@
 						<ul class="task-list">
 							<li>
 	<span class="tooltip">
-		<code><a href="#//api/name/initWithString:">&ndash;&nbsp;initWithString:</a></code>
-		<span class="tooltip"><p>Initialize with a device token string. Assumes the type is ios</p></span>
+		<code><a href="#//api/name/latitude">&ndash;&nbsp;latitude</a></code>
+		<span class="tooltip"><p>Return the latitude.</p></span>
 	</span>
 	
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/initWithString:type:">&ndash;&nbsp;initWithString:type:</a></code>
-		<span class="tooltip"><p>Initialize with a device token string and a type.</p></span>
+		<code><a href="#//api/name/longitude">&ndash;&nbsp;longitude</a></code>
+		<span class="tooltip"><p>Return the longitude.</p></span>
 	</span>
 	
 	
@@ -167,32 +162,27 @@
 						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
 						
 						<div class="section-method">
-	<a name="//api/name/initWithString:" title="initWithString:"></a>
-	<h3 class="subsubtitle method-title">initWithString:</h3>
+	<a name="//api/name/latitude" title="latitude"></a>
+	<h3 class="subsubtitle method-title">latitude</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Initialize with a device token string. Assumes the type is ios</p>
+		<p>Return the latitude.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (id)initWithString:(NSString *)<em>tokenString</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (NSNumber *)latitude</code></div>
 
     
 	
-	<div class="method-subsection arguments-section parameters">
-		<h4 class="method-subtitle parameter-title">Parameters</h4>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>tokenString</em></dt>
-			<dd><p>The device token string.</p></dd>
-		</dl>
-		
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An <code>NSNumber</code> representing the latitude of the GeoPoint.</p>
 	</div>
-	
-	
 	
 	
 	
@@ -206,44 +196,34 @@
 	
 	<div class="method-subsection declared-in-section">
 		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">SMPushToken.h</code><br />
+		<code class="declared-in-ref">SMGeoPoint.h</code><br />
 	</div>				
 	
 	
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/initWithString:type:" title="initWithString:type:"></a>
-	<h3 class="subsubtitle method-title">initWithString:type:</h3>
+	<a name="//api/name/longitude" title="longitude"></a>
+	<h3 class="subsubtitle method-title">longitude</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Initialize with a device token string and a type.</p>
+		<p>Return the longitude.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (id)initWithString:(NSString *)<em>tokenString</em> type:(NSString *)<em>type</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (NSNumber *)longitude</code></div>
 
     
 	
-	<div class="method-subsection arguments-section parameters">
-		<h4 class="method-subtitle parameter-title">Parameters</h4>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>tokenString</em></dt>
-			<dd><p>The device token string.</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>type</em></dt>
-			<dd><p>The platform the token is for. Should be one of ios, android, or androidgcm</p></dd>
-		</dl>
-		
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An <code>NSNumber</code> representing the longitude of the GeoPoint.</p>
 	</div>
-	
-	
 	
 	
 	
@@ -257,7 +237,7 @@
 	
 	<div class="method-subsection declared-in-section">
 		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">SMPushToken.h</code><br />
+		<code class="declared-in-ref">SMGeoPoint.h</code><br />
 	</div>				
 	
 	

@@ -106,6 +106,12 @@
 	
 	<option value="//api/name/loginWithFacebookToken:options:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- loginWithFacebookToken:options:onSuccess:onFailure:</option>
 	
+	<option value="//api/name/loginWithGigyaUID:uidSignature:signatureTimestamp:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- loginWithGigyaUID:uidSignature:signatureTimestamp:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/loginWithGigyaUID:uidSignature:signatureTimestamp:options:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- loginWithGigyaUID:uidSignature:signatureTimestamp:options:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/loginWithGigyaUserDictionary:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- loginWithGigyaUserDictionary:onSuccess:onFailure:</option>
+	
 	<option value="//api/name/loginWithTwitterToken:twitterSecret:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- loginWithTwitterToken:twitterSecret:onSuccess:onFailure:</option>
 	
 	<option value="//api/name/loginWithTwitterToken:twitterSecret:options:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- loginWithTwitterToken:twitterSecret:options:onSuccess:onFailure:</option>
@@ -161,6 +167,8 @@
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Facebook Authentication">Facebook Authentication</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Twitter Authentication">Twitter Authentication</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Gigya Authentication">Gigya Authentication</a></span></li>
 	
 </ul></li>
 
@@ -237,6 +245,12 @@
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/loginWithFacebookToken:onSuccess:onFailure:">loginWithFacebookToken:onSuccess:onFailure:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/loginWithFacebookToken:options:onSuccess:onFailure:">loginWithFacebookToken:options:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/loginWithGigyaUID:uidSignature:signatureTimestamp:onSuccess:onFailure:">loginWithGigyaUID:uidSignature:signatureTimestamp:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/loginWithGigyaUID:uidSignature:signatureTimestamp:options:onSuccess:onFailure:">loginWithGigyaUID:uidSignature:signatureTimestamp:options:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/loginWithGigyaUserDictionary:onSuccess:onFailure:">loginWithGigyaUserDictionary:onSuccess:onFailure:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/loginWithTwitterToken:twitterSecret:onSuccess:onFailure:">loginWithTwitterToken:twitterSecret:onSuccess:onFailure:</a></span></li>
 	
@@ -732,6 +746,35 @@ via <a href="#//api/name/setDefaultClient:">setDefaultClient:</a>.</p></span>
 	<span class="tooltip">
 		<code><a href="#//api/name/getLoggedInUserTwitterInfoOnSuccess:onFailure:">&ndash;&nbsp;getLoggedInUserTwitterInfoOnSuccess:onFailure:</a></code>
 		<span class="tooltip"><p>Get Twitter info for the logged in users.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Gigya Authentication" name="task_Gigya Authentication"></a>
+						<h3 class="subsubtitle task-title">Gigya Authentication</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/loginWithGigyaUserDictionary:onSuccess:onFailure:">&ndash;&nbsp;loginWithGigyaUserDictionary:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Login with Gigya, providing the m_pDict property of the GSObject user parameter provided by the gsLoginUIDidLogin:user:context: delegate method.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/loginWithGigyaUID:uidSignature:signatureTimestamp:onSuccess:onFailure:">&ndash;&nbsp;loginWithGigyaUID:uidSignature:signatureTimestamp:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Login with Gigya, providing the values of the <code>UID</code>, <code>UIDSignature</code> and <code>timestampSignature</code> keys from the GSObject user parameter provided by the gsLoginUIDidLogin:user:context: method.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/loginWithGigyaUID:uidSignature:signatureTimestamp:options:onSuccess:onFailure:">&ndash;&nbsp;loginWithGigyaUID:uidSignature:signatureTimestamp:options:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Login with Gigya with options parameter.</p></span>
 	</span>
 	
 	
@@ -2232,6 +2275,209 @@ will result in an error. This API requires the user to be logged in as well as t
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/loginWithGigyaUID:uidSignature:signatureTimestamp:onSuccess:onFailure:" title="loginWithGigyaUID:uidSignature:signatureTimestamp:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">loginWithGigyaUID:uidSignature:signatureTimestamp:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Login with Gigya, providing the values of the <code>UID</code>, <code>UIDSignature</code> and <code>timestampSignature</code> keys from the GSObject user parameter provided by the gsLoginUIDidLogin:user:context: method.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)loginWithGigyaUID:(NSString *)<em>uid</em> uidSignature:(NSString *)<em>uidSignature</em> signatureTimestamp:(NSString *)<em>signatureTimestamp</em> onSuccess:(SMResultSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>uid</em></dt>
+			<dd><p>The value of the <code>UID</code> key from the GSObject user parameter.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>uidSignature</em></dt>
+			<dd><p>The value of the <code>UIDSignature</code> key from the GSObject user parameter.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>signatureTimestamp</em></dt>
+			<dd><p>The value of the <code>signatureTimestamp</code> key from the GSObject user parameter.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p><i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If a user does not exist that has been previously linked with the provided information from Gigya, one will be created.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/loginWithGigyaUID:uidSignature:signatureTimestamp:options:onSuccess:onFailure:" title="loginWithGigyaUID:uidSignature:signatureTimestamp:options:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">loginWithGigyaUID:uidSignature:signatureTimestamp:options:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Login with Gigya with options parameter.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)loginWithGigyaUID:(NSString *)<em>uid</em> uidSignature:(NSString *)<em>uidSignature</em> signatureTimestamp:(NSString *)<em>signatureTimestamp</em> options:(SMRequestOptions *)<em>options</em> onSuccess:(SMResultSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>uid</em></dt>
+			<dd><p>The value of the <code>UID</code> key from the GSObject user parameter.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>uidSignature</em></dt>
+			<dd><p>The value of the <code>UIDSignature</code> key from the GSObject user parameter.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>signatureTimestamp</em></dt>
+			<dd><p>The value of the <code>signatureTimestamp</code> key from the GSObject user parameter.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>options</em></dt>
+			<dd><p>The request options.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p><i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/loginWithGigyaUserDictionary:onSuccess:onFailure:" title="loginWithGigyaUserDictionary:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">loginWithGigyaUserDictionary:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Login with Gigya, providing the m_pDict property of the GSObject user parameter provided by the gsLoginUIDidLogin:user:context: delegate method.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)loginWithGigyaUserDictionary:(NSDictionary *)<em>gsUser</em> onSuccess:(SMResultSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>gsUser</em></dt>
+			<dd><p>The dictionary returned by user.m_pDict from the gsLoginUIDidLogin:user:context method.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p><i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If a user does not exist that has been previously linked with the provided information from Gigya, one will be created.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/loginWithTwitterToken:twitterSecret:onSuccess:onFailure:" title="loginWithTwitterToken:twitterSecret:onSuccess:onFailure:"></a>
 	<h3 class="subsubtitle method-title">loginWithTwitterToken:twitterSecret:onSuccess:onFailure:</h3>
 	
@@ -2959,7 +3205,7 @@ password. They can then use that temporary password to login with <a href="#//ap
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-01-25)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-02-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

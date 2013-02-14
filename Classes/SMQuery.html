@@ -79,11 +79,19 @@
 	
 	<option value="//api/name/where:isWithin:kilometersOf:">&nbsp;&nbsp;&nbsp;&nbsp;- where:isWithin:kilometersOf:</option>
 	
+	<option value="//api/name/where:isWithin:kilometersOfGeoPoint:">&nbsp;&nbsp;&nbsp;&nbsp;- where:isWithin:kilometersOfGeoPoint:</option>
+	
 	<option value="//api/name/where:isWithin:milesOf:">&nbsp;&nbsp;&nbsp;&nbsp;- where:isWithin:milesOf:</option>
+	
+	<option value="//api/name/where:isWithin:milesOfGeoPoint:">&nbsp;&nbsp;&nbsp;&nbsp;- where:isWithin:milesOfGeoPoint:</option>
 	
 	<option value="//api/name/where:isWithinBoundsWithSWCorner:andNECorner:">&nbsp;&nbsp;&nbsp;&nbsp;- where:isWithinBoundsWithSWCorner:andNECorner:</option>
 	
+	<option value="//api/name/where:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:">&nbsp;&nbsp;&nbsp;&nbsp;- where:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:</option>
+	
 	<option value="//api/name/where:near:">&nbsp;&nbsp;&nbsp;&nbsp;- where:near:</option>
+	
+	<option value="//api/name/where:nearGeoPoint:">&nbsp;&nbsp;&nbsp;&nbsp;- where:nearGeoPoint:</option>
 	
 	
 	
@@ -159,11 +167,19 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/where:isWithin:kilometersOf:">where:isWithin:kilometersOf:</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/where:isWithin:kilometersOfGeoPoint:">where:isWithin:kilometersOfGeoPoint:</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/where:isWithin:milesOf:">where:isWithin:milesOf:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/where:isWithin:milesOfGeoPoint:">where:isWithin:milesOfGeoPoint:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/where:isWithinBoundsWithSWCorner:andNECorner:">where:isWithinBoundsWithSWCorner:andNECorner:</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/where:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:">where:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/where:near:">where:near:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/where:nearGeoPoint:">where:nearGeoPoint:</a></span></li>
 	
 </ul></li>
 
@@ -331,8 +347,22 @@
 	
 </li><li>
 	<span class="tooltip">
+		<code><a href="#//api/name/where:isWithin:milesOfGeoPoint:">&ndash;&nbsp;where:isWithin:milesOfGeoPoint:</a></code>
+		<span class="tooltip"><p>Add the query criteria: <code>field</code>&rsquo;s location is within <code>miles</code> of <code>geoPoint</code>.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
 		<code><a href="#//api/name/where:isWithin:kilometersOf:">&ndash;&nbsp;where:isWithin:kilometersOf:</a></code>
 		<span class="tooltip"><p>Add the query criteria: <code>field</code>&rsquo;s location is within <code>kilometers</code> of <code>point</code>.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/where:isWithin:kilometersOfGeoPoint:">&ndash;&nbsp;where:isWithin:kilometersOfGeoPoint:</a></code>
+		<span class="tooltip"><p>Add the query criteria: <code>field</code>&rsquo;s location is within <code>kilometers</code> of <code>geoPoint</code>.</p></span>
 	</span>
 	
 	
@@ -345,8 +375,22 @@
 	
 </li><li>
 	<span class="tooltip">
+		<code><a href="#//api/name/where:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:">&ndash;&nbsp;where:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:</a></code>
+		<span class="tooltip"><p>Add the query criteria: <code>field</code>&rsquo;s location falls within the bounding box with geoPoints <code>sw</code> and <code>ne</code>.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
 		<code><a href="#//api/name/where:near:">&ndash;&nbsp;where:near:</a></code>
 		<span class="tooltip"><p>StackMob will insert a field <code>distance</code> and insert it into the response. This field is the distance between the query <code>field</code>&rsquo;s location and <code>location</code>.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/where:nearGeoPoint:">&ndash;&nbsp;where:nearGeoPoint:</a></code>
+		<span class="tooltip"><p>StackMob will insert a field <code>distance</code> and insert it into the response. This field is the distance between the query <code>field</code>&rsquo;s location and <code>geoPoint</code>.</p></span>
 	</span>
 	
 	
@@ -1179,6 +1223,67 @@ Note: You can apply multiple ordering criteria by invoking this multiple times.<
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/where:isWithin:kilometersOfGeoPoint:" title="where:isWithin:kilometersOfGeoPoint:"></a>
+	<h3 class="subsubtitle method-title">where:isWithin:kilometersOfGeoPoint:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add the query criteria: <code>field</code>&rsquo;s location is within <code>kilometers</code> of <code>geoPoint</code>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)where:(NSString *)<em>field</em> isWithin:(CLLocationDistance)<em>kilometers</em> kilometersOfGeoPoint:(SMGeoPoint *)<em>geoPoint</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>field</em></dt>
+			<dd><p>The geo field in the StackMob schema that is to be compared.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>kilometers</em></dt>
+			<dd><p>Distance in kilometers.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>geoPoint</em></dt>
+			<dd><p>The SMGeoPoint around which to search.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<div class="note"><p><strong>Note:</strong> StackMob will generate a field <code>distance</code> and insert it into the response. This field is the distance between the query <code>field</code>&rsquo;s location and <code>geoPoint</code>.</p></div>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMQuery.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/where:isWithin:milesOf:" title="where:isWithin:milesOf:"></a>
 	<h3 class="subsubtitle method-title">where:isWithin:milesOf:</h3>
 	
@@ -1240,6 +1345,67 @@ Note: You can apply multiple ordering criteria by invoking this multiple times.<
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/where:isWithin:milesOfGeoPoint:" title="where:isWithin:milesOfGeoPoint:"></a>
+	<h3 class="subsubtitle method-title">where:isWithin:milesOfGeoPoint:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add the query criteria: <code>field</code>&rsquo;s location is within <code>miles</code> of <code>geoPoint</code>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)where:(NSString *)<em>field</em> isWithin:(double)<em>miles</em> milesOfGeoPoint:(SMGeoPoint *)<em>geoPoint</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>field</em></dt>
+			<dd><p>The geo field in the StackMob schema that is to be compared.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>miles</em></dt>
+			<dd><p>Distance in miles.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>geoPoint</em></dt>
+			<dd><p>The SMGeoPoint around which to search.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<div class="note"><p><strong>Note:</strong> StackMob will generate a field <code>distance</code> and insert it into the response. This field is the distance between the query <code>field</code>&rsquo;s location and <code>geoPoint</code>.</p></div>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMQuery.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/where:isWithinBoundsWithSWCorner:andNECorner:" title="where:isWithinBoundsWithSWCorner:andNECorner:"></a>
 	<h3 class="subsubtitle method-title">where:isWithinBoundsWithSWCorner:andNECorner:</h3>
 	
@@ -1271,6 +1437,62 @@ Note: You can apply multiple ordering criteria by invoking this multiple times.<
 		<dl class="argument-def parameter-def">
 			<dt><em>ne</em></dt>
 			<dd><p>Location of the bounding box&rsquo;s northeast corner.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMQuery.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/where:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:" title="where:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:"></a>
+	<h3 class="subsubtitle method-title">where:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add the query criteria: <code>field</code>&rsquo;s location falls within the bounding box with geoPoints <code>sw</code> and <code>ne</code>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)where:(NSString *)<em>field</em> isWithinBoundsWithSWGeoPoint:(SMGeoPoint *)<em>sw</em> andNEGeoPoint:(SMGeoPoint *)<em>ne</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>field</em></dt>
+			<dd><p>The geo field in the StackMob schema that is to be compared.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>sw</em></dt>
+			<dd><p>Location of the bounding box&rsquo;s southwest SMGeoPoint.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>ne</em></dt>
+			<dd><p>Location of the bounding box&rsquo;s northeast SMGeoPoint.</p></dd>
 		</dl>
 		
 	</div>
@@ -1351,6 +1573,62 @@ Note: You can apply multiple ordering criteria by invoking this multiple times.<
 	
 </div>
 						
+						<div class="section-method">
+	<a name="//api/name/where:nearGeoPoint:" title="where:nearGeoPoint:"></a>
+	<h3 class="subsubtitle method-title">where:nearGeoPoint:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>StackMob will insert a field <code>distance</code> and insert it into the response. This field is the distance between the query <code>field</code>&rsquo;s location and <code>geoPoint</code>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)where:(NSString *)<em>field</em> nearGeoPoint:(SMGeoPoint *)<em>geoPoint</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>field</em></dt>
+			<dd><p>The geo field in the StackMob schema that is to be compared.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>geoPoint</em></dt>
+			<dd><p>The reference SMGeoPoint.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<div class="note"><p><strong>Note:</strong> You probably want to apply a limit when including this clause or you may end up with more results than intended.</p></div>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMQuery.h</code><br />
+	</div>				
+	
+	
+</div>
+						
 					</div>
 					
 					
@@ -1364,7 +1642,7 @@ Note: You can apply multiple ordering criteria by invoking this multiple times.<
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-01-25)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-02-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

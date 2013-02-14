@@ -1,0 +1,860 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
+		<title>SMPredicate Class Reference</title>
+		<meta id="xcode-display" name="xcode-display" content="render"/>
+		<meta name="viewport" content="width=550" />
+		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
+		<link rel="stylesheet" type="text/css" media="print" href="../css/stylesPrint.css" />
+		<meta name="generator" content="appledoc 2.0.5 (build 789)" />
+	</head>
+	<body>
+		<header id="top_header">
+			<div id="library" class="hideInXcode">
+				<h1><a id="libraryTitle" href="../index.html">StackMob iOS SDK </a></h1>
+				<a id="developerHome" href="../index.html">StackMob</a>
+			</div>
+			
+			<div id="title" role="banner">
+				<h1 class="hideInXcode">SMPredicate Class Reference</h1>
+			</div>
+			<ul id="headerButtons" role="toolbar">
+				<li id="toc_button">
+					<button aria-label="Show Table of Contents" role="checkbox" class="open" id="table_of_contents"><span class="disclosure"></span>Table of Contents</button>
+				</li>
+				<li id="jumpto_button" role="navigation">
+					<select id="jumpTo">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+	
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+	
+	
+	
+	
+	
+	<option value="class_methods">Class Methods</option>
+	
+	<option value="//api/name/predicateWhere:isWithin:kilometersOf:">&nbsp;&nbsp;&nbsp;&nbsp;+ predicateWhere:isWithin:kilometersOf:</option>
+	
+	<option value="//api/name/predicateWhere:isWithin:kilometersOfGeoPoint:">&nbsp;&nbsp;&nbsp;&nbsp;+ predicateWhere:isWithin:kilometersOfGeoPoint:</option>
+	
+	<option value="//api/name/predicateWhere:isWithin:milesOf:">&nbsp;&nbsp;&nbsp;&nbsp;+ predicateWhere:isWithin:milesOf:</option>
+	
+	<option value="//api/name/predicateWhere:isWithin:milesOfGeoPoint:">&nbsp;&nbsp;&nbsp;&nbsp;+ predicateWhere:isWithin:milesOfGeoPoint:</option>
+	
+	<option value="//api/name/predicateWhere:isWithinBoundsWithSWCorner:andNECorner:">&nbsp;&nbsp;&nbsp;&nbsp;+ predicateWhere:isWithinBoundsWithSWCorner:andNECorner:</option>
+	
+	<option value="//api/name/predicateWhere:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:">&nbsp;&nbsp;&nbsp;&nbsp;+ predicateWhere:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:</option>
+	
+	<option value="//api/name/predicateWhere:near:">&nbsp;&nbsp;&nbsp;&nbsp;+ predicateWhere:near:</option>
+	
+	<option value="//api/name/predicateWhere:nearGeoPoint:">&nbsp;&nbsp;&nbsp;&nbsp;+ predicateWhere:nearGeoPoint:</option>
+	
+	
+	
+	
+	
+</select>
+				</li>
+			</ul>
+		</header>
+		<nav id="tocContainer" class="isShowingTOC">
+			<ul id="toc" role="tree">
+				
+<li role="treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#overview">Overview</a></span></li>
+
+
+
+
+<li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
+	
+</ul></li>
+
+
+
+
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#class_methods">Class Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/predicateWhere:isWithin:kilometersOf:">predicateWhere:isWithin:kilometersOf:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/predicateWhere:isWithin:kilometersOfGeoPoint:">predicateWhere:isWithin:kilometersOfGeoPoint:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/predicateWhere:isWithin:milesOf:">predicateWhere:isWithin:milesOf:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/predicateWhere:isWithin:milesOfGeoPoint:">predicateWhere:isWithin:milesOfGeoPoint:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/predicateWhere:isWithinBoundsWithSWCorner:andNECorner:">predicateWhere:isWithinBoundsWithSWCorner:andNECorner:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/predicateWhere:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:">predicateWhere:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/predicateWhere:near:">predicateWhere:near:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/predicateWhere:nearGeoPoint:">predicateWhere:nearGeoPoint:</a></span></li>
+	
+</ul></li>
+
+
+
+
+			</ul>
+		</nav>
+		<article>
+			<div id="contents" class="isShowingTOC" role="main">
+				<a title="SMPredicate Class Reference" name="top"></a>
+				<div class="main-navigation navigation-top">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="header">
+					<div class="section-header">
+						<h1 class="title title-header">SMPredicate Class Reference</h1>
+					</div>		
+				</div>
+				<div id="container">	
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<td class="specification-title">Inherits from</td>
+	<td class="specification-value">NSPredicate</td>
+</tr><tr>
+	<td class="specification-title">Declared in</td>
+	<td class="specification-value">SMPredicate.h<br />SMPredicate.m</td>
+</tr>
+						</tbody></table></div>
+					
+					
+					
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p><code>SMPredicate</code> is a subclass of <code>NSPredicate</code>, with additional methods to build predicates that are specific to the StackMob API.</p>
+
+<p><strong>Important:</strong> Fetching from the cache using <code>SMPredicate</code> is not supported, and will return an empty array of results. Similarly, when a fetch is performed from the network (StackMob), any results are not cached.</p>
+
+<h2>References</h2>
+
+<p><a href="https://developer.apple.com/library/mac/#documentation/Cocoa/Reference/Foundation/Classes/NSPredicate_Class/Reference/NSPredicate.html">Apple&rsquo;s NSPredicate class reference</a></p>
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						<h2 class="subtitle subtitle-tasks">Tasks</h2>
+						
+						
+						
+						
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/predicateWhere:isWithin:milesOf:">+&nbsp;predicateWhere:isWithin:milesOf:</a></code>
+		<span class="tooltip"><p>Add the predicate criteria: <code>field</code>&rsquo;s location is within <code>miles</code> of <code>point</code>.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/predicateWhere:isWithin:milesOfGeoPoint:">+&nbsp;predicateWhere:isWithin:milesOfGeoPoint:</a></code>
+		<span class="tooltip"><p>Add the predicate criteria: <code>field</code>&rsquo;s location is within <code>miles</code> of <code>geoPoint</code>.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/predicateWhere:isWithin:kilometersOf:">+&nbsp;predicateWhere:isWithin:kilometersOf:</a></code>
+		<span class="tooltip"><p>Add the predicate criteria: <code>field</code>&rsquo;s location is within <code>kilometers</code> of <code>point</code>.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/predicateWhere:isWithin:kilometersOfGeoPoint:">+&nbsp;predicateWhere:isWithin:kilometersOfGeoPoint:</a></code>
+		<span class="tooltip"><p>Add the predicate criteria: <code>field</code>&rsquo;s location is within <code>kilometers</code> of <code>geoPoint</code>.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/predicateWhere:isWithinBoundsWithSWCorner:andNECorner:">+&nbsp;predicateWhere:isWithinBoundsWithSWCorner:andNECorner:</a></code>
+		<span class="tooltip"><p>Add the predicate criteria: <code>field</code>&rsquo;s location falls within the bounding box with corners <code>sw</code> and <code>ne</code>.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/predicateWhere:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:">+&nbsp;predicateWhere:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:</a></code>
+		<span class="tooltip"><p>Add the predicate criteria: <code>field</code>&rsquo;s location falls within the bounding box with corners <code>sw</code> and <code>ne</code>.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/predicateWhere:near:">+&nbsp;predicateWhere:near:</a></code>
+		<span class="tooltip"><p>Add the predicate criteria: <code>field</code>&rsquo;s location near point.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/predicateWhere:nearGeoPoint:">+&nbsp;predicateWhere:nearGeoPoint:</a></code>
+		<span class="tooltip"><p>Add the predicate criteria: <code>field</code>&rsquo;s location near point.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+					</div>
+					
+					
+					
+					
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Class Methods" name="class_methods"></a>
+						<h2 class="subtitle subtitle-methods">Class Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/predicateWhere:isWithin:kilometersOf:" title="predicateWhere:isWithin:kilometersOf:"></a>
+	<h3 class="subsubtitle method-title">predicateWhere:isWithin:kilometersOf:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add the predicate criteria: <code>field</code>&rsquo;s location is within <code>kilometers</code> of <code>point</code>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (SMPredicate *)predicateWhere:(NSString *)<em>field</em> isWithin:(CLLocationDistance)<em>kilometers</em> kilometersOf:(CLLocationCoordinate2D)<em>point</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>field</em></dt>
+			<dd><p>The geo field in the StackMob schema that is to be compared.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>kilometers</em></dt>
+			<dd><p>Distance in kilometers.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>point</em></dt>
+			<dd><p>The point around which to search.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An SMPredicate instance ready to be added to a fetch request.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>StackMob will generate a field <code>distance</code> and insert it into the response. This field is the distance between the query <code>field</code>&rsquo;s location and <code>point</code>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPredicate.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/predicateWhere:isWithin:kilometersOfGeoPoint:" title="predicateWhere:isWithin:kilometersOfGeoPoint:"></a>
+	<h3 class="subsubtitle method-title">predicateWhere:isWithin:kilometersOfGeoPoint:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add the predicate criteria: <code>field</code>&rsquo;s location is within <code>kilometers</code> of <code>geoPoint</code>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (SMPredicate *)predicateWhere:(NSString *)<em>field</em> isWithin:(CLLocationDistance)<em>kilometers</em> kilometersOfGeoPoint:(SMGeoPoint *)<em>geoPoint</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>field</em></dt>
+			<dd><p>The geo field in the StackMob schema that is to be compared.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>kilometers</em></dt>
+			<dd><p>Distance in kilometers.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>geoPoint</em></dt>
+			<dd><p>The SMGeoPoint around which to search.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An SMPredicate instance ready to be added to a fetch request.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>StackMob will generate a field <code>distance</code> and insert it into the response. This field is the distance between the query <code>field</code>&rsquo;s location and <code>geoPoint</code>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPredicate.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/predicateWhere:isWithin:milesOf:" title="predicateWhere:isWithin:milesOf:"></a>
+	<h3 class="subsubtitle method-title">predicateWhere:isWithin:milesOf:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add the predicate criteria: <code>field</code>&rsquo;s location is within <code>miles</code> of <code>point</code>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (SMPredicate *)predicateWhere:(NSString *)<em>field</em> isWithin:(CLLocationDistance)<em>miles</em> milesOf:(CLLocationCoordinate2D)<em>point</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>field</em></dt>
+			<dd><p>The geo field in the StackMob schema that is to be compared.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>miles</em></dt>
+			<dd><p>Distance in miles.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>point</em></dt>
+			<dd><p>The point around which to search.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An SMPredicate instance ready to be added to a fetch request.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>StackMob will generate a field <code>distance</code> and insert it into the response. This field is the distance between the query <code>field</code>&rsquo;s location and <code>point</code>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPredicate.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/predicateWhere:isWithin:milesOfGeoPoint:" title="predicateWhere:isWithin:milesOfGeoPoint:"></a>
+	<h3 class="subsubtitle method-title">predicateWhere:isWithin:milesOfGeoPoint:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add the predicate criteria: <code>field</code>&rsquo;s location is within <code>miles</code> of <code>geoPoint</code>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (SMPredicate *)predicateWhere:(NSString *)<em>field</em> isWithin:(CLLocationDistance)<em>miles</em> milesOfGeoPoint:(SMGeoPoint *)<em>geoPoint</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>field</em></dt>
+			<dd><p>The geo field in the StackMob schema that is to be compared.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>miles</em></dt>
+			<dd><p>Distance in miles.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>geoPoint</em></dt>
+			<dd><p>The SMGeoPoint around which to search.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An SMPredicate instance ready to be added to a fetch request.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>StackMob will generate a field <code>distance</code> and insert it into the response. This field is the distance between the query <code>field</code>&rsquo;s location and <code>geoPoint</code>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPredicate.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/predicateWhere:isWithinBoundsWithSWCorner:andNECorner:" title="predicateWhere:isWithinBoundsWithSWCorner:andNECorner:"></a>
+	<h3 class="subsubtitle method-title">predicateWhere:isWithinBoundsWithSWCorner:andNECorner:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add the predicate criteria: <code>field</code>&rsquo;s location falls within the bounding box with corners <code>sw</code> and <code>ne</code>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (SMPredicate *)predicateWhere:(NSString *)<em>field</em> isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)<em>sw</em> andNECorner:(CLLocationCoordinate2D)<em>ne</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>field</em></dt>
+			<dd><p>The geo field in the StackMob schema that is to be compared.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>sw</em></dt>
+			<dd><p>Location of the bounding box&rsquo;s southwest corner.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>ne</em></dt>
+			<dd><p>Location of the bounding box&rsquo;s northeast corner.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An SMPredicate instance ready to be added to a fetch request.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPredicate.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/predicateWhere:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:" title="predicateWhere:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:"></a>
+	<h3 class="subsubtitle method-title">predicateWhere:isWithinBoundsWithSWGeoPoint:andNEGeoPoint:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add the predicate criteria: <code>field</code>&rsquo;s location falls within the bounding box with corners <code>sw</code> and <code>ne</code>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (SMPredicate *)predicateWhere:(NSString *)<em>field</em> isWithinBoundsWithSWGeoPoint:(SMGeoPoint *)<em>sw</em> andNEGeoPoint:(SMGeoPoint *)<em>ne</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>field</em></dt>
+			<dd><p>The geo field in the StackMob schema that is to be compared.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>sw</em></dt>
+			<dd><p>SMGeoPoint of the bounding box&rsquo;s southwest corner.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>ne</em></dt>
+			<dd><p>SMGeoPoint of the bounding box&rsquo;s northeast corner.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An SMPredicate instance ready to be added to a fetch request.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPredicate.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/predicateWhere:near:" title="predicateWhere:near:"></a>
+	<h3 class="subsubtitle method-title">predicateWhere:near:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add the predicate criteria: <code>field</code>&rsquo;s location near point.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (SMPredicate *)predicateWhere:(NSString *)<em>field</em> near:(CLLocationCoordinate2D)<em>point</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>field</em></dt>
+			<dd><p>The geo field in the StackMob schema that is to be compared.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>point</em></dt>
+			<dd><p>The reference location.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An SMPredicate instance ready to be added to a fetch request.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>StackMob will insert a field <code>distance</code> and insert it into the response. This field is the distance between the query <code>field</code>&rsquo;s location and <code>point</code>.</p><div class="note"><p><strong>Note:</strong> You probably want to apply a limit when including this predicate or you may end up with more results than intended.</p></div>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPredicate.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/predicateWhere:nearGeoPoint:" title="predicateWhere:nearGeoPoint:"></a>
+	<h3 class="subsubtitle method-title">predicateWhere:nearGeoPoint:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add the predicate criteria: <code>field</code>&rsquo;s location near point.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (SMPredicate *)predicateWhere:(NSString *)<em>field</em> nearGeoPoint:(SMGeoPoint *)<em>geoPoint</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>field</em></dt>
+			<dd><p>The geo field in the StackMob schema that is to be compared.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>geoPoint</em></dt>
+			<dd><p>The reference SMGeoPoint.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An SMPredicate instance ready to be added to a fetch request.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>StackMob will insert a field <code>distance</code> and insert it into the response. This field is the distance between the query <code>field</code>&rsquo;s location and <code>geoPoint</code>.</p><div class="note"><p><strong>Note:</strong> You probably want to apply a limit when including this predicate or you may end up with more results than intended.</p></div>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMPredicate.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+					
+					
+				</div>
+				<div class="main-navigation navigation-bottom">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="footer">
+					<hr />
+					<div class="footer-copyright">
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-02-13)</span><br />
+						
+						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
+						
+					</div>
+				</div>
+			</div>
+		</article>
+		<script type="text/javascript">
+			function jumpToChange()
+			{
+				window.location.hash = this.options[this.selectedIndex].value;
+			}
+			
+			function toggleTOC()
+			{
+				var contents = document.getElementById('contents');
+				var tocContainer = document.getElementById('tocContainer');
+				
+				if (this.getAttribute('class') == 'open')
+				{
+					this.setAttribute('class', '');
+					contents.setAttribute('class', '');
+					tocContainer.setAttribute('class', '');
+					
+					window.name = "hideTOC";
+				}
+				else
+				{
+					this.setAttribute('class', 'open');
+					contents.setAttribute('class', 'isShowingTOC');
+					tocContainer.setAttribute('class', 'isShowingTOC');
+					
+					window.name = "";
+				}
+				return false;
+			}
+			
+			function toggleTOCEntryChildren(e)
+			{
+				e.stopPropagation();
+				var currentClass = this.getAttribute('class');
+				if (currentClass == 'children') {
+					this.setAttribute('class', 'children open');
+				}
+				else if (currentClass == 'children open') {
+					this.setAttribute('class', 'children');
+				}
+				return false;
+			}
+			
+			function tocEntryClick(e)
+			{
+				e.stopPropagation();
+				return true;
+			}
+			
+			function init()
+			{
+				var selectElement = document.getElementById('jumpTo');
+				selectElement.addEventListener('change', jumpToChange, false);
+				
+				var tocButton = document.getElementById('table_of_contents');
+				tocButton.addEventListener('click', toggleTOC, false);
+				
+				var taskTreeItem = document.getElementById('task_treeitem');
+				if (taskTreeItem.getElementsByTagName('li').length > 0)
+				{
+					taskTreeItem.setAttribute('class', 'children');
+					taskTreeItem.firstChild.setAttribute('class', 'disclosure');
+				}
+				
+				var tocList = document.getElementById('toc');
+				
+				var tocEntries = tocList.getElementsByTagName('li');
+				for (var i = 0; i < tocEntries.length; i++) {
+					tocEntries[i].addEventListener('click', toggleTOCEntryChildren, false);
+				}
+				
+				var tocLinks = tocList.getElementsByTagName('a');
+				for (var i = 0; i < tocLinks.length; i++) {
+					tocLinks[i].addEventListener('click', tocEntryClick, false);
+				}
+				
+				if (window.name == "hideTOC") {
+					toggleTOC.call(tocButton);
+				}
+			}
+			
+			window.onload = init;
+			
+			// If showing in Xcode, hide the TOC and Header
+			if (navigator.userAgent.match(/xcode/i)) {
+				document.getElementById("contents").className = "hideInXcode"
+				document.getElementById("tocContainer").className = "hideInXcode"
+				document.getElementById("top_header").className = "hideInXcode"
+			}
+			
+		</script>
+	</body>
+</html>

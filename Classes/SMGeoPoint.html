@@ -1,0 +1,672 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
+		<title>SMGeoPoint Class Reference</title>
+		<meta id="xcode-display" name="xcode-display" content="render"/>
+		<meta name="viewport" content="width=550" />
+		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
+		<link rel="stylesheet" type="text/css" media="print" href="../css/stylesPrint.css" />
+		<meta name="generator" content="appledoc 2.0.5 (build 789)" />
+	</head>
+	<body>
+		<header id="top_header">
+			<div id="library" class="hideInXcode">
+				<h1><a id="libraryTitle" href="../index.html">StackMob iOS SDK </a></h1>
+				<a id="developerHome" href="../index.html">StackMob</a>
+			</div>
+			
+			<div id="title" role="banner">
+				<h1 class="hideInXcode">SMGeoPoint Class Reference</h1>
+			</div>
+			<ul id="headerButtons" role="toolbar">
+				<li id="toc_button">
+					<button aria-label="Show Table of Contents" role="checkbox" class="open" id="table_of_contents"><span class="disclosure"></span>Table of Contents</button>
+				</li>
+				<li id="jumpto_button" role="navigation">
+					<select id="jumpTo">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+	
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+	
+	
+	
+	
+	
+	<option value="class_methods">Class Methods</option>
+	
+	<option value="//api/name/geoPointWithCoordinate:">&nbsp;&nbsp;&nbsp;&nbsp;+ geoPointWithCoordinate:</option>
+	
+	<option value="//api/name/geoPointWithLatitude:longitude:">&nbsp;&nbsp;&nbsp;&nbsp;+ geoPointWithLatitude:longitude:</option>
+	
+	<option value="//api/name/getGeoPointForCurrentLocationOnSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;+ getGeoPointForCurrentLocationOnSuccess:onFailure:</option>
+	
+	<option value="//api/name/getGeoPointForCurrentLocationWithOptions:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;+ getGeoPointForCurrentLocationWithOptions:onSuccess:onFailure:</option>
+	
+	<option value="//api/name/getGeoPointForCurrentLocationWithOptions:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;+ getGeoPointForCurrentLocationWithOptions:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</option>
+	
+	
+	
+	
+	
+</select>
+				</li>
+			</ul>
+		</header>
+		<nav id="tocContainer" class="isShowingTOC">
+			<ul id="toc" role="tree">
+				
+<li role="treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#overview">Overview</a></span></li>
+
+
+
+
+<li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Creating an SMGeoPoint">Creating an SMGeoPoint</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Retrieving the Current Location">Retrieving the Current Location</a></span></li>
+	
+</ul></li>
+
+
+
+
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#class_methods">Class Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/geoPointWithCoordinate:">geoPointWithCoordinate:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/geoPointWithLatitude:longitude:">geoPointWithLatitude:longitude:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/getGeoPointForCurrentLocationOnSuccess:onFailure:">getGeoPointForCurrentLocationOnSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/getGeoPointForCurrentLocationWithOptions:onSuccess:onFailure:">getGeoPointForCurrentLocationWithOptions:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/getGeoPointForCurrentLocationWithOptions:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">getGeoPointForCurrentLocationWithOptions:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a></span></li>
+	
+</ul></li>
+
+
+
+
+			</ul>
+		</nav>
+		<article>
+			<div id="contents" class="isShowingTOC" role="main">
+				<a title="SMGeoPoint Class Reference" name="top"></a>
+				<div class="main-navigation navigation-top">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="header">
+					<div class="section-header">
+						<h1 class="title title-header">SMGeoPoint Class Reference</h1>
+					</div>		
+				</div>
+				<div id="container">	
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<td class="specification-title">Inherits from</td>
+	<td class="specification-value">NSDictionary</td>
+</tr><tr>
+	<td class="specification-title">Declared in</td>
+	<td class="specification-value">SMGeoPoint.h<br />SMGeoPoint.m</td>
+</tr>
+						</tbody></table></div>
+					
+					
+					
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p><code>SMGeoPoint</code> is a subclass of <code>NSDictionary</code>, with helper methods to build geo point dictionaries that are specific to the StackMob API.</p>
+
+<p>The <a href="http://stackmob.github.com/stackmob-ios-sdk/Categories/NSDictionary+GeoPoint.html">NSDictionary+GeoPoint</a> category provides the methods to retrieve the latitude and longitude from the GeoPoint.</p>
+
+<p><strong>Important:</strong> GeoPoint data types are not inferred by StackMob. Make sure your configure the proper fields beforehand on the <a href="https://dashboard.stackmob.com/" target="_blank">StackMob dashboard</a>.</p>
+
+<h2>Using SMGeoPoint with Core Data</h2>
+
+<p>GeoPoints are stored in Core Data using the <code>Transformable</code> attribute type. To save an <code>SMGeoPoint</code> in Core Data, it must be archived into <code>NSData</code>:</p>
+
+<pre><code>NSNumber *lat = [NSNumber numberWithDouble:37.77215879638275];
+NSNumber *lon = [NSNumber numberWithDouble:-122.4064476357965];
+
+SMGeoPoint *location = [SMGeoPoint geoPointWithLatitude:lat longitude:lon];
+
+NSData *data = [NSKeyedArchiver archivedDataWithRootObject:location];
+</code></pre>
+
+<p>To query using SMGeoPoint, use the special predicate methods provided by the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMPredicate.html">SMPredicate</a> class:</p>
+
+<pre><code>NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"EntityName"];
+
+// Fisherman's Wharf
+CLLocationCoordinate2D coordinate;
+coordinate.latitude = 37.810317;
+coordinate.longitude = -122.418167;
+
+SMGeoPoint *geoPoint = [SMGeoPoint geoPointWithCoordinate:coordinate];
+SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5 milesOfGeoPoint:geoPoint];
+[fetchRequest setPredicate:predicate];
+
+// Execute fetch request
+</code></pre>
+
+<p><strong>Important:</strong> Fetching from the cache using <code>SMPredicate</code> is not supported, and will return an empty array of results. Similarly, when a fetch is performed from the network (StackMob), any results are not cached.</p>
+
+<h2>Using SMGeoPoint with the Datastore API</h2>
+
+<p>You can make an <code>SMGeoPoint</code> with a latitude and a longitude:</p>
+
+<pre><code>NSNumber *lat = [NSNumber numberWithDouble:37.77215879638275];
+NSNumber *lon = [NSNumber numberWithDouble:-122.4064476357965];
+
+SMGeoPoint *location = [SMGeoPoint geoPointWithLatitude:lat longitude:lon];
+</code></pre>
+
+<p>Alternatively, you can use a <code>CLLocationCoordinate2D</code> coordinate:</p>
+
+<pre><code>CLLocationCoordinate2D renoCoordinate = CLLocationCoordinate2DMake(39.537940, -119.783936);
+
+SMGeoPoint *reno = [SMGeoPoint geoPointWithCoordinate:renoCoordinate];
+</code></pre>
+
+<p>To save an SMGeoPoint, store it in a dictionary of arguments to be uploaded to StackMob:</p>
+
+<pre><code>CLLocationCoordinate2D renoCoordinate = CLLocationCoordinate2DMake(39.537940, -119.783936);
+
+SMGeoPoint *location = [SMGeoPoint geoPointWithCoordinate:renoCoordinate];
+
+NSDictionary *arguments = [NSDictionary dictionaryWithObjectsAndKeys:@"My Location", @"name", location, @"location", nil];
+
+[[[SMClient defaultClient] dataStore] createObject:arguments inSchema:@"todo" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+    NSLog(@"Created object %@ in schema %@", theObject, schema);
+
+} onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+    NSLog(@"Error creating object: %@", theError);
+}];
+</code></pre>
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						<h2 class="subtitle subtitle-tasks">Tasks</h2>
+						
+						
+						<a title="Creating an SMGeoPoint" name="task_Creating an SMGeoPoint"></a>
+						<h3 class="subsubtitle task-title">Creating an SMGeoPoint</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/geoPointWithLatitude:longitude:">+&nbsp;geoPointWithLatitude:longitude:</a></code>
+		<span class="tooltip"><p>Returns an instance of <code>SMGeoPoint</code> with the latitude and longitude provided.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/geoPointWithCoordinate:">+&nbsp;geoPointWithCoordinate:</a></code>
+		<span class="tooltip"><p>Returns an instance of <code>SMGeoPoint</code> with the <code>CLLocationCoordinate2D</code> provided</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Retrieving the Current Location" name="task_Retrieving the Current Location"></a>
+						<h3 class="subsubtitle task-title">Retrieving the Current Location</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/getGeoPointForCurrentLocationOnSuccess:onFailure:">+&nbsp;getGeoPointForCurrentLocationOnSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Returns an instance of <code>SMGeoPoint</code> with coordinates provided by <code>SMLocationManager</code></p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/getGeoPointForCurrentLocationWithOptions:onSuccess:onFailure:">+&nbsp;getGeoPointForCurrentLocationWithOptions:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Returns an instance of <code>SMGeoPoint</code> with coordinates provided by <code>SMLocationManager</code></p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/getGeoPointForCurrentLocationWithOptions:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">+&nbsp;getGeoPointForCurrentLocationWithOptions:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a></code>
+		<span class="tooltip"><p>Returns an instance of <code>SMGeoPoint</code> with coordinates provided by <code>SMLocationManager</code></p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+					</div>
+					
+					
+					
+					
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Class Methods" name="class_methods"></a>
+						<h2 class="subtitle subtitle-methods">Class Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/geoPointWithCoordinate:" title="geoPointWithCoordinate:"></a>
+	<h3 class="subsubtitle method-title">geoPointWithCoordinate:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns an instance of <code>SMGeoPoint</code> with the <code>CLLocationCoordinate2D</code> provided</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (SMGeoPoint *)geoPointWithCoordinate:(CLLocationCoordinate2D)<em>coordinate</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>coordinate</em></dt>
+			<dd><p>The <code>CLLocationCoordinate2D</code> coordinate</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An instance of <code>SMGeoPoint</code>, for use as an attribute or as part of a query.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMGeoPoint.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/geoPointWithLatitude:longitude:" title="geoPointWithLatitude:longitude:"></a>
+	<h3 class="subsubtitle method-title">geoPointWithLatitude:longitude:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns an instance of <code>SMGeoPoint</code> with the latitude and longitude provided.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (SMGeoPoint *)geoPointWithLatitude:(NSNumber *)<em>latitude</em> longitude:(NSNumber *)<em>longitude</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>latitude</em></dt>
+			<dd><p>The latitude, represented as an <code>NSNumber</code>.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>longitude</em></dt>
+			<dd><p>The longitude, represented as an <code>NSNumber</code>.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An instance of <code>SMGeoPoint</code>, for use as an attribute or as part of a query.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMGeoPoint.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/getGeoPointForCurrentLocationOnSuccess:onFailure:" title="getGeoPointForCurrentLocationOnSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">getGeoPointForCurrentLocationOnSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns an instance of <code>SMGeoPoint</code> with coordinates provided by <code>SMLocationManager</code></p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (void)getGeoPointForCurrentLocationOnSuccess:(SMGeoPointSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p><i>typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint)</i>. A block object to execute upon success.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMGeoPoint.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/getGeoPointForCurrentLocationWithOptions:onSuccess:onFailure:" title="getGeoPointForCurrentLocationWithOptions:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">getGeoPointForCurrentLocationWithOptions:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns an instance of <code>SMGeoPoint</code> with coordinates provided by <code>SMLocationManager</code></p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (void)getGeoPointForCurrentLocationWithOptions:(SMRequestOptions *)<em>options</em> onSuccess:(SMGeoPointSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>options</em></dt>
+			<dd><p>An options object that contains configurations for this request.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p><i>typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint)</i>. A block object to execute upon success.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMGeoPoint.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/getGeoPointForCurrentLocationWithOptions:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:" title="getGeoPointForCurrentLocationWithOptions:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:"></a>
+	<h3 class="subsubtitle method-title">getGeoPointForCurrentLocationWithOptions:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns an instance of <code>SMGeoPoint</code> with coordinates provided by <code>SMLocationManager</code></p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (void)getGeoPointForCurrentLocationWithOptions:(SMRequestOptions *)<em>options</em> successCallbackQueue:(dispatch_queue_t)<em>successCallbackQueue</em> failureCallbackQueue:(dispatch_queue_t)<em>failureCallbackQueue</em> onSuccess:(SMGeoPointSuccessBlock)<em>successBlock</em> onFailure:(SMFailureBlock)<em>failureBlock</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>options</em></dt>
+			<dd><p>An options object that contains configurations for this request.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successCallbackQueue</em></dt>
+			<dd><p>The dispatch queue used to execute the success block. If nil is passed, the main queue is used.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureCallbackQueue</em></dt>
+			<dd><p>The dispatch queue used to execute the failure block. If nil is passed, the main queue is used.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>successBlock</em></dt>
+			<dd><p><i>typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint)</i>. A block object to execute upon success.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>failureBlock</em></dt>
+			<dd><p><i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMGeoPoint.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+					
+					
+				</div>
+				<div class="main-navigation navigation-bottom">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="footer">
+					<hr />
+					<div class="footer-copyright">
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-02-13)</span><br />
+						
+						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
+						
+					</div>
+				</div>
+			</div>
+		</article>
+		<script type="text/javascript">
+			function jumpToChange()
+			{
+				window.location.hash = this.options[this.selectedIndex].value;
+			}
+			
+			function toggleTOC()
+			{
+				var contents = document.getElementById('contents');
+				var tocContainer = document.getElementById('tocContainer');
+				
+				if (this.getAttribute('class') == 'open')
+				{
+					this.setAttribute('class', '');
+					contents.setAttribute('class', '');
+					tocContainer.setAttribute('class', '');
+					
+					window.name = "hideTOC";
+				}
+				else
+				{
+					this.setAttribute('class', 'open');
+					contents.setAttribute('class', 'isShowingTOC');
+					tocContainer.setAttribute('class', 'isShowingTOC');
+					
+					window.name = "";
+				}
+				return false;
+			}
+			
+			function toggleTOCEntryChildren(e)
+			{
+				e.stopPropagation();
+				var currentClass = this.getAttribute('class');
+				if (currentClass == 'children') {
+					this.setAttribute('class', 'children open');
+				}
+				else if (currentClass == 'children open') {
+					this.setAttribute('class', 'children');
+				}
+				return false;
+			}
+			
+			function tocEntryClick(e)
+			{
+				e.stopPropagation();
+				return true;
+			}
+			
+			function init()
+			{
+				var selectElement = document.getElementById('jumpTo');
+				selectElement.addEventListener('change', jumpToChange, false);
+				
+				var tocButton = document.getElementById('table_of_contents');
+				tocButton.addEventListener('click', toggleTOC, false);
+				
+				var taskTreeItem = document.getElementById('task_treeitem');
+				if (taskTreeItem.getElementsByTagName('li').length > 0)
+				{
+					taskTreeItem.setAttribute('class', 'children');
+					taskTreeItem.firstChild.setAttribute('class', 'disclosure');
+				}
+				
+				var tocList = document.getElementById('toc');
+				
+				var tocEntries = tocList.getElementsByTagName('li');
+				for (var i = 0; i < tocEntries.length; i++) {
+					tocEntries[i].addEventListener('click', toggleTOCEntryChildren, false);
+				}
+				
+				var tocLinks = tocList.getElementsByTagName('a');
+				for (var i = 0; i < tocLinks.length; i++) {
+					tocLinks[i].addEventListener('click', tocEntryClick, false);
+				}
+				
+				if (window.name == "hideTOC") {
+					toggleTOC.call(tocButton);
+				}
+			}
+			
+			window.onload = init;
+			
+			// If showing in Xcode, hide the TOC and Header
+			if (navigator.userAgent.match(/xcode/i)) {
+				document.getElementById("contents").className = "hideInXcode"
+				document.getElementById("tocContainer").className = "hideInXcode"
+				document.getElementById("top_header").className = "hideInXcode"
+			}
+			
+		</script>
+	</body>
+</html>

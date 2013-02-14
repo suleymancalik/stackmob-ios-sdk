@@ -36,7 +36,7 @@
 						
 						<h1>Welcome to the docs for the StackMob iOS SDK!</h1>
 
-<h3>Current Version: 1.2.0</h3>
+<h3>Current Version: 1.3.0</h3>
 
 <h3>Jump To:</h3>
 
@@ -207,7 +207,7 @@ self.managedObjectContext = [coreDataStore contextForCurrentThread];
 
 <h3>Caching System</h3>
 
-<p>Included with version 1.2.0+ of the SDK is a caching system built in to the Core Data Integration to allow for local fetching of objects which have previously been fetched from the server.  See the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html">SMCoreDataStore class reference</a> for details on how to turn on the cache, set the cache policy, manually purge the cache, etc.</p>
+<p>Included with version 1.3.0+ of the SDK is a caching system built in to the Core Data Integration to allow for local fetching of objects which have previously been fetched from the server.  See the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html">SMCoreDataStore class reference</a> for details on how to turn on the cache, set the cache policy, manually purge the cache, etc.</p>
 
 <br/>
 
@@ -327,7 +327,7 @@ self.managedObjectContext = [coreDataStore contextForCurrentThread];
 <li><p><strong>NSManagedObject Subclasses:</strong> Creating an NSManagedObject subclass for each of your entities is highly recommended for convenience. You can add an init method to each subclass and include the ID assignment line from above &ndash; then you don&rsquo;t have to remember to do it each time you create a new object!</p></li>
 <li><strong>SMUserManagedObject Subclasses:</strong> After creating an NSManagedObject subclass for an entity that maps to a user object on StackMob, change the inherited class to SMUserManagedObject.  This class will give you a method to securely set a password for the user object, without directly setting any attributes in Core Data.  It is important to make sure you initialize an SMUserManagedObject instance properly.</li>
 <li><strong>Create and Save Objects Before Relating Them:</strong>  Before saving updated objects and depending on the merge policy, Core Data will grab persistent values from the server to compare against.  Problems arise when a relationship is updated with an object that hasn&rsquo;t been saved on the server yet.  To play it safe, try to create and save objects before relating them to one another.</li>
-<li><p><strong>Working With NSDate Attributes:</strong> As of v1.2.0, NSDate attribute values are serialized to the StackMob server as integers in ms.  Declare the fields on StackMob as Integer.  By keeping consistency with the way the auto-generated <strong>createddate</strong> and <strong>lastmoddate</strong> fields are stored (ms), NSDate attributes for them will be deserialized correctly.</p>
+<li><p><strong>Working With NSDate Attributes:</strong> As of v1.3.0, NSDate attribute values are serialized to the StackMob server as integers in ms.  Declare the fields on StackMob as Integer.  By keeping consistency with the way the auto-generated <strong>createddate</strong> and <strong>lastmoddate</strong> fields are stored (ms), NSDate attributes for them will be deserialized correctly.</p>
 
 <p> If you want to check if one date is equal to another, use the <i>timeIntervalSinceDate:</i> method.  Dates being equal is equivalent to the time interval being &lt; 1.  Using methods like <i>isEqualToDate:</i> track sub-second differences between dates, which are not present in the serialized integers.  Here&rsquo;s an example of how to check if two dates are equal:</p>
 
@@ -346,13 +346,15 @@ self.managedObjectContext = [coreDataStore contextForCurrentThread];
 
 <ul>
 <li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html">SMClient</a> &ndash; Gives you access to everything you need to communicate with StackMob.</li>
-<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html">SMCoreDataStore</a> &ndash;  Gives you access to configured NSManagedObjectContext instances to communicate with StackMob directly through Core Data.  Includes the necessary methods for interacting with the cache.</li>
+<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html">SMCoreDataStore</a> &ndash;  Gives you access to configured <code>NSManagedObjectContext</code> instances to communicate with StackMob directly through Core Data.  Includes the necessary methods for interacting with the cache.</li>
 <li><a href="http://stackmob.github.com/stackmob-ios-sdk/Categories/NSManagedObjectContext+Concurrency.html">NSManagedObjectContext+Concurrency</a> &ndash; Provides methods to save and fetch in the background.</li>
 <li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html">SMDataStore</a> &ndash; Gives you access to make direct REST-based calls to StackMob.</li>
-<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMRequestOptions.html">SMRequestOptions</a> &ndash; When making direct calls to StackMob, an instance of SMRequestOptions gives you request configuration options.</li>
-<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMUserManagedObject.html">SMUserManagedObject</a> &ndash; The managed object subclass that defines your users should inherit from SMUserManagedObject.</li>
+<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMRequestOptions.html">SMRequestOptions</a> &ndash; When making direct calls to StackMob, an instance of <code>SMRequestOptions</code> gives you request configuration options.</li>
+<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMUserManagedObject.html">SMUserManagedObject</a> &ndash; The managed object subclass that defines your users should inherit from <code>SMUserManagedObject</code>.</li>
 <li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCustomCodeRequest.html">SMCustomCodeRequest</a> &ndash; Starting place for making custom code calls.</li>
-<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMBinaryDataConversion.html">SMBinaryDataConversion</a> &ndash; Convert NSData to NSString for persisting to a field on StackMob with type Binary Data (s3 Integration).</li>
+<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMBinaryDataConversion.html">SMBinaryDataConversion</a> &ndash; Convert <code>NSData</code> to <code>NSString</code> for persisting to a field on StackMob with type Binary Data (s3 Integration).</li>
+<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMGeoPoint.html">SMGeoPoint</a> &ndash; Helper class for working with Geo Points with StackMob.</li>
+<li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMLocationManager.html">SMLocationManager</a> &ndash; Abstracts the boiler plate code of <code>CLLocationManager</code> used in retrieving geo data from the device.</li>
 <li><a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMPushClient.html">SMPushClient</a> &ndash; Guide to sending push notifications.</li>
 <li><a href="http://stackmob.github.com/stackmob-ios-sdk/ErrorCodeTranslations.html">Error Code Translations</a> &ndash; A copy of what&rsquo;s listed in <code>SMError</code>, this shows all the readable typedefs for specific error codes.</li>
 </ul>
@@ -402,11 +404,17 @@ self.managedObjectContext = [coreDataStore contextForCurrentThread];
 							
 							<li><a href="Classes/SMDataStore.html">SMDataStore</a></li>
 							
+							<li><a href="Classes/SMGeoPoint.html">SMGeoPoint</a></li>
+							
 							<li><a href="Classes/SMIncrementalStore.html">SMIncrementalStore</a></li>
+							
+							<li><a href="Classes/SMLocationManager.html">SMLocationManager</a></li>
 							
 							<li><a href="Classes/SMNetworkReachability.html">SMNetworkReachability</a></li>
 							
 							<li><a href="Classes/SMOAuth2Client.html">SMOAuth2Client</a></li>
+							
+							<li><a href="Classes/SMPredicate.html">SMPredicate</a></li>
 							
 							<li><a href="Classes/SMPushClient.html">SMPushClient</a></li>
 							
@@ -437,6 +445,8 @@ self.managedObjectContext = [coreDataStore contextForCurrentThread];
 							
 							<li><a href="Categories/NSDictionary+AtomicCounter.html">NSDictionary(AtomicCounter)</a></li>
 							
+							<li><a href="Categories/NSDictionary+GeoPoint.html">NSDictionary(GeoPoint)</a></li>
+							
 							<li><a href="Categories/NSEntityDescription+StackMobSerialization.html">NSEntityDescription(StackMobSerialization)</a></li>
 							
 							<li><a href="Categories/NSManagedObject+StackMobSerialization.html">NSManagedObject(StackMobSerialization)</a></li>
@@ -460,7 +470,7 @@ self.managedObjectContext = [coreDataStore contextForCurrentThread];
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-01-25)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-02-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						
