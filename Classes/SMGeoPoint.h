@@ -20,21 +20,64 @@
 
 
 /**
- This category provides helper methods to get the latitude and longitude from a GeoPoint dictionary. 
+ Category on `NSDictionary` which provides helper methods to get the latitude and longitude from a GeoPoint. 
  */
 @interface NSDictionary (GeoPoint)
 
+/**
+ Return the latitude.
+ 
+ @return An `NSNumber` representing the latitude of the GeoPoint.
+ */
 - (NSNumber *)latitude;
+
+/**
+ Return the longitude.
+ 
+ @return An `NSNumber` representing the longitude of the GeoPoint.
+ */
 - (NSNumber *)longitude;
 
 @end
 
 /**
- `SMGeoPoint` is a subclass of `NSDictionary`, with helper methods to build GeoPoint dictionaries that are specific to the StackMob API.
+ `SMGeoPoint` is a subclass of `NSDictionary`, with helper methods to build geo point dictionaries that are specific to the StackMob API.
  
- ## Using SMGeoPoint ##
+ The [NSDictionary+GeoPoint](http://stackmob.github.com/stackmob-ios-sdk/Categories/NSDictionary+GeoPoint.html) category provides the methods to retrieve the latitude and longitude from the GeoPoint.
  
- You can make an SMGeoPoint with a latitude and a longitude:
+ **Important:** GeoPoint data types are not inferred by StackMob. Make sure your configure the proper fields beforehand on the <a href="https://dashboard.stackmob.com/" target="_blank">StackMob dashboard</a>.
+ 
+ ## Using SMGeoPoint with Core Data ##
+ 
+ GeoPoints are stored in Core Data using the `Transformable` attribute type. To save an `SMGeoPoint` in Core Data, it must be archived into `NSData`:
+ 
+    NSNumber *lat = [NSNumber numberWithDouble:37.77215879638275];
+    NSNumber *lon = [NSNumber numberWithDouble:-122.4064476357965];
+ 
+    SMGeoPoint *location = [SMGeoPoint geoPointWithLatitude:lat longitude:lon];
+ 
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:location];
+ 
+ To query using SMGeoPoint, use the special predicate methods provided by the [SMPredicate](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMPredicate.html) class:
+ 
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"EntityName"];
+ 
+    // Fisherman's Wharf
+    CLLocationCoordinate2D coordinate;
+    coordinate.latitude = 37.810317;
+    coordinate.longitude = -122.418167;
+ 
+    SMGeoPoint *geoPoint = [SMGeoPoint geoPointWithCoordinate:coordinate];
+    SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5 milesOfGeoPoint:geoPoint];
+    [fetchRequest setPredicate:predicate];
+ 
+    // Execute fetch request
+ 
+ **Important:** Fetching from the cache using `SMPredicate` is not supported, and will return an empty array of results. Similarly, when a fetch is performed from the network (StackMob), any results are not cached.
+ 
+ ## Using SMGeoPoint with the Datastore API ##
+ 
+ You can make an `SMGeoPoint` with a latitude and a longitude:
  
     NSNumber *lat = [NSNumber numberWithDouble:37.77215879638275];
     NSNumber *lon = [NSNumber numberWithDouble:-122.4064476357965];
@@ -62,37 +105,12 @@
         NSLog(@"Error creating object: %@", theError);
     }];
  
- **Important:** Make sure you configure the proper fields in your schema with the GeoPoint type.
- 
- ## Using SMGeoPoint with Core Data ##
- 
- GeoPoints are stored in Core Data using the NSTransformable type. To save an SMGeoPoint in Core Data, it must be archived into NSData:
- 
-     NSNumber *lat = [NSNumber numberWithDouble:37.77215879638275];
-     NSNumber *lon = [NSNumber numberWithDouble:-122.4064476357965];
-     
-     SMGeoPoint *location = [SMGeoPoint geoPointWithLatitude:lat longitude:lon];
-     
-     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:location];
- 
- To query with SMGeoPoints, use the special predicate methods provided by the [SMPredicate](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMPredicate.html) class:
- 
-     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"EntityName"];
-     
-     // Fisherman's Wharf
-     CLLocationCoordinate2D coordinate;
-     coordinate.latitude = 37.810317;
-     coordinate.longitude = -122.418167;
-     
-     SMGeoPoint *geoPoint = [SMGeoPoint geoPointWithCoordinate:coordinate];
-     SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5 milesOfGeoPoint:geoPoint];
-     [fetchRequest setPredicate:predicate];
- 
-     // Execute fetch request
- 
- @note Fetching from the cache using `SMPredicate` is not supported, and will return an empty array of results. Similarly, when a fetch is performed from the network (StackMob), any results are not cached.
  */
 @interface SMGeoPoint : NSDictionary
+
+///-------------------------------
+/// @name Creating an SMGeoPoint
+///-------------------------------
 
 /**
  Returns an instance of `SMGeoPoint` with the latitude and longitude provided.
@@ -112,6 +130,10 @@
  @return An instance of `SMGeoPoint`, for use as an attribute or as part of a query.
  */
 + (SMGeoPoint *)geoPointWithCoordinate:(CLLocationCoordinate2D)coordinate;
+
+///-------------------------------
+/// @name Retrieving the Current Location
+///-------------------------------
 
 /**
  Returns an instance of `SMGeoPoint` with coordinates provided by `SMLocationManager`

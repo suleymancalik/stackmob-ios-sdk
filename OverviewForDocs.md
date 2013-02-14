@@ -248,15 +248,15 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 <a name="commonly_used_classes">&nbsp;</a>
 ## Commonly Used Classes
 * [SMClient](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html) - Gives you access to everything you need to communicate with StackMob.
-* [SMCoreDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) -  Gives you access to configured NSManagedObjectContext instances to communicate with StackMob directly through Core Data.  Includes the necessary methods for interacting with the cache.
+* [SMCoreDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) -  Gives you access to configured `NSManagedObjectContext` instances to communicate with StackMob directly through Core Data.  Includes the necessary methods for interacting with the cache.
 * [NSManagedObjectContext+Concurrency](http://stackmob.github.com/stackmob-ios-sdk/Categories/NSManagedObjectContext+Concurrency.html) - Provides methods to save and fetch in the background.
 * [SMDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html) - Gives you access to make direct REST-based calls to StackMob.
-* [SMRequestOptions](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMRequestOptions.html) - When making direct calls to StackMob, an instance of SMRequestOptions gives you request configuration options.
-* [SMUserManagedObject](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMUserManagedObject.html) - The managed object subclass that defines your users should inherit from SMUserManagedObject.  
+* [SMRequestOptions](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMRequestOptions.html) - When making direct calls to StackMob, an instance of `SMRequestOptions` gives you request configuration options.
+* [SMUserManagedObject](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMUserManagedObject.html) - The managed object subclass that defines your users should inherit from `SMUserManagedObject`.  
 * [SMCustomCodeRequest](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCustomCodeRequest.html) - Starting place for making custom code calls.
-* [SMBinaryDataConversion](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMBinaryDataConversion.html) - Convert NSData to NSString for persisting to a field on StackMob with type Binary Data (s3 Integration).
+* [SMBinaryDataConversion](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMBinaryDataConversion.html) - Convert `NSData` to `NSString` for persisting to a field on StackMob with type Binary Data (s3 Integration).
 * [SMGeoPoint](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMGeoPoint.html) - Helper class for working with Geo Points with StackMob.
-* [SMLocationManager](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMLocationManager.html) - Abstracts the boiler plate code of CLLocationManager used in retrieving geo data from the device.
+* [SMLocationManager](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMLocationManager.html) - Abstracts the boiler plate code of `CLLocationManager` used in retrieving geo data from the device.
 * [SMPushClient](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMPushClient.html) - Guide to sending push notifications.
 * [Error Code Translations](http://stackmob.github.com/stackmob-ios-sdk/ErrorCodeTranslations.html) - A copy of what's listed in `SMError`, this shows all the readable typedefs for specific error codes.
 
