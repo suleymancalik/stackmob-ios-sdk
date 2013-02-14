@@ -373,7 +373,7 @@
 		DE05E14415E2C02200224E4E /* NSDictionary+AtomicCounter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+AtomicCounter.m"; sourceTree = "<group>"; };
 		DE05E14915E2C02200224E4E /* SMBinaryDataConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMBinaryDataConversion.h; sourceTree = "<group>"; };
 		DE05E14A15E2C02200224E4E /* SMBinaryDataConversion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMBinaryDataConversion.m; sourceTree = "<group>"; };
-		DE05E14B15E2C02200224E4E /* SMClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SMClient.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		DE05E14B15E2C02200224E4E /* SMClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SMClient.h; sourceTree = "<group>"; };
 		DE05E14C15E2C02200224E4E /* SMClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMClient.m; sourceTree = "<group>"; };
 		DE05E14D15E2C02200224E4E /* SMCustomCodeRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMCustomCodeRequest.h; sourceTree = "<group>"; };
 		DE05E14E15E2C02200224E4E /* SMCustomCodeRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMCustomCodeRequest.m; sourceTree = "<group>"; };
