@@ -106,7 +106,7 @@
             }
             else {
                 dispatch_async(failureCallbackQueue, ^{
-                    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:NSLocalizedString(@"SMLocationManager failed to retrieve lat/lon after 3 attempts", nil) forKey:NSLocalizedFailureReasonErrorKey];
+                    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:NSLocalizedString(@"SMLocationManager failed to retrieve lat/lon after 3 attempts", nil) forKey:NSLocalizedDescriptionKey];
                     NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorLocationManagerFailed userInfo:userInfo];
                     failureBlock(error);
                 });
