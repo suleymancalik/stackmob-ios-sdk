@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,3 +40,5 @@
 #import "NSManagedObjectContext+Concurrency.h"
 #import "AFHTTPClient+StackMob.h"
 #import "SMIncrementalStore+Query.h"
+#import "SMPredicate.h"
+#import "SMGeoPoint.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,15 @@ typedef void (^AFCompletionBlock)(void);
     }];
     
     for (AFHTTPRequestOperation *operation in operations) {
+#if _IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_5_1
+        __weak typeof (operation) weakOperation = operation;
+#else
+        __block typeof(operation) weakOperation = operation;
+#endif
+        
         AFCompletionBlock originalCompletionBlock = [operation.completionBlock copy];
         operation.completionBlock = ^{
-            dispatch_queue_t queue = operation.successCallbackQueue ?: dispatch_get_main_queue();
+            dispatch_queue_t queue = weakOperation.successCallbackQueue ?: dispatch_get_main_queue();
             dispatch_group_async(dispatchGroup, queue, ^{
                 if (originalCompletionBlock) {
                     originalCompletionBlock();

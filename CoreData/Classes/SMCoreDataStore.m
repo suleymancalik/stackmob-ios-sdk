@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ BOOL SM_CACHE_ENABLED = NO;
 @synthesize defaultMergePolicy = _defaultMergePolicy;
 @synthesize cachePurgeQueue = _cachePurgeQueue;
 @synthesize cachePolicy = _cachePolicy;
+@synthesize globalRequestOptions = _globalRequestOptions;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
@@ -56,6 +57,8 @@ BOOL SM_CACHE_ENABLED = NO;
         _defaultMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
         self.cachePurgeQueue = dispatch_queue_create("Purge Cache Of Object Queue", NULL);
         [self setCachePolicy:SMCachePolicyTryNetworkOnly];
+        
+        self.globalRequestOptions = [SMRequestOptions options];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveSetCachePolicyNotification:) name:SMSetCachePolicyNotification object:self.session.networkMonitor];
     }

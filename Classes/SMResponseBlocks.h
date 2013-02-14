@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 
 @class SMRequestOptions;
+@class SMGeoPoint;
 
 /**
  A success block that returns nothing.
@@ -35,6 +36,11 @@ typedef void (^SMResultsSuccessBlock)(NSArray *results);
  The block parameters expected for any failure response.
  */
 typedef void (^SMFailureBlock)(NSError *error);
+
+/**
+ The block parameters expected for a success response which returns an `SMGeoPoint`.
+ */
+typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint);
 
 /**
  The block parameters expected for a success response that needs the raw request, response, and JSON result.

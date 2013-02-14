@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,11 @@
         self.userPasswordField = userPasswordField;
         self.refreshing = NO;
         
-        self.oauthStorageKey = [NSString stringWithFormat:@"%@.%@.oauth", [[NSBundle bundleForClass:[self class]] bundleIdentifier], publicKey];
+        NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+        if (!applicationName) {
+            applicationName = @"nil";
+        }
+        self.oauthStorageKey = [NSString stringWithFormat:@"%@.%@.oauth", applicationName, publicKey];
         [self saveAccessTokenInfo:[[NSUserDefaults standardUserDefaults] dictionaryForKey:self.oauthStorageKey]];
         
         [self SMReadUserIdentifierMap];
@@ -93,6 +97,7 @@
 {
     [self saveAccessTokenInfo:nil];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:self.oauthStorageKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (id)oauthClientWithHTTPS:(BOOL)https
@@ -155,7 +160,7 @@
                 NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
                 failureBlock(networkNotReachableError);
             } else {
-                int statusCode = response.statusCode;
+                int statusCode = (int)response.statusCode;
                 NSString *domain = HTTPErrorDomain;
                 if ([[JSON valueForKey:@"error_description"] isEqualToString:@"Temporary password reset required."]) {
                     statusCode = SMErrorTemporaryPasswordResetRequired;
@@ -183,6 +188,7 @@
     [resultsToSave setObject:expirationDate forKey:EXPIRES_IN];
     [self saveAccessTokenInfo:resultsToSave];
     [[NSUserDefaults standardUserDefaults] setObject:resultsToSave forKey:self.oauthStorageKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
     return [[result valueForKey:@"stackmob"] valueForKey:@"user"];
 }
 
@@ -278,7 +284,7 @@
                                               errorDescription:&errorDesc];
         
         if (!temp) {
-            [NSException raise:SMExceptionCacheError format:@"Error reading user identifier: %@, format: %d", errorDesc, format];
+            [NSException raise:SMExceptionCacheError format:@"Error reading user identifier: %@, format: %d", errorDesc, (int)format];
         } else {
             self.userIdentifierMap = [temp mutableCopy];
         }

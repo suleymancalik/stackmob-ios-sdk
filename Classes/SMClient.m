@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -532,6 +532,32 @@ static SMClient *defaultClient = nil;
             failureBlock(theError);
         }
     }];
+}
+
+- (void)loginWithGigyaUserDictionary:(NSDictionary *)gsUser onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    NSString *uid = [gsUser objectForKey:@"UID"];
+    NSString *uidSignature = [gsUser objectForKey:@"UIDSignature"];
+    NSString *timestamp = [gsUser objectForKey:@"signatureTimestamp"];
+    [self loginWithGigyaUID:uid uidSignature:uidSignature signatureTimestamp:timestamp onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)loginWithGigyaUID:(NSString *)uid uidSignature:(NSString *)uidSignature signatureTimestamp:(NSString *)signatureTimestamp onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    [self loginWithGigyaUID:uid uidSignature:uidSignature signatureTimestamp:signatureTimestamp options:[SMRequestOptions options] onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)loginWithGigyaUID:(NSString *)uid uidSignature:(NSString *)uidSignature signatureTimestamp:(NSString *)signatureTimestamp options:(SMRequestOptions *)options onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    if (uid == nil || uidSignature == nil || signatureTimestamp == nil) {
+        if (failureBlock) {
+            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Nil argument(s) provided.", NSLocalizedDescriptionKey, nil]];
+            failureBlock(error);
+        }
+    } else {
+        NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:uid, @"gigya_uid", uidSignature, @"gigya_sig", signatureTimestamp, @"gigya_ts", nil];
+        [self.session doTokenRequestWithEndpoint:@"gigyaAccessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
+    }
 }
 
 @end
