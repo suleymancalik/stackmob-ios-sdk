@@ -170,4 +170,37 @@ void synchronousQuery(SMDataStore *sm, SMQuery *query, SynchronousQueryBlock blo
     [_insertedObjects removeObjectForKey:fixtureName];
 }
 
++ (BOOL)createUser:(NSString *)username password:(NSString *)password dataStore:(SMDataStore *)dataStore
+{
+    __block BOOL createSuccess = NO;
+    __block NSDictionary *createObjectDict = [NSDictionary dictionaryWithObjectsAndKeys:username, @"username", password, @"password", @"value", @"randomfield", nil];
+    syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+        [dataStore createObject:createObjectDict inSchema:@"user" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+            createSuccess = YES;
+            syncReturn(semaphore);
+        } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+            createSuccess = (theError.code == 409);
+            syncReturn(semaphore);
+        }];
+    });
+    
+    return createSuccess;
+}
+
++ (BOOL)deleteUser:(NSString *)username dataStore:(SMDataStore *)dataStore
+{
+    __block BOOL deleteSuccess = NO;
+    syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+        [dataStore deleteObjectId:username inSchema:@"user" onSuccess:^(NSString *theObjectId, NSString *schema) {
+            deleteSuccess = YES;
+            syncReturn(semaphore);
+        } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+            deleteSuccess = NO;
+            syncReturn(semaphore);
+        }];
+    });
+    
+    return deleteSuccess;
+}
+
 @end

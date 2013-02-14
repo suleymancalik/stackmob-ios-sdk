@@ -60,7 +60,7 @@
         [requestParametersCopy setObject:@"true"
                                   forKey:CONCAT(field, @"[null]")];
     } else {
-        [requestParametersCopy setObject:value 
+        [requestParametersCopy setObject:[self marshalValue:value] 
                                   forKey:field];
     }
     self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
@@ -73,7 +73,7 @@
         [requestParametersCopy setObject:@"false"
                                   forKey:CONCAT(field, @"[null]")];
     } else {
-        [requestParametersCopy setObject:value
+        [requestParametersCopy setObject:[self marshalValue:value]
                                   forKey:CONCAT(field, @"[ne]")];
     }
     self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
@@ -82,7 +82,7 @@
 - (void)where:(NSString *)field isLessThan:(id)value
 {
     NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
-    [requestParametersCopy setObject:value
+    [requestParametersCopy setObject:[self marshalValue:value]
                               forKey:CONCAT(field, @"[lt]")];
     self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
@@ -90,7 +90,7 @@
 - (void)where:(NSString *)field isLessThanOrEqualTo:(id)value
 {
     NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
-    [requestParametersCopy setObject:value
+    [requestParametersCopy setObject:[self marshalValue:value]
                               forKey:CONCAT(field, @"[lte]")];
     self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
@@ -98,7 +98,7 @@
 - (void)where:(NSString *)field isGreaterThan:(id)value
 {
     NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
-    [requestParametersCopy setObject:value
+    [requestParametersCopy setObject:[self marshalValue:value]
                               forKey:CONCAT(field, @"[gt]")];
     self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
@@ -106,7 +106,7 @@
 - (void)where:(NSString *)field isGreaterThanOrEqualTo:(id)value
 {
     NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
-    [requestParametersCopy setObject:value
+    [requestParametersCopy setObject:[self marshalValue:value]
                               forKey:CONCAT(field, @"[gte]")];
     self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
 }
@@ -239,6 +239,18 @@
     [requestHeadersCopy setObject:orderByHeader forKey:@"X-StackMob-OrderBy"];
     
     self.requestHeaders = [NSDictionary dictionaryWithDictionary:requestHeadersCopy];
+}
+
+- (id)marshalValue:(id)value {
+    
+    if ([value isKindOfClass:[NSDate class]]) {
+        
+        unsigned long long convertedValue = (unsigned long long)[value timeIntervalSince1970] * 1000;
+        
+        return [NSNumber numberWithUnsignedLongLong:convertedValue];
+    }
+    
+    return value;
 }
 
 @end

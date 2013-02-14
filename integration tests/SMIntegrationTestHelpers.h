@@ -42,4 +42,7 @@
 + (NSArray *)loadFixture:(NSString *)fixtureName; 
 + (void)destroyFixture:(NSString *)fixtureName;
 
++ (BOOL)createUser:(NSString *)username password:(NSString *)password dataStore:(SMDataStore *)dataStore;
++ (BOOL)deleteUser:(NSString *)username dataStore:(SMDataStore *)dataStore;
+
 @end

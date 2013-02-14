@@ -41,6 +41,9 @@ describe(@"with a prepopulated database of people", ^{
         });
         client = [SMIntegrationTestHelpers defaultClient];
         sm = [client dataStore];
+        // create object to login with, assumes user object name with username/password fields
+        BOOL createSuccess = [SMIntegrationTestHelpers createUser:@"dude" password:@"sweet" dataStore:client.dataStore];
+        [[theValue(createSuccess) should] beYes];
         
         // Log in user
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
@@ -68,6 +71,9 @@ describe(@"with a prepopulated database of people", ^{
                 syncReturn(semaphore);
             }];
         });
+        
+        BOOL deleteSuccess = [SMIntegrationTestHelpers deleteUser:@"dude" dataStore:client.dataStore];
+        [[theValue(deleteSuccess) should] beYes];
         
     });
     

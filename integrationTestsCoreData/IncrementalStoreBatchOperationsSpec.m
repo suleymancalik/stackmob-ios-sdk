@@ -239,6 +239,8 @@ describe(@"401s requiring logins", ^{
         cds = [client coreDataStoreWithManagedObjectModel:mom];
         moc = [cds contextForCurrentThread];
         
+        [SMIntegrationTestHelpers createUser:@"dude" password:@"sweet" dataStore:client.dataStore];
+        
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [client loginWithUsername:@"dude" password:@"sweet" onSuccess:^(NSDictionary *result) {
                 NSLog(@"logged in, %@", result);
@@ -264,6 +266,8 @@ describe(@"401s requiring logins", ^{
                 }];
             });
         }
+        
+        [SMIntegrationTestHelpers deleteUser:@"dude" dataStore:client.dataStore];
     });
     it(@"After successful refresh, should send out requests again", ^{
         
@@ -346,12 +350,14 @@ describe(@"With 401s and other errors", ^{
         cds = [client coreDataStoreWithManagedObjectModel:mom];
         moc = [cds contextForCurrentThread];
         
+        [SMIntegrationTestHelpers createUser:@"dude" password:@"sweet" dataStore:client.dataStore];
+        
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [client loginWithUsername:@"dude" password:@"sweet" onSuccess:^(NSDictionary *result) {
                 NSLog(@"logged in, %@", result);
                 syncReturn(semaphore);
             } onFailure:^(NSError *error) {
-                [error shouldNotBeNil];
+                [error shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -388,6 +394,8 @@ describe(@"With 401s and other errors", ^{
                 }];
             });
         }
+        
+        [SMIntegrationTestHelpers deleteUser:@"dude" dataStore:client.dataStore];
         
     });
     it(@"Only 401s should be refreshed if possible", ^{

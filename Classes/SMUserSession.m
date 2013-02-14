@@ -73,7 +73,11 @@
         self.userPasswordField = userPasswordField;
         self.refreshing = NO;
         
-        self.oauthStorageKey = [NSString stringWithFormat:@"%@.%@.oauth", [[NSBundle bundleForClass:[self class]] bundleIdentifier], publicKey];
+        NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+        if (!applicationName) {
+            applicationName = @"nil";
+        }
+        self.oauthStorageKey = [NSString stringWithFormat:@"%@.%@.oauth", applicationName, publicKey];
         [self saveAccessTokenInfo:[[NSUserDefaults standardUserDefaults] dictionaryForKey:self.oauthStorageKey]];
         
         [self SMReadUserIdentifierMap];
@@ -93,6 +97,7 @@
 {
     [self saveAccessTokenInfo:nil];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:self.oauthStorageKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (id)oauthClientWithHTTPS:(BOOL)https

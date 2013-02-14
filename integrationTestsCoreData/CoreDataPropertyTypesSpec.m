@@ -77,16 +77,30 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
                 DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
             }
-            NSLog(@"results is %@", results);
             [[theValue([results count]) should] equal:theValue(1)];
-            NSDate *firstDate = [[results objectAtIndex:0] valueForKey:@"time"];
-            NSDate *secondDate = date;
-            [firstDate isEqualToDate:secondDate] ? NSLog(@"dates are equal") : NSLog(@"dates are not equal");
-            [firstDate timeIntervalSince1970] == [secondDate timeIntervalSince1970] ? NSLog(@"dates intervals are equal") : NSLog(@"dates intervals are not equal");
-            if ([[[results objectAtIndex:0] valueForKey:@"time"] isEqualToDate:date]) {
-                NSLog(@"dates are equal");
-            }
             [[theValue([[[results objectAtIndex:0] valueForKey:@"time"] timeIntervalSinceDate:date]) should] beLessThan:theValue(1)];
+        }];
+    });
+    it(@"Will successfully read with NSDate in the predicate", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+        }];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        [fetchRequest setEntity:entity];
+        
+        [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"time == %@", date]];
+        
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
+            if (error != nil) {
+                DLog(@"Error userInfo is %@", [error userInfo]);
+                [error shouldBeNil];
+            }
+            [[theValue([results count]) should] equal:theValue(1)];
         }];
     });
     it(@"Will save and read without error after update", ^{

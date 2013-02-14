@@ -277,7 +277,7 @@
     } 
     else {
         SMFullResponseFailureBlock retryBlock = ^(NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
-            if ([response statusCode] == SMErrorUnauthorized && options.tryRefreshToken) {
+            if ([response statusCode] == SMErrorUnauthorized && options.tryRefreshToken && self.session.refreshToken != nil) {
                 [self refreshAndRetry:originalRequest originalError:[self errorFromResponse:response JSON:JSON] requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
             } else if ([response statusCode] == SMErrorServiceUnavailable && options.numberOfRetries > 0) {
                 NSString *retryAfter = [[response allHeaderFields] valueForKey:@"Retry-After"];
