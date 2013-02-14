@@ -34,9 +34,9 @@ typedef enum {
 } SMPredicateOperatorType;
 
 /**
- `SMPredicate` is a subclass of NSPredicate, with additional methods to build predicates that are specific to the StackMob API.  
+ `SMPredicate` is a subclass of `NSPredicate`, with additional methods to build predicates that are specific to the StackMob API.  
  
- **Important:** Fetching from the cache using SMPredicate is not supported, and will return an empty array of results.
+ **Important:** Fetching from the cache using `SMPredicate` is not supported, and will return an empty array of results. Similarly, when a fetch is performed from the network (StackMob), any results are not cached.
  
  
  ## References ##

@@ -41,7 +41,9 @@
  
  When you are finished, tell the location manager to stop listening for GPS updates.
  
- [[[SMLocationManager sharedInstance] locationManager] stopUpdatingLocation];
+    [[[SMLocationManager sharedInstance] locationManager] stopUpdatingLocation];
+ 
+ ## Manually Pulling the Latitude and Longitude ##
  
  If you wish to pull the latitude and longitude data manually from the location manager, do so with the following:
  
