@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.platform = :ios, '5.0'
   s.source_files = 'Classes/*.{h,m}', 'Utility/*.{h,m}', 'CoreData/Classes/*.{h,m}', 'Push/*.{h,m}'
   s.dependency 'AFNetworking', '1.0'
-  s.frameworks = 'CoreData', 'Security', 'SystemConfiguration', 'MobileCoreServices'
+  s.frameworks = 'CoreData', 'CoreLocation', 'Security', 'SystemConfiguration', 'MobileCoreServices'
   s.requires_arc = true
   s.documentation = {
   	:appledoc => [
