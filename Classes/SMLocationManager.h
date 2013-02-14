@@ -17,11 +17,13 @@
 #import <CoreLocation/CoreLocation.h>
 
 /**
- `SMLocationManager` provides a `CLLocationManager` singleton. 
+ SMLocationManager is a built-in `CLLocationManager` singleton for use in retrieving `CLLocationCoordinate2D` points. 
+ 
+ Many apps make use of geo location data; `SMLocationManager` aides in this process by eliminating the boilerplate code needed to build a `CLLocationManager` singleton.
  
  ## Using SMLocationManager ##
  
- SMLocationManager is a built-in `CLLocationManager` singleton for use in retrieving `CLLocationCoordinate2D` points. Many apps make use of geo location data; `SMLocationManager` aides in this process by eliminating the boilerplate code needed to build a `CLLocationManager` singleton.
+ First, import the class where needed: `#import "SMLocationManager.h"`.
  
  To start retrieving data, first prompt `SMLocationManager` to start listening for updates from the GPS:
  
