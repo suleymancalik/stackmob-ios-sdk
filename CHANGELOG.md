@@ -4,7 +4,7 @@
 
 **Features**
 
-* Support for saving and querying geo points through the Core Data integration.
+* Support for saving and querying geo points through the Core Data integration.  Be sure to include the `CoreLocation` framework in your project.
 * `SMGeoPoint` class for easily working with geo points through StackMob.
 * `SMLocationManager` class for abstracting out `CLLocationManager` boiler plate code when working with geo data.
 * Save and Fetch methods with `SMRequestOptions` parameter (options) to allow for custom options per Core Data request - See `NSManagedObjectContext+Concurrency.h` for method details.

@@ -1,6 +1,6 @@
 # Welcome to the docs for the StackMob iOS SDK!
 
-### Current Version: 1.2.0
+### Current Version: 1.3.0
 
 ### Jump To:
 <a href="#overview">Overview</a>
@@ -133,7 +133,7 @@ If you want to make direct REST-based calls to the Datastore, check out the [SMD
 
 ### Caching System
 
-Included with version 1.2.0+ of the SDK is a caching system built in to the Core Data Integration to allow for local fetching of objects which have previously been fetched from the server.  See the [SMCoreDataStore class reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) for details on how to turn on the cache, set the cache policy, manually purge the cache, etc.
+Included with version 1.3.0+ of the SDK is a caching system built in to the Core Data Integration to allow for local fetching of objects which have previously been fetched from the server.  See the [SMCoreDataStore class reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) for details on how to turn on the cache, set the cache policy, manually purge the cache, etc.
 
 <br/>
 
@@ -235,7 +235,7 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 3. **NSManagedObject Subclasses:** Creating an NSManagedObject subclass for each of your entities is highly recommended for convenience. You can add an init method to each subclass and include the ID assignment line from above - then you don't have to remember to do it each time you create a new object!
 4. **SMUserManagedObject Subclasses:** After creating an NSManagedObject subclass for an entity that maps to a user object on StackMob, change the inherited class to SMUserManagedObject.  This class will give you a method to securely set a password for the user object, without directly setting any attributes in Core Data.  It is important to make sure you initialize an SMUserManagedObject instance properly.
 5. **Create and Save Objects Before Relating Them:**  Before saving updated objects and depending on the merge policy, Core Data will grab persistent values from the server to compare against.  Problems arise when a relationship is updated with an object that hasn't been saved on the server yet.  To play it safe, try to create and save objects before relating them to one another. 
-6. **Working With NSDate Attributes:** As of v1.2.0, NSDate attribute values are serialized to the StackMob server as integers in ms.  Declare the fields on StackMob as Integer.  By keeping consistency with the way the auto-generated **createddate** and **lastmoddate** fields are stored (ms), NSDate attributes for them will be deserialized correctly.
+6. **Working With NSDate Attributes:** As of v1.3.0, NSDate attribute values are serialized to the StackMob server as integers in ms.  Declare the fields on StackMob as Integer.  By keeping consistency with the way the auto-generated **createddate** and **lastmoddate** fields are stored (ms), NSDate attributes for them will be deserialized correctly.
 
 	If you want to check if one date is equal to another, use the <i>timeIntervalSinceDate:</i> method.  Dates being equal is equivalent to the time interval being < 1.  Using methods like <i>isEqualToDate:</i> track sub-second differences between dates, which are not present in the serialized integers.  Here's an example of how to check if two dates are equal:
 	
@@ -255,6 +255,8 @@ First, a table of how Core Data, StackMob and regular databases map to each othe
 * [SMUserManagedObject](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMUserManagedObject.html) - The managed object subclass that defines your users should inherit from SMUserManagedObject.  
 * [SMCustomCodeRequest](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCustomCodeRequest.html) - Starting place for making custom code calls.
 * [SMBinaryDataConversion](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMBinaryDataConversion.html) - Convert NSData to NSString for persisting to a field on StackMob with type Binary Data (s3 Integration).
+* [SMGeoPoint](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMGeoPoint.html) - Helper class for working with Geo Points with StackMob.
+* [SMLocationManager](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMLocationManager.html) - Abstracts the boiler plate code of CLLocationManager used in retrieving geo data from the device.
 * [SMPushClient](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMPushClient.html) - Guide to sending push notifications.
 * [Error Code Translations](http://stackmob.github.com/stackmob-ios-sdk/ErrorCodeTranslations.html) - A copy of what's listed in `SMError`, this shows all the readable typedefs for specific error codes.
 
