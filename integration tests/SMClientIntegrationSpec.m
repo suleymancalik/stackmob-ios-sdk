@@ -28,36 +28,15 @@ describe(@"basic auth", ^{
     __block BOOL loginFailure = NO;
     __block SMClient *defaultClient = nil;
     beforeEach(^{
-        __block BOOL createSuccess = NO;
         // create object to login with, assumes user object name with username/password fields
         defaultClient = [SMIntegrationTestHelpers defaultClient];
         dataStore = [defaultClient dataStore];
-        __block NSDictionary *createObjectDict = [NSDictionary dictionaryWithObjectsAndKeys:@"bob", @"username", @"1234", @"password", @"value", @"randomfield", nil];
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [dataStore createObject:createObjectDict inSchema:@"user" onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                createSuccess = YES;
-                syncReturn(semaphore);
-            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                createSuccess = (theError.code == 409);
-                syncReturn(semaphore);
-            }];
-        });
-        
+        BOOL createSuccess = [SMIntegrationTestHelpers createUser:@"bob" password:@"1234" dataStore:dataStore];
         [[theValue(createSuccess) should] beYes];
 
     });
     afterEach(^{
-        __block BOOL deleteSuccess = NO;
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [dataStore deleteObjectId:@"bob" inSchema:@"user" onSuccess:^(NSString *theObjectId, NSString *schema) {
-                deleteSuccess = YES;
-                syncReturn(semaphore);
-            } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
-                deleteSuccess = NO;
-                syncReturn(semaphore);
-            }]; 
-        });
-        
+        BOOL deleteSuccess = [SMIntegrationTestHelpers deleteUser:@"bob" dataStore:dataStore];
         [[theValue(deleteSuccess) should] beYes];
     });
     describe(@"being logged in", ^{
@@ -448,9 +427,7 @@ describe(@"basic auth", ^{
             
             [[theValue(getDone) should] beYes];
             [error shouldNotBeNil];
-            [[theValue(error.code) should] equal:[NSNumber numberWithInt:SMErrorRefreshTokenFailed]];
-            NSError *originalError = [[error userInfo] valueForKey:SMOriginalErrorCausingRefreshKey];
-            [[theValue(originalError.code) should] equal:[NSNumber numberWithInt:SMErrorUnauthorized]];
+            [[theValue(error.code) should] equal:[NSNumber numberWithInt:SMErrorUnauthorized]];
         });
         
         it(@"should disallow resetPassword", ^{
@@ -468,9 +445,7 @@ describe(@"basic auth", ^{
             
             [[theValue(getDone) should] beYes];
             [error shouldNotBeNil];
-            [[theValue(error.code) should] equal:[NSNumber numberWithInt:SMErrorRefreshTokenFailed]];
-            NSError *originalError = [[error userInfo] valueForKey:SMOriginalErrorCausingRefreshKey];
-            [[theValue(originalError.code) should] equal:[NSNumber numberWithInt:SMErrorUnauthorized]];
+            [[theValue(error.code) should] equal:[NSNumber numberWithInt:SMErrorUnauthorized]];
         });
         
         it(@"should disallow refreshToken", ^{
@@ -509,25 +484,15 @@ describe(@"basic auth", ^{
 describe(@"forgotPassword", ^{
     __block SMClient *client = nil;
     beforeEach(^{
-        __block BOOL createSuccess = NO;
         // create object to login with, assumes user object name with username/password fields
         client = [SMIntegrationTestHelpers defaultClient];
-        __block NSDictionary *createObjectDict = [NSDictionary dictionaryWithObjectsAndKeys:@"bob", @"username", @"1234", @"password", nil];
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [[client dataStore] createObject:createObjectDict inSchema:@"user" onSuccess:^(NSDictionary *theObject, NSString *schema) {
-                createSuccess = YES;
-                syncReturn(semaphore);
-            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                createSuccess = NO;
-                //createSuccess = (theError.code == 409);
-                syncReturn(semaphore);
-            }];
-        });
+        
+        __block BOOL createSuccess = [SMIntegrationTestHelpers createUser:@"bob" password:@"1234" dataStore:client.dataStore];
         
         [[theValue(createSuccess) should] beYes];
         
         createSuccess = NO;
-        createObjectDict = [NSDictionary dictionaryWithObjectsAndKeys:@"bob", @"username", @"1234", @"password", @"1234", @"email", nil];
+        NSDictionary *createObjectDict = [NSDictionary dictionaryWithObjectsAndKeys:@"bob", @"username", @"1234", @"password", @"1234", @"email", nil];
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [[client dataStore] createObject:createObjectDict inSchema:@"cooluser" onSuccess:^(NSDictionary *theObject, NSString *schema) {
                 createSuccess = YES;
@@ -544,16 +509,7 @@ describe(@"forgotPassword", ^{
         
     });
     afterEach(^{
-        __block BOOL deleteSuccess = NO;
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [[client dataStore] deleteObjectId:@"bob" inSchema:@"user" onSuccess:^(NSString *theObjectId, NSString *schema) {
-                deleteSuccess = YES;
-                syncReturn(semaphore);
-            } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
-                deleteSuccess = NO;
-                syncReturn(semaphore);
-            }]; 
-        });
+        __block BOOL deleteSuccess = [SMIntegrationTestHelpers deleteUser:@"bob" dataStore:client.dataStore];
         
         [[theValue(deleteSuccess) should] beYes];
         
@@ -622,9 +578,16 @@ describe(@"forgotPassword", ^{
 describe(@"authentication with permissions", ^{
     __block SMClient *client = nil;
     __block BOOL readSuccess = NO;
-    beforeEach(^{
+    beforeAll(^{
         client = [SMIntegrationTestHelpers defaultClient];
         readSuccess = NO;
+        BOOL createSuccess = [SMIntegrationTestHelpers createUser:@"dude" password:@"sweet" dataStore:client.dataStore];
+        [[theValue(createSuccess) should] beYes];        
+        
+    });
+    afterAll(^{
+        BOOL deleteSuccess = [SMIntegrationTestHelpers deleteUser:@"dude" dataStore:client.dataStore];
+        [[theValue(deleteSuccess) should] beYes];
     });
     context(@"not logged in", ^{
         it(@"should not allow to read from a schema with permissions set", ^{
@@ -657,6 +620,18 @@ describe(@"authentication with permissions", ^{
                 }];
             });
         });
+        afterEach(^{
+            if (client.isLoggedIn) {
+                syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                    [client logoutOnSuccess:^(NSDictionary *result) {
+                        syncReturn(semaphore);
+                    } onFailure:^(NSError *error) {
+                        [error shouldBeNil];
+                        syncReturn(semaphore);
+                    }];
+                });
+            }
+        });
         it(@"Should allow read from a schema with permissions set", ^{
             SMQuery *query = [[SMQuery alloc] initWithSchema:@"oauth2test"];
             syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
@@ -685,6 +660,13 @@ describe(@"basic login/logout works as it should", ^{
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
         moc = [cds contextForCurrentThread];
+        // create object to login with, assumes user object name with username/password fields
+        BOOL createSuccess = [SMIntegrationTestHelpers createUser:@"dude" password:@"sweet" dataStore:client.dataStore];
+        [[theValue(createSuccess) should] beYes];
+    });
+    afterEach(^{
+        BOOL deleteSuccess = [SMIntegrationTestHelpers deleteUser:@"dude" dataStore:client.dataStore];
+        [[theValue(deleteSuccess) should] beYes];
     });
     it(@"login/logout", ^{
         // login
@@ -692,7 +674,7 @@ describe(@"basic login/logout works as it should", ^{
             [client loginWithUsername:@"dude" password:@"sweet" onSuccess:^(NSDictionary *result) {
                 syncReturn(semaphore);
             } onFailure:^(NSError *error) {
-                [error shouldNotBeNil];
+                [error shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -720,60 +702,5 @@ describe(@"basic login/logout works as it should", ^{
         [[client.session refreshToken] shouldBeNil];
     });
 });
-
-/*
-describe(@"basic login/logout with Gigya", ^{
-    __block SMClient *client = nil;
-    __block SMCoreDataStore *cds = nil;
-    __block NSManagedObjectContext *moc = nil;
-    
-    beforeEach(^{
-        client = [SMIntegrationTestHelpers defaultClient];
-        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
-        cds = [client coreDataStoreWithManagedObjectModel:mom];
-        moc = [cds contextForCurrentThread];
-        
-        [[theValue(client.isLoggedIn) should] beNo];
-        
-    });
-    afterEach(^{
-        [[theValue(client.isLoggedIn) should] beNo];
-    });
-    it(@"login/logout", ^{
-        // login
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            // TODO edit for gigya
-            [client loginWithUsername:@"dude" password:@"sweet" onSuccess:^(NSDictionary *result) {
-                syncReturn(semaphore);
-            } onFailure:^(NSError *error) {
-                [error shouldNotBeNil];
-                syncReturn(semaphore);
-            }];
-        });
-        
-        // check values
-        [[theValue([client isLoggedIn]) should] beYes];
-        [[theValue([client isLoggedOut]) should] beNo];
-        [[client.session refreshToken] shouldNotBeNil];
-        
-        // logout, if logged in
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [client logoutOnSuccess:^(NSDictionary *result) {
-                syncReturn(semaphore);
-            } onFailure:^(NSError *error) {
-                [error shouldNotBeNil];
-                syncReturn(semaphore);
-            }];
-        });
-        
-        // check values
-        [[theValue([client isLoggedIn]) should] beNo];
-        [[theValue([client isLoggedOut]) should] beYes];
-        [[client.session refreshToken] shouldBeNil];
-    });
-});
-*/
-
 
 SPEC_END

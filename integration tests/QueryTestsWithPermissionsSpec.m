@@ -41,6 +41,9 @@ describe(@"with a prepopulated database of people", ^{
         });
         client = [SMIntegrationTestHelpers defaultClient];
         sm = [client dataStore];
+        // create object to login with, assumes user object name with username/password fields
+        BOOL createSuccess = [SMIntegrationTestHelpers createUser:@"dude" password:@"sweet" dataStore:client.dataStore];
+        [[theValue(createSuccess) should] beYes];
         
         // Log in user
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
@@ -68,6 +71,9 @@ describe(@"with a prepopulated database of people", ^{
                 syncReturn(semaphore);
             }];
         });
+        
+        BOOL deleteSuccess = [SMIntegrationTestHelpers deleteUser:@"dude" dataStore:client.dataStore];
+        [[theValue(deleteSuccess) should] beYes];
         
     });
     
@@ -315,6 +321,77 @@ describe(@"with a prepopulated database of people", ^{
             CLLocationCoordinate2D swOfSanRafael = CLLocationCoordinate2DMake(37.933096, -122.575493);
             CLLocationCoordinate2D reno = CLLocationCoordinate2DMake(39.537940, -119.783936);
             [query where:@"location" isWithinBoundsWithSWCorner:swOfSanRafael andNECorner:reno];
+            [query orderByField:@"name" ascending:YES];
+            synchronousQuery(sm, query, ^(NSArray *results) {
+                [[results should] haveCountOf:2];
+                [[[results objectAtIndex:0] should] haveValue:@"Lake Tahoe" forKey:@"name"];
+                [[[results objectAtIndex:1] should] haveValue:@"San Rafael" forKey:@"name"];
+            }, ^(NSError *error){
+                [error shouldBeNil];
+            });
+        });
+    });
+    
+    describe(@"SMGeoPoint", ^{
+        CLLocationCoordinate2D sfCoordinate = CLLocationCoordinate2DMake(37.7750, -122.4183);
+        CLLocationCoordinate2D azerbaijanCoordinate = CLLocationCoordinate2DMake(40.338170, 48.065186);
+        
+        SMGeoPoint *sf = [SMGeoPoint geoPointWithCoordinate:sfCoordinate];
+        SMGeoPoint *azerbaijan = [SMGeoPoint geoPointWithCoordinate:azerbaijanCoordinate];
+        
+        beforeEach(^{
+            query = [[SMQuery alloc] initWithSchema:@"placespermissions"];
+        });
+        describe(@"-where:nearGeoPoint", ^{
+            beforeEach(^{
+                [query where:@"location" nearGeoPoint:sf];
+            });
+            it(@"orders the returned objects by server-inserted field 'location.distance'", ^{
+                synchronousQuery(sm, query, ^(NSArray *results) {
+                    [[results should] haveCountOf:4];
+                    [[[results objectAtIndex:0] should] haveValue:@"San Francisco" forKey:@"name"];
+                    [[[results objectAtIndex:1] should] haveValue:@"San Rafael" forKey:@"name"];
+                    [[[results objectAtIndex:2] should] haveValue:@"Lake Tahoe" forKey:@"name"];
+                    [[[results objectAtIndex:3] should] haveValue:@"Turkmenistan" forKey:@"name"];
+                    [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                        [[(SMGeoPoint *)obj should] haveValueForKeyPath:@"location.distance"];
+                    }];
+                }, ^(NSError *error){
+                    [error shouldBeNil];
+                });
+            });
+        });
+        
+        it(@"-where:isWithin:milesOfGeoPoint", ^{
+            [query where:@"location" isWithin:1000.0 milesOfGeoPoint:azerbaijan];
+            [query orderByField:@"name" ascending:YES];
+            synchronousQuery(sm, query, ^(NSArray *results) {
+                [[results should] haveCountOf:1];
+                [[[results objectAtIndex:0] should] haveValue:@"Turkmenistan" forKey:@"name"];
+            }, ^(NSError *error){
+                [error shouldBeNil];
+            });
+        });
+        it(@"-where:isWithin:kilometersOfGeoPoint", ^{
+            [query where:@"location" isWithin:35.0 kilometersOfGeoPoint:sf];
+            [query orderByField:@"name" ascending:YES];
+            synchronousQuery(sm, query, ^(NSArray *results) {
+                [[results should] haveCountOf:2];
+                [[[results objectAtIndex:0] should] haveValue:@"San Francisco" forKey:@"name"];
+                [[[results objectAtIndex:1] should] haveValue:@"San Rafael" forKey:@"name"];
+            }, ^(NSError *error){
+                [error shouldBeNil];
+            });
+        });
+        
+        it(@"-where:isWithinBoundsWithSWGeoPoint:andNEGeoPoint", ^{
+            CLLocationCoordinate2D swOfSanRafaelCoordinate = CLLocationCoordinate2DMake(37.933096, -122.575493);
+            CLLocationCoordinate2D renoCoordinate = CLLocationCoordinate2DMake(39.537940, -119.783936);
+            
+            SMGeoPoint *swOfSanRafael = [SMGeoPoint geoPointWithCoordinate:swOfSanRafaelCoordinate];
+            SMGeoPoint *reno = [SMGeoPoint geoPointWithCoordinate:renoCoordinate];
+            
+            [query where:@"location" isWithinBoundsWithSWGeoPoint:swOfSanRafael andNEGeoPoint:reno];
             [query orderByField:@"name" ascending:YES];
             synchronousQuery(sm, query, ^(NSArray *results) {
                 [[results should] haveCountOf:2];

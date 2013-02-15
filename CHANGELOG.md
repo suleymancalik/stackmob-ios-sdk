@@ -1,8 +1,26 @@
 <h2>StackMob iOS SDK Change Log</h2>
 
+<h3>v1.3.0 - February 14, 2013</h3>
+
+**Features**
+
+* Support for saving and querying geo points through the Core Data integration.  Be sure to include the `CoreLocation` framework in your project.
+* `SMGeoPoint` class for easily working with geo points through StackMob.
+* `SMLocationManager` class for abstracting out `CLLocationManager` boiler plate code when working with geo data.
+* Save and Fetch methods with `SMRequestOptions` parameter (options) to allow for custom options per Core Data request - See `NSManagedObjectContext+Concurrency.h` for method details.
+* New `globalRequestOptions` property in `SMCoreDataStore` to set default request options used globally during StackMob calls from Core Data.
+* Additional support for building source code with OSX targets (issue #34).
+* Gigya Integration - login methods can be found in `SMClient`.
+
+**Fixes**
+
+* Fix in internal cache fetch method.
+* Predicates with `NSDate` values works properly (issue #30).
+
+
 <h3>v1.2.0 - January 24, 2013</h3>
 
-Get all the details on the features of this release from <a href="https://blog.stackmob.com/2013/01/ios-sdk-v1-2-0-released/">this blogpost</a>.
+All the details on the features of this release can be found in <a href="https://blog.stackmob.com/2013/01/ios-sdk-v1-2-0-released/">this blogpost</a>.
 
 **Features**
 

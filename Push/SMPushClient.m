@@ -69,7 +69,7 @@ static SMPushClient *defaultClient = nil;
         [self.oauthClient setDefaultHeader:@"Accept" value:acceptHeader];
         
 #if TARGET_OS_MAC
-        /** Get this for mac **/
+        /* Get this for mac */
         NSString *deviceModel;
         NSString *systemVersion = [[NSProcessInfo processInfo] operatingSystemVersionString];
         
