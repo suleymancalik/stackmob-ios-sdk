@@ -10,7 +10,6 @@
 * Save and Fetch methods with `SMRequestOptions` parameter (options) to allow for custom options per Core Data request - See `NSManagedObjectContext+Concurrency.h` for method details.
 * New `globalRequestOptions` property in `SMCoreDataStore` to set default request options used globally during StackMob calls from Core Data.
 * Additional support for building source code with OSX targets (issue #34).
-* Gigya Integration - login methods can be found in `SMClient`.
 
 **Fixes**
 
