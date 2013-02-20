@@ -2480,7 +2480,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     NSMutableDictionary *serializedDictCopy = [[*originalDictionary objectForKey:SerializedDictKey] mutableCopy];
     
     NSString *passwordIdentifier = [self.coreDataStore.session.userIdentifierMap objectForKey:[object valueForKey:[object primaryKeyField]]];
-    
+    NSLog(@"password identifier is %@ for map %@", passwordIdentifier, self.coreDataStore.session.userIdentifierMap);
     if (!passwordIdentifier) {
         [NSException raise:SMExceptionIncompatibleObject format:@"No password identifier found for object.  This might be happening if you are using two instances of SMClient.  If you are unable to resolve yourself, please submit a support ticket to StackMob."];
     }

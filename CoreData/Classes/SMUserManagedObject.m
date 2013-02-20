@@ -56,10 +56,11 @@
         serviceName = @"com.stackmob.passwordstore";
     }
     NSString *passwordIdentifier = [[serviceName stringByAppendingPathExtension:[NSString stringWithFormat:@"%d", arc4random() / 1000]] stringByAppendingPathExtension:@"password"];
+    
     if (![KeychainWrapper createKeychainValue:value forIdentifier:passwordIdentifier]) {
         [NSException raise:@"SMKeychainSaveUnsuccessful" format:@"Password could not be saved to keychain"];
     }
-    
+    NSLog(@"created keychain value for password identifier: %@", passwordIdentifier);
     [self.client.session.userIdentifierMap setObject:passwordIdentifier forKey:[self valueForKey:[self primaryKeyField]]];
     [self.client.session SMSaveUserIdentifierMap];
     
