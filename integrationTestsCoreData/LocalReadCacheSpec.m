@@ -60,6 +60,7 @@ describe(@"LocalReadCacheInitialization", ^{
     });
 });
 
+/*
 describe(@"Successful fetching replaces equivalent results of fetching from cache", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -860,80 +861,7 @@ describe(@"Fetch with Cache", ^{
                 [error shouldBeNil];
             }];
         });
-        /*
-        it(@"To-Many relationship fault fill without internet when related object has been previously fetched returns properly", ^{
-            __block NSManagedObject *jonObject = nil;
-            
-            [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
-            
-            // fetch new object, which will fault
-            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
-                [[theValue([results count]) should] equal:theValue(1)];
-                jonObject = [results objectAtIndex:0];
-                NSManagedObject *nullSuperpower = [jonObject valueForKey:@"superpower"];
-                [nullSuperpower shouldBeNil];
-            }];
-            
-            // add some related objects
-            NSManagedObject *interest1 = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
-            [interest1 setValue:[interest1 assignObjectId] forKey:[interest1 primaryKeyField]];
-            [interest1 setValue:@"interest1" forKey:@"name"];
-            
-            NSManagedObject *interest2 = [NSEntityDescription insertNewObjectForEntityForName:@"Interest" inManagedObjectContext:moc];
-            [interest2 setValue:[interest2 assignObjectId] forKey:[interest2 primaryKeyField]];
-            [interest2 setValue:@"interest2" forKey:@"name"];
-            
-            // save them to the server
-            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-                [error shouldBeNil];
-            }];
-            
-            // relate and save
-            [jonObject setValue:[NSSet setWithObjects:interest1, interest2, nil] forKey:@"interests"];
-            
-            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-                [error shouldBeNil];
-            }];
-            
-            [moc reset];
-            
-            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"]] andBlock:^(NSArray *results, NSError *error) {
-                [[theValue([results count]) should] equal:theValue(1)];
-                jonObject = [results objectAtIndex:0];
-            }];
-            
-            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
-                [[theValue([results count]) should] equal:theValue(2)];
-            }];
-            
-            [cds setCachePolicy:SMCachePolicyTryCacheOnly];
-            
-            NSArray *jonInterests = nil;
-            @try {
-                jonInterests = [[jonObject valueForKey:@"interests"] allObjects];
-            }
-            @catch (NSException *exception) {
-                [exception shouldBeNil];
-            }
-            
-            [jonInterests shouldNotBeNil];
-            [[theValue([jonInterests count]) should] equal:theValue(2)];
-            NSString *interestName = [[jonInterests objectAtIndex:0] valueForKey:@"name"];
-            NSArray *interestsArray = [NSArray arrayWithObjects:@"interest1", @"interest2", nil];
-            [[interestsArray should] contain:interestName];
-            
-            
-            [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
-            [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:nil] andBlock:^(NSArray *results, NSError *error) {
-                [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                    [moc deleteObject:obj];
-                }];
-            }];
-            [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
-                [error shouldBeNil];
-            }];
-        });
-     */
+        
         it(@"To-Many relationship fault fill with internet returns related object and caches correctly", ^{
             __block Person *jonObject = nil;
             
@@ -1542,6 +1470,72 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
             }
             [[theValue([results count]) should] equal:theValue(0)];
         }];
+    });
+});
+*/
+
+
+describe(@"testing", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    __block NSArray *fixturesToLoad;
+    __block NSDictionary *fixtures;
+    beforeEach(^{
+        SM_CACHE_ENABLED = YES;
+        //SM_CORE_DATA_DEBUG = YES;
+        
+        //fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
+        //fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        moc = [cds contextForCurrentThread];
+        
+        // create an object
+        NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:@"1234", @"todo_id", @"new todo", @"title", nil];
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [[client dataStore] createObject:dictionary inSchema:@"todo" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                NSLog(@"successful create");
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                NSLog(@"failure creating: %@", theError);
+                syncReturn(semaphore);
+            }];
+        });
+        
+    });
+    afterEach(^{
+        [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [[client dataStore] deleteObjectId:@"1234" inSchema:@"todo" onSuccess:^(NSString *theObjectId, NSString *schema) {
+                NSLog(@"successful delete");
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                NSLog(@"error deleting: %@", theError);
+                syncReturn(semaphore);
+            }];
+        });
+        //[SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
+        SM_CACHE_ENABLED = NO;
+    });
+    it(@"tests", ^{
+        NSPredicate *pred = [NSPredicate predicateWithFormat:@"todoId == '1234'"];
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
+        [fetch setPredicate:pred];
+        NSError *error = nil;
+        NSArray *results = [moc executeFetchRequestAndWait:fetch error:&error];
+        NSLog(@"results are %@", results);
+        [error shouldBeNil];
+        
+        error = nil;
+        results = [moc executeFetchRequestAndWait:fetch error:&error];
+        NSLog(@"results are %@", results);
+        [error shouldBeNil];
     });
 });
 

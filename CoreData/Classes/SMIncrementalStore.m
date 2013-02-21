@@ -2139,14 +2139,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     [objectRelationshipSet addObject:objectToAdd];
                 }];
             } else {
-                // Recursively cache child objects, if any
-                if ([propertyValueFromSerializedDict isKindOfClass:[NSDictionary class]]) {
-                    
-                } else {
-                    // Translate StackMob ID to Cache managed object ID and store
-                    NSManagedObject *setObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:propertyValueFromSerializedDict] entityName:[[property destinationEntity] name] createIfNeeded:YES]];
-                    [object setValue:setObject forKey:propertyName];
-                }
+                // Translate StackMob ID to Cache managed object ID and store
+                NSManagedObject *setObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:propertyValueFromSerializedDict] entityName:[[property destinationEntity] name] createIfNeeded:YES]];
+                [object setValue:setObject forKey:propertyName];
             }
         } else {
             [object setValue:nil forKey:propertyName];
@@ -2193,8 +2188,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             [NSException raise:SMExceptionCacheError format:@"Could not obtain permanent IDs for objects %@ with error %@", cacheObject, permanentIdError];
         }
         
+        [self SM_insertRemoteID:remoteID withCacheObjectID:[cacheObject objectID] list:self.cacheMappingTable entityName:entityName];
         [self SM_saveCacheMap];
-        [self SM_insertRemoteID:remoteID inList:self.cacheMappingTable entityName:entityName];
         if (SM_CORE_DATA_DEBUG) { DLog(@"Creating new cache object, %@", cacheObject) }
     } else {
         // result count == 1
@@ -2268,21 +2263,27 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
      */
 }
 
-- (void)SM_insertRemoteID:(NSString *)objectID inList:(NSMutableDictionary *)list entityName:(NSString *)entityName
+- (void)SM_insertRemoteID:(NSString *)objectID withCacheObjectID:(NSManagedObjectID *)cacheObjectID list:(NSMutableDictionary *)list entityName:(NSString *)entityName
 {
-    NSArray *tempArray = [list objectForKey:entityName];
+    NSDictionary *tempDict = [list objectForKey:entityName];
     
-    NSMutableArray *objectIDsForEntity = tempArray ? [tempArray mutableCopy] : [NSMutableArray array];
+    NSMutableDictionary *objectIDsForEntity = tempDict ? [tempDict mutableCopy] : [NSMutableDictionary dictionary];
     
-    if ([objectIDsForEntity indexOfObject:objectID] == NSNotFound) {
-        [objectIDsForEntity addObject:objectID];
+    if ([[objectIDsForEntity allKeys] indexOfObject:objectID] == NSNotFound) {
+        // TODO DLog
+        NSLog(@"cacheObjectID is %@", cacheObjectID);
+        NSString *cacheObjectIDString = [[cacheObjectID URIRepresentation] absoluteString];
+        NSArray *components = [cacheObjectIDString componentsSeparatedByString:[NSString stringWithFormat:@"%@/", entityName]];
+        NSString *valueToSave = [components lastObject];
+        [objectIDsForEntity setObject:valueToSave forKey:objectID];
     }
     
-    [list setObject:[NSArray arrayWithArray:objectIDsForEntity] forKey:entityName];
+    [list setObject:[NSDictionary dictionaryWithDictionary:objectIDsForEntity] forKey:entityName];
 }
 
 - (BOOL)SM_isRemoteIDCached:(NSString *)objectID inList:(NSMutableDictionary *)list entityName:(NSString *)entityName
 {
+    // TODO fix for dict structure
     NSArray *objectIDsForEntity = [list objectForKey:entityName];
     if (objectIDsForEntity && ([objectIDsForEntity indexOfObject:objectID] != NSNotFound) ) {
         return YES;
@@ -2293,15 +2294,22 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_removeRemoteID:(NSString *)objectID inList:(NSMutableDictionary *)list entityName:(NSString *)entityName
 {
-    NSArray *tempArray = [list objectForKey:entityName];
+    NSDictionary *tempDict = [list objectForKey:entityName];
     
-    NSMutableArray *objectIDsForEntity = tempArray ? [tempArray mutableCopy] : [NSMutableArray array];
+    NSMutableDictionary *objectIDsForEntity = tempDict ? [tempDict mutableCopy] : [NSMutableDictionary dictionary];
     
-    if ([objectIDsForEntity indexOfObject:objectID] != NSNotFound) {
-        [objectIDsForEntity removeObject:objectID];
+    if ([[objectIDsForEntity allKeys] indexOfObject:objectID] != NSNotFound) {
+        [objectIDsForEntity removeObjectForKey:objectID];
     }
     
-    [list setObject:[NSArray arrayWithArray:objectIDsForEntity] forKey:entityName];
+    // if count of objectIDsForEntity is now 0, remove entity name from list
+    if ([objectIDsForEntity count] != 0) {
+        [list setObject:[NSDictionary dictionaryWithDictionary:objectIDsForEntity] forKey:entityName];
+    } else {
+        [list removeObjectForKey:entityName];
+    }
+    
+    
 }
 
 
@@ -2468,7 +2476,11 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     __block BOOL success = YES;
     
+    NSMutableArray *arrayOfManagedObjectInfo = [NSMutableArray arrayWithCapacity:[arrayOfManagedObjects count]];
+    
     [arrayOfManagedObjects enumerateObjectsUsingBlock:^(id object, NSUInteger idx, BOOL *stop) {
+        NSDictionary *objectInfo = [NSDictionary dictionaryWithObjectsAndKeys:[[object entity] name], @"EntityName", [object valueForKey:[object primaryKeyField]], @"ObjectID", nil];
+        [arrayOfManagedObjectInfo addObject:objectInfo];
         [self.localManagedObjectContext deleteObject:object];
     }];
     
@@ -2478,8 +2490,11 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         success = [self SM_saveCache:&anError];
         
         if (success) {
-            [arrayOfManagedObjects enumerateObjectsUsingBlock:^(id object, NSUInteger idx, BOOL *stop) {
-                // Convert ID to string rep, get StackMob ID key and delete
+            [arrayOfManagedObjectInfo enumerateObjectsUsingBlock:^(id objectInfo, NSUInteger idx, BOOL *stop) {
+                
+                [self SM_removeRemoteID:[objectInfo objectForKey:@"ObjectID"] inList:self.cacheMappingTable entityName:[objectInfo objectForKey:@"EntityName"]];
+                
+                /*
                 NSString *stringRepOfRelationshipCacheID = [[[object objectID] URIRepresentation] absoluteString];
                 
                 NSArray *matchingKeys = [self.cacheMappingTable allKeysForObject:stringRepOfRelationshipCacheID];
@@ -2490,6 +2505,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     // This means the object was never placed in the cache map, or duplicated
                     [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %ld", (unsigned long)[matchingKeys count]];
                 }
+                 */
             }];
             [self SM_saveCacheMap];
         } else {

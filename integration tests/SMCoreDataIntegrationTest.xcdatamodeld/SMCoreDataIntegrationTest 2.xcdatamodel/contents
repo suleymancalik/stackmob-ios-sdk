@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1810" systemVersion="11E2617" minimumToolsVersion="Xcode 4.1" macOSVersion="Automatic" iOSVersion="Automatic">
+<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1810" systemVersion="12C60" minimumToolsVersion="Xcode 4.1" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Category" syncable="YES">
         <attribute name="categoryId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
@@ -74,7 +74,7 @@
         <element name="Person" positionX="-468" positionY="-129" width="128" height="165"/>
         <element name="Random" positionX="187" positionY="-108" width="128" height="165"/>
         <element name="Superpower" positionX="-171" positionY="123" width="128" height="120"/>
-        <element name="Todo" positionX="-218" positionY="396" width="128" height="105"/>
+        <element name="Todo" positionX="-297" positionY="-162" width="128" height="105"/>
         <element name="User3" positionX="-477" positionY="135" width="128" height="75"/>
         <element name="User4" positionX="-108" positionY="-135" width="128" height="75"/>
     </elements>
