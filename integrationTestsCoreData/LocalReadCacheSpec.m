@@ -60,7 +60,7 @@ describe(@"LocalReadCacheInitialization", ^{
     });
 });
 
-/*
+
 describe(@"Successful fetching replaces equivalent results of fetching from cache", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -106,13 +106,13 @@ describe(@"Successful fetching replaces equivalent results of fetching from cach
         }];
         
         // The Number of things cached should be 2
-        // Cache should have three entries
         __block NSDictionary *lcMapResults = nil;
         NSURL *cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
         lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
         
         [lcMapResults shouldNotBeNil];
-        [[theValue([lcMapResults count]) should] equal:theValue(2)];
+        [[theValue([lcMapResults count]) should] equal:theValue(1)];
+        [[theValue([[[lcMapResults allValues] lastObject] count]) should] equal:theValue(2)];
         
         // Delete a Matt from the server
         __block BOOL deleteSuccess = NO;
@@ -134,13 +134,13 @@ describe(@"Successful fetching replaces equivalent results of fetching from cach
         }];
         
         // The Number of things cached should be 1
-        // Cache should have three entries
         lcMapResults = nil;
         cacheMapURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForCacheMapTableWithPublicKey:client.publicKey];
         lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
         
         [lcMapResults shouldNotBeNil];
         [[theValue([lcMapResults count]) should] equal:theValue(1)];
+        [[theValue([[[lcMapResults allValues] lastObject] count]) should] equal:theValue(1)];
         
         
     });
@@ -224,8 +224,8 @@ describe(@"Fetch with Cache", ^{
             lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
             
             [lcMapResults shouldNotBeNil];
-            [[theValue([lcMapResults count]) should] equal:theValue(3)];
-            
+            [[theValue([lcMapResults count]) should] equal:theValue(1)];
+            [[theValue([[[lcMapResults allValues] lastObject] count]) should] equal:theValue(3)];
             
             // let's try again to see that fetching same objects multiple times is smooth
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {
@@ -235,7 +235,8 @@ describe(@"Fetch with Cache", ^{
             lcMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[cacheMapURL path]];
             
             [lcMapResults shouldNotBeNil];
-            [[theValue([lcMapResults count]) should] equal:theValue(3)];
+            [[theValue([lcMapResults count]) should] equal:theValue(1)];
+            [[theValue([[[lcMapResults allValues] lastObject] count]) should] equal:theValue(3)];
             
             // Let's 100% check
             [cds setCachePolicy:SMCachePolicyTryCacheOnly];
@@ -265,6 +266,7 @@ describe(@"Fetch with Cache", ^{
         });
         
     });
+    
     describe(@"when in memory differs from lc", ^{
         it(@"handles correctly", ^{
             __block NSString *firstName = nil;
@@ -317,6 +319,7 @@ describe(@"Fetch with Cache", ^{
             
         });
     });
+    
     describe(@"relationships and in memory", ^{
         it(@"should handle correctly for relationships as well", ^{
             __block NSString *firstName = nil;
@@ -440,7 +443,7 @@ describe(@"Fetch with Cache", ^{
             
         });
     });
-    
+    /*
     describe(@"same tests pass when moc is reset each time", ^{
         it(@"returned objects are saved into local cache without error", ^{
             __block NSArray *smResults = nil;
@@ -940,9 +943,9 @@ describe(@"Fetch with Cache", ^{
         });
      
     });
-     
+     */
 });
-
+/*
 describe(@"Purging the Cache", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -1474,7 +1477,7 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
 });
 */
 
-
+/*
 describe(@"testing", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -1538,8 +1541,79 @@ describe(@"testing", ^{
         [error shouldBeNil];
     });
 });
-
-
+*/
+/*
+describe(@"testing2", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    beforeEach(^{
+        SM_CACHE_ENABLED = YES;
+        SM_CORE_DATA_DEBUG = YES;
+        
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        moc = [cds contextForCurrentThread];
+        
+        NSManagedObject *todo = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
+        [todo setValue:@"bob" forKey:@"title"];
+        [todo setValue:@"1234" forKey:[todo primaryKeyField]];
+        
+        NSManagedObject *category = [NSEntityDescription insertNewObjectForEntityForName:@"Category" inManagedObjectContext:moc];
+        [category setValue:@"new" forKey:@"name"];
+        [category setValue:@"primarykey" forKey:[category primaryKeyField]];
+        
+        [todo setValue:category forKey:@"category"];
+        
+        NSError *error = nil;
+        BOOL success = [moc saveAndWait:&error];
+        [[theValue(success) should] beYes];
+        
+    });
+    afterEach(^{
+        [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
+        NSFetchRequest *todoFetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:todoFetch andBlock:^(NSArray *results, NSError *error) {
+            [error shouldBeNil];
+            [moc deleteObject:[results objectAtIndex:0]];
+        }];
+        NSFetchRequest *categoryFetch = [[NSFetchRequest alloc] initWithEntityName:@"Category"];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:categoryFetch andBlock:^(NSArray *results, NSError *error) {
+            [error shouldBeNil];
+            [moc deleteObject:[results objectAtIndex:0]];
+        }];
+        
+        NSError *error = nil;
+        BOOL success = [moc saveAndWait:&error];
+        [[theValue(success) should] beYes];
+        
+        SM_CACHE_ENABLED = NO;
+    });
+    it(@"tests", ^{
+        [moc reset];
+        
+        NSPredicate *pred = [NSPredicate predicateWithFormat:@"todoId == '1234'"];
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
+        [fetch setPredicate:pred];
+        NSError *error = nil;
+        NSArray *results = [moc executeFetchRequestAndWait:fetch error:&error];
+        NSLog(@"results are %@", results);
+        [error shouldBeNil];
+        
+        NSManagedObject *todo = [results objectAtIndex:0];
+        
+        NSManagedObject *category = [todo valueForKey:@"category"];
+        NSLog(@"category is %@", category);
+        NSString *categoryTitle = [category valueForKey:@"name"];
+        NSLog(@"title is %@", categoryTitle);
+    });
+});
+*/
 /*
 describe(@"calls to save when not online", ^{
     __block SMClient *client = nil;
