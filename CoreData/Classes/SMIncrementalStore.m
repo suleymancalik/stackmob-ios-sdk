@@ -633,7 +633,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         // Create operation for updated object
         NSString *schemaName = [managedObject SMSchema];
         __block NSString *deletedObjectID = [managedObject SMObjectId];
-        __block NSString *deletedObjectEntityname = [managedObject entityName];
+        __block NSString *deletedObjectEntityname = [[managedObject entity] name];
         
         // Create success/failure blocks
         SMResultSuccessBlock operationSuccesBlock = ^(NSDictionary *theObject){
@@ -1302,7 +1302,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 [NSException raise:SMExceptionIncompatibleObject format:@"Cache object with managed object ID %@ not found.", cacheObjectID];
             }
             
-            // Check primary key, and if nil we have an empty reference to a related object.  Need to grab values from the server if possible.
             // Get primary key field of relationship
             NSString *primaryKeyField = nil;
             @try {
@@ -1315,7 +1314,11 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 }
             }
             
-            if (![objectFromCache valueForKey:primaryKeyField]) {
+            // Check primary key, and if nil string is present we have an empty reference to a related object.  Need to grab values from the server if possible.
+            NSString *cachePrimaryKey = [objectFromCache valueForKey:primaryKeyField];
+            NSRange range = [cachePrimaryKey rangeOfString:@":nil"];
+            
+            if (range.location != NSNotFound) {
                 SMRequestOptions *optionsFromDictionary = [[[NSThread currentThread] threadDictionary] objectForKey:SMRequestSpecificOptions];
                 SMRequestOptions *optionsForRequest = nil;
                 if (self.isSaving) {
@@ -1449,10 +1452,14 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         // TODO add error
     }
     
-    NSUInteger index = [[remoteIDsForEntity allValues] indexOfObject:cacheMapReference];
+    NSArray *allKeysForObject = [remoteIDsForEntity allKeysForObject:cacheMapReference];
+    if ([allKeysForObject count] != 1) {
+        [NSException raise:SMExceptionIncompatibleObject format:@"Multiple or no keys for cache map reference %@, entity %@.  Please submit a support ticket with StackMob.", cacheMapReference, entityName];
+    }
+    //NSUInteger index = [[remoteIDsForEntity allValues] indexOfObject:cacheMapReference];
+    //return [[remoteIDsForEntity allKeys] objectAtIndex:index];
 
-    return [[remoteIDsForEntity allKeys] objectAtIndex:index];
-
+    return [allKeysForObject lastObject];
 }
 
 /*
@@ -1550,8 +1557,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     // get remoteID for object in context
                     NSString *relatedObjectRemoteID = [cacheManagedObject valueForKey:primaryKeyField];
                     
-                    // If there is no primary key id, this was just a reference and we need to retreive online, if possible
-                    if (!relatedObjectRemoteID) {
+                    NSRange range = [relatedObjectRemoteID rangeOfString:@":nil"];
+                    
+                    // If primary key includes the nil string, this was just a reference and we need to retreive online, if possible
+                    if (range.location != NSNotFound) {
                         // All objects are likely references, retreive object online if possible
                         shouldRetreiveFromNetwork = YES;
                         *stop = YES;
@@ -1583,8 +1592,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     // get remoteID for object in context
                     NSString *relatedObjectRemoteID = [relatedObjectCacheReferenceObject valueForKey:primaryKeyField];
                     
-                    // If there is no primary key id, this was just a reference and we need to retreive online, if possible
-                    if (!relatedObjectRemoteID) {
+                    NSRange range = [relatedObjectRemoteID rangeOfString:@":nil"];
+                    
+                    // If primary key includes the nil string, this was just a reference and we need to retreive online, if possible
+                    if (range.location != NSNotFound) {
                         // Retreive object from server
                         SMRequestOptions *optionsForRetrival = self.coreDataStore.globalRequestOptions;
                         id resultToReturn =  [self SM_retrieveAndCacheRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID options:optionsForRetrival context:context error:error];
