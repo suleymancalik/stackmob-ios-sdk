@@ -71,7 +71,21 @@
     SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5 milesOfGeoPoint:geoPoint];
     [fetchRequest setPredicate:predicate];
  
+ Once you've made a fetch request, make sure to unarchive the NSData:
+    
     // Execute fetch request
+    [self.managedObjectContext executeFetchRequest:fetchRequest onSuccess:^(NSArray *results) {
+        
+        NSManagedObject *object = [results objectAtIndex:0];
+ 
+        NSData *data = [object objectForKey:@"location"];
+        
+        SMGeoPoint *geoPoint = [NSKeyedUnarchiver unarchiveObjectWithData:data]
+ 
+    } onFailure:^(NSError *error) {
+ 
+            NSLog(@"Error: %@", error);
+    }];
  
  **Important:** Fetching from the cache using `SMPredicate` is not supported, and will return an empty array of results. Similarly, when a fetch is performed from the network (StackMob), any results are not cached.
  
