@@ -182,7 +182,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_purgeObjectsFromCacheByStackMobIDInfo:(NSArray *)arrayOfStackMobObjectIDInfo;
 - (BOOL)SM_purgeCacheManagedObjectsFromCache:(NSArray *)arrayOfManagedObjects;
-- (BOOL)SM_purgeObjectFromCacheWithStackMobIDInfo:(NSString *)objectInfo error:(NSError *__autoreleasing*)error;
+- (BOOL)SM_purgeObjectFromCacheWithStackMobIDInfo:(NSDictionary *)objectInfo error:(NSError *__autoreleasing*)error;
 - (BOOL)SM_purgeCacheManagedObjectFromCache:(NSManagedObject *)object;
 
 ///-------------------------------
@@ -691,12 +691,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [deletedObjects enumerateObjectsUsingBlock:^(id managedObject, BOOL *stop) {
         
         //NSEntityDescription *objectEntity = [managedObject entity];
-        NSString *stackmobObjectID = [managedObject SMObjectId];
+        //NSString *stackmobObjectID = [managedObject SMObjectId];
         
         // delete from cache
         NSError *purgeError = nil;
         // TODO edit for dictionary expectation
-        [self SM_purgeObjectFromCacheWithStackMobIDInfo:stackmobObjectID error:&purgeError];
+        //[self SM_purgeObjectFromCacheWithStackMobIDInfo:stackmobObjectID error:&purgeError];
         if (purgeError) {
             *stop = YES;
         } else {
@@ -1149,9 +1149,11 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     __block NSMutableArray *results = [NSMutableArray array];
     
     [localCacheResults enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        id remoteID = [obj valueForKey:primaryKeyField];
-        if (remoteID != nil) {
-            NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:fetchRequest.entity referenceObject:remoteID];
+        // Only include non-nil references
+        NSString *relatedObjectRemoteID = [obj valueForKey:primaryKeyField];
+        NSRange range = [relatedObjectRemoteID rangeOfString:@":nil"];
+        if (range.location == NSNotFound) {
+            NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:fetchRequest.entity referenceObject:relatedObjectRemoteID];
             
             // Allows us to always return object, faulted or not
             NSManagedObject *sm_managedObject = [context objectWithID:sm_managedObjectID];
@@ -1317,7 +1319,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             // Check primary key, and if nil string is present we have an empty reference to a related object.  Need to grab values from the server if possible.
             NSString *cachePrimaryKey = [objectFromCache valueForKey:primaryKeyField];
             NSRange range = [cachePrimaryKey rangeOfString:@":nil"];
-            
             if (range.location != NSNotFound) {
                 SMRequestOptions *optionsFromDictionary = [[[NSThread currentThread] threadDictionary] objectForKey:SMRequestSpecificOptions];
                 SMRequestOptions *optionsForRequest = nil;
@@ -1554,12 +1555,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 __block BOOL shouldRetreiveFromNetwork = NO;
                 
                 [relatedObjectCacheReferenceSet enumerateObjectsUsingBlock:^(id cacheManagedObject, NSUInteger idx, BOOL *stop) {
-                    // get remoteID for object in context
-                    NSString *relatedObjectRemoteID = [cacheManagedObject valueForKey:primaryKeyField];
-                    
-                    NSRange range = [relatedObjectRemoteID rangeOfString:@":nil"];
                     
                     // If primary key includes the nil string, this was just a reference and we need to retreive online, if possible
+                    NSString *relatedObjectRemoteID = [cacheManagedObject valueForKey:primaryKeyField];
+                    NSRange range = [relatedObjectRemoteID rangeOfString:@":nil"];
                     if (range.location != NSNotFound) {
                         // All objects are likely references, retreive object online if possible
                         shouldRetreiveFromNetwork = YES;
@@ -1589,12 +1588,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 if (!relatedObjectCacheReferenceObject) {
                     return [NSNull null];
                 } else {
-                    // get remoteID for object in context
-                    NSString *relatedObjectRemoteID = [relatedObjectCacheReferenceObject valueForKey:primaryKeyField];
-                    
-                    NSRange range = [relatedObjectRemoteID rangeOfString:@":nil"];
-                    
                     // If primary key includes the nil string, this was just a reference and we need to retreive online, if possible
+                    NSString *relatedObjectRemoteID = [relatedObjectCacheReferenceObject valueForKey:primaryKeyField];
+                    NSRange range = [relatedObjectRemoteID rangeOfString:@":nil"];
                     if (range.location != NSNotFound) {
                         // Retreive object from server
                         SMRequestOptions *optionsForRetrival = self.coreDataStore.globalRequestOptions;
@@ -2417,8 +2413,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     if ([[objectID persistentStore] class] == [SMIncrementalStore class]) {
         NSString *objectIDReference = [(SMIncrementalStore *)[objectID persistentStore] referenceObjectForObjectID:objectID];
         NSError *purgeError = nil;
-        // TODO upadate for dictionary expectation
-        [self SM_purgeObjectFromCacheWithStackMobIDInfo:objectIDReference error:&purgeError];
+        NSDictionary *objectInfo = [NSDictionary dictionaryWithObjectsAndKeys:objectIDReference, ObjectID, [[objectID entity] name], ObjectEntityName, nil];
+        [self SM_purgeObjectFromCacheWithStackMobIDInfo:objectInfo error:&purgeError];
     }
 }
 
@@ -2427,21 +2423,18 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     NSDictionary *notificationUserInfo = [notification userInfo];
     NSArray *objectIDsToPurge = [notificationUserInfo objectForKey:SMCachePurgeArrayOfManageObjectIDs];
     
-    NSMutableArray *cacheObjectsToPurge = [NSMutableArray arrayWithCapacity:[objectIDsToPurge count]];
+    NSMutableArray *objectsInfo = [NSMutableArray arrayWithCapacity:[objectIDsToPurge count]];
     [objectIDsToPurge enumerateObjectsUsingBlock:^(id objectID, NSUInteger idx, BOOL *stop) {
         
         if([[objectID persistentStore] class] == [SMIncrementalStore class]) {
             NSString *objectIDReference = [(SMIncrementalStore *)[objectID persistentStore] referenceObjectForObjectID:objectID];
             // Get
-            NSString *cacheIDStringRepresentation = [self.cacheMappingTable objectForKey:objectIDReference];
-            NSManagedObjectID *cacheObjectID = [self.localPersistentStoreCoordinator managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheIDStringRepresentation]];
-            NSError *anError = nil;
-            NSManagedObject *cacheObject = [self.localManagedObjectContext existingObjectWithID:cacheObjectID error:&anError];
-            [cacheObjectsToPurge addObject:cacheObject];
+            NSDictionary *objectInfo = [NSDictionary dictionaryWithObjectsAndKeys:objectIDReference, ObjectID, [[objectID entity] name], ObjectEntityName, nil];
+            [objectsInfo addObject:objectInfo];
         }
     }];
     
-    [self SM_purgeCacheManagedObjectsFromCache:cacheObjectsToPurge];
+    [self SM_purgeObjectsFromCacheByStackMobIDInfo:objectsInfo];
     
     
 }
@@ -2571,15 +2564,19 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     [arrayOfStackMobObjectIDInfo enumerateObjectsUsingBlock:^(id objectInfo, NSUInteger idx, BOOL *stop) {
         NSManagedObjectID *cacheObjectID = [self SM_retrieveCacheObjectForRemoteID:[objectInfo objectForKey:ObjectID] entityName:[objectInfo objectForKey:ObjectEntityName] createIfNeeded:NO];
-        NSError *anError = nil;
-        NSManagedObject *cacheObject = [self.localManagedObjectContext existingObjectWithID:cacheObjectID error:&anError];
-        if (anError) {
-            DLog(@"Did not get cache object with error %@", anError)
-            success = NO;
-            *stop = YES;
-        } else {
-            // delete object from cache
-            [self.localManagedObjectContext deleteObject:cacheObject];
+        
+        if (cacheObjectID) {
+            NSError *anError = nil;
+            NSManagedObject *cacheObject = [self.localManagedObjectContext existingObjectWithID:cacheObjectID error:&anError];
+            if (anError) {
+                DLog(@"Did not get cache object with error %@", anError)
+                success = NO;
+                *stop = YES;
+                
+            } else {
+                // delete object from cache
+                [self.localManagedObjectContext deleteObject:cacheObject];
+            }
         }
     }];
     

@@ -217,6 +217,7 @@ describe(@"sending options with requests, saves", ^{
         //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [client setUserSchema:@"User3"];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
@@ -416,6 +417,7 @@ describe(@"creating global request options, saves", ^{
         //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [client setUserSchema:@"User3"];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];
@@ -605,6 +607,7 @@ describe(@"sending options with requests, fetches", ^{
         //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [client setUserSchema:@"User3"];
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
         cds = [client coreDataStoreWithManagedObjectModel:mom];

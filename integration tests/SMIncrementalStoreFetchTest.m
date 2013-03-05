@@ -394,6 +394,7 @@ describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^
         // create a bunch of users
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [client setUserSchema:@"User3"];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
         moc = [cds contextForCurrentThread];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
@@ -452,6 +453,7 @@ describe(@"fetch requests for managed objects", ^{
         // create a bunch of users
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [client setUserSchema:@"User3"];
         cds = [client coreDataStoreWithManagedObjectModel:[NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]];
         moc = [cds contextForCurrentThread];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
