@@ -278,9 +278,9 @@ describe(@"401s requiring logins", ^{
         
         [[client.dataStore.session stubAndReturn:theValue(YES)] accessTokenHasExpired];
         [[client.dataStore.session stubAndReturn:theValue(NO)] refreshing];
-        [[client.dataStore.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
+        //[[client.dataStore.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
         
-        [[client.dataStore.session should] receive:@selector(doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:)  withCount:2 arguments:@"refreshToken", any(), any(), any(), any(), any(), any()];
+        [[client.dataStore.session should] receive:@selector(doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:) withCount:2 arguments:@"refreshToken", any(), any(), any(), any(), any(), any()];
         
         [[client.dataStore.session.regularOAuthClient should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
         NSError *error = nil;
@@ -296,7 +296,6 @@ describe(@"401s requiring logins", ^{
     });
 
 });
-
 
 
 describe(@"timeouts with refreshing", ^{
@@ -403,7 +402,7 @@ describe(@"With 401s and other errors", ^{
         // Set up scenario
         [[client.dataStore.session stubAndReturn:theValue(YES)] accessTokenHasExpired];
         [[client.dataStore.session stubAndReturn:theValue(NO)] refreshing];
-        [[client.dataStore.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
+        //[[client.dataStore.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
         
         // Add objects for 401 and 409
         NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:@"Oauth2test" inManagedObjectContext:moc];
