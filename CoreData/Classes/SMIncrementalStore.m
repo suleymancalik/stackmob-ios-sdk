@@ -105,13 +105,23 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                withContext:(NSManagedObjectContext *)context
                      error:(NSError *__autoreleasing *)error;
 
+// INSERTS
+- (BOOL)SM_handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable;
 - (BOOL)SM_handleInsertedObjectsWhenOnline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
 - (BOOL)SM_handleInsertedObjectsWhenOffline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
+
+// UPDATES
+- (BOOL)SM_handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable;
 - (BOOL)SM_handleUpdatedObjectsWhenOnline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
 - (BOOL)SM_handleUpdatedObjectsWhenOffline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
+
+// DELETES
+- (BOOL)SM_handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable;
 - (BOOL)SM_handleDeletedObjectsWhenOnline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
 - (BOOL)SM_handleDeletedObjectsWhenOffline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
 
+
+// FETCHES
 - (id)SM_handleFetchRequest:(NSPersistentStoreRequest *)request
                 withContext:(NSManagedObjectContext *)context
                       error:(NSError *__autoreleasing *)error;
@@ -402,29 +412,75 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     NSSaveChangesRequest *saveRequest = [[NSSaveChangesRequest alloc] initWithInsertedObjects:[context insertedObjects] updatedObjects:[context updatedObjects] deletedObjects:[context deletedObjects] lockedObjects:nil];
     
+    BOOL networkAvailable = [self SM_checkNetworkAvailability];
+    
     NSSet *insertedObjects = [saveRequest insertedObjects];
     if ([insertedObjects count] > 0) {
-        BOOL insertSuccess = [self SM_handleInsertedObjectsWhenOnline:insertedObjects inContext:context options:options error:error];
+        BOOL insertSuccess = [self SM_handleInsertedObjects:insertedObjects inContext:context options:options error:error networkAvailable:networkAvailable];
         if (!insertSuccess) {
             return nil;
         }
     }
     NSSet *updatedObjects = [saveRequest updatedObjects];
     if ([updatedObjects count] > 0) {
-        BOOL updateSuccess = [self SM_handleUpdatedObjectsWhenOnline:updatedObjects inContext:context options:options error:error];
+        BOOL updateSuccess = [self SM_handleUpdatedObjects:updatedObjects inContext:context options:options error:error networkAvailable:networkAvailable];
         if (!updateSuccess) {
             return nil;
         }
     }
     NSSet *deletedObjects = [saveRequest deletedObjects];
     if ([deletedObjects count] > 0) {
-        BOOL deleteSuccess = [self SM_handleDeletedObjectsWhenOnline:deletedObjects inContext:context options:options error:error];
+        BOOL deleteSuccess = [self SM_handleDeletedObjects:deletedObjects inContext:context options:options error:error networkAvailable:networkAvailable];
         if (!deleteSuccess) {
             return nil;
         }
     }
     
     return [NSArray array];
+}
+
+- (BOOL)SM_checkNetworkAvailability
+{
+    __block BOOL networkAvailable = NO;
+    // create a group dispatch and queue
+    dispatch_queue_t queue = dispatch_queue_create("Network Availability Queue", NULL);
+    dispatch_group_t group = dispatch_group_create();
+    
+    SMQuery *query = [[SMQuery alloc] initWithSchema:[[self.coreDataStore session] userSchema]];
+    SMRequestOptions *options = [SMRequestOptions options];
+    options.tryRefreshToken = NO;
+    
+    dispatch_group_enter(group);
+    [[self coreDataStore] performCount:query options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSNumber *count) {
+        networkAvailable = YES;
+        dispatch_group_leave(group);
+    } onFailure:^(NSError *error) {
+        if ([error domain] == NSURLErrorDomain && [error code] == -1009) {
+            networkAvailable = NO;
+        } else {
+            networkAvailable = YES;
+        }
+        dispatch_group_leave(group);
+    }];
+    
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    
+#if !OS_OBJECT_USE_OBJC
+    dispatch_release(group);
+    dispatch_release(queue);
+#endif
+    
+    return networkAvailable;
+    
+}
+
+- (BOOL)SM_handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable
+{
+    if (networkAvailable) {
+        return [self SM_handleInsertedObjectsWhenOnline:insertedObjects inContext:context options:options error:error];
+    } else {
+        return [self SM_handleInsertedObjectsWhenOffline:insertedObjects inContext:context options:options error:error];
+    }
 }
 
 - (BOOL)SM_handleInsertedObjectsWhenOnline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
@@ -444,6 +500,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     __block NSMutableArray *failedRequests = [NSMutableArray array];
     __block NSMutableArray *failedRequestsWithUnauthorizedResponse = [NSMutableArray array];
     __block BOOL previousStateOfHTTPSOption = [options isSecure];
+    __block NSMutableArray *objectsToBeCached = [NSMutableArray array];
     
     [insertedObjects enumerateObjectsUsingBlock:^(id managedObject, BOOL *stop) {
         
@@ -480,6 +537,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     [managedObject removePassword];
                 }
                 
+                // Add object to list of objects to be cached [primaryKey, dictionary of object, entity desc, context]
+                NSArray *objectReadyForCache = [NSArray arrayWithObjects:[managedObject valueForKey:[managedObject primaryKeyField]], theObject, [managedObject entity], context, nil];
+                [objectsToBeCached addObject:objectReadyForCache];
+                
             };
             
             SMCoreDataSaveFailureBlock operationFailureBlock = ^(NSURLRequest *theRequest, NSError *theError, NSDictionary *theObject, SMRequestOptions *theOptions, SMResultSuccessBlock originalSuccessBlock){
@@ -510,6 +571,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests error:error];
     
+    [self SM_cacheObjects:objectsToBeCached];
+    
     [options setIsSecure:previousStateOfHTTPSOption];
 
 #if !OS_OBJECT_USE_OBJC
@@ -520,9 +583,27 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
+- (void)SM_cacheObjects:(NSArray *)objectsToBeCached
+{
+    if (SM_CACHE_ENABLED) {
+        [objectsToBeCached enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [self SM_cacheObjectWithID:obj[0] values:obj[1] entity:obj[2] context:obj[3]];
+        }];
+    }
+}
+
 - (BOOL)SM_handleInsertedObjectsWhenOffline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     
     return YES;
+}
+
+- (BOOL)SM_handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable
+{
+    if (networkAvailable) {
+        return [self SM_handleUpdatedObjectsWhenOnline:updatedObjects inContext:context options:options error:error];
+    } else {
+        return [self SM_handleUpdatedObjectsWhenOffline:updatedObjects inContext:context options:options error:error];
+    }
 }
 
 - (BOOL)SM_handleUpdatedObjectsWhenOnline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
@@ -539,6 +620,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     __block NSMutableArray *regularOperations = [NSMutableArray array];
     __block NSMutableArray *failedRequests = [NSMutableArray array];
     __block NSMutableArray *failedRequestsWithUnauthorizedResponse = [NSMutableArray array];
+    __block NSMutableArray *objectsToBeCached = [NSMutableArray array];
     
     [updatedObjects enumerateObjectsUsingBlock:^(id managedObject, BOOL *stop) {
         
@@ -553,6 +635,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         // Create success/failure blocks
         SMResultSuccessBlock operationSuccesBlock = ^(NSDictionary *theObject){
             if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore updated object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schemaName) }
+            
+            // Add object to list of objects to be cached [primaryKey, dictionary of object, entity desc, context]
+            NSArray *objectReadyForCache = [NSArray arrayWithObjects:[managedObject valueForKey:[managedObject primaryKeyField]], theObject, [managedObject entity], context, nil];
+            [objectsToBeCached addObject:objectReadyForCache];
             
         };
         
@@ -598,6 +684,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests error:error];
     
+    [self SM_cacheObjects:objectsToBeCached];
+    
 #if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
     dispatch_release(queue);
@@ -609,6 +697,15 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (BOOL)SM_handleUpdatedObjectsWhenOffline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     
     return YES;
+}
+
+- (BOOL)SM_handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable
+{
+    if (networkAvailable) {
+        return [self SM_handleDeletedObjectsWhenOnline:deletedObjects inContext:context options:options error:error];
+    } else {
+        return [self SM_handleDeletedObjectsWhenOffline:deletedObjects inContext:context options:options error:error];
+    }
 }
 
 - (BOOL)SM_handleDeletedObjectsWhenOnline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context  options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
@@ -669,7 +766,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests error:error];
     
-    if (success && [deletedObjectIDs count] > 0) {
+    if (SM_CACHE_ENABLED && success && [deletedObjectIDs count] > 0) {
         [self SM_purgeObjectsFromCacheByStackMobIDInfo:deletedObjectIDs];
     }
     

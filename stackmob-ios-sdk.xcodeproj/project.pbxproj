@@ -137,15 +137,6 @@
 		DE1BDE391682C120009282BA /* peoplepermissions.json in Resources */ = {isa = PBXBuildFile; fileRef = DE1BDE301682C105009282BA /* peoplepermissions.json */; };
 		DE1BDE3A1682C129009282BA /* placespermissions.json in Resources */ = {isa = PBXBuildFile; fileRef = DE1BDE311682C106009282BA /* placespermissions.json */; };
 		DE1BDE3B1682C151009282BA /* blogpostspermissions.json in Resources */ = {isa = PBXBuildFile; fileRef = DE1BDE341682C111009282BA /* blogpostspermissions.json */; };
-		DE1D168516E59D070045EDB5 /* IncrementalStoreBatchOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0837A5167FE65B00872116 /* IncrementalStoreBatchOperationsSpec.m */; };
-		DE1D168716E59D0A0045EDB5 /* NSManagedObjectContext+ConcurrencySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB68FBF169F95EE00CC45F4 /* NSManagedObjectContext+ConcurrencySpec.m */; };
-		DE1D168816E5A5550045EDB5 /* SMUpdateObjectsOptimizationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE585271631F3C40009A1DE /* SMUpdateObjectsOptimizationSpec.m */; };
-		DE1D168916E5A5590045EDB5 /* CoreDataPropertyTypesSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DF4D7EF1631EBF400875E0F /* CoreDataPropertyTypesSpec.m */; };
-		DE1D168A16E5A6BB0045EDB5 /* SMUserManagedObjectSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE64D6041623894600237570 /* SMUserManagedObjectSpec.m */; };
-		DE1D168B16E5A6BE0045EDB5 /* SMBinDataConvertCDIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E19515E2C0BF00224E4E /* SMBinDataConvertCDIntegrationSpec.m */; };
-		DE1D168C16E5A7EF0045EDB5 /* SMCoreDataStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC570FA15D065FC00D9E44E /* SMCoreDataStoreTest.m */; };
-		DE1D168D16E5A7F20045EDB5 /* SMIncrementalStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A715CB5EA200E491C4 /* SMIncrementalStoreTest.m */; };
-		DE1D168E16E5A7F50045EDB5 /* SMIncrementalStoreFetchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0CC7A615CB5EA200E491C4 /* SMIncrementalStoreFetchTest.m */; };
 		DE2EA18D16CC626F001FA904 /* QueryTestsWithPermissionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE1BDE2D1682BFEC009282BA /* QueryTestsWithPermissionsSpec.m */; };
 		DE2EA19116CC6516001FA904 /* CRUDTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C33B0641591355A00BE2570 /* CRUDTests.m */; };
 		DE2EA19216CC6519001FA904 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
@@ -153,7 +144,6 @@
 		DE2EA19416CC6522001FA904 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
 		DE2EA19516CC6525001FA904 /* SMPushClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED78164B1D43006B7326 /* SMPushClientIntegrationSpec.m */; };
 		DE2EA19616CC6529001FA904 /* SMNetworkReachabilitySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9EEBE164B4F24006B7326 /* SMNetworkReachabilitySpec.m */; };
-		DE2EA19916CC718A001FA904 /* LocalReadCacheSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE96D84E165DA06500303710 /* LocalReadCacheSpec.m */; };
 		DE2EA1A116CC7304001FA904 /* SMGeoPoint.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 1D83529416C5ACD000814C71 /* SMGeoPoint.h */; };
 		DE2EA1A216CC7304001FA904 /* SMLocationManager.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 1D8352A716C8512400814C71 /* SMLocationManager.h */; };
 		DE2EA1A316CC7304001FA904 /* Common.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DEEDC32616C984B4008B1CC2 /* Common.h */; };
@@ -247,6 +237,7 @@
 		DEF756B71624918E006FD554 /* KeychainWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF756B51624918E006FD554 /* KeychainWrapper.m */; };
 		DEF756C81624D4BE006FD554 /* User3.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF756C61624D4BE006FD554 /* User3.h */; };
 		DEF756C91624D4BE006FD554 /* User3.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF756C71624D4BE006FD554 /* User3.m */; };
+		DEFA2E1716EA9ACA000BA770 /* IncrementalStoreBatchOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0837A5167FE65B00872116 /* IncrementalStoreBatchOperationsSpec.m */; };
 		DEFA4EBF1628A93E00E75101 /* User4.h in Headers */ = {isa = PBXBuildFile; fileRef = DEFA4EBD1628A93E00E75101 /* User4.h */; };
 		DEFA4EC01628A93E00E75101 /* User4.m in Sources */ = {isa = PBXBuildFile; fileRef = DEFA4EBE1628A93E00E75101 /* User4.m */; };
 		DEFA4EC61628D0E700E75101 /* KeychainWrapper.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DEF756B41624918E006FD554 /* KeychainWrapper.h */; };
@@ -440,6 +431,7 @@
 		DE1BDE311682C106009282BA /* placespermissions.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = placespermissions.json; path = Fixtures/placespermissions.json; sourceTree = "<group>"; };
 		DE1BDE341682C111009282BA /* blogpostspermissions.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = blogpostspermissions.json; sourceTree = "<group>"; };
 		DE1BDE351682C111009282BA /* personpermissions.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = personpermissions.json; sourceTree = "<group>"; };
+		DE1D16A216E694590045EDB5 /* LocalWriteCacheSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalWriteCacheSpec.m; sourceTree = "<group>"; };
 		DE3AE12816810FAC000B2E80 /* AFHTTPClient+StackMob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AFHTTPClient+StackMob.h"; sourceTree = "<group>"; };
 		DE3AE12916810FAC000B2E80 /* AFHTTPClient+StackMob.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AFHTTPClient+StackMob.m"; sourceTree = "<group>"; };
 		DE64D5FF1623777900237570 /* SMUserManagedObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMUserManagedObject.h; sourceTree = "<group>"; };
@@ -813,6 +805,7 @@
 				DE96D84E165DA06500303710 /* LocalReadCacheSpec.m */,
 				DE0837A5167FE65B00872116 /* IncrementalStoreBatchOperationsSpec.m */,
 				DEB68FBF169F95EE00CC45F4 /* NSManagedObjectContext+ConcurrencySpec.m */,
+				DE1D16A216E694590045EDB5 /* LocalWriteCacheSpec.m */,
 			);
 			path = integrationTestsCoreData;
 			sourceTree = "<group>";
@@ -1362,16 +1355,7 @@
 				1D8351A316B9D4D000814C71 /* SMCoreDataIntegrationTestHelpers.m in Sources */,
 				1D8351D016C08D7000814C71 /* Random.m in Sources */,
 				1D8351E016C0969A00814C71 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */,
-				DE2EA19916CC718A001FA904 /* LocalReadCacheSpec.m in Sources */,
-				DE1D168516E59D070045EDB5 /* IncrementalStoreBatchOperationsSpec.m in Sources */,
-				DE1D168716E59D0A0045EDB5 /* NSManagedObjectContext+ConcurrencySpec.m in Sources */,
-				DE1D168816E5A5550045EDB5 /* SMUpdateObjectsOptimizationSpec.m in Sources */,
-				DE1D168916E5A5590045EDB5 /* CoreDataPropertyTypesSpec.m in Sources */,
-				DE1D168A16E5A6BB0045EDB5 /* SMUserManagedObjectSpec.m in Sources */,
-				DE1D168B16E5A6BE0045EDB5 /* SMBinDataConvertCDIntegrationSpec.m in Sources */,
-				DE1D168C16E5A7EF0045EDB5 /* SMCoreDataStoreTest.m in Sources */,
-				DE1D168D16E5A7F20045EDB5 /* SMIncrementalStoreTest.m in Sources */,
-				DE1D168E16E5A7F50045EDB5 /* SMIncrementalStoreFetchTest.m in Sources */,
+				DEFA2E1716EA9ACA000BA770 /* IncrementalStoreBatchOperationsSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
