@@ -609,7 +609,11 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_handleInsertedObjectsWhenOffline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog() }
-    return YES;
+    if (error != NULL) {
+        NSError *notReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
+        *error = (__bridge id)(__bridge_retained CFTypeRef)notReachableError;
+    }
+    return NO;
 }
 
 - (BOOL)SM_handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable
@@ -712,7 +716,11 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_handleUpdatedObjectsWhenOffline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog() }
-    return YES;
+    if (error != NULL) {
+        NSError *notReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
+        *error = (__bridge id)(__bridge_retained CFTypeRef)notReachableError;
+    }
+    return NO;
 }
 
 - (BOOL)SM_handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable
@@ -798,28 +806,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (BOOL)SM_handleDeletedObjectsWhenOffline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context  options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     
     if (SM_CORE_DATA_DEBUG) { DLog() }
-    if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be deleted are %@", truncateOutputIfExceedsMaxLogLength(deletedObjects)) }
+    if (error != NULL) {
+        NSError *notReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
+        *error = (__bridge id)(__bridge_retained CFTypeRef)notReachableError;
+    }
+    return NO;
     
-    __block BOOL success = YES;
-    
-    [deletedObjects enumerateObjectsUsingBlock:^(id managedObject, BOOL *stop) {
-        
-        //NSEntityDescription *objectEntity = [managedObject entity];
-        //NSString *stackmobObjectID = [managedObject SMObjectId];
-        
-        // delete from cache
-        NSError *purgeError = nil;
-        // TODO edit for dictionary expectation
-        //[self SM_purgeObjectFromCacheWithStackMobIDInfo:stackmobObjectID error:&purgeError];
-        if (purgeError) {
-            *stop = YES;
-        } else {
-            // Add object to dirty queue
-            
-        }
-    }];
-    
-    return success;
 }
 
 
