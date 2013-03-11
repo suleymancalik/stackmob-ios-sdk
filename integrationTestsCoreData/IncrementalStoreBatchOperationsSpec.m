@@ -280,9 +280,9 @@ describe(@"401s requiring logins", ^{
         [[client.dataStore.session stubAndReturn:theValue(NO)] refreshing];
         //[[client.dataStore.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
         
-        [[client.dataStore.session should] receive:@selector(doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:) withCount:2 arguments:@"refreshToken", any(), any(), any(), any(), any(), any()];
+        [[client.dataStore.session should] receive:@selector(doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:) withCount:1 arguments:@"refreshToken", any(), any(), any(), any(), any(), any()];
         
-        [[client.dataStore.session.regularOAuthClient should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
+        [[client.dataStore.session.regularOAuthClient should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
         

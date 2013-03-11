@@ -441,17 +441,28 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_checkNetworkAvailability
 {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
+    
     __block BOOL networkAvailable = NO;
     // create a group dispatch and queue
     dispatch_queue_t queue = dispatch_queue_create("Network Availability Queue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     SMQuery *query = [[SMQuery alloc] initWithSchema:[[self.coreDataStore session] userSchema]];
-    SMRequestOptions *options = [SMRequestOptions options];
-    options.tryRefreshToken = NO;
+    SMRequestOptions *requestOptions = [SMRequestOptions options];
+    
+    requestOptions.tryRefreshToken = NO;
+    
+    NSMutableDictionary *threadDictionary = [[NSThread currentThread] threadDictionary];
+    SMRequestOptions *options = [threadDictionary objectForKey:SMRequestSpecificOptions];
+    if (!options) {
+        requestOptions.isSecure = [self.coreDataStore.globalRequestOptions isSecure];
+    } else {
+        requestOptions.isSecure = [options isSecure];
+    }
     
     dispatch_group_enter(group);
-    [[self coreDataStore] performCount:query options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSNumber *count) {
+    [[self coreDataStore] performCount:query options:requestOptions successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSNumber *count) {
         networkAvailable = YES;
         dispatch_group_leave(group);
     } onFailure:^(NSError *error) {
@@ -476,6 +487,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable
 {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
+    
     if (networkAvailable) {
         return [self SM_handleInsertedObjectsWhenOnline:insertedObjects inContext:context options:options error:error];
     } else {
@@ -585,6 +598,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_cacheObjects:(NSArray *)objectsToBeCached
 {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
+    
     if (SM_CACHE_ENABLED) {
         [objectsToBeCached enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             [self SM_cacheObjectWithID:obj[0] values:obj[1] entity:obj[2] context:obj[3]];
@@ -593,12 +608,13 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 }
 
 - (BOOL)SM_handleInsertedObjectsWhenOffline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
-    
+    if (SM_CORE_DATA_DEBUG) { DLog() }
     return YES;
 }
 
 - (BOOL)SM_handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable
 {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
     if (networkAvailable) {
         return [self SM_handleUpdatedObjectsWhenOnline:updatedObjects inContext:context options:options error:error];
     } else {
@@ -695,12 +711,13 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 }
 
 - (BOOL)SM_handleUpdatedObjectsWhenOffline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
-    
+    if (SM_CORE_DATA_DEBUG) { DLog() }
     return YES;
 }
 
 - (BOOL)SM_handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable
 {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
     if (networkAvailable) {
         return [self SM_handleDeletedObjectsWhenOnline:deletedObjects inContext:context options:options error:error];
     } else {
@@ -1538,6 +1555,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (NSString *)SM_getRemoteIDForCacheManagedObjectID:(NSManagedObjectID *)cacheManagedObjectID
 {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
     NSString *entityName = [[cacheManagedObjectID entity] name];
     NSString *stringRepOfRelationshipCacheID = [[cacheManagedObjectID URIRepresentation] absoluteString];
     NSArray *components = [stringRepOfRelationshipCacheID componentsSeparatedByString:[NSString stringWithFormat:@"%@/", entityName]];
@@ -2426,6 +2444,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_insertRemoteID:(NSString *)objectID withCacheObjectID:(NSManagedObjectID *)cacheObjectID list:(NSMutableDictionary *)list entityName:(NSString *)entityName
 {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
     // TODO if remoteID already exists
     NSDictionary *tempDict = [list objectForKey:entityName];
     
@@ -2449,6 +2468,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_isRemoteIDCached:(NSString *)objectID inList:(NSMutableDictionary *)list entityName:(NSString *)entityName
 {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
     // TODO fix for dict structure
     NSArray *objectIDsForEntity = [list objectForKey:entityName];
     if (objectIDsForEntity && ([objectIDsForEntity indexOfObject:objectID] != NSNotFound) ) {
@@ -2460,6 +2480,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_removeRemoteID:(NSString *)objectID inList:(NSMutableDictionary *)list entityName:(NSString *)entityName
 {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
     NSDictionary *tempDict = [list objectForKey:entityName];
     
     NSMutableDictionary *objectIDsForEntity = tempDict ? [tempDict mutableCopy] : [NSMutableDictionary dictionary];
@@ -2504,6 +2525,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_didRecievePurgeObjectFromCacheNotification:(NSNotification *)notification
 {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
     NSDictionary *notificationUserInfo = [notification userInfo];
     NSManagedObjectID *objectID = [notificationUserInfo objectForKey:SMCachePurgeManagedObjectID];
     
@@ -2517,6 +2539,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_didRecievePurgeObjectsFromCacheNotification:(NSNotification *)notification
 {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
     NSDictionary *notificationUserInfo = [notification userInfo];
     NSArray *objectIDsToPurge = [notificationUserInfo objectForKey:SMCachePurgeArrayOfManageObjectIDs];
     
@@ -2538,6 +2561,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_didRecievePurgeObjectFromCacheByEntityNotification:(NSNotification *)notification
 {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
     NSString *entityName = [[notification userInfo] objectForKey:SMCachePurgeOfObjectsFromEntityName];
     NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:entityName];
     NSError *error = nil;
@@ -2549,8 +2573,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_didRecieveCacheResetNotification:(NSNotification *)notification
 {
-    
-    
+    if (SM_CORE_DATA_DEBUG) { DLog() }
     NSURL *storeURL = [self SM_getStoreURLForFileComponent:SQL_DB];
     [self SM_removeStoreURLPath:storeURL];
     
