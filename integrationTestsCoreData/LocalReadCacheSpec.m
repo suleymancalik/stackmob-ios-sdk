@@ -797,7 +797,7 @@ describe(@"Fetch with Cache", ^{
         it(@"To-Many relationship fault fill without internet when related object has NOT been previously fetched remains a fault", ^{
             __block NSManagedObjectContext *testContext = moc;
             __block Person *jonObject = nil;
-            SM_CORE_DATA_DEBUG = YES;
+            //SM_CORE_DATA_DEBUG = YES;
             [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
             
             // fetch new object, which will fault

@@ -1383,123 +1383,117 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [self.coreDataStore.globalRequestOptions setTryRefreshToken:YES];
     
     if (SM_CACHE_ENABLED) {
-        if ([sm_managedObject isFault]) {
-            NSManagedObjectID *cacheObjectID = [self SM_retrieveCacheObjectForRemoteID:sm_managedObjectReferenceID entityName:[[sm_managedObject entity] name] createIfNeeded:NO];
+        
+        NSManagedObjectID *cacheObjectID = [self SM_retrieveCacheObjectForRemoteID:sm_managedObjectReferenceID entityName:[[sm_managedObject entity] name] createIfNeeded:NO];
+        
+        if (!cacheObjectID) {
+            // Scenario: Got here because object was refreshed and is now a fault, but was never cached in the first place.  Grab from the server if possible.
+            // NOTE: This may not be an issue with read + write cache
             
-            if (!cacheObjectID) {
-                // Scenario: Got here because object was refreshed and is now a fault, but was never cached in the first place.  Grab from the server if possible.
-                SMRequestOptions *optionsFromDictionary = [[[NSThread currentThread] threadDictionary] objectForKey:SMRequestSpecificOptions];
-                SMRequestOptions *optionsForRequest = nil;
-                if (self.isSaving) {
-                    if (optionsFromDictionary) {
-                        optionsForRequest = [SMRequestOptions options];
-                        [optionsForRequest setIsSecure:[optionsFromDictionary isSecure]];
-                    } else {
-                        optionsForRequest = self.coreDataStore.globalRequestOptions;
-                    }
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Cache object id not found, need to pull from server if possible") }
+            
+            SMRequestOptions *optionsFromDictionary = [[[NSThread currentThread] threadDictionary] objectForKey:SMRequestSpecificOptions];
+            SMRequestOptions *optionsForRequest = nil;
+            if (self.isSaving) {
+                if (optionsFromDictionary) {
+                    optionsForRequest = [SMRequestOptions options];
+                    [optionsForRequest setIsSecure:[optionsFromDictionary isSecure]];
                 } else {
                     optionsForRequest = self.coreDataStore.globalRequestOptions;
                 }
-                NSDictionary *serializedObjectDict = [self SM_retrieveAndSerializeObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:optionsForRequest context:context includeRelationships:NO cacheResult:!self.isSaving error:error];
-                
-                if (error != NULL && *error) {
-                    return nil;
-                }
-                
-                SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDict version:1];
-                
-                return node;
-                
+            } else {
+                optionsForRequest = self.coreDataStore.globalRequestOptions;
+            }
+            NSDictionary *serializedObjectDict = [self SM_retrieveAndSerializeObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:optionsForRequest context:context includeRelationships:NO cacheResult:!self.isSaving error:error];
+            
+            if (error != NULL && *error) {
+                return nil;
             }
             
-            NSManagedObject *objectFromCache = [self.localManagedObjectContext objectWithID:cacheObjectID];
-            
-            if (!objectFromCache) {
-                [NSException raise:SMExceptionIncompatibleObject format:@"Cache object with managed object ID %@ not found.", cacheObjectID];
-            }
-            
-            // Get primary key field of relationship
-            NSString *primaryKeyField = nil;
-            @try {
-                primaryKeyField = [sm_managedObject primaryKeyField];
-            }
-            @catch (NSException *exception) {
-                if (SM_CORE_DATA_DEBUG) { DLog(@"Could not find primary key field for managed object, checking whether user object") }
-                if ([sm_managedObject isKindOfClass:[SMUserManagedObject class]]) {
-                    primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
-                }
-            }
-            
-            // Check primary key, and if nil string is present we have an empty reference to a related object.  Need to grab values from the server if possible.
-            NSString *cachePrimaryKey = [objectFromCache valueForKey:primaryKeyField];
-            NSRange range = [cachePrimaryKey rangeOfString:@":nil"];
-            if (range.location != NSNotFound) {
-                SMRequestOptions *optionsFromDictionary = [[[NSThread currentThread] threadDictionary] objectForKey:SMRequestSpecificOptions];
-                SMRequestOptions *optionsForRequest = nil;
-                if (self.isSaving) {
-                    if (optionsFromDictionary) {
-                        optionsForRequest = [SMRequestOptions options];
-                        [optionsForRequest setIsSecure:[optionsFromDictionary isSecure]];
-                    } else {
-                        optionsForRequest = self.coreDataStore.globalRequestOptions;
-                    }
-                } else {
-                    optionsForRequest = self.coreDataStore.globalRequestOptions;
-                }
-                NSDictionary *serializedObjectDict = [self SM_retrieveAndSerializeObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:optionsForRequest context:context includeRelationships:NO cacheResult:YES error:error];
-                
-                if (error != NULL && *error) {
-                    return nil;
-                }
-                
-                SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDict version:1];
-                
-                return node;
-                
-            }
-            
-            // Create dictionary of keys and values for incremental store node
-            NSMutableDictionary *dictionaryRepresentationOfCacheObject = [NSMutableDictionary dictionary];
-            
-            [[objectFromCache dictionaryWithValuesForKeys:[[[objectFromCache entity] attributesByName] allKeys]] enumerateKeysAndObjectsUsingBlock:^(id attributeName, id attributeValue, BOOL *stop) {
-                if (attributeValue != [NSNull null]) {
-                    [dictionaryRepresentationOfCacheObject setObject:attributeValue forKey:attributeName];
-                }
-            }];
-            
-            [[objectFromCache dictionaryWithValuesForKeys:[[[objectFromCache entity] relationshipsByName] allKeys]] enumerateKeysAndObjectsUsingBlock:^(id relationshipName, id relationshipValue, BOOL *stop) {
-                if (![[[[objectFromCache entity] relationshipsByName] objectForKey:relationshipName] isToMany]) {
-                    if (relationshipValue == [NSNull null] || relationshipValue == nil) {
-                        [dictionaryRepresentationOfCacheObject setObject:[NSNull null] forKey:relationshipName];
-                    } else {
-                        
-                        NSString *referenceObjectForDictionary = [self SM_getRemoteIDForCacheManagedObjectID:[relationshipValue objectID]];
-                        NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationshipValue entity] referenceObject:referenceObjectForDictionary];
-                        [dictionaryRepresentationOfCacheObject setObject:relationshipObjectID forKey:relationshipName];
-                        
-                        /*
-                        NSString *stringRepOfRelationshipCacheID = [[[relationshipValue objectID] URIRepresentation] absoluteString];
-                        NSArray *matchingKeys = [self.cacheMappingTable allKeysForObject:stringRepOfRelationshipCacheID];
-                        
-                        if ([matchingKeys count] != 1) {
-                            // This means the object was never placed in the cache map, or duplicated
-                            [NSException raise:SMExceptionCacheError format:@"Key for cache object ID found incorrect number of times.  Matching keys for ID: %ld", (unsigned long)[matchingKeys count]];
-                        } else {
-                            NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationshipValue entity] referenceObject:[matchingKeys lastObject]];
-                            [dictionaryRepresentationOfCacheObject setObject:relationshipObjectID forKey:relationshipName];
-                        }
-                         */
-                    }
-                }
-            }];
-            
-            
-            SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:dictionaryRepresentationOfCacheObject version:1];
+            SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDict version:1];
             
             return node;
+            
         }
         
-        // If the object is not faulted, values are in memory but core data is requesting persisten store values.
+        NSManagedObject *objectFromCache = [self.localManagedObjectContext objectWithID:cacheObjectID];
+        
+        if (!objectFromCache) {
+            [NSException raise:SMExceptionIncompatibleObject format:@"Cache object with managed object ID %@ not found.", cacheObjectID];
+        }
+        
+        // Get primary key field of object
+        NSString *primaryKeyField = nil;
+        @try {
+            primaryKeyField = [sm_managedObject primaryKeyField];
+        }
+        @catch (NSException *exception) {
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Could not find primary key field for managed object, checking if user object") }
+            if ([sm_managedObject isKindOfClass:[SMUserManagedObject class]]) {
+                primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
+                if (SM_CORE_DATA_DEBUG) { DLog(@"Object is user object, using userPrimaryKeyField as primary key") }
+            }
+        }
+        
+        // Check primary key, and if nil string is present we have an empty reference to a related object.  Need to grab values from the server if possible.
+        NSString *cachePrimaryKey = [objectFromCache valueForKey:primaryKeyField];
+        NSRange range = [cachePrimaryKey rangeOfString:@":nil"];
+        if (range.location != NSNotFound) {
+            
+            // TODO possible to return error if network not available?
+            SMRequestOptions *optionsFromDictionary = [[[NSThread currentThread] threadDictionary] objectForKey:SMRequestSpecificOptions];
+            SMRequestOptions *optionsForRequest = nil;
+            if (self.isSaving) {
+                if (optionsFromDictionary) {
+                    optionsForRequest = [SMRequestOptions options];
+                    [optionsForRequest setIsSecure:[optionsFromDictionary isSecure]];
+                } else {
+                    optionsForRequest = self.coreDataStore.globalRequestOptions;
+                }
+            } else {
+                optionsForRequest = self.coreDataStore.globalRequestOptions;
+            }
+            NSDictionary *serializedObjectDict = [self SM_retrieveAndSerializeObjectWithID:sm_managedObjectReferenceID entity:[sm_managedObject entity] options:optionsForRequest context:context includeRelationships:NO cacheResult:YES error:error];
+            
+            if (error != NULL && *error) {
+                return nil;
+            }
+            
+            SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDict version:1];
+            
+            return node;
+            
+        }
+        
+        // Create dictionary of keys and values for incremental store node
+        NSMutableDictionary *dictionaryRepresentationOfCacheObject = [NSMutableDictionary dictionary];
+        
+        [[objectFromCache dictionaryWithValuesForKeys:[[[objectFromCache entity] attributesByName] allKeys]] enumerateKeysAndObjectsUsingBlock:^(id attributeName, id attributeValue, BOOL *stop) {
+            if (attributeValue != [NSNull null]) {
+                [dictionaryRepresentationOfCacheObject setObject:attributeValue forKey:attributeName];
+            }
+        }];
+        
+        [[objectFromCache dictionaryWithValuesForKeys:[[[objectFromCache entity] relationshipsByName] allKeys]] enumerateKeysAndObjectsUsingBlock:^(id relationshipName, id relationshipValue, BOOL *stop) {
+            if (![[[[objectFromCache entity] relationshipsByName] objectForKey:relationshipName] isToMany]) {
+                if (relationshipValue == [NSNull null] || relationshipValue == nil) {
+                    [dictionaryRepresentationOfCacheObject setObject:[NSNull null] forKey:relationshipName];
+                } else {
+                    
+                    NSString *referenceObjectForDictionary = [self SM_getRemoteIDForCacheManagedObjectID:[relationshipValue objectID]];
+                    NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:[relationshipValue entity] referenceObject:referenceObjectForDictionary];
+                    [dictionaryRepresentationOfCacheObject setObject:relationshipObjectID forKey:relationshipName];
+                }
+            }
+        }];
+        
+        
+        SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:dictionaryRepresentationOfCacheObject version:1];
+        
+        return node;
+        
+        /*
+        // If the object is not faulted, values are in memory but core data is requesting persistent store values.
         
         NSDictionary *serializedObjectDictionary = nil;
         
@@ -1529,8 +1523,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         SMIncrementalStoreNode *node = [[SMIncrementalStoreNode alloc] initWithObjectID:objectID withValues:serializedObjectDictionary version:1];
         
         return node;
+         */
         
     } else {
+        
+        // Cache is not enabled, must read from server if possible
+        
         SMRequestOptions *optionsFromDictionary = [[[NSThread currentThread] threadDictionary] objectForKey:SMRequestSpecificOptions];
         SMRequestOptions *optionsForRequest = nil;
         if (self.isSaving) {
@@ -1549,7 +1547,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         return node;
         
-    }
+    } // end if/else SM_CACHE_ENABLED
     
 }
 
@@ -1572,8 +1570,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     if ([allKeysForObject count] != 1) {
         [NSException raise:SMExceptionIncompatibleObject format:@"Multiple or no keys for cache map reference %@, entity %@.  Please submit a support ticket with StackMob.", cacheMapReference, entityName];
     }
-    //NSUInteger index = [[remoteIDsForEntity allValues] indexOfObject:cacheMapReference];
-    //return [[remoteIDsForEntity allKeys] objectAtIndex:index];
 
     return [allKeysForObject lastObject];
 }
@@ -1627,100 +1623,92 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     if (SM_CACHE_ENABLED) {
         
-        if (!self.isSaving && [sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
+        // Retreive parent object from cache
+        NSManagedObjectID *cacheObjectID = [self SM_retrieveCacheObjectForRemoteID:sm_managedObjectReferenceID entityName:[[sm_managedObject entity] name] createIfNeeded:NO];
+        if (!cacheObjectID) {
+            // TODO handle error
+        }
+        NSManagedObject *objectFromCache = [self.localManagedObjectContext objectWithID:cacheObjectID];
+        
+        // Get primary key field of relationship
+        NSString *primaryKeyField = nil;
+        @try {
+            primaryKeyField = [[relationship destinationEntity] primaryKeyField];
+        }
+        @catch (NSException *exception) {
+            primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
+        }
+        
+        if ([relationship isToMany]) {
+            // to-many: pull related object set from cache
+            // value should be the cache object reference for the related object, if the relationship value is not nil
             
-            // Retreive parent object from cache
-            NSManagedObjectID *cacheObjectID = [self SM_retrieveCacheObjectForRemoteID:sm_managedObjectReferenceID entityName:[[sm_managedObject entity] name] createIfNeeded:NO];
-            if (!cacheObjectID) {
-                // TODO handle error
+            NSArray *relatedObjectCacheReferenceSet = [[objectFromCache valueForKey:[relationship name]] allObjects];
+            if ([relatedObjectCacheReferenceSet count] == 0) {
+                return [NSArray array];
             }
-            NSManagedObject *objectFromCache = [self.localManagedObjectContext objectWithID:cacheObjectID];
-            /*
-            NSString *cacheMapReferenceID = [self.cacheMappingTable objectForKey:sm_managedObjectReferenceID];
-            NSManagedObjectID *cacheObjectID = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheMapReferenceID]];
+            __block NSMutableArray *arrayToReturn = [NSMutableArray array];
+            __block BOOL shouldRetreiveFromNetwork = NO;
             
-            if (!cacheObjectID) {
-                if (NULL != error) {
-                    *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorCacheIDNotFound userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"No cache ID was found for the provided object ID: %@", objectID], NSLocalizedDescriptionKey, nil]];
-                    *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
-                }
-                return nil;
-            }
-            
-            NSManagedObject *objectFromCache = [self.localManagedObjectContext objectWithID:cacheObjectID];
-             */
-            
-            // Get primary key field of relationship
-            NSString *primaryKeyField = nil;
-            @try {
-                primaryKeyField = [[relationship destinationEntity] primaryKeyField];
-            }
-            @catch (NSException *exception) {
-                primaryKeyField = [self.coreDataStore.session userPrimaryKeyField];
-            }
-            
-            if ([relationship isToMany]) {
-                // to-many: pull related object set from cache
-                // value should be the cache object reference for the related object, if the relationship value is not nil
-                NSArray *relatedObjectCacheReferenceSet = [[objectFromCache valueForKey:[relationship name]] allObjects];
-                if ([relatedObjectCacheReferenceSet count] == 0) {
-                    return [NSArray array];
-                }
-                __block NSMutableArray *arrayToReturn = [NSMutableArray array];
-                __block BOOL shouldRetreiveFromNetwork = NO;
+            [relatedObjectCacheReferenceSet enumerateObjectsUsingBlock:^(id cacheManagedObject, NSUInteger idx, BOOL *stop) {
                 
-                [relatedObjectCacheReferenceSet enumerateObjectsUsingBlock:^(id cacheManagedObject, NSUInteger idx, BOOL *stop) {
-                    
-                    // If primary key includes the nil string, this was just a reference and we need to retreive online, if possible
-                    NSString *relatedObjectRemoteID = [cacheManagedObject valueForKey:primaryKeyField];
-                    NSRange range = [relatedObjectRemoteID rangeOfString:@":nil"];
-                    if (range.location != NSNotFound) {
-                        // All objects are likely references, retreive object online if possible
-                        shouldRetreiveFromNetwork = YES;
-                        *stop = YES;
-                    } else {
-                        // Use primary key id to create in-memory context managed object ID equivalent
-                        NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:relatedObjectRemoteID];
-                        
-                        [arrayToReturn addObject:sm_managedObjectID];
-                    }
-                    
-                }];
-                
-                if (shouldRetreiveFromNetwork) {
-                    [arrayToReturn removeAllObjects];
-                    SMRequestOptions *optionsForRetrieval = self.coreDataStore.globalRequestOptions;
-                    id resultToReturn =  [self SM_retrieveAndCacheRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID options:optionsForRetrieval context:context error:error];
-                    arrayToReturn = resultToReturn;
-                }
-                
-                return arrayToReturn;
-                
-            } else {
-                // to-one: pull related object from cache
-                // value should be the cache object reference for the related object, if the relationship value is not nil
-                NSManagedObject *relatedObjectCacheReferenceObject = [objectFromCache valueForKey:[relationship name]];
-                if (!relatedObjectCacheReferenceObject) {
-                    return [NSNull null];
+                // If primary key includes the nil string, this was just a reference and we need to retreive online, if possible
+                NSString *relatedObjectRemoteID = [cacheManagedObject valueForKey:primaryKeyField];
+                NSRange range = [relatedObjectRemoteID rangeOfString:@":nil"];
+                if (range.location != NSNotFound) {
+                    // All objects are likely references, retreive object online if possible
+                    shouldRetreiveFromNetwork = YES;
+                    *stop = YES;
                 } else {
-                    // If primary key includes the nil string, this was just a reference and we need to retreive online, if possible
-                    NSString *relatedObjectRemoteID = [relatedObjectCacheReferenceObject valueForKey:primaryKeyField];
-                    NSRange range = [relatedObjectRemoteID rangeOfString:@":nil"];
-                    if (range.location != NSNotFound) {
-                        // Retreive object from server
-                        SMRequestOptions *optionsForRetrival = self.coreDataStore.globalRequestOptions;
-                        id resultToReturn =  [self SM_retrieveAndCacheRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID options:optionsForRetrival context:context error:error];
-                        return resultToReturn;
-                    }
-                    
                     // Use primary key id to create in-memory context managed object ID equivalent
                     NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:relatedObjectRemoteID];
                     
-                    return sm_managedObjectID;
+                    [arrayToReturn addObject:sm_managedObjectID];
                 }
+                
+            }];
+            
+            if (shouldRetreiveFromNetwork) {
+                [arrayToReturn removeAllObjects];
+                // TODO add per-request options?
+                SMRequestOptions *optionsForRetrieval = self.coreDataStore.globalRequestOptions;
+                id resultToReturn =  [self SM_retrieveAndCacheRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID options:optionsForRetrieval context:context error:error];
+                arrayToReturn = resultToReturn;
+            }
+            
+            return arrayToReturn;
+            
+        } else {
+            // to-one: pull related object from cache
+            // value should be the cache object reference for the related object, if the relationship value is not nil
+            NSManagedObject *relatedObjectCacheReferenceObject = [objectFromCache valueForKey:[relationship name]];
+            if (!relatedObjectCacheReferenceObject) {
+                return [NSNull null];
+            } else {
+                // If primary key includes the nil string, this was just a reference and we need to retreive online, if possible
+                NSString *relatedObjectRemoteID = [relatedObjectCacheReferenceObject valueForKey:primaryKeyField];
+                NSRange range = [relatedObjectRemoteID rangeOfString:@":nil"];
+                if (range.location != NSNotFound) {
+                    // Retreive object from server
+                    // TODO pull per-request options?
+                    SMRequestOptions *optionsForRetrival = self.coreDataStore.globalRequestOptions;
+                    id resultToReturn =  [self SM_retrieveAndCacheRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID options:optionsForRetrival context:context error:error];
+                    return resultToReturn;
+                }
+                
+                // Use primary key id to create in-memory context managed object ID equivalent
+                NSManagedObjectID *sm_managedObjectID = [self newObjectIDForEntity:[relationship destinationEntity] referenceObject:relatedObjectRemoteID];
+                
+                return sm_managedObjectID;
             }
         }
         
+        /*
+        if (!self.isSaving && [sm_managedObject hasFaultForRelationshipNamed:[relationship name]]) {
+         
+         
+        }
+    
         // If the object is not faulted, core data is requesting values from persistent store and we need to retreive an up-to-date copy from the server.
         
         id result = nil;
@@ -1752,8 +1740,11 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         
         return result;
+         */
         
     } else {
+        
+        // Cache is not enabled, read from server if possible
         
         id result = nil;
         SMRequestOptions *optionsFromDictionary = [[[NSThread currentThread] threadDictionary] objectForKey:SMRequestSpecificOptions];
@@ -1769,9 +1760,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             optionsForRequest = self.coreDataStore.globalRequestOptions;
         }
         result = [self SM_retrieveRelatedObjectForRelationship:relationship parentObject:sm_managedObject referenceID:sm_managedObjectReferenceID options:optionsForRequest context:context error:error];
+        
         return result;
         
-    }
+    } // end if/else SM_CACHE_ENABLED
     
 }
 
