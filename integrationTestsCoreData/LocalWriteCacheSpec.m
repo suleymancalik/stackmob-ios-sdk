@@ -20,14 +20,6 @@
 #import "SMCoreDataIntegrationTestHelpers.h"
 #import "Person.h"
 
-/*
- 
- NEED TESTS FOR:
- 
- * network available method when offline works
- 
- */
-
 SPEC_BEGIN(LocalWriteCacheSpec)
 
 describe(@"Count query for network status", ^{

@@ -60,6 +60,33 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
     return aURL;
 }
 
++ (NSURL *)SM_getStoreURLForDirtyQueueTableWithPublicKey:(NSString *)publicKey
+{
+    
+    NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
+    NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
+    
+    NSString *defaultName = [NSString stringWithFormat:@"%@-DirtyQueue.plist", publicKey];
+    
+    NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
+    
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    
+    for (NSString *path in paths)
+    {
+        NSString *filepath = [path stringByAppendingPathComponent:defaultName];
+        if ([fm fileExistsAtPath:filepath])
+        {
+            return [NSURL fileURLWithPath:filepath];
+        }
+        
+    }
+    
+    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    return aURL;
+}
+
 + (NSDictionary *)getContentsOfFileAtPath:(NSString *)path
 {
     NSString *errorDesc = nil;
@@ -122,6 +149,16 @@ static SMCoreDataIntegrationTestHelpers *_singletonInstance;
         BOOL sqliteDelete = [fileManager removeItemAtURL:aURL error:&sqliteDeleteError];
         if (!sqliteDelete) {
             [NSException raise:@"SMCouldNotDeleteCacheMap" format:@""];
+        }
+    }
+    
+    defaultName = [NSString stringWithFormat:@"%@-DirtyQueue.plist", publicKey];
+    aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:defaultName]];
+    if ([fileManager fileExistsAtPath:[aURL path]]) {
+        NSError *sqliteDeleteError = nil;
+        BOOL sqliteDelete = [fileManager removeItemAtURL:aURL error:&sqliteDeleteError];
+        if (!sqliteDelete) {
+            [NSException raise:@"SMCouldNotDeleteDirtyQueueMap" format:@""];
         }
     }
 }

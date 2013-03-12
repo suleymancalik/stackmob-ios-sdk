@@ -792,7 +792,6 @@ describe(@"Fetch with Cache", ^{
                 [[theValue([interestsSet count]) should] equal:theValue(0)];
             }];
         });
-         
         
         it(@"To-Many relationship fault fill without internet when related object has NOT been previously fetched remains a fault", ^{
             __block NSManagedObjectContext *testContext = moc;
