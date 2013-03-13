@@ -73,6 +73,10 @@ describe(@"Count query for network status", ^{
         [[theValue([results count]) should] equal:theValue(1)];
         [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Bob"];
         
+        // Check that dates were properly created
+        NSDAte *createddate = [[results objectAtIndex:0] valueForKey:@"createddate"];
+        [createddate shouldNotBeNil];
+        
         // Check dirty queue
         __block NSDictionary *dqMapResults = nil;
         NSURL *dirtyQueueURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForDirtyQueueTableWithPublicKey:client.publicKey];
@@ -81,6 +85,7 @@ describe(@"Count query for network status", ^{
         [dqMapResults shouldNotBeNil];
         [[theValue([dqMapResults count]) should] equal:theValue(1)];
     });
+    /*
     it(@"insert with a to-one relationship works", ^{
         // Make sure we are offline
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
@@ -218,6 +223,7 @@ describe(@"Count query for network status", ^{
         [[theValue([dqMapResults count]) should] equal:theValue(3)];
         
     });
+     */
 });
 
 // to do updates and deletes

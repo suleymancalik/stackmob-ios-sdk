@@ -604,6 +604,13 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (BOOL)SM_handleInsertedObjectsWhenOffline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     
+    if (error != NULL) {
+        NSError *notReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
+        *error = (__bridge id)(__bridge_retained CFTypeRef)notReachableError;
+    }
+    return NO;
+    
+    /*
     __block NSMutableArray *objectsToBeCached = [NSMutableArray arrayWithCapacity:[insertedObjects count]];
     __block NSMutableArray *dirtyObjects = [NSMutableArray array];
     
@@ -618,8 +625,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         // Add dictionary rep of relationships
         [dictionaryRepOfManagedObject addEntriesFromDictionary:[self SM_extractRelationshipships:[managedObject dictionaryWithValuesForKeys:[[[managedObject entity] relationshipsByName] allKeys]]]];
         
-        // Assign lastmoddate (createddate too?)
-        
+        // Assign lastmoddate and createddate?
         
         // Add object to list of objects to be cached [primaryKey, dictionary of object, entity desc, context]
         NSArray *objectReadyForCache = [NSArray arrayWithObjects:[managedObject valueForKey:[managedObject primaryKeyField]], dictionaryRepOfManagedObject, [managedObject entity], context, nil];
@@ -637,17 +643,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [self SM_addPrimaryKeysToDirtyQueueAndSave:dirtyObjects];
     
     return YES;
-}
-
-- (void)SM_addPrimaryKeysToDirtyQueueAndSave:(NSArray *)primaryKeys
-{
-    [primaryKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
-        if ([self.dirtyQueue indexOfObject:key] == NSNotFound) {
-            [self.dirtyQueue addObject:key];
-        }
-    }];
-    
-    [self SM_saveDirtyQueue];
+     */
 }
 
 - (NSDictionary *)SM_extractRelationshipships:(NSDictionary *)relationshipsDictionary
@@ -771,11 +767,47 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_handleUpdatedObjectsWhenOffline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog() }
+    
     if (error != NULL) {
         NSError *notReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
         *error = (__bridge id)(__bridge_retained CFTypeRef)notReachableError;
     }
     return NO;
+    /*
+    __block NSMutableArray *objectsToBeCached = [NSMutableArray arrayWithCapacity:[updatedObjects count]];
+    __block NSMutableArray *dirtyObjects = [NSMutableArray array];
+    
+    [updatedObjects enumerateObjectsUsingBlock:^(id managedObject, BOOL *stop) {
+        
+        // Possibly just need to serialize dictionary once?
+        
+        // Add dictionary rep of attributes
+        NSMutableDictionary *dictionaryRepOfManagedObject = [NSMutableDictionary dictionary];
+        [dictionaryRepOfManagedObject addEntriesFromDictionary:[managedObject dictionaryWithValuesForKeys:[[[managedObject entity] attributesByName] allKeys]]];
+        
+        // Add dictionary rep of relationships
+        [dictionaryRepOfManagedObject addEntriesFromDictionary:[self SM_extractRelationshipships:[managedObject dictionaryWithValuesForKeys:[[[managedObject entity] relationshipsByName] allKeys]]]];
+        
+        // Assign lastmoddate and createddate?
+        
+        
+        // Add object to list of objects to be cached [primaryKey, dictionary of object, entity desc, context]
+        NSArray *objectReadyForCache = [NSArray arrayWithObjects:[managedObject valueForKey:[managedObject primaryKeyField]], dictionaryRepOfManagedObject, [managedObject entity], context, nil];
+        [objectsToBeCached addObject:objectReadyForCache];
+        
+        // Add object to dirty queue
+        [dirtyObjects addObject:[managedObject valueForKey:[managedObject primaryKeyField]]];
+        
+    }];
+    
+    // Cache objects
+    [self SM_cacheObjects:objectsToBeCached];
+    
+    // Save dirty objects
+    [self SM_addPrimaryKeysToDirtyQueueAndSave:dirtyObjects];
+    
+    return YES;
+     */
 }
 
 - (BOOL)SM_handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable
@@ -2568,6 +2600,16 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
+- (void)SM_addPrimaryKeysToDirtyQueueAndSave:(NSArray *)primaryKeys
+{
+    [primaryKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
+        if ([self.dirtyQueue indexOfObject:key] == NSNotFound) {
+            [self.dirtyQueue addObject:key];
+        }
+    }];
+    
+    [self SM_saveDirtyQueue];
+}
 
 - (BOOL)SM_saveCache:(NSError *__autoreleasing*)error
 {

@@ -24,7 +24,7 @@
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="oauth2test_id" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
-    <entity name="Person" representedClassName="Person" syncable="YES">
+    <entity name="Person" representedClassName="Person" parentEntity="StackMob" syncable="YES">
         <attribute name="armor_class" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="company" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="first_name" optional="YES" attributeType="String" syncable="YES"/>
@@ -43,6 +43,10 @@
         <attribute name="server_id" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="time" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="yearBorn" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="StackMob" isAbstract="YES" syncable="YES">
+        <attribute name="createddate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="lastmoddate" optional="YES" attributeType="Date" syncable="YES"/>
     </entity>
     <entity name="Superpower" representedClassName="Superpower" syncable="YES">
         <attribute name="level" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
@@ -77,5 +81,6 @@
         <element name="Todo" positionX="-297" positionY="-162" width="128" height="105"/>
         <element name="User3" positionX="-477" positionY="135" width="128" height="75"/>
         <element name="User4" positionX="-108" positionY="-135" width="128" height="75"/>
+        <element name="StackMob" positionX="160" positionY="192" width="128" height="75"/>
     </elements>
 </model>
