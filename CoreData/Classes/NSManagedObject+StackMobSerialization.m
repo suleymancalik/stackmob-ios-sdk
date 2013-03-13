@@ -144,12 +144,18 @@
             if ([relationship isToMany]) {
                 NSMutableArray *relatedObjectDictionaries = [NSMutableArray array];
                 [(NSSet *)propertyValue enumerateObjectsUsingBlock:^(id child, BOOL *stopRelEnum) {
+                    NSManagedObjectID *childManagedObjectID = [child objectID];
+                    NSString *entityName = [[child entity] name];
+                    NSArray *components = [[[childManagedObjectID URIRepresentation] absoluteString] componentsSeparatedByString:[NSString stringWithFormat:@"%@/p", entityName]];
+                    NSString *childObjectID = [components objectAtIndex:1];
+                    /*
                     NSString *childObjectId = [child SMObjectId];
                     if (childObjectId == nil) {
                         *stopRelEnum = YES;
                         [NSException raise:SMExceptionIncompatibleObject format:@"Trying to serialize an object with a to-many relationship whose value references an object with a nil value for it's primary key field.  Please make sure you assign object ids with assignObjectId before attaching to relationships.  The object in question is %@", [child description]];
                     }
-                    [relatedObjectDictionaries addObject:[child SMObjectId]];
+                     */
+                    [relatedObjectDictionaries addObject:childObjectID];
                 }];
                 
                 // add relationship header only if there are actual keys
@@ -176,7 +182,6 @@
                     [relationshipKeyPath appendString:[selfEntity SMFieldNameForProperty:relationship]];
                     
                     [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] SMSchema]]];
-                    
                     
                     NSPropertyDescription *primaryKeyProperty = [[[relationship destinationEntity] propertiesByName] objectForKey:[propertyValue primaryKeyField]];
                     [objectDictionary setObject:[NSDictionary dictionaryWithObject:[propertyValue SMObjectId] forKey:[[relationship destinationEntity] SMFieldNameForProperty:primaryKeyProperty]] forKey:[selfEntity SMFieldNameForProperty:property]];
