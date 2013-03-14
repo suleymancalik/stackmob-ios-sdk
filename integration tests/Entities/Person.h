@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
-#import "StackMob.h"
 
 @class Superpower;
 
@@ -38,10 +37,8 @@
 - (void)removeFavoritesObject:(NSManagedObject *)value;
 - (void)addFavorites:(NSSet *)values;
 - (void)removeFavorites:(NSSet *)values;
-
 - (void)addInterestsObject:(NSManagedObject *)value;
 - (void)removeInterestsObject:(NSManagedObject *)value;
 - (void)addInterests:(NSSet *)values;
 - (void)removeInterests:(NSSet *)values;
-
 @end

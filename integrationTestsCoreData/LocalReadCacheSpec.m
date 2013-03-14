@@ -1232,7 +1232,8 @@ describe(@"cache references should not be returned during fetches", ^{
         
         [cds setCachePolicy:SMCachePolicyTryCacheElseNetwork];
         
-        [[cds should] receive:@selector(performQuery:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:) withCount:1];
+        // No longer hold because of cache writing
+        //[[cds should] receive:@selector(performQuery:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:) withCount:1];
         
         // Fetch that entity, should not throw an exception
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makeInterestFetchRequest:nil context:moc] andBlock:^(NSArray *results, NSError *error) {

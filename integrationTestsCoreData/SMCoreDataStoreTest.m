@@ -23,13 +23,14 @@ SPEC_BEGIN(SMCoreDataStoreTest)
 describe(@"create an instance of SMCoreDataStore from SMClient", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *coreDataStore = nil;
-    __block NSManagedObjectModel *mom = nil;
     __block NSManagedObjectContext *moc = nil;
     beforeEach(^{
-        mom = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]];
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
-        coreDataStore = [client coreDataStoreWithManagedObjectModel:mom];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        coreDataStore = [client coreDataStoreWithManagedObjectModel:aModel];
         
     });
     describe(@"obtaining a managedObjectContext hooked to SM", ^{

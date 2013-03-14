@@ -21,7 +21,6 @@
 
 SPEC_BEGIN(IncrementalStoreBatchOperationsSpec)
 
-
 describe(@"Inserting/Updating/Deleting many objects works fine", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -334,7 +333,6 @@ describe(@"timeouts with refreshing", ^{
     
 });
 
-
 describe(@"With 401s and other errors", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -413,8 +411,9 @@ describe(@"With 401s and other errors", ^{
         [todo setValue:@"bob" forKey:@"title"];
         [todo setValue:@"primarykey" forKey:[todo primaryKeyField]];
         
-        // Should create total of 3 operations, one for the 409 and 2 for the 401 (first time and retry)
-        [[client.dataStore.session.regularOAuthClient should] receive:@selector(enqueueHTTPRequestOperation:) withCount:3];
+        // Should create total of 2 operations, one for the 409 and 1 for the 401 (first time, retry happens from token client)
+        [[client.dataStore.session.tokenClient should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        [[client.dataStore.session.regularOAuthClient should] receive:@selector(enqueueHTTPRequestOperation:) withCount:2];
         
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];

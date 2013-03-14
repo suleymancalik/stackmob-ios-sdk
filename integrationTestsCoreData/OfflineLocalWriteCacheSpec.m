@@ -23,8 +23,8 @@
 #import "Superpower.h"
 
 SPEC_BEGIN(OfflineLocalWriteCacheSpec)
-
-describe(@"Count query for network status", ^{
+/*
+describe(@"Basic insert when offline", ^{
     
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -74,8 +74,6 @@ describe(@"Count query for network status", ^{
         [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Bob"];
         
         // Check that dates were properly created
-        NSDAte *createddate = [[results objectAtIndex:0] valueForKey:@"createddate"];
-        [createddate shouldNotBeNil];
         
         // Check dirty queue
         __block NSDictionary *dqMapResults = nil;
@@ -83,9 +81,10 @@ describe(@"Count query for network status", ^{
         dqMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[dirtyQueueURL path]];
         
         [dqMapResults shouldNotBeNil];
+        
         [[theValue([dqMapResults count]) should] equal:theValue(1)];
     });
-    /*
+    
     it(@"insert with a to-one relationship works", ^{
         // Make sure we are offline
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
@@ -223,9 +222,91 @@ describe(@"Count query for network status", ^{
         [[theValue([dqMapResults count]) should] equal:theValue(3)];
         
     });
-     */
 });
+ */
 
 // to do updates and deletes
+describe(@"moving object from insert to update to delete - check dirty queue", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    beforeEach(^{
+        SM_CACHE_ENABLED = YES;
+        //SM_CORE_DATA_DEBUG = YES;
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        moc = [cds contextForCurrentThread];
+        [cds setCachePolicy:SMCachePolicyTryCacheOnly];
+    });
+    afterEach(^{
+        SM_CACHE_ENABLED = NO;
+        SM_CORE_DATA_DEBUG = NO;
+    });
+    it(@"moves the primary key across the arrays in the dirty queue", ^{
+        // Make sure we are offline
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
+        
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
+        
+        // Add person
+        Person *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
+        NSString *objectID = [person assignObjectId];
+        [person setValue:objectID forKey:[person primaryKeyField]];
+        [person setValue:@"Bob" forKey:@"first_name"];
+        
+        // save them to the server
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        
+        // Check dirty queue
+        __block NSDictionary *dqMapResults = nil;
+        NSURL *dirtyQueueURL = [SMCoreDataIntegrationTestHelpers SM_getStoreURLForDirtyQueueTableWithPublicKey:client.publicKey];
+        dqMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[dirtyQueueURL path]];
+        
+        [dqMapResults shouldNotBeNil];
+        [[theValue([[dqMapResults objectForKey:@"inserted"] count]) should] equal:theValue(1)];
+        [[theValue([[dqMapResults objectForKey:@"updated"] count]) should] equal:theValue(0)];
+        [[theValue([[dqMapResults objectForKey:@"deleted"] count]) should] equal:theValue(0)];
+        
+        // Update the person
+        [person setValue:@"Jack" forKey:@"first_name"];
+        
+        // save them to the server
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        
+        dqMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[dirtyQueueURL path]];
+        
+        [dqMapResults shouldNotBeNil];
+        [[theValue([[dqMapResults objectForKey:@"inserted"] count]) should] equal:theValue(0)];
+        [[theValue([[dqMapResults objectForKey:@"updated"] count]) should] equal:theValue(1)];
+        [[theValue([[dqMapResults objectForKey:@"deleted"] count]) should] equal:theValue(0)];
+        
+        // Delete the object
+        [moc deleteObject:person];
+        
+        // save them to the server
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        
+        dqMapResults = [SMCoreDataIntegrationTestHelpers getContentsOfFileAtPath:[dirtyQueueURL path]];
+        
+        [dqMapResults shouldNotBeNil];
+        [[theValue([[dqMapResults objectForKey:@"inserted"] count]) should] equal:theValue(0)];
+        [[theValue([[dqMapResults objectForKey:@"updated"] count]) should] equal:theValue(0)];
+        [[theValue([[dqMapResults objectForKey:@"deleted"] count]) should] equal:theValue(1)];
+        
+        
+    });
+    
+});
 
 SPEC_END

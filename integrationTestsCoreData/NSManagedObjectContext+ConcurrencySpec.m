@@ -252,20 +252,17 @@ describe(@"sending options with requests, saves", ^{
         /*
          First save (not secure):
          Create person
-         Network available
          
          1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         1 x non-secure enqueueHTTPRequestOperation
          
          
          Second save (secure):
          Get person - called twice
          Create user
          Upate person
-         Network available
          
          2 x secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         3 x secure enqueueHTTPRequestOperation
+         2 x secure enqueueHTTPRequestOperation
          */
         
         SM_CORE_DATA_DEBUG = YES;
@@ -273,9 +270,9 @@ describe(@"sending options with requests, saves", ^{
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
         
-        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
         
-        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:3];
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:2];
         
         
         NSManagedObject *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
@@ -308,26 +305,22 @@ describe(@"sending options with requests, saves", ^{
         /*
          First save (not secure):
          Create person
-         Network available
          
-         1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         1 x non-secure enqueueHTTPRequestOperation
-         
+         1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock         
          
          Second save (not secure):
          Get person - called twice
          Create user (secure)
          Upate person
-         Network available
          
          1 x secure + 1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         3 x non-secure enqueueHTTPRequestOperation
+         2 x non-secure enqueueHTTPRequestOperation
          */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
         
-        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:4];
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:2];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
         
@@ -361,28 +354,24 @@ describe(@"sending options with requests, saves", ^{
         /*
          First save (not secure):
          Create person
-         Network available
          
-         1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         1 x non-secure enqueueHTTPRequestOperation
-         
+         1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock         
          
          Second save (secure):
          Get person - called twice
          Create user
          Upate person
-         Network available
          
          2 x secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         3 x secure enqueueHTTPRequestOperation
+         2 x secure enqueueHTTPRequestOperation
          */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
         
-        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
         
-        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:3];
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:2];
         
         NSManagedObject *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
         [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
@@ -422,26 +411,22 @@ describe(@"sending options with requests, saves", ^{
         /*
          First save (not secure):
          Create person
-         Network available
          
-         1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         1 x non-secure enqueueHTTPRequestOperation
-         
+         1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock         
          
          Second save (not secure):
          Get person - called twice
          Create user (secure)
          Upate person
-         Network available
          
          1 x secure + 1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         3 x non-secure enqueueHTTPRequestOperation
+         2 x non-secure enqueueHTTPRequestOperation
          */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
         
-        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:4];
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:2];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
         
@@ -524,10 +509,8 @@ describe(@"creating global request options, saves", ^{
         /*
          First save (global secure):
          Create person
-         Network available
          
          0 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         0 x non-secure enqueueHTTPRequestOperation
          
          
          Second save (secure):
@@ -537,7 +520,7 @@ describe(@"creating global request options, saves", ^{
          Network available
          
          3 x secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         4 x secure enqueueHTTPRequestOperation
+         2 x secure enqueueHTTPRequestOperation
          */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
         
@@ -545,7 +528,7 @@ describe(@"creating global request options, saves", ^{
         
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
         
-        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:4];
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:2];
         
         [cds setGlobalRequestOptions:[SMRequestOptions optionsWithHTTPS]];
         NSManagedObject *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
@@ -574,26 +557,23 @@ describe(@"creating global request options, saves", ^{
         /*
          First save (not secure):
          Create person
-         Network available
          
          1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         1 x non-secure enqueueHTTPRequestOperation
          
          
          Second save (not secure):
          Get person - called twice
          Create user (secure)
          Upate person
-         Network available
          
          1 x secure + 1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         3 x non-secure enqueueHTTPRequestOperation
+         2 x non-secure enqueueHTTPRequestOperation
          */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
         
-        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:4];
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:2];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
         
@@ -625,20 +605,17 @@ describe(@"creating global request options, saves", ^{
         /*
          First save (not secure):
          Create person
-         Network available
          
          0 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         0 x non-secure enqueueHTTPRequestOperation
          
          
          Second save (secure):
          Get person - called twice
          Create user
          Upate person
-         Network available
          
          3 x secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         4 x secure enqueueHTTPRequestOperation
+         2 x secure enqueueHTTPRequestOperation
          */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
         
@@ -646,7 +623,7 @@ describe(@"creating global request options, saves", ^{
         
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
         
-        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:4];
+        [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:2];
         
         [cds setGlobalRequestOptions:[SMRequestOptions optionsWithHTTPS]];
         NSManagedObject *person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
@@ -683,26 +660,23 @@ describe(@"creating global request options, saves", ^{
         /*
          First save (not secure):
          Create person
-         Network available
          
          1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         1 x non-secure enqueueHTTPRequestOperation
          
          
          Second save (not secure):
          Get person - called twice
          Create user (secure)
          Upate person
-         Network available
          
          1 x secure + 1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
-         3 x non-secure enqueueHTTPRequestOperation
+         2 x non-secure enqueueHTTPRequestOperation
          */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
         
-        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:4];
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:2];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
         

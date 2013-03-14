@@ -93,7 +93,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 // Cache mapping table appears as Key: StackMob object ID, Value:
 @property (nonatomic, strong) __block NSMutableDictionary *cacheMappingTable;
 // TODO add comments
-@property (nonatomic, strong) __block NSMutableArray *dirtyQueue;
+@property (nonatomic, strong) __block NSMutableDictionary *dirtyQueue;
 
 @property (nonatomic) dispatch_queue_t callbackQueue;
 
@@ -604,13 +604,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (BOOL)SM_handleInsertedObjectsWhenOffline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     
-    if (error != NULL) {
-        NSError *notReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
-        *error = (__bridge id)(__bridge_retained CFTypeRef)notReachableError;
-    }
-    return NO;
-    
-    /*
     __block NSMutableArray *objectsToBeCached = [NSMutableArray arrayWithCapacity:[insertedObjects count]];
     __block NSMutableArray *dirtyObjects = [NSMutableArray array];
     
@@ -640,9 +633,16 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [self SM_cacheObjects:objectsToBeCached];
     
     // Save dirty objects
-    [self SM_addPrimaryKeysToDirtyQueueAndSave:dirtyObjects];
+    [self SM_addPrimaryKeysToDirtyQueueAndSave:dirtyObjects state:0];
     
     return YES;
+    
+    /*
+     if (error != NULL) {
+     NSError *notReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
+     *error = (__bridge id)(__bridge_retained CFTypeRef)notReachableError;
+     }
+     return NO;
      */
 }
 
@@ -768,12 +768,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (BOOL)SM_handleUpdatedObjectsWhenOffline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     
-    if (error != NULL) {
-        NSError *notReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
-        *error = (__bridge id)(__bridge_retained CFTypeRef)notReachableError;
-    }
-    return NO;
-    /*
     __block NSMutableArray *objectsToBeCached = [NSMutableArray arrayWithCapacity:[updatedObjects count]];
     __block NSMutableArray *dirtyObjects = [NSMutableArray array];
     
@@ -804,9 +798,16 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [self SM_cacheObjects:objectsToBeCached];
     
     // Save dirty objects
-    [self SM_addPrimaryKeysToDirtyQueueAndSave:dirtyObjects];
+    [self SM_addPrimaryKeysToDirtyQueueAndSave:dirtyObjects state:1];
     
     return YES;
+    
+    /*
+     if (error != NULL) {
+     NSError *notReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
+     *error = (__bridge id)(__bridge_retained CFTypeRef)notReachableError;
+     }
+     return NO;
      */
 }
 
@@ -892,6 +893,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_handleDeletedObjectsWhenOffline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context  options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     
+    // TODO add this method
     if (SM_CORE_DATA_DEBUG) { DLog() }
     if (error != NULL) {
         NSError *notReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
@@ -2074,7 +2076,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             self.dirtyQueue = [temp mutableCopy];
         }
     } else {
-        self.dirtyQueue = [NSMutableArray array];
+        self.dirtyQueue = [NSMutableDictionary dictionary];
+        [self.dirtyQueue setObject:[NSArray array] forKey:@"inserted"];
+        [self.dirtyQueue setObject:[NSArray array] forKey:@"updated"];
+        [self.dirtyQueue setObject:[NSArray array] forKey:@"deleted"];
     }
 }
 
@@ -2600,13 +2605,55 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
-- (void)SM_addPrimaryKeysToDirtyQueueAndSave:(NSArray *)primaryKeys
+- (void)SM_addPrimaryKeysToDirtyQueueAndSave:(NSArray *)primaryKeys state:(int)state
 {
-    [primaryKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
-        if ([self.dirtyQueue indexOfObject:key] == NSNotFound) {
-            [self.dirtyQueue addObject:key];
-        }
-    }];
+    __block NSMutableArray *insertedList = [[self.dirtyQueue objectForKey:@"inserted"] mutableCopy];
+    __block NSMutableArray *updatedList = [[self.dirtyQueue objectForKey:@"updated"] mutableCopy];
+    __block NSMutableArray *deletedList = [[self.dirtyQueue objectForKey:@"deleted"] mutableCopy];
+    switch (state) {
+        case 0:
+            // If inserted, object may only exist in inserted list
+            [primaryKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
+                if (![insertedList containsObject:key]) {
+                    [insertedList addObject:key];
+                }
+            }];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:insertedList] forKey:@"inserted"];
+            break;
+        case 1:
+            // If updated, object may exist in inserted or updated list
+            [primaryKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
+                if ([insertedList containsObject:key]) {
+                    [insertedList removeObject:key];
+                }
+                if (![updatedList containsObject:key]) {
+                    [updatedList addObject:key];
+                }
+            }];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:insertedList] forKey:@"inserted"];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:updatedList] forKey:@"updated"];
+            break;
+        case 2:
+            // If deleted, object may exist in inserted, updated, or deleted list
+            [primaryKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
+                if ([insertedList containsObject:key]) {
+                    [insertedList removeObject:key];
+                }
+                if ([updatedList containsObject:key]) {
+                    [updatedList removeObject:key];
+                }
+                if (![deletedList containsObject:key]) {
+                    [deletedList addObject:key];
+                }
+            }];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:insertedList] forKey:@"inserted"];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:updatedList] forKey:@"updated"];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:deletedList] forKey:@"deleted"];
+            break;
+        default:
+            [NSException raise:SMExceptionIncompatibleObject format:@"State %d not recognized", state];
+            break;
+    }
     
     [self SM_saveDirtyQueue];
 }
@@ -2890,7 +2937,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         if (attributeDescription.attributeType != NSUndefinedAttributeType) {
             if ([[theObject allKeys] indexOfObject:[entityDescription SMFieldNameForProperty:attributeDescription]] != NSNotFound) {
                 id value = [theObject valueForKey:[entityDescription SMFieldNameForProperty:attributeDescription]];
-                if (value && attributeDescription.attributeType == NSDateAttributeType) {
+                if (value == [NSNull null]) {
+                    [serializedDictionary setObject:value forKey:attributeName];
+                } else if (value && attributeDescription.attributeType == NSDateAttributeType) {
                     unsigned long long convertedValue = [value unsignedLongLongValue] / 1000;
                     NSDate *convertedDate = [NSDate dateWithTimeIntervalSince1970:convertedValue];
                     [serializedDictionary setObject:convertedDate forKey:attributeName];
@@ -2912,7 +2961,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         // get the relationship contents for the property
         id relationshipContents = [theObject valueForKey:[entityDescription SMFieldNameForProperty:relationshipDescription]];
         if (![relationshipDescription isToMany]) {
-            if (relationshipContents) {
+            if (relationshipContents && relationshipContents != [NSNull null]) {
                 NSEntityDescription *entityDescriptionForRelationship = [NSEntityDescription entityForName:[[relationshipValue destinationEntity] name] inManagedObjectContext:context];
                 if ([relationshipContents isKindOfClass:[NSString class]]) {
                     NSManagedObjectID *relationshipObjectID = [self newObjectIDForEntity:entityDescriptionForRelationship referenceObject:relationshipContents];

@@ -151,11 +151,12 @@
 		DE3AE12B16810FAC000B2E80 /* AFHTTPClient+StackMob.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3AE12916810FAC000B2E80 /* AFHTTPClient+StackMob.m */; };
 		DE64D6011623777900237570 /* SMUserManagedObject.h in Headers */ = {isa = PBXBuildFile; fileRef = DE64D5FF1623777900237570 /* SMUserManagedObject.h */; };
 		DE64D6021623777900237570 /* SMUserManagedObject.m in Sources */ = {isa = PBXBuildFile; fileRef = DE64D6001623777900237570 /* SMUserManagedObject.m */; };
-		DE64D608162389A600237570 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = DE64D607162389A600237570 /* Person.m */; };
 		DE64D61C1623BAE800237570 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE64D61B1623BAE800237570 /* Security.framework */; };
 		DE64D61D1623BB0A00237570 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE64D61B1623BAE800237570 /* Security.framework */; };
-		DE7FC0C216F0546700483BF3 /* IncrementalStoreBatchOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0837A5167FE65B00872116 /* IncrementalStoreBatchOperationsSpec.m */; };
-		DE7FC0C316F0546C00483BF3 /* LocalReadCacheSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE96D84E165DA06500303710 /* LocalReadCacheSpec.m */; };
+		DE7FC14016F2598D00483BF3 /* Person.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7FC13E16F2598D00483BF3 /* Person.h */; };
+		DE7FC14216F25A8600483BF3 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7FC13F16F2598D00483BF3 /* Person.m */; };
+		DE7FC14316F25A8600483BF3 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7FC13F16F2598D00483BF3 /* Person.m */; };
+		DE7FC14716F2638200483BF3 /* OfflineLocalWriteCacheSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA052E316EEADF9009F7462 /* OfflineLocalWriteCacheSpec.m */; };
 		DE8D501B1636101E0067B1C2 /* SMRequestOptionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8D501A1636101E0067B1C2 /* SMRequestOptionsSpec.m */; };
 		DE8D51CF15E2CB11002F582A /* NSDictionary+AtomicCounter.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E14315E2C02200224E4E /* NSDictionary+AtomicCounter.h */; };
 		DE8D51D215E2CB11002F582A /* SMBinaryDataConversion.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E14915E2C02200224E4E /* SMBinaryDataConversion.h */; };
@@ -438,9 +439,9 @@
 		DE64D5FF1623777900237570 /* SMUserManagedObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMUserManagedObject.h; sourceTree = "<group>"; };
 		DE64D6001623777900237570 /* SMUserManagedObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMUserManagedObject.m; sourceTree = "<group>"; };
 		DE64D6041623894600237570 /* SMUserManagedObjectSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMUserManagedObjectSpec.m; sourceTree = "<group>"; };
-		DE64D606162389A600237570 /* Person.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
-		DE64D607162389A600237570 /* Person.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		DE64D61B1623BAE800237570 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		DE7FC13E16F2598D00483BF3 /* Person.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
+		DE7FC13F16F2598D00483BF3 /* Person.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		DE8D501A1636101E0067B1C2 /* SMRequestOptionsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMRequestOptionsSpec.m; sourceTree = "<group>"; };
 		DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		DE96D84E165DA06500303710 /* LocalReadCacheSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalReadCacheSpec.m; sourceTree = "<group>"; };
@@ -779,14 +780,14 @@
 			children = (
 				DE0CC7AE15CB605900E491C4 /* Superpower.h */,
 				DE0CC7AF15CB605900E491C4 /* Superpower.m */,
-				DE64D606162389A600237570 /* Person.h */,
-				DE64D607162389A600237570 /* Person.m */,
 				DEF756C61624D4BE006FD554 /* User3.h */,
 				DEF756C71624D4BE006FD554 /* User3.m */,
 				DEFA4EBD1628A93E00E75101 /* User4.h */,
 				DEFA4EBE1628A93E00E75101 /* User4.m */,
 				1D8351CD16C08D6F00814C71 /* Random.h */,
 				1D8351CE16C08D6F00814C71 /* Random.m */,
+				DE7FC13E16F2598D00483BF3 /* Person.h */,
+				DE7FC13F16F2598D00483BF3 /* Person.m */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -930,6 +931,7 @@
 				1D83529616C5ACD300814C71 /* SMGeoPoint.h in Headers */,
 				1D8352A916C8512800814C71 /* SMLocationManager.h in Headers */,
 				DEEDC32816C984B4008B1CC2 /* Common.h in Headers */,
+				DE7FC14016F2598D00483BF3 /* Person.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1278,6 +1280,7 @@
 				DE2EA19416CC6522001FA904 /* SMCusCodeReqIntegrationSpec.m in Sources */,
 				DE2EA19516CC6525001FA904 /* SMPushClientIntegrationSpec.m in Sources */,
 				DE2EA19616CC6529001FA904 /* SMNetworkReachabilitySpec.m in Sources */,
+				DE7FC14216F25A8600483BF3 /* Person.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1354,12 +1357,11 @@
 			files = (
 				DE0CC7CB15CB6ADF00E491C4 /* Superpower.m in Sources */,
 				DE0CC7CF15CB6B1F00E491C4 /* SMIntegrationTestHelpers.m in Sources */,
-				DE64D608162389A600237570 /* Person.m in Sources */,
 				1D8351A316B9D4D000814C71 /* SMCoreDataIntegrationTestHelpers.m in Sources */,
 				1D8351D016C08D7000814C71 /* Random.m in Sources */,
 				1D8351E016C0969A00814C71 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */,
-				DE7FC0C216F0546700483BF3 /* IncrementalStoreBatchOperationsSpec.m in Sources */,
-				DE7FC0C316F0546C00483BF3 /* LocalReadCacheSpec.m in Sources */,
+				DE7FC14316F25A8600483BF3 /* Person.m in Sources */,
+				DE7FC14716F2638200483BF3 /* OfflineLocalWriteCacheSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
