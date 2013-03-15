@@ -38,7 +38,7 @@
 			<Abstract type="html">A Boolean value that corresponds to whether the status code of the response is within the specified set of acceptable status codes. Returns YES if acceptableStatusCodes is nil.</Abstract>
 			<DeclaredIn>AFHTTPRequestOperation.h</DeclaredIn>			
 			
-			<Declaration>@property (readonly) BOOL hasAcceptableStatusCode</Declaration>
+			<Declaration>@property (nonatomic, readonly) BOOL hasAcceptableStatusCode</Declaration>
 			
 			
 			<Anchor>//api/name/hasAcceptableStatusCode</Anchor>
@@ -49,7 +49,7 @@
 			<Abstract type="html">A Boolean value that corresponds to whether the status code of the response is within the specified set of acceptable status codes. Returns YES if acceptableStatusCodes is nil.</Abstract>
 			<DeclaredIn>AFHTTPRequestOperation.h</DeclaredIn>			
 			
-			<Declaration>@property (readonly) BOOL hasAcceptableStatusCode</Declaration>
+			<Declaration>@property (nonatomic, readonly) BOOL hasAcceptableStatusCode</Declaration>
 			
 			
 			<Anchor>//api/name/hasAcceptableStatusCode</Anchor>
@@ -60,7 +60,7 @@
 			<Abstract type="html">A Boolean value that corresponds to whether the MIME type of the response is among the specified set of acceptable content types. Returns YES if acceptableContentTypes is nil.</Abstract>
 			<DeclaredIn>AFHTTPRequestOperation.h</DeclaredIn>			
 			
-			<Declaration>@property (readonly) BOOL hasAcceptableContentType</Declaration>
+			<Declaration>@property (nonatomic, readonly) BOOL hasAcceptableContentType</Declaration>
 			
 			
 			<Anchor>//api/name/hasAcceptableContentType</Anchor>
@@ -71,7 +71,7 @@
 			<Abstract type="html">A Boolean value that corresponds to whether the MIME type of the response is among the specified set of acceptable content types. Returns YES if acceptableContentTypes is nil.</Abstract>
 			<DeclaredIn>AFHTTPRequestOperation.h</DeclaredIn>			
 			
-			<Declaration>@property (readonly) BOOL hasAcceptableContentType</Declaration>
+			<Declaration>@property (nonatomic, readonly) BOOL hasAcceptableContentType</Declaration>
 			
 			
 			<Anchor>//api/name/hasAcceptableContentType</Anchor>

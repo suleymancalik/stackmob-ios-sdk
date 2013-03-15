@@ -34,11 +34,33 @@
 		</Token>
 		
 		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/AFJSONRequestOperation/setJSONReadingOptions:</TokenIdentifier>
+			<Abstract type="html">Options for reading the response JSON data and creating the Foundation objects. For possible values, see the NSJSONSerialization documentation section &quot;NSJSONReadingOptions&quot;.</Abstract>
+			<DeclaredIn>AFJSONRequestOperation.h</DeclaredIn>			
+			
+			<Declaration>@property (nonatomic, assign) NSJSONReadingOptions JSONReadingOptions</Declaration>
+			
+			
+			<Anchor>//api/name/JSONReadingOptions</Anchor>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instp/AFJSONRequestOperation/JSONReadingOptions</TokenIdentifier>
+			<Abstract type="html">Options for reading the response JSON data and creating the Foundation objects. For possible values, see the NSJSONSerialization documentation section &quot;NSJSONReadingOptions&quot;.</Abstract>
+			<DeclaredIn>AFJSONRequestOperation.h</DeclaredIn>			
+			
+			<Declaration>@property (nonatomic, assign) NSJSONReadingOptions JSONReadingOptions</Declaration>
+			
+			
+			<Anchor>//api/name/JSONReadingOptions</Anchor>
+		</Token>
+		
+		<Token>
 			<TokenIdentifier>//apple_ref/occ/clm/AFJSONRequestOperation/JSONRequestOperationWithRequest:success:failure:</TokenIdentifier>
 			<Abstract type="html">Creates and returns an AFJSONRequestOperation object and sets the specified success and failure callbacks.</Abstract>
 			<DeclaredIn>AFJSONRequestOperation.h</DeclaredIn>			
 			
-			<Declaration>+ (AFJSONRequestOperation *)JSONRequestOperationWithRequest:(NSURLRequest *)urlRequest success:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , id JSON ))success failure:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , NSError *error , id JSON ))failure</Declaration>
+			<Declaration>+ (instancetype)JSONRequestOperationWithRequest:(NSURLRequest *)urlRequest success:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , id JSON ))success failure:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , NSError *error , id JSON ))failure</Declaration>
 			<Parameters>
 				<Parameter>
 					<Name>urlRequest</Name>

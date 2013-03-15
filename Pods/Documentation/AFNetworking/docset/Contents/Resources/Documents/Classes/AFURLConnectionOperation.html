@@ -12,8 +12,8 @@
 	<body>
 		<header id="top_header">
 			<div id="library" class="hideInXcode">
-				<h1><a id="libraryTitle" href="../index.html">AFNetworking 1.0 </a></h1>
-				<a id="developerHome" href="../index.html">Mattt Thompson, Scott Raymond</a>
+				<h1><a id="libraryTitle" href="../index.html">AFNetworking 1.1.0 </a></h1>
+				<a id="developerHome" href="../index.html">Mattt Thompson and Scott Raymond</a>
 			</div>
 			
 			<div id="title" role="banner">
@@ -54,7 +54,11 @@
 	
 	<option value="//api/name/responseString">&nbsp;&nbsp;&nbsp;&nbsp;responseString</option>
 	
+	<option value="//api/name/responseStringEncoding">&nbsp;&nbsp;&nbsp;&nbsp;responseStringEncoding</option>
+	
 	<option value="//api/name/runLoopModes">&nbsp;&nbsp;&nbsp;&nbsp;runLoopModes</option>
+	
+	<option value="//api/name/userInfo">&nbsp;&nbsp;&nbsp;&nbsp;userInfo</option>
 	
 	
 	
@@ -109,6 +113,8 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Accessing Streams">Accessing Streams</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Managing Request Operation Information">Managing Request Operation Information</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Initializing an AFURLConnectionOperation Object">Initializing an AFURLConnectionOperation Object</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Pausing / Resuming Requests">Pausing / Resuming Requests</a></span></li>
@@ -141,7 +147,11 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/responseString">responseString</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/responseStringEncoding">responseStringEncoding</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/runLoopModes">runLoopModes</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/userInfo">userInfo</a></span></li>
 	
 </ul></li>
 
@@ -342,6 +352,13 @@
 	</span>
 	<span class="task-item-suffix">property</span>
 	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/responseStringEncoding">&nbsp;&nbsp;responseStringEncoding</a></code>
+		<span class="tooltip"><p>The string encoding of the <a href="#//api/name/response">response</a>.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
 </li>
 						</ul>
 						
@@ -361,6 +378,21 @@
 	<span class="tooltip">
 		<code><a href="#//api/name/outputStream">&nbsp;&nbsp;outputStream</a></code>
 		<span class="tooltip"><p>The output stream that is used to write data received until the <a href="#//api/name/request">request</a> is finished.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li>
+						</ul>
+						
+						
+						<a title="Managing Request Operation Information" name="task_Managing Request Operation Information"></a>
+						<h3 class="subsubtitle task-title">Managing Request Operation Information</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/userInfo">&nbsp;&nbsp;userInfo</a></code>
+		<span class="tooltip"><p>The user info dictionary for the receiver.</p></span>
 	</span>
 	<span class="task-item-suffix">property</span>
 	
@@ -742,9 +774,45 @@
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">AFURLConnectionOperation.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/responseStringEncoding" title="responseStringEncoding"></a>
+	<h3 class="subsubtitle method-title">responseStringEncoding</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The string encoding of the <a href="#//api/name/response">response</a>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (readonly, nonatomic, assign) NSStringEncoding responseStringEncoding</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>@discussion This method uses the string encoding of the <a href="#//api/name/response">response</a>, or if UTF-8 if not specified, to construct a string from the <a href="#//api/name/response">response</a> data.</p>
+		<p>@discussion If the <a href="#//api/name/response">response</a> does not specify a valid string encoding, <code>responseStringEncoding</code> will return <code>NSUTF8StringEncoding</code>.</p>
 	</div>
 	
 	
@@ -774,6 +842,42 @@
     
 
 	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong) NSSet *runLoopModes</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">AFURLConnectionOperation.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/userInfo" title="userInfo"></a>
+	<h3 class="subsubtitle method-title">userInfo</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The user info dictionary for the receiver.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong) NSDictionary *userInfo</code></div>
 
     
 	
@@ -1317,7 +1421,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2012 Mattt Thompson, Scott Raymond. All rights reserved. (Last updated: 2012-11-06)</span><br />
+						<p><span class="copyright">&copy; 2013 Mattt Thompson and Scott Raymond. All rights reserved. (Last updated: 2013-03-14)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

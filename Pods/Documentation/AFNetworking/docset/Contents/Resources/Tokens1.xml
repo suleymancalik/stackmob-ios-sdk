@@ -126,7 +126,7 @@
 			<Abstract type="html">Creates and initializes an AFHTTPClient object with the specified base URL.</Abstract>
 			<DeclaredIn>AFHTTPClient.h</DeclaredIn>			
 			
-			<Declaration>+ (AFHTTPClient *)clientWithBaseURL:(NSURL *)url</Declaration>
+			<Declaration>+ (instancetype)clientWithBaseURL:(NSURL *)url</Declaration>
 			<Parameters>
 				<Parameter>
 					<Name>url</Name>

@@ -60,7 +60,7 @@
 			<Abstract type="html">Creates and returns an AFPropertyListRequestOperation object and sets the specified success and failure callbacks.</Abstract>
 			<DeclaredIn>AFPropertyListRequestOperation.h</DeclaredIn>			
 			
-			<Declaration>+ (AFPropertyListRequestOperation *)propertyListRequestOperationWithRequest:(NSURLRequest *)urlRequest success:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , id propertyList ))success failure:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , NSError *error , id propertyList ))failure</Declaration>
+			<Declaration>+ (instancetype)propertyListRequestOperationWithRequest:(NSURLRequest *)urlRequest success:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , id propertyList ))success failure:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , NSError *error , id propertyList ))failure</Declaration>
 			<Parameters>
 				<Parameter>
 					<Name>urlRequest</Name>

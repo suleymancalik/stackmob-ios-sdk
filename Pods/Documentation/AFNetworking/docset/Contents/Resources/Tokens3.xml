@@ -60,7 +60,7 @@
 			<Abstract type="html">Creates and returns an AFImageRequestOperation object and sets the specified success callback.</Abstract>
 			<DeclaredIn>AFImageRequestOperation.h</DeclaredIn>			
 			
-			<Declaration>+ (AFImageRequestOperation *)imageRequestOperationWithRequest:(NSURLRequest *)urlRequest success:(void ( ^ ) ( UIImage *image ))success</Declaration>
+			<Declaration>+ (instancetype)imageRequestOperationWithRequest:(NSURLRequest *)urlRequest success:(void ( ^ ) ( UIImage *image ))success</Declaration>
 			<Parameters>
 				<Parameter>
 					<Name>urlRequest</Name>
@@ -79,7 +79,7 @@
 			<Abstract type="html">Creates and returns an AFImageRequestOperation object and sets the specified success callback.</Abstract>
 			<DeclaredIn>AFImageRequestOperation.h</DeclaredIn>			
 			
-			<Declaration>+ (AFImageRequestOperation *)imageRequestOperationWithRequest:(NSURLRequest *)urlRequest imageProcessingBlock:(UIImage *( ^ ) ( UIImage *image ))imageProcessingBlock success:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , UIImage *image ))success failure:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , NSError *error ))failure</Declaration>
+			<Declaration>+ (instancetype)imageRequestOperationWithRequest:(NSURLRequest *)urlRequest imageProcessingBlock:(UIImage *( ^ ) ( UIImage *image ))imageProcessingBlock success:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , UIImage *image ))success failure:(void ( ^ ) ( NSURLRequest *request , NSHTTPURLResponse *response , NSError *error ))failure</Declaration>
 			<Parameters>
 				<Parameter>
 					<Name>urlRequest</Name>

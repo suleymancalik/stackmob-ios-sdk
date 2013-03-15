@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.source   = { :git => 'https://github.com/stackmob/stackmob-ios-sdk.git', :tag => s.version.to_s }
   s.platform = :ios, '5.0'
   s.source_files = 'Classes/*.{h,m}', 'Utility/*.{h,m}', 'CoreData/Classes/*.{h,m}', 'Push/*.{h,m}'
-  s.dependency 'AFNetworking', '1.0'
+  s.dependency 'AFNetworking', '1.1.0'
   s.frameworks = 'CoreData', 'CoreLocation', 'Security', 'SystemConfiguration', 'MobileCoreServices'
   s.requires_arc = true
   s.documentation = {
