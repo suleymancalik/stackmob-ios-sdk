@@ -137,13 +137,7 @@
 		DE1BDE391682C120009282BA /* peoplepermissions.json in Resources */ = {isa = PBXBuildFile; fileRef = DE1BDE301682C105009282BA /* peoplepermissions.json */; };
 		DE1BDE3A1682C129009282BA /* placespermissions.json in Resources */ = {isa = PBXBuildFile; fileRef = DE1BDE311682C106009282BA /* placespermissions.json */; };
 		DE1BDE3B1682C151009282BA /* blogpostspermissions.json in Resources */ = {isa = PBXBuildFile; fileRef = DE1BDE341682C111009282BA /* blogpostspermissions.json */; };
-		DE2EA18D16CC626F001FA904 /* QueryTestsWithPermissionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE1BDE2D1682BFEC009282BA /* QueryTestsWithPermissionsSpec.m */; };
-		DE2EA19116CC6516001FA904 /* CRUDTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C33B0641591355A00BE2570 /* CRUDTests.m */; };
-		DE2EA19216CC6519001FA904 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
 		DE2EA19316CC651D001FA904 /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
-		DE2EA19416CC6522001FA904 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
-		DE2EA19516CC6525001FA904 /* SMPushClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED78164B1D43006B7326 /* SMPushClientIntegrationSpec.m */; };
-		DE2EA19616CC6529001FA904 /* SMNetworkReachabilitySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9EEBE164B4F24006B7326 /* SMNetworkReachabilitySpec.m */; };
 		DE2EA19716CC7184001FA904 /* NSManagedObjectContext+ConcurrencySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB68FBF169F95EE00CC45F4 /* NSManagedObjectContext+ConcurrencySpec.m */; };
 		DE2EA19816CC7187001FA904 /* IncrementalStoreBatchOperationsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0837A5167FE65B00872116 /* IncrementalStoreBatchOperationsSpec.m */; };
 		DE2EA19916CC718A001FA904 /* LocalReadCacheSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE96D84E165DA06500303710 /* LocalReadCacheSpec.m */; };
@@ -1275,13 +1269,7 @@
 				1DDAE4691656EF15001DFAEF /* SMNetworkReachabilityHelper.m in Sources */,
 				1D8351CF16C08D7000814C71 /* Random.m in Sources */,
 				1D8351DF16C0969900814C71 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */,
-				DE2EA18D16CC626F001FA904 /* QueryTestsWithPermissionsSpec.m in Sources */,
-				DE2EA19116CC6516001FA904 /* CRUDTests.m in Sources */,
-				DE2EA19216CC6519001FA904 /* SMClientIntegrationSpec.m in Sources */,
 				DE2EA19316CC651D001FA904 /* QueryTests.m in Sources */,
-				DE2EA19416CC6522001FA904 /* SMCusCodeReqIntegrationSpec.m in Sources */,
-				DE2EA19516CC6525001FA904 /* SMPushClientIntegrationSpec.m in Sources */,
-				DE2EA19616CC6529001FA904 /* SMNetworkReachabilitySpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

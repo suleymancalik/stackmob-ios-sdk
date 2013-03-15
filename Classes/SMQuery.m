@@ -21,12 +21,109 @@
 #define EARTH_RADIAN_MILES 3956.6
 #define EARTH_RADIAN_KM    6367.5
 
+@interface SMQuery () {
+    int _andGroup;
+    int _orGroup;
+    BOOL _isOrQuery;
+}
+
+@end
+
 @implementation SMQuery
 
 @synthesize requestParameters = _requestParameters;
 @synthesize requestHeaders = _requestHeaders;
 @synthesize schemaName = _schemaName;
 @synthesize entity = _entity;
+
+// [rootQuery and:[[subQuery or:subQuery2] or:subQuery3]];
+
+/*
+ GET http://api.stackmob.com/user?age[gt]=25&[or1].[and1].location=NYC&[or1].[and1].name[ne]=john&[or1].[and2].location=SF&[or1].[and2].name[ne]=Mary&[or1].location=LA
+   * Usage: A.or(B)
+ * If A is a normal [and] query:
+ +       *   Clone A into newQuery
+ +       *   Clear newQuery's params
+ +       *   Assign OR Group# (1)
+ +       *   Prefix A params with and[#+1]
+ +       *   Prefix B params with and[#+1]
+ +       *   Prefix all params with or[#]
+ +       *   Set all of the above as newQuery.params
+ +       *   Return newQuery
+ +       *
+ +       * If A is already an OR query:
+ +       *   Clone A into newQuery
+ +       *   Prefix B with and[#+1]
+ +       *   Prefix B with or[A.orId]
+ +       *   Add B's params to newQuery
+ +       *   Return newQuery
+ +       */
+
+- (SMQuery *)or:(SMQuery *)query
+{
+    NSMutableDictionary *newParameters = [NSMutableDictionary dictionary];
+    BOOL shouldAddAnd = NO;
+    
+    if (_isOrQuery) {
+        NSMutableDictionary *currentParametersCopy = [self.requestParameters mutableCopy];
+        shouldAddAnd = [query.requestParameters count] > 1 ? YES : NO;
+        if (shouldAddAnd) {
+            _andGroup += 1;
+            [query.requestParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                [newParameters setObject:obj forKey:[NSString stringWithFormat:@"[or%d].[and%d].%@", _orGroup, _andGroup, key]];
+            }];
+        } else {
+            [query.requestParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                [newParameters setObject:obj forKey:[NSString stringWithFormat:@"[or%d].%@", _orGroup, key]];
+            }];
+        }
+        
+        [currentParametersCopy addEntriesFromDictionary:newParameters];
+        self.requestParameters = [NSDictionary dictionaryWithDictionary:currentParametersCopy];
+        
+    } else {
+        _isOrQuery = YES;
+        _orGroup += 1;
+        shouldAddAnd = [self.requestParameters count] > 1 ? YES : NO;
+        if (shouldAddAnd) {
+            _andGroup += 1;
+            [self.requestParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                [newParameters setObject:obj forKey:[NSString stringWithFormat:@"[or%d].[and%d].%@", _orGroup, _andGroup, key]];
+            }];
+            _andGroup += 1;
+        } else {
+            [self.requestParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                [newParameters setObject:obj forKey:[NSString stringWithFormat:@"[or%d].%@", _orGroup, key]];
+            }];
+        }
+        
+        shouldAddAnd = [query.requestParameters count] > 1 ? YES : NO;
+        
+        if (shouldAddAnd) {
+            [query.requestParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                [newParameters setObject:obj forKey:[NSString stringWithFormat:@"[or%d].[and%d].%@", _orGroup, _andGroup, key]];
+            }];
+            _andGroup += 1;
+        } else {
+            [query.requestParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                [newParameters setObject:obj forKey:[NSString stringWithFormat:@"[or%d].%@", _orGroup, key]];
+            }];
+        }
+        
+        self.requestParameters = [NSDictionary dictionaryWithDictionary:newParameters];
+    }
+    
+    return self;
+}
+
+- (SMQuery *)and:(SMQuery *)query
+{
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
+    [requestParametersCopy addEntriesFromDictionary:query.requestParameters];
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
+    
+    return self;
+}
 
 - (id)initWithEntity:(NSEntityDescription *)entity
 {
@@ -49,6 +146,9 @@
         _schemaName = [schema lowercaseString];
         _requestParameters = [NSMutableDictionary dictionaryWithCapacity:1];
         _requestHeaders = [NSMutableDictionary dictionaryWithCapacity:1];
+        _andGroup = 0;
+        _orGroup = 0;
+        _isOrQuery = NO;
     }
     return self;
 }
