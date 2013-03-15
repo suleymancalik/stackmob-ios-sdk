@@ -27,8 +27,8 @@
 	<key>DocSetPublisherIdentifier</key>
 	<string>org.cocoapods.documentation</string>
 	<key>DocSetPublisherName</key>
-	<string>Allen Ding, Luke Redpath</string>
+	<string>Allen Ding and Luke Redpath</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Allen Ding, Luke Redpath</string>
+	<string>Allen Ding and Luke Redpath</string>
 </dict>
 </plist>
