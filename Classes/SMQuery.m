@@ -90,7 +90,6 @@
             [self.requestParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
                 [newParameters setObject:obj forKey:[NSString stringWithFormat:@"[or%d].[and%d].%@", _orGroup, _andGroup, key]];
             }];
-            _andGroup += 1;
         } else {
             [self.requestParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
                 [newParameters setObject:obj forKey:[NSString stringWithFormat:@"[or%d].%@", _orGroup, key]];
@@ -98,12 +97,11 @@
         }
         
         shouldAddAnd = [query.requestParameters count] > 1 ? YES : NO;
-        
         if (shouldAddAnd) {
+            _andGroup += 1;
             [query.requestParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
                 [newParameters setObject:obj forKey:[NSString stringWithFormat:@"[or%d].[and%d].%@", _orGroup, _andGroup, key]];
             }];
-            _andGroup += 1;
         } else {
             [query.requestParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
                 [newParameters setObject:obj forKey:[NSString stringWithFormat:@"[or%d].%@", _orGroup, key]];

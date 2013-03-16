@@ -28,7 +28,7 @@ NSArray *fixtureNames = [NSArray arrayWithObjects:
                          @"blogposts",
                          @"places", 
                          nil];
-/*
+
 describe(@"with a prepopulated database of people", ^{
     beforeAll(^{
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
@@ -405,89 +405,94 @@ describe(@"with a prepopulated database of people", ^{
             });
         });
     });
-
-});
-*/
-
-describe(@"with a prepopulated database of people", ^{
-    beforeAll(^{
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            double delayInSeconds = 2.0;
-            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-            dispatch_after(popTime, dispatch_get_current_queue(), ^{
-                syncReturn(semaphore);
+    
+    describe(@"OR", ^{
+        it(@"or-query, single or", ^{
+            // Person where:
+            // armor_class = 17 || first_name == "Jonah"
+            // Should return Matt and Jonah
+            
+            SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [rootQuery where:@"armor_class" isEqualTo:[NSNumber numberWithInt:17]];
+            
+            SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+            
+            [rootQuery or:subQuery];
+            
+            // Perform Query
+            synchronousQuery(sm, rootQuery, ^(NSArray *results) {
+                [[results should] haveCountOf:2];
+                NSMutableArray *array = [NSMutableArray arrayWithObjects:[[results objectAtIndex:0] objectForKey:@"first_name"], [[results objectAtIndex:1] objectForKey:@"first_name"], nil];
+                [[array should] contain:@"Matt"];
+                [[array should] contain:@"Jonah"];
+                
+            }, ^(NSError *error){
+                [error shouldBeNil];
             });
         });
-        sm = [SMIntegrationTestHelpers dataStore];
-        [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixtureNames];
-    });
-    
-    beforeEach(^{
-        fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixtureNames];
-    });
-    
-    afterEach(^{
-        [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixtureNames];
-    });
-    
-    it(@"or-query", ^{
-        // Person where:
-        // armor_class < 17 && ((first_name == "Jonah" && last_name == "Williams) || first_name == "Jon" || company == "Carbon Five")
-        // Should return Jon and Jonah
-        
-        SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
-        [rootQuery where:@"armor_class" isLessThan:[NSNumber numberWithInt:17]];
-        
-        SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
-        [subQuery where:@"first_name" isEqualTo:@"Jonah"];
-        [subQuery where:@"last_name" isEqualTo:@"Williams"];
-        
-        SMQuery *subQuery2 =[[SMQuery alloc] initWithSchema:@"People"];
-        [subQuery2 where:@"first_name" isEqualTo:@"Jon"];
-        
-        SMQuery *subQuery3 =[[SMQuery alloc] initWithSchema:@"People"];
-        [subQuery3 where:@"company" isEqualTo:@"Carbon Five"];
-        
-        [rootQuery and:[[subQuery or:subQuery2] or:subQuery3]];
-        
-        // Perform Query
-        synchronousQuery(sm, rootQuery, ^(NSArray *results) {
-            [[results should] haveCountOf:2];
+        it(@"or-query, multiple ors", ^{
+            // Person where:
+            // armor_class < 17 && ((first_name == "Jonah" && last_name == "Williams) || first_name == "Jon" || company == "Carbon Five")
+            // Should return Jon and Jonah
             
-        }, ^(NSError *error){
-            [error shouldBeNil];
+            SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [rootQuery where:@"armor_class" isLessThan:[NSNumber numberWithInt:17]];
+            
+            SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+            [subQuery where:@"last_name" isEqualTo:@"Williams"];
+            
+            SMQuery *subQuery2 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery2 where:@"first_name" isEqualTo:@"Jon"];
+            
+            SMQuery *subQuery3 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery3 where:@"company" isEqualTo:@"Carbon Five"];
+            
+            [rootQuery and:[[subQuery or:subQuery2] or:subQuery3]];
+            
+            // Perform Query
+            synchronousQuery(sm, rootQuery, ^(NSArray *results) {
+                [[results should] haveCountOf:2];
+                NSMutableArray *array = [NSMutableArray arrayWithObjects:[[results objectAtIndex:0] objectForKey:@"first_name"], [[results objectAtIndex:1] objectForKey:@"first_name"], nil];
+                [[array should] contain:@"Jon"];
+                [[array should] contain:@"Jonah"];
+            }, ^(NSError *error){
+                [error shouldBeNil];
+            });
+        });
+        it(@"or-query multiple ands in or", ^{
+            // Person where:
+            // armor_class < 17 && ((first_name == "Jonah" && last_name == "Williams) || (first_name == "Jon" && last_name == "Cooper") || company == "Carbon Five")
+            // Should return Jon and Jonah
+            
+            SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [rootQuery where:@"armor_class" isLessThan:[NSNumber numberWithInt:17]];
+            
+            SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+            [subQuery where:@"last_name" isEqualTo:@"Williams"];
+            
+            SMQuery *subQuery2 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery2 where:@"first_name" isEqualTo:@"Jon"];
+            [subQuery2 where:@"last_name" isEqualTo:@"Cooper"];
+            
+            SMQuery *subQuery3 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery3 where:@"company" isEqualTo:@"Carbon Five"];
+            
+            [rootQuery and:[[subQuery or:subQuery2] or:subQuery3]];
+            
+            // Perform Query
+            synchronousQuery(sm, rootQuery, ^(NSArray *results) {
+                [[results should] haveCountOf:2];
+                NSMutableArray *array = [NSMutableArray arrayWithObjects:[[results objectAtIndex:0] objectForKey:@"first_name"], [[results objectAtIndex:1] objectForKey:@"first_name"], nil];
+                [[array should] contain:@"Jon"];
+                [[array should] contain:@"Jonah"];
+            }, ^(NSError *error){
+                [error shouldBeNil];
+            });
         });
     });
-    it(@"or-query multiple ands in or", ^{
-        // Person where:
-        // armor_class < 17 && ((first_name == "Jonah" && last_name == "Williams) || (first_name == "Jon" && last_name == "Cooper") || company == "Carbon Five")
-        // Should return Jon and Jonah
-        
-        SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
-        [rootQuery where:@"armor_class" isLessThan:[NSNumber numberWithInt:17]];
-        
-        SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
-        [subQuery where:@"first_name" isEqualTo:@"Jonah"];
-        [subQuery where:@"last_name" isEqualTo:@"Williams"];
-        
-        SMQuery *subQuery2 =[[SMQuery alloc] initWithSchema:@"People"];
-        [subQuery2 where:@"first_name" isEqualTo:@"Jon"];
-        [subQuery2 where:@"last_name" isEqualTo:@"Cooper"];
-        
-        SMQuery *subQuery3 =[[SMQuery alloc] initWithSchema:@"People"];
-        [subQuery3 where:@"company" isEqualTo:@"Carbon Five"];
-        
-        [rootQuery and:[[subQuery or:subQuery2] or:subQuery3]];
-        
-        // Perform Query
-        synchronousQuery(sm, rootQuery, ^(NSArray *results) {
-            [[results should] haveCountOf:2];
-            
-        }, ^(NSError *error){
-            [error shouldBeNil];
-        });
-    });
-    
 });
 
 SPEC_END

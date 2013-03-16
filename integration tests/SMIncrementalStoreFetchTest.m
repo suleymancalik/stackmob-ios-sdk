@@ -22,7 +22,7 @@
 #import "User3.h"
 
 SPEC_BEGIN(SMIncrementalStoreFetchTest)
-
+/*
 describe(@"with fixtures", ^{
     __block NSArray *fixturesToLoad;
     __block NSDictionary *fixtures;
@@ -46,7 +46,6 @@ describe(@"with fixtures", ^{
     afterEach(^{
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixturesToLoad];
     });
-    
     describe(@"compound predicates", ^{
         describe(@"AND predicate", ^{
             beforeEach(^{
@@ -85,12 +84,127 @@ describe(@"with fixtures", ^{
                               [NSPredicate predicateWithFormat:@"last_name = %@", @"Williams"], 
                               nil]];
             });
-            it(@"returns an error", ^{
+            it(@"works correctly", ^{
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-                [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:predicate context:moc] andBlock:^(NSArray *results, NSError *error) {
-                    [[error should] beNonNil];
-                }];
+                NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+                [request setPredicate:predicate];
+                NSError *error = nil;
+                NSArray *results = [moc executeFetchRequestAndWait:request error:&error];
+                [error shouldBeNil];
+                [[results should] haveCountOf:2];
+                if ([results count] == 2) {
+                    NSArray *array = [NSArray arrayWithObjects:[[results objectAtIndex:0] valueForKey:@"first_name"], [[results objectAtIndex:1] valueForKey:@"first_name"], nil];
+                    [[array should] contain:@"Jon"];
+                    [[array should] contain:@"Jonah"];
+                }
             });
+        });
+    });
+    describe(@"Advanced OR", ^{
+        it(@"single or", ^{
+            // Person where:
+            // armor_class = 17 || first_name == "Jonah"
+            // Should return Matt and Jonah
+            NSPredicate *allOrs = [NSCompoundPredicate orPredicateWithSubpredicates:[NSArray arrayWithObjects:[NSPredicate predicateWithFormat:@"armor_class = %@", [NSNumber numberWithInt:17]], [NSPredicate predicateWithFormat:@"first_name = %@", @"Jonah"], nil]];
+            
+            NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+            [request setPredicate:allOrs];
+            NSError *error = nil;
+            NSArray *results = [moc executeFetchRequestAndWait:request error:&error];
+            [error shouldBeNil];
+            [[results should] haveCountOf:2];
+            if ([results count] == 2) {
+                NSArray *array = [NSArray arrayWithObjects:[[results objectAtIndex:0] valueForKey:@"first_name"], [[results objectAtIndex:1] valueForKey:@"first_name"], nil];
+                [[array should] contain:@"Matt"];
+                [[array should] contain:@"Jonah"];
+            }
+        });
+        it(@"multiple ors", ^{
+            // Person where:
+            // armor_class < 17 && ((first_name == "Jonah" && last_name == "Williams) || first_name == "Jon" || company == "Carbon Five")
+            // Should return Jon and Jonah
+            
+            NSPredicate *firstAnd = [NSCompoundPredicate andPredicateWithSubpredicates:
+                                     [NSArray arrayWithObjects:
+                                      [NSPredicate predicateWithFormat:@"first_name = %@", @"Jonah"],
+                                      [NSPredicate predicateWithFormat:@"last_name = %@", @"Williams"],
+                                      nil]];
+            
+            NSPredicate *secondAnd = [NSPredicate predicateWithFormat:@"first_name = %@", @"Jon"];
+                                      
+            NSPredicate *thirdAnd = [NSPredicate predicateWithFormat:@"company = %@", @"Carbon Five"];
+            
+            NSPredicate *allOrs = [NSCompoundPredicate orPredicateWithSubpredicates:[NSArray arrayWithObjects:firstAnd, secondAnd, thirdAnd, nil]];
+            
+            NSPredicate *predicateForFetch = [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObjects:[NSPredicate predicateWithFormat:@"armor_class < %@", [NSNumber numberWithInt:17]], allOrs, nil]];
+            
+            NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+            [request setPredicate:predicateForFetch];
+            NSError *error = nil;
+            NSArray *results = [moc executeFetchRequestAndWait:request error:&error];
+            [error shouldBeNil];
+            [[results should] haveCountOf:2];
+            if ([results count] == 2) {
+                NSArray *array = [NSArray arrayWithObjects:[[results objectAtIndex:0] valueForKey:@"first_name"], [[results objectAtIndex:1] valueForKey:@"first_name"], nil];
+                [[array should] contain:@"Jon"];
+                [[array should] contain:@"Jonah"];
+            }
+            
+        });
+        it(@"multiple ands in or", ^{
+            // Person where:
+            // armor_class < 17 && ((first_name == "Jonah" && last_name == "Williams) || (first_name == "Jon" && last_name == "Cooper") || company == "Carbon Five")
+            // Should return Jon and Jonah
+            
+            NSPredicate *firstAnd = [NSCompoundPredicate andPredicateWithSubpredicates:
+                                     [NSArray arrayWithObjects:
+                                      [NSPredicate predicateWithFormat:@"first_name = %@", @"Jonah"],
+                                      [NSPredicate predicateWithFormat:@"last_name = %@", @"Williams"],
+                                      nil]];
+            
+            NSPredicate *secondAnd = [NSCompoundPredicate andPredicateWithSubpredicates:
+                                      [NSArray arrayWithObjects:
+                                       [NSPredicate predicateWithFormat:@"first_name = %@", @"Jon"],
+                                       [NSPredicate predicateWithFormat:@"last_name = %@", @"Cooper"],
+                                       nil]];
+            NSPredicate *thirdAnd = [NSPredicate predicateWithFormat:@"company = %@", @"Carbon Five"];
+            
+            NSPredicate *allOrs = [NSCompoundPredicate orPredicateWithSubpredicates:[NSArray arrayWithObjects:firstAnd, secondAnd, thirdAnd, nil]];
+            
+            NSPredicate *predicateForFetch = [NSCompoundPredicate andPredicateWithSubpredicates:[NSArray arrayWithObjects:[NSPredicate predicateWithFormat:@"armor_class < %@", [NSNumber numberWithInt:17]], allOrs, nil]];
+            
+            NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+            [request setPredicate:predicateForFetch];
+            NSError *error = nil;
+            NSArray *results = [moc executeFetchRequestAndWait:request error:&error];
+            [error shouldBeNil];
+            [[results should] haveCountOf:2];
+            if ([results count] == 2) {
+                NSArray *array = [NSArray arrayWithObjects:[[results objectAtIndex:0] valueForKey:@"first_name"], [[results objectAtIndex:1] valueForKey:@"first_name"], nil];
+                [[array should] contain:@"Jon"];
+                [[array should] contain:@"Jonah"];
+            }
+        });
+    });
+    
+    describe(@"Advanced AND", ^{
+        it(@"works", ^{
+            NSPredicate *andPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:
+                                         [NSArray arrayWithObjects:
+                                          [NSPredicate predicateWithFormat:@"first_name = %@", @"Jonah"],
+                                          [NSPredicate predicateWithFormat:@"last_name = %@", @"Williams"],
+                                          [NSPredicate predicateWithFormat:@"armor_class = %@", [NSNumber numberWithInt:15]],
+                                          nil]];
+            
+            NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
+            [request setPredicate:andPredicate];
+            NSError *error = nil;
+            NSArray *results = [moc executeFetchRequestAndWait:request error:&error];
+            [error shouldBeNil];
+            [[results should] haveCountOf:1];
+            if ([results count] == 1) {
+                [[[[results objectAtIndex:0] valueForKey:@"first_name"] should] equal:@"Jonah"];
+            }
         });
     });
     describe(@"sorting", ^{
@@ -179,11 +293,11 @@ describe(@"with fixtures", ^{
         });
     });
     
-    describe(@"NSIncrementalStore implementation guide says we must implement", ^{
-        pending(@"shouldRefreshFetchedObjects", nil);
-        pending(@"propertiesToGroupBy", nil);
-        pending(@"havingPredicate", nil);
-    });
+    //describe(@"NSIncrementalStore implementation guide says we must implement", ^{
+        //pending(@"shouldRefreshFetchedObjects", nil);
+        //pending(@"propertiesToGroupBy", nil);
+        //pending(@"havingPredicate", nil);
+    //});
     
     describe(@"queries", ^{
         describe(@"error handling", ^{
@@ -380,9 +494,8 @@ describe(@"with fixtures", ^{
             });
         });
     });
-    
 });
-
+*/
 describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^{
     __block NSManagedObjectContext *moc = nil;
     __block SMClient *client = nil;
@@ -390,6 +503,9 @@ describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^
     __block User3 *user1 = nil;
     __block User3 *user2 = nil;
     __block User3 *user3 = nil;
+    __block NSString *user1ID = nil;
+    __block NSString *user2ID = nil;
+    __block NSString *user3ID = nil;
     beforeEach(^{
         // create a bunch of users
         client = [SMIntegrationTestHelpers defaultClient];
@@ -399,15 +515,18 @@ describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         
         user1 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] insertIntoManagedObjectContext:moc];
-        [user1 setUsername:[NSString stringWithFormat:@"matt%d", arc4random() / 10000]];
+        user1ID = [NSString stringWithFormat:@"matt%d", arc4random() / 10000];
+        [user1 setUsername:user1ID];
         [user1 setPassword:@"1234"];
         
         user2 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] insertIntoManagedObjectContext:moc];
-        [user2 setUsername:[NSString stringWithFormat:@"matt%d", arc4random() / 10000]];
+        user2ID = [NSString stringWithFormat:@"matt%d", arc4random() / 10000];
+        [user2 setUsername:user2ID];
         [user2 setPassword:@"1234"];
         
         user3 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] insertIntoManagedObjectContext:moc];
-        [user3 setUsername:[NSString stringWithFormat:@"matt%d", arc4random() / 10000]];
+        user3ID = [NSString stringWithFormat:@"matt%d", arc4random() / 10000];
+        [user3 setUsername:user3ID];
         [user3 setPassword:@"1234"];
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -439,9 +558,27 @@ describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^
         [anError shouldBeNil];
         [[theValue([theResults count]) should] equal:theValue(3)];
     });
+    it(@"works with or", ^{
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc];
+        [fetchRequest setEntity:entity];
+        
+        NSPredicate *predicate = [NSCompoundPredicate orPredicateWithSubpredicates:[NSArray arrayWithObjects:[NSPredicate predicateWithFormat:@"username == %@", user1ID], [NSPredicate predicateWithFormat:@"username == %@", user2ID], nil]];
+        [fetchRequest setPredicate:predicate];
+        NSError *anError = nil;
+        NSArray *theResults = [moc executeFetchRequestAndWait:fetchRequest error:&anError];
+        [anError shouldBeNil];
+        [[theValue([theResults count]) should] equal:theValue(2)];
+        if ([theResults count] == 2) {
+            NSArray *array = [NSArray arrayWithObjects:[[theResults objectAtIndex:0] valueForKey:@"username"], [[theResults objectAtIndex:1] valueForKey:@"username"], nil];
+            [[array should] contain:user1ID];
+            [[array should] contain:user2ID];
+        }
+    });
     
 });
-
+/*
 describe(@"fetch requests for managed objects", ^{
     __block NSManagedObjectContext *moc = nil;
     __block SMClient *client = nil;
@@ -503,5 +640,5 @@ describe(@"fetch requests for managed objects", ^{
         [[theValue([theResults count]) should] equal:theValue(1)];
     });
 });
-
+ */
 SPEC_END
