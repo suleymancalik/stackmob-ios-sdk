@@ -131,16 +131,32 @@
 
 - (BOOL)buildQuery:(SMQuery *__autoreleasing *)query forCompoundPredicate:(NSCompoundPredicate *)compoundPredicate error:(NSError *__autoreleasing *)error
 {
-    if ([compoundPredicate compoundPredicateType] != NSAndPredicateType) {
+    
+    if ([compoundPredicate compoundPredicateType] == NSAndPredicateType) {
+        SMQuery *subQuery = [[SMQuery alloc] initWithEntity:[*query entity]];
+        for (unsigned int i = 0; i < [[compoundPredicate subpredicates] count]; i++) {
+            NSPredicate *subpredicate = [[compoundPredicate subpredicates] objectAtIndex:i];
+            [self buildQuery:&subQuery forPredicate:subpredicate error:error];
+        }
+        [*query and:subQuery];
+    } else if ([compoundPredicate compoundPredicateType] == NSOrPredicateType) {
+        __block NSMutableArray *arrayOfQueries = [NSMutableArray array];
+        for (unsigned int i = 0; i < [[compoundPredicate subpredicates] count]; i++) {
+            SMQuery *subQuery = [[SMQuery alloc] initWithEntity:[*query entity]];
+            NSPredicate *subpredicate = [[compoundPredicate subpredicates] objectAtIndex:i];
+            [self buildQuery:&subQuery forPredicate:subpredicate error:error];
+            [arrayOfQueries addObject:subQuery];
+        }
+        __block SMQuery *ORedQuery = [[SMQuery alloc] initWithEntity:[*query entity]];
+        [arrayOfQueries enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            ORedQuery = [ORedQuery or:obj];
+        }];
+        [*query and:ORedQuery];
+    } else {
         [self setError:error withReason:@"Predicate type not supported."];
         return NO;
     }
-    
-    for (unsigned int i = 0; i < [[compoundPredicate subpredicates] count]; i++) {
-        NSPredicate *subpredicate = [[compoundPredicate subpredicates] objectAtIndex:i];
-        [self buildQuery:query forPredicate:subpredicate error:error];
-    }
-    
+                          
     return YES;
 }
 
