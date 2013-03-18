@@ -488,7 +488,40 @@ describe(@"with a prepopulated database of people", ^{
                 [error shouldBeNil];
             });
         });
-
+        it(@"single query duplicate key should throw exception", ^{
+            SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"peoplepermissions"];
+            [rootQuery where:@"first_name" isEqualTo:@"Jon"];
+            
+            SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"peoplepermissions"];
+            [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+            
+            [[theBlock(^{
+                [rootQuery or:subQuery];
+            }) should] raiseWithName:SMExceptionIncompatibleObject];
+            
+        });
+        it(@"multiple ors query duplicate key should throw exception", ^{
+            SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"peoplepermissions"];
+            [rootQuery where:@"armor_class" isLessThan:[NSNumber numberWithInt:17]];
+            
+            SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"peoplepermissions"];
+            [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+            [subQuery where:@"last_name" isEqualTo:@"Williams"];
+            
+            SMQuery *subQuery2 =[[SMQuery alloc] initWithSchema:@"peoplepermissions"];
+            [subQuery2 where:@"first_name" isEqualTo:@"Jon"];
+            
+            SMQuery *subQuery3 =[[SMQuery alloc] initWithSchema:@"peoplepermissions"];
+            [subQuery3 where:@"company" isEqualTo:@"Carbon Five"];
+            
+            SMQuery *subQuery4 =[[SMQuery alloc] initWithSchema:@"peoplepermissions"];
+            [subQuery4 where:@"company" isEqualTo:@"StackMob"];
+            
+            
+            [[theBlock(^{
+                [rootQuery and:[[[subQuery or:subQuery2] or:subQuery4] or:subQuery3]];
+            }) should] raiseWithName:SMExceptionIncompatibleObject];
+        });
     });
     
 });

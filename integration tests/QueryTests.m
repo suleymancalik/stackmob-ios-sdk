@@ -49,7 +49,6 @@ describe(@"with a prepopulated database of people", ^{
     afterEach(^{
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixtureNames];
     });
-    
     describe(@"-query with initWithSchema", ^{
         beforeEach(^{
             query = [[SMQuery alloc] initWithSchema:@"people"];
@@ -405,7 +404,6 @@ describe(@"with a prepopulated database of people", ^{
             });
         });
     });
-    
     describe(@"OR", ^{
         it(@"or-query, single or", ^{
             // Person where:
@@ -491,6 +489,40 @@ describe(@"with a prepopulated database of people", ^{
             }, ^(NSError *error){
                 [error shouldBeNil];
             });
+        });
+        it(@"single query duplicate key should throw exception", ^{
+            SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [rootQuery where:@"first_name" isEqualTo:@"Jon"];
+            
+            SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+            
+            [[theBlock(^{
+                [rootQuery or:subQuery];
+            }) should] raiseWithName:SMExceptionIncompatibleObject];
+            
+        });
+        it(@"multiple ors query duplicate key should throw exception", ^{
+            SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [rootQuery where:@"armor_class" isLessThan:[NSNumber numberWithInt:17]];
+            
+            SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+            [subQuery where:@"last_name" isEqualTo:@"Williams"];
+            
+            SMQuery *subQuery2 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery2 where:@"first_name" isEqualTo:@"Jon"];
+            
+            SMQuery *subQuery3 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery3 where:@"company" isEqualTo:@"Carbon Five"];
+            
+            SMQuery *subQuery4 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery4 where:@"company" isEqualTo:@"StackMob"];
+            
+            
+            [[theBlock(^{
+                [rootQuery and:[[[subQuery or:subQuery2] or:subQuery4] or:subQuery3]];
+            }) should] raiseWithName:SMExceptionIncompatibleObject];
         });
     });
 });
