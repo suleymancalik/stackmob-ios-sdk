@@ -893,14 +893,31 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_handleDeletedObjectsWhenOffline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context  options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     
-    // TODO add this method
+    __block NSMutableArray *deletedObjectIDs = [NSMutableArray array];
+    __block NSMutableArray *deletedObjectInfo = [NSMutableArray array];
+    [deletedObjects enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        NSString *primaryKey = [obj valueForKey:[obj primaryKeyField]];
+        [deletedObjectInfo addObject:[NSDictionary dictionaryWithObjectsAndKeys:primaryKey, ObjectID, [[obj entity] name], ObjectEntityName, nil]];
+        [deletedObjectIDs addObject:primaryKey];
+    }];
+    
+    BOOL purgeSuccess = [self SM_purgeObjectsFromCacheByStackMobIDInfo:deletedObjectInfo];
+    if (!purgeSuccess) {
+        
+    }
+    
+    [self SM_addPrimaryKeysToDirtyQueueAndSave:deletedObjectIDs state:2];
+    
+    return YES;
+    
+    /*
     if (SM_CORE_DATA_DEBUG) { DLog() }
     if (error != NULL) {
         NSError *notReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:nil];
         *error = (__bridge id)(__bridge_retained CFTypeRef)notReachableError;
     }
     return NO;
-    
+    */
 }
 
 
@@ -2612,7 +2629,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     __block NSMutableArray *deletedList = [[self.dirtyQueue objectForKey:@"deleted"] mutableCopy];
     switch (state) {
         case 0:
-            // If inserted, object may only exist in inserted list
             [primaryKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
                 if (![insertedList containsObject:key]) {
                     [insertedList addObject:key];
@@ -2621,12 +2637,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             [self.dirtyQueue setObject:[NSArray arrayWithArray:insertedList] forKey:@"inserted"];
             break;
         case 1:
-            // If updated, object may exist in inserted or updated list
+            // If an updated key already exists in inserted, leave it there
             [primaryKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
-                if ([insertedList containsObject:key]) {
-                    [insertedList removeObject:key];
-                }
-                if (![updatedList containsObject:key]) {
+                if (![insertedList containsObject:key] && ![updatedList containsObject:key]) {
                     [updatedList addObject:key];
                 }
             }];
@@ -2634,15 +2647,15 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             [self.dirtyQueue setObject:[NSArray arrayWithArray:updatedList] forKey:@"updated"];
             break;
         case 2:
-            // If deleted, object may exist in inserted, updated, or deleted list
+            // If it exists in inserted, remove completely
+            // If it exists in updated, move to deleted
             [primaryKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
                 if ([insertedList containsObject:key]) {
                     [insertedList removeObject:key];
-                }
-                if ([updatedList containsObject:key]) {
+                } else if ([updatedList containsObject:key]) {
                     [updatedList removeObject:key];
-                }
-                if (![deletedList containsObject:key]) {
+                    [deletedList addObject:key];
+                } else if (![deletedList containsObject:key]) {
                     [deletedList addObject:key];
                 }
             }];
