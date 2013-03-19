@@ -453,6 +453,15 @@
                                 onFailure:(SMFailureBlock)failureBlock;
 
 /**
+ Unlink the logged in user from their associated Facebook token.
+ 
+ @param successBlock <i>typedef void (^SMSuccessBlock)()</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
+- (void)unlinkLoggedInUserFromFacebookOnSuccess:(SMSuccessBlock)successBlock
+                          onFailure:(SMFailureBlock)failureBlock;
+
+/**
  Login a user to your app with a Facebook token.
  
  The credentials should match a existing user object that has a linked Facebook account, via either <createUserWithFacebookToken:onSuccess:onFailure:>, or <linkLoggedInUserWithFacebookToken:onSuccess:onFailure:>.
@@ -556,6 +565,15 @@
                                onFailure:(SMFailureBlock)failureBlock;
 
 /**
+ Unlink the logged in user from their associated Twitter token.
+ 
+ @param successBlock <i>typedef void (^SMSuccessBlock)()</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
+- (void)unlinkLoggedInUserFromTwitterOnSuccess:(SMSuccessBlock)successBlock
+                                     onFailure:(SMFailureBlock)failureBlock;
+
+/**
  Login a user to your app with twitter credentials.
  
  The credentials should match a existing user object that has a linked Twitter account, via either <createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>, or <linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>.
@@ -619,6 +637,26 @@
 ///-------------------------------
 /// @name Gigya Authentication
 ///-------------------------------
+
+/**
+ Link the logged in user with a Gigya account.
+ 
+ @param gsUser The dictionary returned by user.m_pDict from the gsLoginUIDidLogin:user:context method.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
+- (void)linkLoggedInUserWithGigyaUserDictionaryToken:(NSDictionary *)gsUser
+                                           onSuccess:(SMResultSuccessBlock)successBlock
+                                           onFailure:(SMFailureBlock)failureBlock;
+
+/**
+ Unlink the logged in user from their associated Gigya token.
+ 
+ @param successBlock <i>typedef void (^SMSuccessBlock)()</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
+- (void)unlinkLoggedInUserFromGigyaOnSuccess:(SMSuccessBlock)successBlock
+                                     onFailure:(SMFailureBlock)failureBlock;
 
 /**
  Login with Gigya, providing the m_pDict property of the GSObject user parameter provided by the gsLoginUIDidLogin:user:context: delegate method.

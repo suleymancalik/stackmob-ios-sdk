@@ -356,6 +356,19 @@ static SMClient *defaultClient = nil;
     }];
 }
 
+- (void)unlinkLoggedInUserFromFacebookOnSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    [self.dataStore deleteObjectId:@"unlinkUserFromFacebook" inSchema:self.userSchema options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSString *theObjectId, NSString *schema) {
+        if (successBlock) {
+            successBlock();
+        }
+    } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+        if (failureBlock) {
+            failureBlock(theError);
+        }
+    }];
+}
+
 - (void)loginWithFacebookToken:(NSString *)fbToken
                      onSuccess:(SMResultSuccessBlock)successBlock
                      onFailure:(SMFailureBlock)failureBlock
@@ -471,6 +484,19 @@ static SMClient *defaultClient = nil;
     }];
 }
 
+- (void)unlinkLoggedInUserFromTwitterOnSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    [self.dataStore deleteObjectId:@"unlinkUserFromTwitter" inSchema:self.userSchema options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSString *theObjectId, NSString *schema) {
+        if (successBlock) {
+            successBlock();
+        }
+    } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+        if (failureBlock) {
+            failureBlock(theError);
+        }
+    }];
+}
+
 - (void)loginWithTwitterToken:(NSString *)twitterToken
                 twitterSecret:(NSString *)twitterSecret
                     onSuccess:(SMResultSuccessBlock)successBlock
@@ -532,6 +558,19 @@ static SMClient *defaultClient = nil;
             failureBlock(theError);
         }
     }];
+}
+
+- (void)linkLoggedInUserWithGigyaUserDictionaryToken:(NSDictionary *)gsUser
+                                           onSuccess:(SMResultSuccessBlock)successBlock
+                                           onFailure:(SMFailureBlock)failureBlock
+{
+    
+}
+
+- (void)unlinkLoggedInUserFromGigyaOnSuccess:(SMSuccessBlock)successBlock
+                                   onFailure:(SMFailureBlock)failureBlock
+{
+    
 }
 
 - (void)loginWithGigyaUserDictionary:(NSDictionary *)gsUser onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
