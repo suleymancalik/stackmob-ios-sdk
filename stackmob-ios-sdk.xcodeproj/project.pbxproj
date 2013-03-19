@@ -66,6 +66,15 @@
 		8CCCE5041580389800C38962 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8CCCE5021580389800C38962 /* InfoPlist.strings */; };
 		8CD0DEEA1592409D0087801F /* StackMobCredentials.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8CD0DEE91592409D0087801F /* StackMobCredentials.plist */; };
 		D80DEBB427BC4CCC8E29CD71 /* libPods-integrationTestsCoreData.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F19DAB09E04A42F58CE99823 /* libPods-integrationTestsCoreData.a */; };
+		DE01F13C16F78CE800453088 /* User3.m in Sources */ = {isa = PBXBuildFile; fileRef = DE01F13A16F78CE800453088 /* User3.m */; };
+		DE01F13E16F7BC7C00453088 /* QueryTestsWithPermissionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE1BDE2D1682BFEC009282BA /* QueryTestsWithPermissionsSpec.m */; };
+		DE01F13F16F7BEA400453088 /* CRUDTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C33B0641591355A00BE2570 /* CRUDTests.m */; };
+		DE01F14016F7BEA700453088 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
+		DE01F14116F7BEAD00453088 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
+		DE01F14216F7BEB000453088 /* SMPushClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED78164B1D43006B7326 /* SMPushClientIntegrationSpec.m */; };
+		DE01F14316F7BEB400453088 /* SMNetworkReachabilitySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9EEBE164B4F24006B7326 /* SMNetworkReachabilitySpec.m */; };
+		DE01F16216F7FE0000453088 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = DE01F16116F7FE0000453088 /* Person.m */; };
+		DE01F16316F7FE0000453088 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = DE01F16116F7FE0000453088 /* Person.m */; };
 		DE05E13D15E2BE8F00224E4E /* goatPic.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = DE05E13C15E2BE8A00224E4E /* goatPic.jpeg */; };
 		DE05E13E15E2BE9000224E4E /* goatPic.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = DE05E13C15E2BE8A00224E4E /* goatPic.jpeg */; };
 		DE05E13F15E2BE9200224E4E /* goatPic.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = DE05E13C15E2BE8A00224E4E /* goatPic.jpeg */; };
@@ -137,13 +146,6 @@
 		DE1BDE391682C120009282BA /* peoplepermissions.json in Resources */ = {isa = PBXBuildFile; fileRef = DE1BDE301682C105009282BA /* peoplepermissions.json */; };
 		DE1BDE3A1682C129009282BA /* placespermissions.json in Resources */ = {isa = PBXBuildFile; fileRef = DE1BDE311682C106009282BA /* placespermissions.json */; };
 		DE1BDE3B1682C151009282BA /* blogpostspermissions.json in Resources */ = {isa = PBXBuildFile; fileRef = DE1BDE341682C111009282BA /* blogpostspermissions.json */; };
-		DE2EA18D16CC626F001FA904 /* QueryTestsWithPermissionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE1BDE2D1682BFEC009282BA /* QueryTestsWithPermissionsSpec.m */; };
-		DE2EA19116CC6516001FA904 /* CRUDTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C33B0641591355A00BE2570 /* CRUDTests.m */; };
-		DE2EA19216CC6519001FA904 /* SMClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB8474D159A74D000FF37A3 /* SMClientIntegrationSpec.m */; };
-		DE2EA19316CC651D001FA904 /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
-		DE2EA19416CC6522001FA904 /* SMCusCodeReqIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB16BCB15DC606300893EE5 /* SMCusCodeReqIntegrationSpec.m */; };
-		DE2EA19516CC6525001FA904 /* SMPushClientIntegrationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED78164B1D43006B7326 /* SMPushClientIntegrationSpec.m */; };
-		DE2EA19616CC6529001FA904 /* SMNetworkReachabilitySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9EEBE164B4F24006B7326 /* SMNetworkReachabilitySpec.m */; };
 		DE2EA1A116CC7304001FA904 /* SMGeoPoint.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 1D83529416C5ACD000814C71 /* SMGeoPoint.h */; };
 		DE2EA1A216CC7304001FA904 /* SMLocationManager.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 1D8352A716C8512400814C71 /* SMLocationManager.h */; };
 		DE2EA1A316CC7304001FA904 /* Common.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DEEDC32616C984B4008B1CC2 /* Common.h */; };
@@ -153,10 +155,6 @@
 		DE64D6021623777900237570 /* SMUserManagedObject.m in Sources */ = {isa = PBXBuildFile; fileRef = DE64D6001623777900237570 /* SMUserManagedObject.m */; };
 		DE64D61C1623BAE800237570 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE64D61B1623BAE800237570 /* Security.framework */; };
 		DE64D61D1623BB0A00237570 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE64D61B1623BAE800237570 /* Security.framework */; };
-		DE7FC14016F2598D00483BF3 /* Person.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7FC13E16F2598D00483BF3 /* Person.h */; };
-		DE7FC14216F25A8600483BF3 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7FC13F16F2598D00483BF3 /* Person.m */; };
-		DE7FC14316F25A8600483BF3 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7FC13F16F2598D00483BF3 /* Person.m */; };
-		DE7FC14716F2638200483BF3 /* OfflineLocalWriteCacheSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA052E316EEADF9009F7462 /* OfflineLocalWriteCacheSpec.m */; };
 		DE8D501B1636101E0067B1C2 /* SMRequestOptionsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8D501A1636101E0067B1C2 /* SMRequestOptionsSpec.m */; };
 		DE8D51CF15E2CB11002F582A /* NSDictionary+AtomicCounter.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E14315E2C02200224E4E /* NSDictionary+AtomicCounter.h */; };
 		DE8D51D215E2CB11002F582A /* SMBinaryDataConversion.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE05E14915E2C02200224E4E /* SMBinaryDataConversion.h */; };
@@ -198,6 +196,7 @@
 		DEA9ED77164B1D19006B7326 /* SMPushClientSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED76164B1D19006B7326 /* SMPushClientSpec.m */; };
 		DEA9ED96164B2BAB006B7326 /* SystemInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = DEA9ED94164B2BAB006B7326 /* SystemInformation.h */; };
 		DEA9ED97164B2BAB006B7326 /* SystemInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED95164B2BAB006B7326 /* SystemInformation.m */; };
+		DEABD44416F3F8FB00A1EBB7 /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
 		DEB68F93169F50CF00CC45F4 /* SMIncrementalStoreNode.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DEC5F9F8169B979B00A44722 /* SMIncrementalStoreNode.h */; };
 		DEB6E8A9169662A700B2C88D /* AFHTTPClient+StackMob.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE3AE12816810FAC000B2E80 /* AFHTTPClient+StackMob.h */; };
 		DEBBBCAF15CC440600650D75 /* SMCoreDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCA515CC440600650D75 /* SMCoreDataStore.h */; };
@@ -210,6 +209,7 @@
 		DEBBBCBE15CC441900650D75 /* NSArray+Enumerable.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBA15CC441900650D75 /* NSArray+Enumerable.m */; };
 		DEBBBCBF15CC441900650D75 /* Synchronization.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCBB15CC441900650D75 /* Synchronization.h */; };
 		DEBBBCC015CC441900650D75 /* Synchronization.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBC15CC441900650D75 /* Synchronization.m */; };
+		DEBDD4FB16F8101B0006500C /* OfflineLocalWriteCacheSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA052E316EEADF9009F7462 /* OfflineLocalWriteCacheSpec.m */; };
 		DEC5F9FA169B979B00A44722 /* SMIncrementalStoreNode.h in Headers */ = {isa = PBXBuildFile; fileRef = DEC5F9F8169B979B00A44722 /* SMIncrementalStoreNode.h */; };
 		DEC5F9FB169B979B00A44722 /* SMIncrementalStoreNode.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC5F9F9169B979B00A44722 /* SMIncrementalStoreNode.m */; };
 		DED7D2A81655749900FBAF06 /* SMNetworkReachability.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE079B9A16499B0900C8AAA0 /* SMNetworkReachability.h */; };
@@ -238,8 +238,6 @@
 		DEEDC32816C984B4008B1CC2 /* Common.h in Headers */ = {isa = PBXBuildFile; fileRef = DEEDC32616C984B4008B1CC2 /* Common.h */; };
 		DEF756B61624918E006FD554 /* KeychainWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF756B41624918E006FD554 /* KeychainWrapper.h */; };
 		DEF756B71624918E006FD554 /* KeychainWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF756B51624918E006FD554 /* KeychainWrapper.m */; };
-		DEF756C81624D4BE006FD554 /* User3.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF756C61624D4BE006FD554 /* User3.h */; };
-		DEF756C91624D4BE006FD554 /* User3.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF756C71624D4BE006FD554 /* User3.m */; };
 		DEFA4EBF1628A93E00E75101 /* User4.h in Headers */ = {isa = PBXBuildFile; fileRef = DEFA4EBD1628A93E00E75101 /* User4.h */; };
 		DEFA4EC01628A93E00E75101 /* User4.m in Sources */ = {isa = PBXBuildFile; fileRef = DEFA4EBE1628A93E00E75101 /* User4.m */; };
 		DEFA4EC61628D0E700E75101 /* KeychainWrapper.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DEF756B41624918E006FD554 /* KeychainWrapper.h */; };
@@ -361,6 +359,10 @@
 		9FC525CBE9284EC88F303CAD /* Pods-integration tests.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-integration tests.xcconfig"; path = "Pods/Pods-integration tests.xcconfig"; sourceTree = SOURCE_ROOT; };
 		CC1E56D1B3EB4DE7BDACFF7A /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D56AD6E0A6D94C02B2D62C21 /* Pods-integrationTestsCoreData.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-integrationTestsCoreData.xcconfig"; path = "Pods/Pods-integrationTestsCoreData.xcconfig"; sourceTree = SOURCE_ROOT; };
+		DE01F13916F78CE800453088 /* User3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User3.h; sourceTree = "<group>"; };
+		DE01F13A16F78CE800453088 /* User3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User3.m; sourceTree = "<group>"; };
+		DE01F16016F7FE0000453088 /* Person.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
+		DE01F16116F7FE0000453088 /* Person.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		DE05E13C15E2BE8A00224E4E /* goatPic.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = goatPic.jpeg; sourceTree = "<group>"; };
 		DE05E14315E2C02200224E4E /* NSDictionary+AtomicCounter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+AtomicCounter.h"; sourceTree = "<group>"; };
 		DE05E14415E2C02200224E4E /* NSDictionary+AtomicCounter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+AtomicCounter.m"; sourceTree = "<group>"; };
@@ -440,8 +442,6 @@
 		DE64D6001623777900237570 /* SMUserManagedObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMUserManagedObject.m; sourceTree = "<group>"; };
 		DE64D6041623894600237570 /* SMUserManagedObjectSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMUserManagedObjectSpec.m; sourceTree = "<group>"; };
 		DE64D61B1623BAE800237570 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		DE7FC13E16F2598D00483BF3 /* Person.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
-		DE7FC13F16F2598D00483BF3 /* Person.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		DE8D501A1636101E0067B1C2 /* SMRequestOptionsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMRequestOptionsSpec.m; sourceTree = "<group>"; };
 		DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		DE96D84E165DA06500303710 /* LocalReadCacheSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalReadCacheSpec.m; sourceTree = "<group>"; };
@@ -486,8 +486,6 @@
 		DEEDC32616C984B4008B1CC2 /* Common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
 		DEF756B41624918E006FD554 /* KeychainWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeychainWrapper.h; sourceTree = "<group>"; };
 		DEF756B51624918E006FD554 /* KeychainWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeychainWrapper.m; sourceTree = "<group>"; };
-		DEF756C61624D4BE006FD554 /* User3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User3.h; sourceTree = "<group>"; };
-		DEF756C71624D4BE006FD554 /* User3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User3.m; sourceTree = "<group>"; };
 		DEF9B4C415992FA100B1D5AE /* SMUserSessionSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMUserSessionSpec.m; sourceTree = "<group>"; };
 		DEFA4EBD1628A93E00E75101 /* User4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User4.h; sourceTree = "<group>"; };
 		DEFA4EBE1628A93E00E75101 /* User4.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User4.m; sourceTree = "<group>"; };
@@ -780,14 +778,14 @@
 			children = (
 				DE0CC7AE15CB605900E491C4 /* Superpower.h */,
 				DE0CC7AF15CB605900E491C4 /* Superpower.m */,
-				DEF756C61624D4BE006FD554 /* User3.h */,
-				DEF756C71624D4BE006FD554 /* User3.m */,
 				DEFA4EBD1628A93E00E75101 /* User4.h */,
 				DEFA4EBE1628A93E00E75101 /* User4.m */,
 				1D8351CD16C08D6F00814C71 /* Random.h */,
 				1D8351CE16C08D6F00814C71 /* Random.m */,
-				DE7FC13E16F2598D00483BF3 /* Person.h */,
-				DE7FC13F16F2598D00483BF3 /* Person.m */,
+				DE01F13916F78CE800453088 /* User3.h */,
+				DE01F13A16F78CE800453088 /* User3.m */,
+				DE01F16016F7FE0000453088 /* Person.h */,
+				DE01F16116F7FE0000453088 /* Person.m */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -913,7 +911,6 @@
 				DE05E18415E2C02200224E4E /* StackMob.h in Headers */,
 				DE64D6011623777900237570 /* SMUserManagedObject.h in Headers */,
 				DEF756B61624918E006FD554 /* KeychainWrapper.h in Headers */,
-				DEF756C81624D4BE006FD554 /* User3.h in Headers */,
 				DEFA4EBF1628A93E00E75101 /* User4.h in Headers */,
 				DE9784A6163B5880001119D1 /* NSEntityDescription+StackMobSerialization.h in Headers */,
 				DE9784A8163B5880001119D1 /* NSManagedObject+StackMobSerialization.h in Headers */,
@@ -931,7 +928,6 @@
 				1D83529616C5ACD300814C71 /* SMGeoPoint.h in Headers */,
 				1D8352A916C8512800814C71 /* SMLocationManager.h in Headers */,
 				DEEDC32816C984B4008B1CC2 /* Common.h in Headers */,
-				DE7FC14016F2598D00483BF3 /* Person.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1021,7 +1017,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = SM;
-				LastUpgradeCheck = 0430;
+				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = StackMob;
 			};
 			buildConfigurationList = 8CCCE4E01580389800C38962 /* Build configuration list for PBXProject "stackmob-ios-sdk" */;
@@ -1273,14 +1269,14 @@
 				1DDAE4691656EF15001DFAEF /* SMNetworkReachabilityHelper.m in Sources */,
 				1D8351CF16C08D7000814C71 /* Random.m in Sources */,
 				1D8351DF16C0969900814C71 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */,
-				DE2EA18D16CC626F001FA904 /* QueryTestsWithPermissionsSpec.m in Sources */,
-				DE2EA19116CC6516001FA904 /* CRUDTests.m in Sources */,
-				DE2EA19216CC6519001FA904 /* SMClientIntegrationSpec.m in Sources */,
-				DE2EA19316CC651D001FA904 /* QueryTests.m in Sources */,
-				DE2EA19416CC6522001FA904 /* SMCusCodeReqIntegrationSpec.m in Sources */,
-				DE2EA19516CC6525001FA904 /* SMPushClientIntegrationSpec.m in Sources */,
-				DE2EA19616CC6529001FA904 /* SMNetworkReachabilitySpec.m in Sources */,
-				DE7FC14216F25A8600483BF3 /* Person.m in Sources */,
+				DEABD44416F3F8FB00A1EBB7 /* QueryTests.m in Sources */,
+				DE01F13E16F7BC7C00453088 /* QueryTestsWithPermissionsSpec.m in Sources */,
+				DE01F13F16F7BEA400453088 /* CRUDTests.m in Sources */,
+				DE01F14016F7BEA700453088 /* SMClientIntegrationSpec.m in Sources */,
+				DE01F14116F7BEAD00453088 /* SMCusCodeReqIntegrationSpec.m in Sources */,
+				DE01F14216F7BEB000453088 /* SMPushClientIntegrationSpec.m in Sources */,
+				DE01F14316F7BEB400453088 /* SMNetworkReachabilitySpec.m in Sources */,
+				DE01F16216F7FE0000453088 /* Person.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1308,7 +1304,6 @@
 				DE05E18215E2C02200224E4E /* SMUserSession.m in Sources */,
 				DE64D6021623777900237570 /* SMUserManagedObject.m in Sources */,
 				DEF756B71624918E006FD554 /* KeychainWrapper.m in Sources */,
-				DEF756C91624D4BE006FD554 /* User3.m in Sources */,
 				DEFA4EC01628A93E00E75101 /* User4.m in Sources */,
 				DE9784A7163B5880001119D1 /* NSEntityDescription+StackMobSerialization.m in Sources */,
 				DE9784A9163B5880001119D1 /* NSManagedObject+StackMobSerialization.m in Sources */,
@@ -1360,8 +1355,9 @@
 				1D8351A316B9D4D000814C71 /* SMCoreDataIntegrationTestHelpers.m in Sources */,
 				1D8351D016C08D7000814C71 /* Random.m in Sources */,
 				1D8351E016C0969A00814C71 /* SMCoreDataIntegrationTest.xcdatamodeld in Sources */,
-				DE7FC14316F25A8600483BF3 /* Person.m in Sources */,
-				DE7FC14716F2638200483BF3 /* OfflineLocalWriteCacheSpec.m in Sources */,
+				DE01F13C16F78CE800453088 /* User3.m in Sources */,
+				DE01F16316F7FE0000453088 /* Person.m in Sources */,
+				DEBDD4FB16F8101B0006500C /* OfflineLocalWriteCacheSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1443,6 +1439,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1477,6 +1477,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;

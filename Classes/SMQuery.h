@@ -251,4 +251,14 @@
  */
 - (void)orderByField:(NSString *)field ascending:(BOOL)ascending;
 
+#pragma mark - And/Or
+///-------------------------------
+/// @name And/Or
+///-------------------------------
+
+- (SMQuery *)and:(SMQuery *)query;
+- (SMQuery *)or:(SMQuery *)query;
+
+
+
 @end

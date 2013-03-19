@@ -376,7 +376,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     //   http://developer.apple.com/library/ios/#releasenotes/ObjectiveC/RN-TransitioningToARC
     //
     
-    if (result == nil) {
+    if (result == nil && error != NULL) {
         *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
     }
     

@@ -31,9 +31,10 @@ describe(@"Inserting/Updating/Deleting many objects works fine", ^{
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
-        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
         moc = [cds contextForCurrentThread];
     });
     afterAll(^{
@@ -90,9 +91,10 @@ describe(@"With a non-401 error", ^{
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
-        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
         moc = [cds contextForCurrentThread];
         
         if ([client isLoggedIn]) {
@@ -159,9 +161,10 @@ describe(@"With 401s", ^{
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
-        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
         moc = [cds contextForCurrentThread];
         
         if ([client isLoggedIn]) {
@@ -233,9 +236,10 @@ describe(@"401s requiring logins", ^{
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
-        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
         moc = [cds contextForCurrentThread];
         
         [SMIntegrationTestHelpers createUser:@"dude" password:@"sweet" dataStore:client.dataStore];
@@ -306,9 +310,10 @@ describe(@"timeouts with refreshing", ^{
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
-        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
         moc = [cds contextForCurrentThread];
         
         
@@ -342,9 +347,10 @@ describe(@"With 401s and other errors", ^{
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
-        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
         moc = [cds contextForCurrentThread];
         
         [SMIntegrationTestHelpers createUser:@"dude" password:@"sweet" dataStore:client.dataStore];

@@ -5,9 +5,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.cocoapods.AFNetworking-1.0</string>
+	<string>org.cocoapods.AFNetworking-1.1.0</string>
 	<key>CFBundleName</key>
-	<string>AFNetworking 1.0 Documentation</string>
+	<string>AFNetworking 1.1.0 Documentation</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
@@ -18,7 +18,7 @@
 	<string>A delightful iOS and OS X networking framework.</string>
 	
 	<key>DocSetFeedName</key>
-	<string>AFNetworking 1.0 Documentation</string>
+	<string>AFNetworking 1.1.0 Documentation</string>
 	
 	<key>DocSetMinimumXcodeVersion</key>
 	<string>3.0</string>
@@ -27,8 +27,8 @@
 	<key>DocSetPublisherIdentifier</key>
 	<string>org.cocoapods.documentation</string>
 	<key>DocSetPublisherName</key>
-	<string>Mattt Thompson, Scott Raymond</string>
+	<string>Mattt Thompson and Scott Raymond</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Mattt Thompson, Scott Raymond</string>
+	<string>Mattt Thompson and Scott Raymond</string>
 </dict>
 </plist>
