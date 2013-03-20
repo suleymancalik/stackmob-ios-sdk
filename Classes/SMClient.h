@@ -253,7 +253,7 @@
                 onFailure:(SMFailureBlock)failureBlock;
 
 /**
- Login a user to your app with a username/password. 
+ Login a user to your app with a username/password, with parameter for including request options.
  
  The credentials should match an existing user object.
  
@@ -269,6 +269,19 @@
                 onSuccess:(SMResultSuccessBlock)successBlock
                 onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Login a user to your app with a username/password, with parameters for including request options and callback queues.
+ 
+ The credentials should match an existing user object.
+ 
+ @param username The username to log in with.
+ @param password The password to log in with.
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure. If the error code is `SMErrorTemporaryPasswordResetRequired`, you should prompt the user supply a new password and call <loginWithUsername:temporaryPassword:settingNewPassword:onSuccess:onFailure:>.
+ */
 - (void)loginWithUsername:(NSString *)username
                  password:(NSString *)password
                   options:(SMRequestOptions *)options
@@ -295,7 +308,7 @@
                 onFailure:(SMFailureBlock)failureBlock;
 
 /**
- Login a user to your app with a username and temporary password, changing the users's password to the supplied new password. 
+ Login a user to your app with a username and temporary password, changing the users's password to the supplied new password.  Includes parameter for including request options. 
  
  This call is meant to be used as part of the forgot password flow. After the user receives an email with their temporary password, they should be taken to a login screen with an extra field for a new password, and that should hook up to this API. Your app can detect this situation via <loginWithUsername:password:onSuccess:onFailure:> returning the error `SMErrorTemporaryPasswordResetRequired`.
  
@@ -313,6 +326,20 @@
                 onSuccess:(SMResultSuccessBlock)successBlock
                 onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Login a user to your app with a username and temporary password, changing the users's password to the supplied new password.  Includes parameters for including request options and callback queues.
+ 
+ This call is meant to be used as part of the forgot password flow. After the user receives an email with their temporary password, they should be taken to a login screen with an extra field for a new password, and that should hook up to this API. Your app can detect this situation via <loginWithUsername:password:onSuccess:onFailure:> returning the error `SMErrorTemporaryPasswordResetRequired`.
+ 
+ @param username The username to log in with.
+ @param tempPassword The temporary password received via email.
+ @param newPassword The new password to be set, invalidating the old and temporary passwords.
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)loginWithUsername:(NSString *)username
         temporaryPassword:(NSString *)tempPassword
        settingNewPassword:(NSString *)newPassword
@@ -350,7 +377,7 @@
                        onFailure:(SMFailureBlock)failureBlock;
 
 /**
- Return the full object associated with the logged in user.
+ Return the full object associated with the logged in user. Includes parameter for including request options.
  
  Useful on app startup to replace login when the user is already logged in.
  
@@ -362,6 +389,17 @@
                          onSuccess:(SMResultSuccessBlock)successBlock
                          onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Return the full object associated with the logged in user. Includes parameters for including request options and callback queues.
+ 
+ Useful on app startup to replace login when the user is already logged in.
+ 
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)getLoggedInUserWithOptions:(SMRequestOptions *)options
               successCallbackQueue:(dispatch_queue_t)successCallbackQueue
               failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
@@ -399,10 +437,26 @@
 - (void)logoutOnSuccess:(SMResultSuccessBlock)successBlock
               onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Logout, clearing token validity locally and on the server. Includes parameter for including request options.
+ 
+ @param options An options object contains headers and other configuration for this request.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)logoutWithOptions:(SMRequestOptions *)options
                 onSuccess:(SMResultSuccessBlock)successBlock
                 onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Logout, clearing token validity locally and on the server. Includes parameters for including request options and callback queues.
+ 
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)logoutWithOptions:(SMRequestOptions *)options
      successCallbackQueue:(dispatch_queue_t)successCallbackQueue
      failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
@@ -463,7 +517,7 @@
                           onFailure:(SMFailureBlock)failureBlock;
 
 /**
- Create a user linked with a Facebook account
+ Create a user linked with a Facebook account.  Includes parameter for including username.
  
  @param fbToken A Facebook access token obtained from Facebook
  @param username The username to user, rather than getting one from Facebook.
@@ -475,6 +529,17 @@
                           onSuccess:(SMResultSuccessBlock)successBlock
                           onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Create a user linked with a Facebook account. Includes parameters for including username, request options, and callback queues.
+ 
+ @param fbToken A Facebook access token obtained from Facebook
+ @param username The username to user, rather than getting one from Facebook.
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)createUserWithFacebookToken:(NSString *)fbToken
                            username:(NSString *)username
                             options:(SMRequestOptions *)options
@@ -494,6 +559,16 @@
                                 onSuccess:(SMResultSuccessBlock)successBlock
                                 onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Link the logged in user with a Facebook account. Includes parameters for including request options and callback queues.
+ 
+ @param fbToken A Facebook access token obtained from Facebook.
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)linkLoggedInUserWithFacebookToken:(NSString *)fbToken
                                   options:(SMRequestOptions *)options
                      successCallbackQueue:(dispatch_queue_t)successCallbackQueue
@@ -510,6 +585,15 @@
 - (void)unlinkLoggedInUserFromFacebookOnSuccess:(SMSuccessBlock)successBlock
                           onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Unlink the logged in user from their associated Facebook token. Includes parameters for including request options and callback queues.
+ 
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMSuccessBlock)()</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)unlinkLoggedInUserFromFacebookWithOptions:(SMRequestOptions *)options
                              successCallbackQueue:(dispatch_queue_t)successCallbackQueue
                              failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
@@ -530,7 +614,7 @@
                      onFailure:(SMFailureBlock)failureBlock;
 
 /**
- Login a user to your app with a Facebook token.
+ Login a user to your app with a Facebook token. Includes parameter for including request options.
  
  The credentials should match a existing user object that has a linked Facebook account, via either <createUserWithFacebookToken:onSuccess:onFailure:>, or <linkLoggedInUserWithFacebookToken:onSuccess:onFailure:>.
  
@@ -544,6 +628,18 @@
                      onSuccess:(SMResultSuccessBlock)successBlock
                      onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Login a user to your app with a Facebook token. Includes parameters for including request options and callback queues.
+ 
+ The credentials should match a existing user object that has a linked Facebook account, via either <createUserWithFacebookToken:onSuccess:onFailure:>, or <linkLoggedInUserWithFacebookToken:onSuccess:onFailure:>.
+ 
+ @param fbToken A Facebook access token obtained from Facebook.
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)loginWithFacebookToken:(NSString *)fbToken
                        options:(SMRequestOptions *)options
           successCallbackQueue:(dispatch_queue_t)successCallbackQueue
@@ -565,6 +661,19 @@
                           onSuccess:(SMResultSuccessBlock)successBlock
                           onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Update the logged in users's Facebook status. Includes parameters for including request options and callback queues.
+ 
+ The logged in user must have a linked Facebook account, via either
+ <createUserWithFacebookToken:onSuccess:onFailure:>, or <linkLoggedInUserWithFacebookToken:onSuccess:onFailure:>.
+ 
+ @param message The message to post.
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)updateFacebookStatusWithMessage:(NSString *)message
                                 options:(SMRequestOptions *)options
                    successCallbackQueue:(dispatch_queue_t)successCallbackQueue
@@ -584,6 +693,18 @@
 - (void)getLoggedInUserFacebookInfoWithOnSuccess:(SMResultSuccessBlock)successBlock
                                        onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Get Facebook info for the logged in users. Includes parameters for including request options and callback queues.
+ 
+ The logged in user must have a linked Facebook account, via either
+ <createUserWithFacebookToken:onSuccess:onFailure:>, or <linkLoggedInUserWithFacebookToken:onSuccess:onFailure:>.
+ 
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)getLoggedInUserFacebookInfoWithOptions:(SMRequestOptions *)options
                           successCallbackQueue:(dispatch_queue_t)successCallbackQueue
                           failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
@@ -612,7 +733,7 @@
                          onFailure:(SMFailureBlock)failureBlock;
 
 /**
- Create a user linked with a Twitter account.
+ Create a user linked with a Twitter account. Includes parameter for including username.
  
  @param twitterToken A Twitter token obtained from Twitter.
  @param twitterSecret A Twitter secret obtained from Twitter.
@@ -626,6 +747,18 @@
                          onSuccess:(SMResultSuccessBlock)successBlock
                          onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Create a user linked with a Twitter account. Includes parameter for including username, request options, and callback queues.
+ 
+ @param twitterToken A Twitter token obtained from Twitter.
+ @param twitterSecret A Twitter secret obtained from Twitter.
+ @param username The username to user, rather than getting one from Twitter.
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)createUserWithTwitterToken:(NSString *)twitterToken
                      twitterSecret:(NSString *)twitterSecret
                           username:(NSString *)username
@@ -648,6 +781,17 @@
                                onSuccess:(SMResultSuccessBlock)successBlock
                                onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Link the logged in user with a Twitter account. Includes parameters for including request options and callback queues.
+ 
+ @param twitterToken A Twitter token obtained from Twitter.
+ @param twitterSecret A Twitter secret obtained from Twitter.
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)linkLoggedInUserWithTwitterToken:(NSString *)twitterToken
                            twitterSecret:(NSString *)twitterSecret
                                  options:(SMRequestOptions *)options
@@ -665,6 +809,15 @@
 - (void)unlinkLoggedInUserFromTwitterOnSuccess:(SMSuccessBlock)successBlock
                                      onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Unlink the logged in user from their associated Twitter token. Includes parameters for including request options and callback queues.
+ 
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMSuccessBlock)()</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)unlinkLoggedInUserFromTwitterWithOptions:(SMRequestOptions *)options
                             successCallbackQueue:(dispatch_queue_t)successCallbackQueue
                             failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
@@ -687,7 +840,7 @@
                     onFailure:(SMFailureBlock)failureBlock;
 
 /**
- Login a user to your app with twitter credentials.
+ Login a user to your app with twitter credentials. Includes parameters for including request options.
  
  The credentials should match a existing user object that has a linked Twitter account, via either 
  <createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>, or <linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>.
@@ -704,6 +857,20 @@
                     onSuccess:(SMResultSuccessBlock)successBlock
                     onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Login a user to your app with twitter credentials. Includes parameters for including request options and callback queues.
+ 
+ The credentials should match a existing user object that has a linked Twitter account, via either
+ <createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>, or <linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>.
+ 
+ @param twitterToken A Twitter token obtained from Twitter.
+ @param twitterSecret A Twitter secret obtained from Twitter.
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)loginWithTwitterToken:(NSString *)twitterToken
                 twitterSecret:(NSString *)twitterSecret
                       options:(SMRequestOptions *)options
@@ -726,6 +893,19 @@
                              onSuccess:(SMResultSuccessBlock)successBlock
                              onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Update the logged in users's Twitter status. Includes parameters for including request options and callback queues.
+ 
+ The logged in user must have a linked Twitter account, via either
+ <createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>, or <linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>.
+ 
+ @param message The message to post.
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)updateTwitterStatusWithMessage:(NSString *)message
                                options:(SMRequestOptions *)options
                   successCallbackQueue:(dispatch_queue_t)successCallbackQueue
@@ -745,6 +925,18 @@
 - (void)getLoggedInUserTwitterInfoOnSuccess:(SMResultSuccessBlock)successBlock
                                       onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Get Twitter info for the logged in users. Includes parameters for including request options and callback queues.
+ 
+ The logged in user must have a linked Twitter account, via either
+ <createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>, or <linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>.
+ 
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
 - (void)getLoggedInUserTwitterInfoWithOptions:(SMRequestOptions *)options
                          successCallbackQueue:(dispatch_queue_t)successCallbackQueue
                          failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
