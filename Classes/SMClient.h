@@ -269,6 +269,14 @@
                 onSuccess:(SMResultSuccessBlock)successBlock
                 onFailure:(SMFailureBlock)failureBlock;
 
+- (void)loginWithUsername:(NSString *)username
+                 password:(NSString *)password
+                  options:(SMRequestOptions *)options
+     successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+     failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                onSuccess:(SMResultSuccessBlock)successBlock
+                onFailure:(SMFailureBlock)failureBlock;
+
 /**
  Login a user to your app with a username and temporary password, changing the users's password to the supplied new password.
  
@@ -305,6 +313,15 @@
                 onSuccess:(SMResultSuccessBlock)successBlock
                 onFailure:(SMFailureBlock)failureBlock;
 
+- (void)loginWithUsername:(NSString *)username
+        temporaryPassword:(NSString *)tempPassword
+       settingNewPassword:(NSString *)newPassword
+                  options:(SMRequestOptions *)options
+     successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+     failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                onSuccess:(SMResultSuccessBlock)successBlock
+                onFailure:(SMFailureBlock)failureBlock;
+
 /**
  Refresh the current login. 
  
@@ -326,6 +343,17 @@
  
  Useful on app startup to replace login when the user is already logged in.
  
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ */
+- (void)getLoggedInUserOnSuccess:(SMResultSuccessBlock)successBlock
+                       onFailure:(SMFailureBlock)failureBlock;
+
+/**
+ Return the full object associated with the logged in user.
+ 
+ Useful on app startup to replace login when the user is already logged in.
+ 
  @param options An options object contains headers and other configuration for this request.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
@@ -334,16 +362,12 @@
                          onSuccess:(SMResultSuccessBlock)successBlock
                          onFailure:(SMFailureBlock)failureBlock;
 
-/**
- Return the full object associated with the logged in user.
- 
- Useful on app startup to replace login when the user is already logged in.
- 
- @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success with the user object for the logged in user.
- @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
- */
-- (void)getLoggedInUserOnSuccess:(SMResultSuccessBlock)successBlock
-                       onFailure:(SMFailureBlock)failureBlock;
+- (void)getLoggedInUserWithOptions:(SMRequestOptions *)options
+              successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+              failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                         onSuccess:(SMResultSuccessBlock)successBlock
+                         onFailure:(SMFailureBlock)failureBlock;
+
 
 /**
  Check whether the current user is logged in.
@@ -374,6 +398,16 @@
  */
 - (void)logoutOnSuccess:(SMResultSuccessBlock)successBlock
               onFailure:(SMFailureBlock)failureBlock;
+
+- (void)logoutWithOptions:(SMRequestOptions *)options
+                onSuccess:(SMResultSuccessBlock)successBlock
+                onFailure:(SMFailureBlock)failureBlock;
+
+- (void)logoutWithOptions:(SMRequestOptions *)options
+     successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+     failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                onSuccess:(SMResultSuccessBlock)successBlock
+                onFailure:(SMFailureBlock)failureBlock;
 
 #pragma mark Resetting Password
 ///-------------------------------
@@ -441,6 +475,14 @@
                           onSuccess:(SMResultSuccessBlock)successBlock
                           onFailure:(SMFailureBlock)failureBlock;
 
+- (void)createUserWithFacebookToken:(NSString *)fbToken
+                           username:(NSString *)username
+                            options:(SMRequestOptions *)options
+               successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+               failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                          onSuccess:(SMResultSuccessBlock)successBlock
+                          onFailure:(SMFailureBlock)failureBlock;
+
 /**
  Link the logged in user with a Facebook account.
  
@@ -452,6 +494,13 @@
                                 onSuccess:(SMResultSuccessBlock)successBlock
                                 onFailure:(SMFailureBlock)failureBlock;
 
+- (void)linkLoggedInUserWithFacebookToken:(NSString *)fbToken
+                                  options:(SMRequestOptions *)options
+                     successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                     failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                                onSuccess:(SMResultSuccessBlock)successBlock
+                                onFailure:(SMFailureBlock)failureBlock;
+
 /**
  Unlink the logged in user from their associated Facebook token.
  
@@ -460,6 +509,12 @@
  */
 - (void)unlinkLoggedInUserFromFacebookOnSuccess:(SMSuccessBlock)successBlock
                           onFailure:(SMFailureBlock)failureBlock;
+
+- (void)unlinkLoggedInUserFromFacebookWithOptions:(SMRequestOptions *)options
+                             successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                             failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                                        onSuccess:(SMSuccessBlock)successBlock
+                                        onFailure:(SMFailureBlock)failureBlock;
 
 /**
  Login a user to your app with a Facebook token.
@@ -489,6 +544,13 @@
                      onSuccess:(SMResultSuccessBlock)successBlock
                      onFailure:(SMFailureBlock)failureBlock;
 
+- (void)loginWithFacebookToken:(NSString *)fbToken
+                       options:(SMRequestOptions *)options
+          successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+          failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                     onSuccess:(SMResultSuccessBlock)successBlock
+                     onFailure:(SMFailureBlock)failureBlock;
+
 /**
  Update the logged in users's Facebook status.
  
@@ -503,6 +565,13 @@
                           onSuccess:(SMResultSuccessBlock)successBlock
                           onFailure:(SMFailureBlock)failureBlock;
 
+- (void)updateFacebookStatusWithMessage:(NSString *)message
+                                options:(SMRequestOptions *)options
+                   successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                   failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                              onSuccess:(SMResultSuccessBlock)successBlock
+                              onFailure:(SMFailureBlock)failureBlock;
+
 /**
  Get Facebook info for the logged in users.
  
@@ -514,6 +583,12 @@
  */
 - (void)getLoggedInUserFacebookInfoWithOnSuccess:(SMResultSuccessBlock)successBlock
                                        onFailure:(SMFailureBlock)failureBlock;
+
+- (void)getLoggedInUserFacebookInfoWithOptions:(SMRequestOptions *)options
+                          successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                          failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                                     onSuccess:(SMResultSuccessBlock)successBlock
+                                     onFailure:(SMFailureBlock)failureBlock;
 
 
 #pragma mark twitter
@@ -551,6 +626,15 @@
                          onSuccess:(SMResultSuccessBlock)successBlock
                          onFailure:(SMFailureBlock)failureBlock;
 
+- (void)createUserWithTwitterToken:(NSString *)twitterToken
+                     twitterSecret:(NSString *)twitterSecret
+                          username:(NSString *)username
+                           options:(SMRequestOptions *)options
+              successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+              failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                         onSuccess:(SMResultSuccessBlock)successBlock
+                         onFailure:(SMFailureBlock)failureBlock;
+
 /**
  Link the logged in user with a Twitter account.
  
@@ -564,6 +648,14 @@
                                onSuccess:(SMResultSuccessBlock)successBlock
                                onFailure:(SMFailureBlock)failureBlock;
 
+- (void)linkLoggedInUserWithTwitterToken:(NSString *)twitterToken
+                           twitterSecret:(NSString *)twitterSecret
+                                 options:(SMRequestOptions *)options
+                    successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                    failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                               onSuccess:(SMResultSuccessBlock)successBlock
+                               onFailure:(SMFailureBlock)failureBlock;
+
 /**
  Unlink the logged in user from their associated Twitter token.
  
@@ -572,6 +664,12 @@
  */
 - (void)unlinkLoggedInUserFromTwitterOnSuccess:(SMSuccessBlock)successBlock
                                      onFailure:(SMFailureBlock)failureBlock;
+
+- (void)unlinkLoggedInUserFromTwitterWithOptions:(SMRequestOptions *)options
+                            successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                            failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                                       onSuccess:(SMSuccessBlock)successBlock
+                                       onFailure:(SMFailureBlock)failureBlock;
 
 /**
  Login a user to your app with twitter credentials.
@@ -606,6 +704,14 @@
                     onSuccess:(SMResultSuccessBlock)successBlock
                     onFailure:(SMFailureBlock)failureBlock;
 
+- (void)loginWithTwitterToken:(NSString *)twitterToken
+                twitterSecret:(NSString *)twitterSecret
+                      options:(SMRequestOptions *)options
+         successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+         failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                    onSuccess:(SMResultSuccessBlock)successBlock
+                    onFailure:(SMFailureBlock)failureBlock;
+
 /**
  Update the logged in users's Twitter status.
  
@@ -617,6 +723,13 @@
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
 - (void)updateTwitterStatusWithMessage:(NSString *)message
+                             onSuccess:(SMResultSuccessBlock)successBlock
+                             onFailure:(SMFailureBlock)failureBlock;
+
+- (void)updateTwitterStatusWithMessage:(NSString *)message
+                               options:(SMRequestOptions *)options
+                  successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                  failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                              onSuccess:(SMResultSuccessBlock)successBlock
                              onFailure:(SMFailureBlock)failureBlock;
 
@@ -632,6 +745,12 @@
 - (void)getLoggedInUserTwitterInfoOnSuccess:(SMResultSuccessBlock)successBlock
                                       onFailure:(SMFailureBlock)failureBlock;
 
+- (void)getLoggedInUserTwitterInfoWithOptions:(SMRequestOptions *)options
+                         successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                         failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                                    onSuccess:(SMResultSuccessBlock)successBlock
+                                    onFailure:(SMFailureBlock)failureBlock;
+
 
 #pragma mark - Gigya
 ///-------------------------------
@@ -645,9 +764,13 @@
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  */
-- (void)linkLoggedInUserWithGigyaUserDictionaryToken:(NSDictionary *)gsUser
+- (void)linkLoggedInUserWithGigyaUserDictionary:(NSDictionary *)gsUser
                                            onSuccess:(SMResultSuccessBlock)successBlock
                                            onFailure:(SMFailureBlock)failureBlock;
+
+- (void)linkLoggedInUserWithGigyaUID:(NSString *)uid uidSignature:(NSString *)uidSignature signatureTimestamp:(NSString *)signatureTimestamp onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
+
+- (void)linkLoggedInUserWithGigyaUID:(NSString *)uid uidSignature:(NSString *)uidSignature signatureTimestamp:(NSString *)signatureTimestamp options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /**
  Unlink the logged in user from their associated Gigya token.
@@ -657,6 +780,8 @@
  */
 - (void)unlinkLoggedInUserFromGigyaOnSuccess:(SMSuccessBlock)successBlock
                                      onFailure:(SMFailureBlock)failureBlock;
+
+- (void)unlinkLoggedInUserFromGigyaWithOptions:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /**
  Login with Gigya, providing the m_pDict property of the GSObject user parameter provided by the gsLoginUIDidLogin:user:context: delegate method.
@@ -704,5 +829,7 @@
                   options:(SMRequestOptions *)options
                 onSuccess:(SMResultSuccessBlock)successBlock
                 onFailure:(SMFailureBlock)failureBlock;
+
+- (void)loginWithGigyaUID:(NSString *)uid uidSignature:(NSString *)uidSignature signatureTimestamp:(NSString *)signatureTimestamp options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 @end

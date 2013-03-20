@@ -163,6 +163,17 @@ static SMClient *defaultClient = nil;
                 onSuccess:(SMResultSuccessBlock)successBlock
                 onFailure:(SMFailureBlock)failureBlock
 {
+    [self loginWithUsername:username password:password options:options successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)loginWithUsername:(NSString *)username
+                 password:(NSString *)password
+                  options:(SMRequestOptions *)options
+     successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+     failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                onSuccess:(SMResultSuccessBlock)successBlock
+                onFailure:(SMFailureBlock)failureBlock
+{
     if (username == nil || password == nil) {
         if (failureBlock) {
             NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:nil];
@@ -170,7 +181,7 @@ static SMClient *defaultClient = nil;
         }
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:username, self.userPrimaryKeyField, password, self.userPasswordField, nil];
-        [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
+        [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
     }
 }
 
@@ -190,16 +201,28 @@ static SMClient *defaultClient = nil;
                 onSuccess:(SMResultSuccessBlock)successBlock
                 onFailure:(SMFailureBlock)failureBlock
 {
+    [self loginWithUsername:username temporaryPassword:tempPassword settingNewPassword:newPassword options:options successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)loginWithUsername:(NSString *)username
+        temporaryPassword:(NSString *)tempPassword
+       settingNewPassword:(NSString *)newPassword
+                  options:(SMRequestOptions *)options
+     successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+     failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                onSuccess:(SMResultSuccessBlock)successBlock
+                onFailure:(SMFailureBlock)failureBlock
+{
     if (username == nil || tempPassword == nil || newPassword == nil) {
         if (failureBlock) {
             NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:nil];
             failureBlock(error);
         }
     } else {
-        NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:username, self.userPrimaryKeyField, 
-                              tempPassword, self.userPasswordField, 
+        NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:username, self.userPrimaryKeyField,
+                              tempPassword, self.userPasswordField,
                               newPassword, @"new_password", nil];
-        [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
+        [self.session doTokenRequestWithEndpoint:@"accessToken" credentials:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
     }
 }
 
@@ -213,7 +236,16 @@ static SMClient *defaultClient = nil;
                          onSuccess:(SMResultSuccessBlock)successBlock
                          onFailure:(SMFailureBlock)failureBlock
 {
-    [self.dataStore readObjectWithId:@"loggedInUser" inSchema:self.userSchema options:options onSuccess:^(NSDictionary *theObject, NSString *schema) {
+    [self getLoggedInUserWithOptions:options successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)getLoggedInUserWithOptions:(SMRequestOptions *)options
+              successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+              failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                         onSuccess:(SMResultSuccessBlock)successBlock
+                         onFailure:(SMFailureBlock)failureBlock
+{
+    [self.dataStore readObjectWithId:@"loggedInUser" inSchema:self.userSchema options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSDictionary *theObject, NSString *schema) {
         if (successBlock) {
             successBlock(theObject);
         }
@@ -221,7 +253,7 @@ static SMClient *defaultClient = nil;
         if (failureBlock) {
             failureBlock(theError);
         }
-    }];   
+    }];
 }
 
 - (void)refreshLoginWithOnSuccess:(SMResultSuccessBlock)successBlock
@@ -284,7 +316,23 @@ static SMClient *defaultClient = nil;
 - (void)logoutOnSuccess:(SMResultSuccessBlock)successBlock
                   onFailure:(SMFailureBlock)failureBlock
 {
-    [self.dataStore readObjectWithId:@"logout" inSchema:self.userSchema  onSuccess:^(NSDictionary *theObject, NSString *schema) {
+    [self logoutWithOptions:[SMRequestOptions options] onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)logoutWithOptions:(SMRequestOptions *)options
+                onSuccess:(SMResultSuccessBlock)successBlock
+                onFailure:(SMFailureBlock)failureBlock
+{
+    [self logoutWithOptions:options successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)logoutWithOptions:(SMRequestOptions *)options
+     successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+     failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                onSuccess:(SMResultSuccessBlock)successBlock
+                onFailure:(SMFailureBlock)failureBlock
+{
+    [self.dataStore readObjectWithId:@"logout" inSchema:self.userSchema options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSDictionary *theObject, NSString *schema) {
         [[self session] clearSessionInfo];
         if (successBlock) {
             successBlock(theObject);
@@ -306,6 +354,8 @@ static SMClient *defaultClient = nil;
     return ![self isLoggedIn];
 }
 
+# pragma mark Facebook
+
 - (void)createUserWithFacebookToken:(NSString *)fbToken
                           onSuccess:(SMResultSuccessBlock)successBlock
                           onFailure:(SMFailureBlock)failureBlock
@@ -315,6 +365,17 @@ static SMClient *defaultClient = nil;
 
 - (void)createUserWithFacebookToken:(NSString *)fbToken
                            username:(NSString *)username
+                          onSuccess:(SMResultSuccessBlock)successBlock
+                          onFailure:(SMFailureBlock)failureBlock
+{
+    [self createUserWithFacebookToken:fbToken username:username options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)createUserWithFacebookToken:(NSString *)fbToken
+                           username:(NSString *)username
+                            options:(SMRequestOptions *)options
+               successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+               failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                           onSuccess:(SMResultSuccessBlock)successBlock
                           onFailure:(SMFailureBlock)failureBlock
 {
@@ -328,7 +389,7 @@ static SMClient *defaultClient = nil;
         if (username != nil) {
             [args setValue:username forKey:self.userPrimaryKeyField];
         }
-        [self.dataStore createObject:args inSchema:[NSString stringWithFormat:@"%@/createUserWithFacebook", self.userSchema] onSuccess:^(NSDictionary *theObject, NSString *schema) {
+        [self.dataStore createObject:args inSchema:[NSString stringWithFormat:@"%@/createUserWithFacebook", self.userSchema] options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSDictionary *theObject, NSString *schema) {
             if (successBlock) {
                 successBlock(theObject);
             }
@@ -344,8 +405,18 @@ static SMClient *defaultClient = nil;
                                 onSuccess:(SMResultSuccessBlock)successBlock
                                 onFailure:(SMFailureBlock)failureBlock
 {
+    [self linkLoggedInUserWithFacebookToken:fbToken options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)linkLoggedInUserWithFacebookToken:(NSString *)fbToken
+                                  options:(SMRequestOptions *)options
+                     successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                     failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                                onSuccess:(SMResultSuccessBlock)successBlock
+                                onFailure:(SMFailureBlock)failureBlock
+{
     NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:fbToken, FB_TOKEN_KEY, nil];
-    [self.dataStore readObjectWithId:@"linkUserWithFacebook" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
+    [self.dataStore readObjectWithId:@"linkUserWithFacebook" inSchema:self.userSchema parameters:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSDictionary *theObject, NSString *schema) {
         if (successBlock) {
             successBlock(theObject);
         }
@@ -358,7 +429,16 @@ static SMClient *defaultClient = nil;
 
 - (void)unlinkLoggedInUserFromFacebookOnSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
-    [self.dataStore deleteObjectId:@"unlinkUserFromFacebook" inSchema:self.userSchema options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSString *theObjectId, NSString *schema) {
+    [self unlinkLoggedInUserFromFacebookWithOptions:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)unlinkLoggedInUserFromFacebookWithOptions:(SMRequestOptions *)options
+                             successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                             failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                                        onSuccess:(SMSuccessBlock)successBlock
+                                        onFailure:(SMFailureBlock)failureBlock
+{
+    [self.dataStore deleteObjectId:@"unlinkUserFromFacebook" inSchema:self.userSchema options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSString *theObjectId, NSString *schema) {
         if (successBlock) {
             successBlock();
         }
@@ -381,6 +461,16 @@ static SMClient *defaultClient = nil;
                      onSuccess:(SMResultSuccessBlock)successBlock
                      onFailure:(SMFailureBlock)failureBlock
 {
+    [self loginWithFacebookToken:fbToken options:options successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)loginWithFacebookToken:(NSString *)fbToken
+                       options:(SMRequestOptions *)options
+          successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+          failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                     onSuccess:(SMResultSuccessBlock)successBlock
+                     onFailure:(SMFailureBlock)failureBlock
+{
     if (fbToken == nil) {
         if (failureBlock) {
             NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:nil];
@@ -388,11 +478,21 @@ static SMClient *defaultClient = nil;
         }
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:fbToken, FB_TOKEN_KEY, nil];
-        [self.session doTokenRequestWithEndpoint:@"facebookAccessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
+        [self.session doTokenRequestWithEndpoint:@"facebookAccessToken" credentials:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
     }
 }
 
 - (void)updateFacebookStatusWithMessage:(NSString *)message
+                              onSuccess:(SMResultSuccessBlock)successBlock
+                              onFailure:(SMFailureBlock)failureBlock
+{
+    [self updateFacebookStatusWithMessage:message options:[SMRequestOptions options] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)updateFacebookStatusWithMessage:(NSString *)message
+                                options:(SMRequestOptions *)options
+                   successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                   failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                               onSuccess:(SMResultSuccessBlock)successBlock
                               onFailure:(SMFailureBlock)failureBlock
 {
@@ -403,8 +503,8 @@ static SMClient *defaultClient = nil;
         }
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObject:message forKey:@"message"];
-
-        [self.dataStore readObjectWithId:@"postFacebookMessage" inSchema:self.userSchema parameters:args options:[SMRequestOptions options] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
+        
+        [self.dataStore readObjectWithId:@"postFacebookMessage" inSchema:self.userSchema parameters:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSDictionary *theObject, NSString *schema) {
             if (successBlock) {
                 successBlock(theObject);
             }
@@ -419,7 +519,16 @@ static SMClient *defaultClient = nil;
 - (void)getLoggedInUserFacebookInfoWithOnSuccess:(SMResultSuccessBlock)successBlock
                                        onFailure:(SMFailureBlock)failureBlock
 { 
-    [self.dataStore readObjectWithId:@"getFacebookUserInfo" inSchema:self.userSchema onSuccess:^(NSDictionary *theObject, NSString *schema) {
+    [self getLoggedInUserFacebookInfoWithOptions:[SMRequestOptions options] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)getLoggedInUserFacebookInfoWithOptions:(SMRequestOptions *)options
+                          successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                          failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                                     onSuccess:(SMResultSuccessBlock)successBlock
+                                     onFailure:(SMFailureBlock)failureBlock
+{
+    [self.dataStore readObjectWithId:@"getFacebookUserInfo" inSchema:self.userSchema options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSDictionary *theObject, NSString *schema) {
         if (successBlock) {
             successBlock(theObject);
         }
@@ -429,6 +538,8 @@ static SMClient *defaultClient = nil;
         }
     }];
 }
+
+# pragma mark Twitter
 
 - (void)createUserWithTwitterToken:(NSString *)twitterToken
                      twitterSecret:(NSString *)twitterSecret
@@ -445,6 +556,18 @@ static SMClient *defaultClient = nil;
                          onSuccess:(SMResultSuccessBlock)successBlock
                          onFailure:(SMFailureBlock)failureBlock
 {
+    [self createUserWithTwitterToken:twitterToken twitterSecret:twitterSecret username:username options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)createUserWithTwitterToken:(NSString *)twitterToken
+                     twitterSecret:(NSString *)twitterSecret
+                          username:(NSString *)username
+                           options:(SMRequestOptions *)options
+              successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+              failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                         onSuccess:(SMResultSuccessBlock)successBlock
+                         onFailure:(SMFailureBlock)failureBlock
+{
     if (twitterToken == nil || twitterSecret == nil) {
         if (failureBlock) {
             NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:nil];
@@ -455,7 +578,7 @@ static SMClient *defaultClient = nil;
         if (username != nil) {
             [args setValue:username forKey:self.userPrimaryKeyField];
         }
-        [self.dataStore readObjectWithId:@"createUserWithTwitter" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
+        [self.dataStore readObjectWithId:@"createUserWithTwitter" inSchema:self.userSchema parameters:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSDictionary *theObject, NSString *schema) {
             if (successBlock) {
                 successBlock(theObject);
             }
@@ -464,7 +587,7 @@ static SMClient *defaultClient = nil;
                 failureBlock(theError);
             }
         }];
-    }   
+    }
 }
 
 - (void)linkLoggedInUserWithTwitterToken:(NSString *)twitterToken
@@ -472,8 +595,19 @@ static SMClient *defaultClient = nil;
                                onSuccess:(SMResultSuccessBlock)successBlock
                                onFailure:(SMFailureBlock)failureBlock
 {
+    [self linkLoggedInUserWithTwitterToken:twitterToken twitterSecret:twitterSecret options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)linkLoggedInUserWithTwitterToken:(NSString *)twitterToken
+                           twitterSecret:(NSString *)twitterSecret
+                                 options:(SMRequestOptions *)options
+                    successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                    failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                               onSuccess:(SMResultSuccessBlock)successBlock
+                               onFailure:(SMFailureBlock)failureBlock
+{
     NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:twitterToken, TW_TOKEN_KEY, twitterSecret, TW_SECRET_KEY, nil];
-    [self.dataStore readObjectWithId:@"linkUserWithTwitter" inSchema:self.userSchema parameters:args options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
+    [self.dataStore readObjectWithId:@"linkUserWithTwitter" inSchema:self.userSchema parameters:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSDictionary *theObject, NSString *schema) {
         if (successBlock) {
             successBlock(theObject);
         }
@@ -486,7 +620,16 @@ static SMClient *defaultClient = nil;
 
 - (void)unlinkLoggedInUserFromTwitterOnSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
-    [self.dataStore deleteObjectId:@"unlinkUserFromTwitter" inSchema:self.userSchema options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSString *theObjectId, NSString *schema) {
+    [self unlinkLoggedInUserFromTwitterWithOptions:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)unlinkLoggedInUserFromTwitterWithOptions:(SMRequestOptions *)options
+                             successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                             failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                                        onSuccess:(SMSuccessBlock)successBlock
+                                        onFailure:(SMFailureBlock)failureBlock
+{
+    [self.dataStore deleteObjectId:@"unlinkUserFromTwitter" inSchema:self.userSchema options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSString *theObjectId, NSString *schema) {
         if (successBlock) {
             successBlock();
         }
@@ -511,6 +654,17 @@ static SMClient *defaultClient = nil;
                     onSuccess:(SMResultSuccessBlock)successBlock
                     onFailure:(SMFailureBlock)failureBlock
 {
+    [self loginWithTwitterToken:twitterToken twitterSecret:twitterSecret options:options successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)loginWithTwitterToken:(NSString *)twitterToken
+                twitterSecret:(NSString *)twitterSecret
+                      options:(SMRequestOptions *)options
+         successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+         failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                    onSuccess:(SMResultSuccessBlock)successBlock
+                    onFailure:(SMFailureBlock)failureBlock
+{
     if (twitterToken == nil || twitterSecret == nil) {
         if (failureBlock) {
             NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:nil];
@@ -518,11 +672,21 @@ static SMClient *defaultClient = nil;
         }
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:twitterToken, TW_TOKEN_KEY, twitterSecret, TW_SECRET_KEY, nil];
-        [self.session doTokenRequestWithEndpoint:@"twitterAccessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock]; 
+        [self.session doTokenRequestWithEndpoint:@"twitterAccessToken" credentials:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
     }
 }
 
 - (void)updateTwitterStatusWithMessage:(NSString *)message
+                             onSuccess:(SMResultSuccessBlock)successBlock
+                             onFailure:(SMFailureBlock)failureBlock
+{
+    [self updateTwitterStatusWithMessage:message options:[SMRequestOptions options] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)updateTwitterStatusWithMessage:(NSString *)message
+                               options:(SMRequestOptions *)options
+                  successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                  failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                              onSuccess:(SMResultSuccessBlock)successBlock
                              onFailure:(SMFailureBlock)failureBlock
 {
@@ -534,7 +698,7 @@ static SMClient *defaultClient = nil;
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObject:message forKey:@"tw_st"];
         
-        [self.dataStore readObjectWithId:@"twitterStatusUpdate" inSchema:self.userSchema parameters:args options:[SMRequestOptions options] successCallbackQueue:nil failureCallbackQueue:nil onSuccess:^(NSDictionary *theObject, NSString *schema) {
+        [self.dataStore readObjectWithId:@"twitterStatusUpdate" inSchema:self.userSchema parameters:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSDictionary *theObject, NSString *schema) {
             if (successBlock) {
                 successBlock(theObject);
             }
@@ -543,13 +707,22 @@ static SMClient *defaultClient = nil;
                 failureBlock(theError);
             }
         }];
-    } 
+    }
 }
 
 - (void)getLoggedInUserTwitterInfoOnSuccess:(SMResultSuccessBlock)successBlock
                                       onFailure:(SMFailureBlock)failureBlock
 {
-    [self.dataStore readObjectWithId:@"getTwitterUserInfo" inSchema:self.userSchema onSuccess:^(NSDictionary *theObject, NSString *schema) {
+    [self getLoggedInUserTwitterInfoWithOptions:[SMRequestOptions options] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)getLoggedInUserTwitterInfoWithOptions:(SMRequestOptions *)options
+                         successCallbackQueue:(dispatch_queue_t)successCallbackQueue
+                         failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
+                                    onSuccess:(SMResultSuccessBlock)successBlock
+                                    onFailure:(SMFailureBlock)failureBlock
+{
+    [self.dataStore readObjectWithId:@"getTwitterUserInfo" inSchema:self.userSchema options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSDictionary *theObject, NSString *schema) {
         if (successBlock) {
             successBlock(theObject);
         }
@@ -560,17 +733,47 @@ static SMClient *defaultClient = nil;
     }];
 }
 
-- (void)linkLoggedInUserWithGigyaUserDictionaryToken:(NSDictionary *)gsUser
+# pragma mark Gigya
+
+- (void)linkLoggedInUserWithGigyaUserDictionary:(NSDictionary *)gsUser
                                            onSuccess:(SMResultSuccessBlock)successBlock
                                            onFailure:(SMFailureBlock)failureBlock
 {
-    
+    /*
+    NSString *uid = [gsUser objectForKey:@"UID"];
+    NSString *uidSignature = [gsUser objectForKey:@"UIDSignature"];
+    NSString *timestamp = [gsUser objectForKey:@"signatureTimestamp"];
+    // FILL IN
+    */
+}
+
+- (void)linkLoggedInUserWithGigyaUID:(NSString *)uid uidSignature:(NSString *)uidSignature signatureTimestamp:(NSString *)signatureTimestamp onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    // FILL IN
+}
+
+- (void)linkLoggedInUserWithGigyaUID:(NSString *)uid uidSignature:(NSString *)uidSignature signatureTimestamp:(NSString *)signatureTimestamp options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    // FILL IN
 }
 
 - (void)unlinkLoggedInUserFromGigyaOnSuccess:(SMSuccessBlock)successBlock
                                    onFailure:(SMFailureBlock)failureBlock
 {
-    
+    [self unlinkLoggedInUserFromGigyaWithOptions:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)unlinkLoggedInUserFromGigyaWithOptions:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    [self.dataStore deleteObjectId:@"unlinkUserFromGigya" inSchema:self.userSchema options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:^(NSString *theObjectId, NSString *schema) {
+        if (successBlock) {
+            successBlock();
+        }
+    } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+        if (failureBlock) {
+            failureBlock(theError);
+        }
+    }];
 }
 
 - (void)loginWithGigyaUserDictionary:(NSDictionary *)gsUser onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
@@ -588,6 +791,12 @@ static SMClient *defaultClient = nil;
 
 - (void)loginWithGigyaUID:(NSString *)uid uidSignature:(NSString *)uidSignature signatureTimestamp:(NSString *)signatureTimestamp options:(SMRequestOptions *)options onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
+    [self loginWithGigyaUID:uid uidSignature:uidSignature signatureTimestamp:signatureTimestamp options:options successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)loginWithGigyaUID:(NSString *)uid uidSignature:(NSString *)uidSignature signatureTimestamp:(NSString *)signatureTimestamp options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+{
+    
     if (uid == nil || uidSignature == nil || signatureTimestamp == nil) {
         if (failureBlock) {
             NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Nil argument(s) provided.", NSLocalizedDescriptionKey, nil]];
@@ -595,7 +804,7 @@ static SMClient *defaultClient = nil;
         }
     } else {
         NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:uid, @"gigya_uid", uidSignature, @"gigya_sig", signatureTimestamp, @"gigya_ts", nil];
-        [self.session doTokenRequestWithEndpoint:@"gigyaAccessToken" credentials:args options:options successCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
+        [self.session doTokenRequestWithEndpoint:@"gigyaAccessToken" credentials:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
     }
 }
 
