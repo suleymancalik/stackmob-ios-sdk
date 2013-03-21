@@ -71,6 +71,9 @@
     if(value == nil) {
         [requestParametersCopy setObject:@"true"
                                   forKey:CONCAT(field, @"[null]")];
+    } else if ([value isEqual:@""]) {
+        [requestParametersCopy setObject:@"true"
+                                  forKey:CONCAT(field, @"[empty]")];
     } else {
         [requestParametersCopy setObject:[self marshalValue:value] 
                                   forKey:field];
@@ -84,6 +87,9 @@
     if(value == nil) {
         [requestParametersCopy setObject:@"false"
                                   forKey:CONCAT(field, @"[null]")];
+    } else if ([value isEqual:@""]) {
+        [requestParametersCopy setObject:@"false"
+                                  forKey:CONCAT(field, @"[empty]")];
     } else {
         [requestParametersCopy setObject:[self marshalValue:value]
                                   forKey:CONCAT(field, @"[ne]")];
