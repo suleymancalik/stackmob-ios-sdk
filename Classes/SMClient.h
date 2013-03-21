@@ -122,6 +122,7 @@
  The API version of your StackMob application which this client instance should use.
  
  Pass @"0" for Development, @"1" or higher for the corresponding version in Production.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 @property(nonatomic, copy) NSString *appAPIVersion;
 
@@ -129,11 +130,13 @@
  The host to connect to for API requests. 
  
  Default is `api.stackmob.com`.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 @property(nonatomic, copy) NSString *apiHost;
 
 /**
  Your StackMob application's OAuth2 public key.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 @property(nonatomic, readonly, copy) NSString *publicKey;
 
@@ -141,6 +144,7 @@
  The StackMob schema that has been marked as a user object. 
  
  Default is `@"user"`.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 @property(nonatomic, copy) NSString *userSchema;
 
@@ -148,6 +152,7 @@
  The StackMob primary key field name for the user object schema. 
  
  Default is `@"username"`.
+ @since Available in iOS SDK 1.1.1 and later.
  */
 @property(nonatomic, copy) NSString *userPrimaryKeyField;
 
@@ -155,11 +160,13 @@
  The StackMob field name for the password. 
  
  Default is `@"password"`.
+ @since Available in iOS SDK 1.1.1 and later.
  */
 @property(nonatomic, copy) NSString *userPasswordField;
 
 /**
  An instance of `SMUserSession` which contains the necessary credentials to make StackMob requests.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 @property(nonatomic, readonly, strong) SMUserSession * session;
 
@@ -173,12 +180,14 @@
  Override the default client.
  
  @param client The client to set.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 + (void)setDefaultClient:(SMClient *)client;
 
 /**
  A shared `SMClient` instance, for convenience. This will be the first `SMClient` object created, unless overridden
  via <setDefaultClient:>.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 + (SMClient *)defaultClient;
 
@@ -193,6 +202,7 @@
  @param userPasswordField The StackMob field name for the password. Default is `@"password"`.
  
  @return An instance of `SMClient`.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (id)initWithAPIVersion:(NSString *)appAPIVersion
                  apiHost:(NSString *)apiHost 
@@ -208,6 +218,7 @@
  @param publicKey Your StackMob application's OAuth2 public key.
  
  @return An instance of `SMClient`.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (id)initWithAPIVersion:(NSString *)appAPIVersion publicKey:(NSString *)publicKey;
 
@@ -222,6 +233,7 @@
  @param managedObjectModel An instance of `NSManagedObjectModel` set to the data model to be replicated on StackMob.
  
  @return An instance of `SMCoreDataStore`.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (SMCoreDataStore *)coreDataStoreWithManagedObjectModel:(NSManagedObjectModel *)managedObjectModel;
 
@@ -229,6 +241,7 @@
  A `dataStore` instance should be used to make direct REST calls to StackMob.  See <SMDataStore> for basic CRUD methods.
  
  @return An `SMDataStore` instance using this client's configurations.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (SMDataStore *)dataStore;
 
@@ -246,6 +259,7 @@
  @param password The password to log in with.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure. If the error code is `SMErrorTemporaryPasswordResetRequired`, you should prompt the user supply a new password and call <loginWithUsername:temporaryPassword:settingNewPassword:onSuccess:onFailure:>.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)loginWithUsername:(NSString *)username
                  password:(NSString *)password
@@ -262,6 +276,7 @@
  @param options An options object contains headers and other configuration for this request.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure. If the error code is `SMErrorTemporaryPasswordResetRequired`, you should prompt the user supply a new password and call <loginWithUsername:temporaryPassword:settingNewPassword:onSuccess:onFailure:>.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)loginWithUsername:(NSString *)username
                  password:(NSString *)password
@@ -281,6 +296,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure. If the error code is `SMErrorTemporaryPasswordResetRequired`, you should prompt the user supply a new password and call <loginWithUsername:temporaryPassword:settingNewPassword:onSuccess:onFailure:>.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)loginWithUsername:(NSString *)username
                  password:(NSString *)password
@@ -300,6 +316,7 @@
  @param newPassword The new password to be set, invalidating the old and temporary passwords.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)loginWithUsername:(NSString *)username
         temporaryPassword:(NSString *)tempPassword
@@ -318,6 +335,7 @@
  @param options An options object contains headers and other configuration for this request.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)loginWithUsername:(NSString *)username
         temporaryPassword:(NSString *)tempPassword
@@ -339,6 +357,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)loginWithUsername:(NSString *)username
         temporaryPassword:(NSString *)tempPassword
@@ -356,6 +375,7 @@
  
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)refreshLoginWithOnSuccess:(SMResultSuccessBlock)successBlock
                         onFailure:(SMFailureBlock)failureBlock;
@@ -372,6 +392,7 @@
  
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)getLoggedInUserOnSuccess:(SMResultSuccessBlock)successBlock
                        onFailure:(SMFailureBlock)failureBlock;
@@ -384,6 +405,7 @@
  @param options An options object contains headers and other configuration for this request.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)getLoggedInUserWithOptions:(SMRequestOptions *)options
                          onSuccess:(SMResultSuccessBlock)successBlock
@@ -399,6 +421,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)getLoggedInUserWithOptions:(SMRequestOptions *)options
               successCallbackQueue:(dispatch_queue_t)successCallbackQueue
@@ -413,6 +436,7 @@
  This method first checks if a refresh token exists, and if that fails checks to see if the expiration date on the access token is later than the current time.  The reason we return `YES` to this method if a refresh token exists is because automatic refresh of a session using the refresh token is initiated if a request comes back unauthorized or the current access token has expired.  The developer does not have to worry about refreshing their own user sessions. 
  
  @return `YES` if the current user is logged in, otherwise `NO`.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (BOOL)isLoggedIn;
 
@@ -420,6 +444,7 @@
  Check whether the user is logged out by returning the negation of <isLoggedIn>.
  
  @return `YES` if the current user is logged out, otherwise `NO`.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (BOOL)isLoggedOut;
 
@@ -433,6 +458,7 @@
  
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)logoutOnSuccess:(SMResultSuccessBlock)successBlock
               onFailure:(SMFailureBlock)failureBlock;
@@ -443,6 +469,7 @@
  @param options An options object contains headers and other configuration for this request.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)logoutWithOptions:(SMRequestOptions *)options
                 onSuccess:(SMResultSuccessBlock)successBlock
@@ -456,6 +483,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)logoutWithOptions:(SMRequestOptions *)options
      successCallbackQueue:(dispatch_queue_t)successCallbackQueue
@@ -477,6 +505,7 @@
  @param username The user to send the email to.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)sendForgotPaswordEmailForUser:(NSString *)username
                             onSuccess:(SMResultSuccessBlock)successBlock
@@ -492,6 +521,7 @@
  @param newPassword The new password for the user.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)changeLoggedInUserPasswordFrom:(NSString *)oldPassword
                                     to:(NSString *)newPassword
@@ -511,6 +541,7 @@
  @param fbToken A Facebook access token obtained from Facebook.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)createUserWithFacebookToken:(NSString *)fbToken
                           onSuccess:(SMResultSuccessBlock)successBlock
@@ -523,6 +554,7 @@
  @param username The username to user, rather than getting one from Facebook.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)createUserWithFacebookToken:(NSString *)fbToken
                            username:(NSString *)username
@@ -539,6 +571,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)createUserWithFacebookToken:(NSString *)fbToken
                            username:(NSString *)username
@@ -554,6 +587,7 @@
  @param fbToken A Facebook access token obtained from Facebook.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)linkLoggedInUserWithFacebookToken:(NSString *)fbToken
                                 onSuccess:(SMResultSuccessBlock)successBlock
@@ -568,6 +602,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)linkLoggedInUserWithFacebookToken:(NSString *)fbToken
                                   options:(SMRequestOptions *)options
@@ -581,6 +616,7 @@
  
  @param successBlock <i>typedef void (^SMSuccessBlock)()</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)unlinkLoggedInUserFromFacebookOnSuccess:(SMSuccessBlock)successBlock
                           onFailure:(SMFailureBlock)failureBlock;
@@ -593,6 +629,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMSuccessBlock)()</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)unlinkLoggedInUserFromFacebookWithOptions:(SMRequestOptions *)options
                              successCallbackQueue:(dispatch_queue_t)successCallbackQueue
@@ -675,6 +712,7 @@
  @param message The message to post.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)updateFacebookStatusWithMessage:(NSString *)message
                           onSuccess:(SMResultSuccessBlock)successBlock
@@ -692,6 +730,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)updateFacebookStatusWithMessage:(NSString *)message
                                 options:(SMRequestOptions *)options
@@ -708,6 +747,7 @@
  
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)getLoggedInUserFacebookInfoWithOnSuccess:(SMResultSuccessBlock)successBlock
                                        onFailure:(SMFailureBlock)failureBlock;
@@ -723,6 +763,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)getLoggedInUserFacebookInfoWithOptions:(SMRequestOptions *)options
                           successCallbackQueue:(dispatch_queue_t)successCallbackQueue
@@ -745,6 +786,7 @@
  @param twitterSecret A Twitter secret obtained from Twitter.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)createUserWithTwitterToken:(NSString *)twitterToken
                      twitterSecret:(NSString *)twitterSecret
@@ -759,6 +801,7 @@
  @param username The username to user, rather than getting one from Twitter.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)createUserWithTwitterToken:(NSString *)twitterToken
                      twitterSecret:(NSString *)twitterSecret
@@ -777,6 +820,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)createUserWithTwitterToken:(NSString *)twitterToken
                      twitterSecret:(NSString *)twitterSecret
@@ -794,6 +838,7 @@
  @param twitterSecret A Twitter secret obtained from Twitter.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)linkLoggedInUserWithTwitterToken:(NSString *)twitterToken
                            twitterSecret:(NSString *)twitterSecret
@@ -810,6 +855,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)linkLoggedInUserWithTwitterToken:(NSString *)twitterToken
                            twitterSecret:(NSString *)twitterSecret
@@ -824,6 +870,7 @@
  
  @param successBlock <i>typedef void (^SMSuccessBlock)()</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)unlinkLoggedInUserFromTwitterOnSuccess:(SMSuccessBlock)successBlock
                                      onFailure:(SMFailureBlock)failureBlock;
@@ -836,6 +883,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMSuccessBlock)()</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)unlinkLoggedInUserFromTwitterWithOptions:(SMRequestOptions *)options
                             successCallbackQueue:(dispatch_queue_t)successCallbackQueue
@@ -931,6 +979,7 @@
  @param message The message to post.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)updateTwitterStatusWithMessage:(NSString *)message
                              onSuccess:(SMResultSuccessBlock)successBlock
@@ -948,6 +997,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)updateTwitterStatusWithMessage:(NSString *)message
                                options:(SMRequestOptions *)options
@@ -964,6 +1014,7 @@
  
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)getLoggedInUserTwitterInfoOnSuccess:(SMResultSuccessBlock)successBlock
                                       onFailure:(SMFailureBlock)failureBlock;
@@ -979,6 +1030,7 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)getLoggedInUserTwitterInfoWithOptions:(SMRequestOptions *)options
                          successCallbackQueue:(dispatch_queue_t)successCallbackQueue
@@ -998,13 +1050,37 @@
  @param gsUser The dictionary returned by user.m_pDict from the gsLoginUIDidLogin:user:context method.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)linkLoggedInUserWithGigyaUserDictionary:(NSDictionary *)gsUser
                                            onSuccess:(SMResultSuccessBlock)successBlock
                                            onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Link the logged in user with a Gigya account.
+ 
+ @param uid The value of the `UID` key from the GSObject user parameter.
+ @param uidSignature The value of the `UIDSignature` key from the GSObject user parameter.
+ @param signatureTimestamp The value of the `signatureTimestamp` key from the GSObject user parameter.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
+ */
 - (void)linkLoggedInUserWithGigyaUID:(NSString *)uid uidSignature:(NSString *)uidSignature signatureTimestamp:(NSString *)signatureTimestamp onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Link the logged in user with a Gigya account.
+ 
+ @param uid The value of the `UID` key from the GSObject user parameter.
+ @param uidSignature The value of the `UIDSignature` key from the GSObject user parameter.
+ @param signatureTimestamp The value of the `signatureTimestamp` key from the GSObject user parameter.
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
+ */
 - (void)linkLoggedInUserWithGigyaUID:(NSString *)uid uidSignature:(NSString *)uidSignature signatureTimestamp:(NSString *)signatureTimestamp options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /**
@@ -1012,10 +1088,21 @@
  
  @param successBlock <i>typedef void (^SMSuccessBlock)()</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)unlinkLoggedInUserFromGigyaOnSuccess:(SMSuccessBlock)successBlock
                                      onFailure:(SMFailureBlock)failureBlock;
 
+/**
+ Unlink the logged in user from their associated Gigya token.
+ 
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMSuccessBlock)()</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
+ */
 - (void)unlinkLoggedInUserFromGigyaWithOptions:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 /**
@@ -1026,6 +1113,7 @@
  @param gsUser The dictionary returned by user.m_pDict from the gsLoginUIDidLogin:user:context method.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.3.0 and later.
  */
 - (void)loginWithGigyaUserDictionary:(NSDictionary *)gsUser
                            onSuccess:(SMResultSuccessBlock)successBlock
@@ -1041,6 +1129,7 @@
  @param signatureTimestamp The value of the `signatureTimestamp` key from the GSObject user parameter.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.3.0 and later.
  */
 - (void)loginWithGigyaUID:(NSString *)uid
                  uidSignature:(NSString *)uidSignature
@@ -1054,17 +1143,32 @@
  @param uid The value of the `UID` key from the GSObject user parameter.
  @param uidSignature The value of the `UIDSignature` key from the GSObject user parameter.
  @param signatureTimestamp The value of the `signatureTimestamp` key from the GSObject user parameter.
- @param options The request options.
+ @param options An options object contains headers and other configuration for this request.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.3.0 and later.
+ @note Deprecated in version 1.4.0. Use <loginWithGigyaUID:uidSignature:signatureTimestamp:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:>.
  */
 - (void)loginWithGigyaUID:(NSString *)uid
              uidSignature:(NSString *)uidSignature
        signatureTimestamp:(NSString *)signatureTimestamp
                   options:(SMRequestOptions *)options
                 onSuccess:(SMResultSuccessBlock)successBlock
-                onFailure:(SMFailureBlock)failureBlock;
+                onFailure:(SMFailureBlock)failureBlock __deprecated;
 
+/**
+ Login with Gigya with options parameter.
+ 
+ @param uid The value of the `UID` key from the GSObject user parameter.
+ @param uidSignature The value of the `UIDSignature` key from the GSObject user parameter.
+ @param signatureTimestamp The value of the `signatureTimestamp` key from the GSObject user parameter.
+ @param options An options object contains headers and other configuration for this request.
+ @param successCallbackQueue The dispatch queue used to execute the success block.
+ @param failureCallbackQueue The dispatch queue used to execute the failure block.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon success.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
+ */
 - (void)loginWithGigyaUID:(NSString *)uid uidSignature:(NSString *)uidSignature signatureTimestamp:(NSString *)signatureTimestamp options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
 @end

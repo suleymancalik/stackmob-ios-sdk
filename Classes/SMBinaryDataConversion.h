@@ -55,6 +55,7 @@
  @param contentType The content type of the data. See [Internet Media Type](http://en.wikipedia.org/wiki/Internet%5fmedia%5ftype) for a full list.
  
  @return A string formatted for StackMob to persist data to s3.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 + (NSString *)stringForBinaryData:(NSData *)data name:(NSString *)name contentType:(NSString *)contentType;
 

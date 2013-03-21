@@ -26,6 +26,7 @@
  
  @param field The field to increment.
  @param value The amount to increment by. Can be positive or negative.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSDictionary *)dictionaryByAppendingCounterUpdateForField:(NSString *)field by:(int)value;
 @end
@@ -42,6 +43,7 @@
  
  @param field The field to increment.
  @param value The amount to increment by. Can be positive or negative.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)updateCounterForField:(NSString *)field by:(int)value;
 @end
