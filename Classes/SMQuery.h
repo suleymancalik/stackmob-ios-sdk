@@ -256,7 +256,54 @@
 /// @name And/Or
 ///-------------------------------
 
+/**
+ Create an AND query.
+ 
+ If you are not using OR, you do not need to use this method.  You can achieve a query with condition A & B & C by simply adding multiple where clauses to one `SMQuery` instance.
+ 
+ This method is primarily used when chaining together a combination of ORs and ANDs.  See <or:> for usage examples. 
+ 
+ @param query The query to AND to the receiving query.
+ @return An instance of `SMQuery` with parameters updated as a result of the AND.
+ */
 - (SMQuery *)and:(SMQuery *)query;
+
+/**
+ Create an OR query.
+ 
+ Multiple `SMQuery` instances can be OR'ed together to create a query with conditions "A" OR "B" OR "C". Those conditions themselves can consist of ANDs, i.e. ("A1" AND "A2") OR "B" OR "C".  Finally, the entire OR query can be chained with another `SMQuery` instance containing multiple conditions to produce something that make look like "A" AND "B" AND ( ("C1" AND "C2") OR "D" OR "E" ).
+ 
+ **Important:** Only one `SMQuery` instance containing ORs can be AND'ed with an `SMQuery` instance.  For example:
+ 
+ Right: "A" AND "B" AND ( ("C1" AND "C2") OR "D" OR "E" )
+ 
+ Wrong: "A" AND "B" AND ( ("C1" AND "C2") OR "D" OR "E" ) AND ( "F" OR "G" )  // The second OR containing F/G is not allowed.
+ 
+ A Practical Example:
+ 
+     // Person where:
+     // armor_class < 17 AND ((first_name == "Jonah" AND last_name == "Williams) OR first_name == "Jon" OR company == "Carbon Five")
+     
+     SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
+     [rootQuery where:@"armor_class" isLessThan:[NSNumber numberWithInt:17]];
+     
+     SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
+     [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+     [subQuery where:@"last_name" isEqualTo:@"Williams"];
+     
+     SMQuery *subQuery2 =[[SMQuery alloc] initWithSchema:@"People"];
+     [subQuery2 where:@"first_name" isEqualTo:@"Jon"];
+     
+     SMQuery *subQuery3 =[[SMQuery alloc] initWithSchema:@"People"];
+     [subQuery3 where:@"company" isEqualTo:@"Carbon Five"];
+     
+     [rootQuery and:[[subQuery or:subQuery2] or:subQuery3]];
+     
+     // Perform rootQuery on database
+ 
+ @param query The query to OR to the receiving query.
+ @return An instance of `SMQuery` with parameters updated as a result of the OR.
+ */
 - (SMQuery *)or:(SMQuery *)query;
 
 
