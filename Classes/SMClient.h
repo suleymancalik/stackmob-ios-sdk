@@ -608,8 +608,25 @@
  @param fbToken A Facebook access token obtained from Facebook.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)loginWithFacebookToken:(NSString *)fbToken
+                     onSuccess:(SMResultSuccessBlock)successBlock
+                     onFailure:(SMFailureBlock)failureBlock;
+
+/**
+ Login a user to your app with a Facebook token. Includes parameter for automatically creating a user if one associated with the provided token does not exist.
+ 
+ The credentials should match a existing user object that has a linked Facebook account, via either <createUserWithFacebookToken:onSuccess:onFailure:>, or <linkLoggedInUserWithFacebookToken:onSuccess:onFailure:>.
+ 
+ @param fbToken A Facebook access token obtained from Facebook.
+ @param createUser Pass YES to create a new user if no existing user is associated with the provided token.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
+ */
+- (void)loginWithFacebookToken:(NSString *)fbToken
+            createUserIfNeeded:(BOOL)createUser
                      onSuccess:(SMResultSuccessBlock)successBlock
                      onFailure:(SMFailureBlock)failureBlock;
 
@@ -622,25 +639,27 @@
  @param options An options object contains headers and other configuration for this request.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
+ @note Deprecated in version 1.4.0. Use <loginWithFacebookToken:createUserIfNeeded:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:>.
  */
-- (void)loginWithFacebookToken:(NSString *)fbToken
-                   options:(SMRequestOptions *)options
-                     onSuccess:(SMResultSuccessBlock)successBlock
-                     onFailure:(SMFailureBlock)failureBlock;
+- (void)loginWithFacebookToken:(NSString *)fbToken options:(SMRequestOptions *)options onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock __deprecated;
 
 /**
- Login a user to your app with a Facebook token. Includes parameters for including request options and callback queues.
+ Login a user to your app with a Facebook token. Includes parameter for automatically creating a user if one associated with the provided token does not exist, as well as parameters for including request options and callback queues.
  
  The credentials should match a existing user object that has a linked Facebook account, via either <createUserWithFacebookToken:onSuccess:onFailure:>, or <linkLoggedInUserWithFacebookToken:onSuccess:onFailure:>.
  
  @param fbToken A Facebook access token obtained from Facebook.
+ @param createUser Pass YES to create a new user if no existing user is associated with the provided token.
  @param options An options object contains headers and other configuration for this request.
  @param successCallbackQueue The dispatch queue used to execute the success block.
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)loginWithFacebookToken:(NSString *)fbToken
+            createUserIfNeeded:(BOOL)createUser
                        options:(SMRequestOptions *)options
           successCallbackQueue:(dispatch_queue_t)successCallbackQueue
           failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
@@ -833,9 +852,28 @@
  @param twitterSecret A Twitter secret obtained from Twitter.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)loginWithTwitterToken:(NSString *)twitterToken
                 twitterSecret:(NSString *)twitterSecret
+                    onSuccess:(SMResultSuccessBlock)successBlock
+                    onFailure:(SMFailureBlock)failureBlock;
+
+/**
+ Login a user to your app with twitter credentials. Includes parameter for automatically creating a user if one associated with the provided token does not exist.
+ 
+ The credentials should match a existing user object that has a linked Twitter account, via either <createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>, or <linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>.
+ 
+ @param twitterToken A Twitter token obtained from Twitter.
+ @param twitterSecret A Twitter secret obtained from Twitter.
+ @param createUser Pass YES to create a new user if no existing user is associated with the provided tokens.
+ @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
+ @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
+ */
+- (void)loginWithTwitterToken:(NSString *)twitterToken
+                twitterSecret:(NSString *)twitterSecret
+           createUserIfNeeded:(BOOL)createUser
                     onSuccess:(SMResultSuccessBlock)successBlock
                     onFailure:(SMFailureBlock)failureBlock;
 
@@ -850,29 +888,34 @@
  @param options An options object contains headers and other configuration for this request.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.0.0 and later.
+ @note Deprecated in version 1.4.0. Use <loginWithTwitterToken:twitterSecret:createUserIfNeeded:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:>.
  */
 - (void)loginWithTwitterToken:(NSString *)twitterToken
                 twitterSecret:(NSString *)twitterSecret
                   options:(SMRequestOptions *)options
                     onSuccess:(SMResultSuccessBlock)successBlock
-                    onFailure:(SMFailureBlock)failureBlock;
+                    onFailure:(SMFailureBlock)failureBlock __deprecated;
 
 /**
- Login a user to your app with twitter credentials. Includes parameters for including request options and callback queues.
+ Login a user to your app with twitter credentials. Includes parameter for automatically creating a user if one associated with the provided token does not exist, as well as parameters for including request options and callback queues.
  
  The credentials should match a existing user object that has a linked Twitter account, via either
  <createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>, or <linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:>.
  
  @param twitterToken A Twitter token obtained from Twitter.
  @param twitterSecret A Twitter secret obtained from Twitter.
+ @param createUser Pass YES to create a new user if no existing user is associated with the provided tokens.
  @param options An options object contains headers and other configuration for this request.
  @param successCallbackQueue The dispatch queue used to execute the success block.
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)loginWithTwitterToken:(NSString *)twitterToken
                 twitterSecret:(NSString *)twitterSecret
+           createUserIfNeeded:(BOOL)createUser
                       options:(SMRequestOptions *)options
          successCallbackQueue:(dispatch_queue_t)successCallbackQueue
          failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
