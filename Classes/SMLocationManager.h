@@ -70,22 +70,28 @@
 
 /**
  locationManager is the `CLLocationManager` this singleton uses to receive updates.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 @property (nonatomic, strong) CLLocationManager* locationManager;
 
 /**
  locationManagerError is a property to store errors that the `CLLocationManager` returns.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
 */
 @property (nonatomic, strong) NSError *locationManagerError;
 
 ///-------------------------------
-/// @name Properties
+/// @name Shared Instance
 ///-------------------------------
 
 /**
  Returns the instance on `SMLocationManager`.
  
  @return The shared instance of `SMLocationManager`.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 + (SMLocationManager *)sharedInstance;
 

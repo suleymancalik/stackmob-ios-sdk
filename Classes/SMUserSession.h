@@ -33,27 +33,96 @@
  */
 @interface SMUserSession : NSObject
 
+/**
+ Oauth client used for network requests over http.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
 @property (nonatomic, readwrite, strong) SMOAuth2Client *regularOAuthClient;
+
+/**
+ Oauth client used for network requests over https.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
 @property (nonatomic, readwrite, strong) SMOAuth2Client *secureOAuthClient;
+
+/**
+ HTTP client used for access token requests.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
 @property (nonatomic, readwrite, strong) AFHTTPClient *tokenClient;
+
+/**
+ Monitor for tracking current network availability.
+ 
+ @since Available in iOS SDK 1.1.3 and later.
+ */
 @property (nonatomic, readwrite, strong) SMNetworkReachability *networkMonitor;
+
+/**
+ Map used for identifying newly created users.
+ 
+ @since Available in iOS SDK 1.1.0 and later.
+ */
 @property (nonatomic, strong) NSMutableDictionary *userIdentifierMap;
+
+/**
+ The name of the schema on StackMob used for user objects.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
 @property (nonatomic, copy) NSString *userSchema;
+
+/**
+ The primary key field name of the user object schema on StackMob.
+ 
+ @since Available in iOS SDK 1.1.1 and later.
+ */
 @property (nonatomic, copy) NSString *userPrimaryKeyField;
+
+/**
+ The password field name of the user object schema on StackMob.
+ 
+ @since Available in iOS SDK 1.1.1 and later.
+ */
 @property (nonatomic, copy) NSString *userPasswordField;
+
+/**
+ The expiration date of the current session access token.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
 @property (nonatomic, copy) NSDate *expiration;
+
+/**
+ The refresh token for the current session.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
 @property (nonatomic, copy) NSString *refreshToken;
+
+/**
+ A boolean flag for whether an access token refresh is in progress.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
 @property (atomic) BOOL refreshing;
 
 /**
  Internal method used by `SMUserSession` to check if the expiration date on the current access token has expired.
  
  @return `YES` if the current access token has expired, otherwise `NO`.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (BOOL)accessTokenHasExpired;
 
 /**
- Clears out all OAuth2 associated keys.  
+ Clears out all OAuth2 associated keys. 
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)clearSessionInfo;
 
@@ -64,6 +133,8 @@
  
  @param successBlock Upon success provides the user object.
  @param failureBlock Upon failure to refresh the session, provides the error.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)refreshTokenOnSuccess:(void (^)(NSDictionary *userObject))successBlock
                         onFailure:(void (^)(NSError *theError))failureBlock;
@@ -76,6 +147,8 @@
  @param failureCallbackQueue The queue to perform failureBlock on.
  @param successBlock Upon success provides the user object.
  @param failureBlock Upon failure to refresh the session, provides the error.
+ 
+ @since Available in iOS SDK 1.2.0 and later.
  */
 - (void)refreshTokenWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(void (^)(NSDictionary *userObject))successBlock onFailure:(void (^)(NSError *theError))failureBlock;
 
@@ -89,6 +162,8 @@
  @param userPrimaryKeyField The StackMob primary key field name for the user object schema. Default is `@"username"`.
  @param userPasswordField The StackMob field name for the password. Default is `@"password"`.
  @return An instance of `SMUserSession` configured with the provided settings.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (id)initWithAPIVersion:(NSString *)version apiHost:(NSString *)apiHost publicKey:(NSString *)publicKey userSchema:(NSString *)userSchema userPrimaryKeyField:(NSString *)userPrimaryKeyField userPasswordField:(NSString *)userPasswordField;
 
@@ -98,6 +173,8 @@
  @param https `YES` is the client should be configured to make requests over https, `NO` for http.
  
  @return An instance of `SMOAuth2Client` configured according to the value of https.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (id)oauthClientWithHTTPS:(BOOL)https;
 
@@ -111,6 +188,8 @@
  @param failureCallbackQueue The queue to perform failureBlock on.
  @param successBlock Upon success provides the user object.
  @param failureBlock Upon failure to refresh the session, provides the error. 
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)doTokenRequestWithEndpoint:(NSString *)endpoint
                        credentials:(NSDictionary *)credentials
@@ -126,6 +205,8 @@
  @param result The `NSDictionary` to parse.
  
  @return A new `NSDictionary` containing the access token information.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSDictionary *)parseTokenResults:(NSDictionary *)result;
 
@@ -133,6 +214,8 @@
  Save the access token information from an /accessToken or /refreshToken response locally to the device.
  
  @param result The response to save.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)saveAccessTokenInfo:(NSDictionary *)result;
 
@@ -142,6 +225,8 @@
  @param request The request to sign.
  
  @return The signed request.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSURLRequest *)signRequest:(NSURLRequest *)request;
 
@@ -151,16 +236,22 @@
  @param options The tryRefreshToken property is used.
  
  @return Whether the calling session is eligible to perform an access token refresh request.
+ 
+ @since Available in iOS SDK 1.2.0 and later.
  */
 - (BOOL)eligibleForTokenRefresh:(SMRequestOptions *)options;
 
 /**
  Internal method used to read a file which maps users to unique strings.
+ 
+ @since Available in iOS SDK 1.1.0 and later.
  */
 - (void)SMReadUserIdentifierMap;
 
 /**
  Internal method used to save a file which maps users to unique strings.
+ 
+ @since Available in iOS SDK 1.1.0 and later.
  */
 - (void)SMSaveUserIdentifierMap;
 

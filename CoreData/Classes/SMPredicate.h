@@ -61,6 +61,8 @@ typedef enum {
  @param point The point around which to search.
  
  @return An SMPredicate instance ready to be added to a fetch request.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 + (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)miles milesOf:(CLLocationCoordinate2D)point;
 
@@ -74,6 +76,8 @@ typedef enum {
  @param geoPoint The SMGeoPoint around which to search.
  
  @return An SMPredicate instance ready to be added to a fetch request.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 + (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)miles milesOfGeoPoint:(SMGeoPoint *)geoPoint;
 
@@ -87,6 +91,8 @@ typedef enum {
  @param point The point around which to search.
  
  @return An SMPredicate instance ready to be added to a fetch request.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 + (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOf:(CLLocationCoordinate2D)point;
 
@@ -100,6 +106,8 @@ typedef enum {
  @param geoPoint The SMGeoPoint around which to search.
  
  @return An SMPredicate instance ready to be added to a fetch request.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 + (SMPredicate *)predicateWhere:(NSString *)field isWithin:(CLLocationDistance)kilometers kilometersOfGeoPoint:(SMGeoPoint *)geoPoint;
 
@@ -111,6 +119,8 @@ typedef enum {
  @param ne Location of the bounding box's northeast corner.
  
  @return An SMPredicate instance ready to be added to a fetch request.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 + (SMPredicate *)predicateWhere:(NSString *)field isWithinBoundsWithSWCorner:(CLLocationCoordinate2D)sw andNECorner:(CLLocationCoordinate2D)ne;
 
@@ -122,6 +132,8 @@ typedef enum {
  @param ne SMGeoPoint of the bounding box's northeast corner.
  
  @return An SMPredicate instance ready to be added to a fetch request.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 + (SMPredicate *)predicateWhere:(NSString *)field isWithinBoundsWithSWGeoPoint:(SMGeoPoint *)sw andNEGeoPoint:(SMGeoPoint *)ne;
 
@@ -136,6 +148,8 @@ typedef enum {
  @param point The reference location.
  
  @return An SMPredicate instance ready to be added to a fetch request.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 + (SMPredicate *)predicateWhere:(NSString *)field near:(CLLocationCoordinate2D)point;
 
@@ -150,6 +164,8 @@ typedef enum {
  @param geoPoint The reference SMGeoPoint.
  
  @return An SMPredicate instance ready to be added to a fetch request.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 + (SMPredicate *)predicateWhere:(NSString *)field nearGeoPoint:(SMGeoPoint *)geoPoint;
 

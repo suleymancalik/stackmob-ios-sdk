@@ -108,6 +108,8 @@ typedef enum {
  Initializes an instance of `SMNetworkReachability` which can be used to monitor the network reachability from the device to StackMob.
  
  @return A new instance of `SMNetworkReachability`.
+ 
+ @since Available in iOS SDK 1.1.3 and later.
  */
 - (id)init;
 
@@ -115,12 +117,16 @@ typedef enum {
  The current status of the device's network connection and reachability to StackMob.
  
  @return Reachable if the device has a network connection and can successfully reach StackMob, NotReachable if StackMob is not reachable either because there is no network connection on the device or the service is down, Unknown during in-between times of network connection initialization.
+ 
+ @since Available in iOS SDK 1.1.3 and later.
  */
 - (SMNetworkStatus)currentNetworkStatus;
 
 /**
  Provide a block to execute whenever there is a change in network reachability. 
  @param block The block to execute when the network status changes.
+ 
+ @since Available in iOS SDK 1.1.3 and later.
  */
 - (void)setNetworkStatusChangeBlock:(void (^)(SMNetworkStatus status))block;
 
@@ -130,6 +136,8 @@ typedef enum {
  The block must return an SMCachePolicy.  This method is useful when you want to set the cache policy based on the network status.
  
  @param block The block to execute when the network status changes.
+ 
+ @since Available in iOS SDK 1.1.3 and later.
  */
 - (void)setNetworkStatusChangeBlockWithCachePolicyReturn:(SMCachePolicy (^)(SMNetworkStatus status))block;
 
