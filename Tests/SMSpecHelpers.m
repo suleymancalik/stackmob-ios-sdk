@@ -33,7 +33,9 @@ static SMSpecHelpers *_singletonInstance;
 - (NSManagedObjectModel *)managedObjectModel {
 
     if (_managedObjectModel == nil) {
-        _managedObjectModel = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
     }
     return _managedObjectModel;
 

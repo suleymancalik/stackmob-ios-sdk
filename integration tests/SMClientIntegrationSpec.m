@@ -92,7 +92,7 @@ describe(@"refresh token fail block", ^{
     });
 });
 
-/*
+
 describe(@"basic auth", ^{
     __block SMDataStore *dataStore = nil;
     __block SMUserSession *userSession = nil;
@@ -774,5 +774,5 @@ describe(@"basic login/logout works as it should", ^{
         [[client.session refreshToken] shouldBeNil];
     });
 });
-*/
+
 SPEC_END

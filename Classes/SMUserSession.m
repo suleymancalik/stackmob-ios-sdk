@@ -332,7 +332,7 @@
 
 - (void)setTokenRefreshFailureBlock:(void (^)(NSError *error, SMFailureBlock originalFailureBlock))block
 {
-    self.tokenRefreshFailureBlock = block;
+    _tokenRefreshFailureBlock = block;
 }
 
 
