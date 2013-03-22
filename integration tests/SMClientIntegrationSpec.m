@@ -23,59 +23,19 @@ SPEC_BEGIN(SMUserSessionIntegrationSpec)
 
 describe(@"refresh token fail block", ^{
     __block SMDataStore *dataStore = nil;
-    __block SMUserSession *userSession = nil;
     __block SMClient *client = nil;
     beforeEach(^{
-        __block BOOL loginSuccess = NO;
-        // create object to login with, assumes user object name with username/password fields
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         dataStore = [client dataStore];
         
-        /*
-        BOOL createSuccess = [SMIntegrationTestHelpers createUser:@"bob" password:@"1234" dataStore:dataStore];
-        [[theValue(createSuccess) should] beYes];
-        
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [defaultClient loginWithUsername:@"bob" password:@"1234" onSuccess:^(NSDictionary *userObject) {
-                loginObj = userObject;
-                loginSuccess = YES;
-                syncReturn(semaphore);
-            } onFailure:^(NSError * error) {
-                loginSuccess = NO;
-                syncReturn(semaphore);
-            }];
-        });
-        
-        [[theValue(loginSuccess) should] beYes];
-         */
-        
-    });
-    afterEach(^{
-        /*
-        BOOL deleteSuccess = [SMIntegrationTestHelpers deleteUser:@"bob" dataStore:dataStore];
-        [[theValue(deleteSuccess) should] beYes];
-        
-        __block BOOL logoutSuccess = NO;
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [defaultClient logoutOnSuccess:^(NSDictionary *result) {
-                logoutSuccess = YES;
-                syncReturn(semaphore);
-            } onFailure:^(NSError *error) {
-                logoutSuccess = NO;
-                syncReturn(semaphore);
-            }];
-        });
-        
-        [[theValue(logoutSuccess) should] beYes];
-         */
     });
     it(@"refresh token fail block should get called", ^{
         __block BOOL tokenFailure = NO;
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [client setRefreshTokenFailedErrorBlock:^(NSError *error, SMFullResponseFailureBlock originalFailureBlock) {
+            [client setTokenRefreshFailureBlock:^(NSError *error, SMFailureBlock originalFailureBlock) {
                 tokenFailure = YES;
-                originalFailureBlock(nil, nil, nil, nil);
+                originalFailureBlock(error);
                 syncReturn(semaphore);
             }];
             [[client.dataStore.session stubAndReturn:@"1234"] refreshToken];
@@ -83,7 +43,8 @@ describe(@"refresh token fail block", ^{
             [client.dataStore createObject:[NSDictionary dictionaryWithObjectsAndKeys:@"bob", @"title", nil] inSchema:@"todo" onSuccess:^(NSDictionary *theObject, NSString *schema) {
                 syncReturn(semaphore);
             } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                NSLog(@"Failure");
+                NSLog(@"Schema is %@", schema);
+                NSLog(@"Failure with error: %@", theError);
             }];
         });
         
@@ -92,9 +53,9 @@ describe(@"refresh token fail block", ^{
     it(@"refresh token fail block should get called during failure block from 401", ^{
         __block BOOL tokenFailure = NO;
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [client setRefreshTokenFailedErrorBlock:^(NSError *error, SMFullResponseFailureBlock originalFailureBlock) {
+            [client setTokenRefreshFailureBlock:^(NSError *error, SMFailureBlock originalFailureBlock) {
                 tokenFailure = YES;
-                originalFailureBlock(nil, nil, nil, nil);
+                originalFailureBlock(error);
                 syncReturn(semaphore);
             }];
             [[client.dataStore.session stubAndReturn:@"1234"] refreshToken];
@@ -103,7 +64,8 @@ describe(@"refresh token fail block", ^{
             [client.dataStore createObject:[NSDictionary dictionaryWithObjectsAndKeys:@"bob", @"name", nil] inSchema:@"oauth2test" onSuccess:^(NSDictionary *theObject, NSString *schema) {
                 syncReturn(semaphore);
             } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                NSLog(@"Failure");
+                NSLog(@"Schema is %@", schema);
+                NSLog(@"Failure with error: %@", theError);
             }];
         });
         
@@ -112,16 +74,17 @@ describe(@"refresh token fail block", ^{
     it(@"block should get called when refresh token is nil", ^{
         __block BOOL tokenFailure = NO;
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [client setRefreshTokenFailedErrorBlock:^(NSError *error, SMFullResponseFailureBlock originalFailureBlock) {
+            [client setTokenRefreshFailureBlock:^(NSError *error, SMFailureBlock originalFailureBlock) {
                 tokenFailure = YES;
-                originalFailureBlock(nil, nil, nil, nil);
+                originalFailureBlock(error);
                 syncReturn(semaphore);
             }];
             [[client.dataStore.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
             [client.dataStore createObject:[NSDictionary dictionaryWithObjectsAndKeys:@"bob", @"title", nil] inSchema:@"todo" onSuccess:^(NSDictionary *theObject, NSString *schema) {
                 syncReturn(semaphore);
             } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
-                NSLog(@"Failure");
+                NSLog(@"Schema is %@", schema);
+                NSLog(@"Failure with error: %@", theError);
             }];
         });
         

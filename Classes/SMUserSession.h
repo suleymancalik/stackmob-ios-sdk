@@ -17,7 +17,7 @@
 #import "SMResponseBlocks.h"
 #import "AFHTTPClient.h"
 
-typedef void (^SMTokenRefreshFailedBlock)(NSError *error, SMFullResponseFailureBlock originalFailureBlock);
+typedef void (^SMTokenRefreshFailureBlock)(NSError *error, SMFailureBlock originalFailureBlock);
 
 @class SMNetworkReachability;
 @class SMOAuth2Client;
@@ -117,37 +117,12 @@ typedef void (^SMTokenRefreshFailedBlock)(NSError *error, SMFullResponseFailureB
  
  @since Available in iOS SDK 1.4.0 and later.
  */
-@property (readonly, nonatomic, copy) SMTokenRefreshFailedBlock tokenRefreshFailedBlock;
+@property (readonly, nonatomic, copy) SMTokenRefreshFailureBlock tokenRefreshFailureBlock;
 
-/**
- Internal method used by `SMUserSession` to check if the expiration date on the current access token has expired.
- 
- @return `YES` if the current access token has expired, otherwise `NO`.
- 
- @since Available in iOS SDK 1.0.0 and later.
- */
-- (BOOL)accessTokenHasExpired;
-
-/**
- Clears out all OAuth2 associated keys. 
- 
- @since Available in iOS SDK 1.0.0 and later.
- */
-- (void)clearSessionInfo;
-
-/**
- Makes a request to refresh the current user session using the refresh token.
- 
- Callback blocks are performed on the main thread.
- 
- @param successBlock Upon success provides the user object.
- @param failureBlock Upon failure to refresh the session, provides the error.
- 
- @since Available in iOS SDK 1.0.0 and later.
- */
-- (void)refreshTokenOnSuccess:(void (^)(NSDictionary *userObject))successBlock
-                        onFailure:(void (^)(NSError *theError))failureBlock;
-
+#pragma mark Init
+///-------------------------------
+/// @name Initialize
+///-------------------------------
 
 /**
  Makes a request to refresh the current user session using the refresh token.
@@ -175,6 +150,77 @@ typedef void (^SMTokenRefreshFailedBlock)(NSError *error, SMFullResponseFailureB
  @since Available in iOS SDK 1.0.0 and later.
  */
 - (id)initWithAPIVersion:(NSString *)version apiHost:(NSString *)apiHost publicKey:(NSString *)publicKey userSchema:(NSString *)userSchema userPrimaryKeyField:(NSString *)userPrimaryKeyField userPasswordField:(NSString *)userPasswordField;
+
+#pragma mark Internal
+///-------------------------------
+/// @name Refreshing Session
+///-------------------------------
+
+/**
+ Clears out all OAuth2 associated keys.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
+- (void)clearSessionInfo;
+
+/**
+ Makes a request to refresh the current user session using the refresh token.
+ 
+ Callback blocks are performed on the main thread.
+ 
+ @param successBlock Upon success provides the user object.
+ @param failureBlock Upon failure to refresh the session, provides the error.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
+- (void)refreshTokenOnSuccess:(void (^)(NSDictionary *userObject))successBlock
+                    onFailure:(void (^)(NSError *theError))failureBlock;
+
+/**
+ Set a block to be executed whenever a token refresh request fails.  Applies only to asynchronous methods with callbacks, called instead of the original failure block.
+ 
+ The SDK has automatic token refresh built in, but sometimes this refresh fails because the refresh token is no longer valid, etc.  At this point the client needs to reset the session, the easiest way being prompting the user to re-login. This convenience method provides the ability to define a block to be executed whenever an attempt to refresh the current session access token fails.  This block will be executed in place of the original failure block provided.
+ 
+ It is recommended in your block to clear the local session information and present the user with a login screen.  Once logged in, dismiss the login screen and continue normal execution of the application.  Doing so using this block avoids code redundancy throughout the application.
+ 
+ The block passes two parameters, the error (some type of token refresh error), and the original failure block converted to `SMFailureBlock` form.  This gives you the option to call the original failure block if you wish.
+ 
+ In the following example, if the fetch failed because there was an error refreshing the session access token, the refresh token failure block would get called instead:
+ 
+    // Set block, probably during application initialization
+    [self.client setTokenRefreshFailureBlock:^(NSError *error, SMFailureBlock originalFailureBlock) {
+        // Reset local session info
+        [self.client.session clearSessionInfo];
+ 
+        // Show custom login screen
+        [self showLoginScreen];
+ 
+        // Optionally call original failure block
+        originalFailureBlock(error);
+    }];
+ 
+    // Somewhere in application execution
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
+ 
+    // execute the request
+    [self.managedObjectContext executeFetchRequest:fetchRequest onSuccess:^(NSArray *results) {
+        [self doSomethingWithResults:results];
+    } onFailure:^(NSError *error) {
+        NSLog(@"Error fetching: %@", error);
+    }];
+ 
+ **Important:** Block execution applies only to asynchronous methods with callbacks.
+ 
+ @param block An SMTokenRefreshFailureBlock instance.
+ 
+ @since Available in iOS SDK 1.4.0 and later.
+ */
+- (void)setTokenRefreshFailureBlock:(void (^)(NSError *error, SMFailureBlock originalFailureBlock))block;
+
+#pragma mark Internal
+///-------------------------------
+/// @name Internal
+///-------------------------------
 
 /**
  Returns an instance of `SMOAuth2Client` configured to make requests over http or https.
@@ -265,14 +311,12 @@ typedef void (^SMTokenRefreshFailedBlock)(NSError *error, SMFullResponseFailureB
 - (void)SMSaveUserIdentifierMap;
 
 /**
- Set a block to be executed whenever a token refresh request fails.
+ Internal method used by `SMUserSession` to check if the expiration date on the current access token has expired.
  
- When a token refresh failure occurs.
+ @return `YES` if the current access token has expired, otherwise `NO`.
  
- @param block An SMRefreshTokenFailedBlock instance.
- 
- @since Available in iOS SDK 1.4.0 and later.
+ @since Available in iOS SDK 1.0.0 and later.
  */
-- (void)setRefreshTokenFailedErrorBlock:(void (^)(NSError *error, SMFullResponseFailureBlock originalFailureBlock))block;
+- (BOOL)accessTokenHasExpired;
 
 @end

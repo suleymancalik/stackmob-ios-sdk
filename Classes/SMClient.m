@@ -262,9 +262,9 @@ static SMClient *defaultClient = nil;
     [[self session] refreshTokenOnSuccess:successBlock onFailure:failureBlock];
 }
 
-- (void)setRefreshTokenFailedErrorBlock:(void (^)(NSError *error, SMFullResponseFailureBlock originalFailureBlock))block
+- (void)setTokenRefreshFailureBlock:(void (^)(NSError *error, SMFailureBlock originalFailureBlock))block
 {
-    [[self session] setRefreshTokenFailedErrorBlock:block];
+    [[self session] setTokenRefreshFailureBlock:block];
 }
 
 - (void)sendForgotPaswordEmailForUser:(NSString *)username

@@ -301,7 +301,6 @@
         }
         
         if (fetchError) {
-            
             [self callFailureBlock:failureBlock queue:failureCallbackQueue error:fetchError];
         } else {
             if (successBlock) {
@@ -389,18 +388,13 @@
     
     if ([saveError code] == SMErrorRefreshTokenFailed) {
         NSDictionary *userInfo = [saveError userInfo];
-        SMTokenRefreshFailedBlock tokenRefreshBlock = [userInfo objectForKey:SMFailedRefreshBlock];
+        SMTokenRefreshFailureBlock tokenRefreshBlock = [userInfo objectForKey:SMFailedRefreshBlock];
         if (tokenRefreshBlock) {
-            SMFullResponseFailureBlock fullFailureBlock = ^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
-                if (failureBlock) {
-                    failureBlock(error);
-                }
-            };
             // Remove refresh block from userInfo
             NSMutableDictionary *newUserInfo = [userInfo mutableCopy];
             [newUserInfo removeObjectForKey:SMFailedRefreshBlock];
             NSError *newError = [NSError errorWithDomain:[saveError domain] code:[saveError code] userInfo:newUserInfo];
-            tokenRefreshBlock(newError, fullFailureBlock);
+            tokenRefreshBlock(newError, failureBlock);
         } else {
             if (failureBlock) {
                 dispatch_async(queue, ^{

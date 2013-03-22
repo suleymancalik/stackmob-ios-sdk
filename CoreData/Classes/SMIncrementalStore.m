@@ -735,8 +735,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             [failedInsertedObjects addObject:failedObject];
         }];
         NSError *errorToSet = nil;
-        if (errorCode == SMErrorRefreshTokenFailed && self.coreDataStore.session.tokenRefreshFailedBlock) {
-            errorToSet = [[NSError alloc] initWithDomain:SMErrorDomain code:errorCode userInfo:[NSDictionary dictionaryWithObjectsAndKeys:failedInsertedObjects, SMInsertedObjectFailures, self.coreDataStore.session.tokenRefreshFailedBlock, SMFailedRefreshBlock, nil]];
+        if (errorCode == SMErrorRefreshTokenFailed && self.coreDataStore.session.tokenRefreshFailureBlock) {
+            errorToSet = [[NSError alloc] initWithDomain:SMErrorDomain code:errorCode userInfo:[NSDictionary dictionaryWithObjectsAndKeys:failedInsertedObjects, SMInsertedObjectFailures, self.coreDataStore.session.tokenRefreshFailureBlock, SMFailedRefreshBlock, nil]];
         } else {
             errorToSet = [[NSError alloc] initWithDomain:SMErrorDomain code:errorCode userInfo:[NSDictionary dictionaryWithObjectsAndKeys:failedInsertedObjects, SMInsertedObjectFailures, nil]];
         }
@@ -798,8 +798,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 if (error != NULL) {
                     // Check if tokenRefreshFailBlock
                     NSError *refreshError = nil;
-                    if (self.coreDataStore.session.tokenRefreshFailedBlock) {
-                        NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:self.coreDataStore.session.tokenRefreshFailedBlock, SMFailedRefreshBlock, nil];
+                    if (self.coreDataStore.session.tokenRefreshFailureBlock) {
+                        NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:self.coreDataStore.session.tokenRefreshFailureBlock, SMFailedRefreshBlock, nil];
                         refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:userInfo];
                     } else {
                         refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:nil];

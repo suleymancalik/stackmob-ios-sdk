@@ -368,6 +368,11 @@
                 onSuccess:(SMResultSuccessBlock)successBlock
                 onFailure:(SMFailureBlock)failureBlock;
 
+#pragma mark Refresh
+///-------------------------------
+/// @name Access Token Refresh
+///-------------------------------
+
 /**
  Refresh the current login. 
  
@@ -382,15 +387,13 @@
 
 
 /**
- Set a block to be executed whenever a token refresh request fails.
+ See `SMUserSession` <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMUserSession.html#//api/name/setTokenRefreshFailureBlock:">setTokenRefreshFailureBlock:</a>
  
- When a token refresh failure occurs.
- 
- @param block An SMRefreshTokenFailedBlock instance.
+ @param block An SMTokenRefreshFailureBlock instance.
  
  @since Available in iOS SDK 1.4.0 and later.
  */
-- (void)setRefreshTokenFailedErrorBlock:(void (^)(NSError *error, SMFullResponseFailureBlock originalFailureBlock))block;
+- (void)setTokenRefreshFailureBlock:(void (^)(NSError *error, SMFailureBlock originalFailureBlock))block;
 
 #pragma mark Retrieve User
 ///-------------------------------

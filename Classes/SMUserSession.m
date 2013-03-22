@@ -27,7 +27,7 @@
 @interface SMUserSession ()
 
 @property (nonatomic, copy) NSString *oauthStorageKey;
-@property (readwrite, nonatomic, copy) SMTokenRefreshFailedBlock tokenRefreshFailedBlock;
+@property (readwrite, nonatomic, copy) SMTokenRefreshFailureBlock tokenRefreshFailureBlock;
 
 - (NSURL *)SM_getStoreURLForUserIdentifierTable;
 - (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL;
@@ -50,7 +50,7 @@
 @synthesize oauthStorageKey = _SM_oauthStorageKey;
 @synthesize networkMonitor = _SM_networkMonitor;
 @synthesize userIdentifierMap = _SM_userIdentifierMap;
-@synthesize tokenRefreshFailedBlock = _tokenRefreshFailedBlock;
+@synthesize tokenRefreshFailureBlock = _tokenRefreshFailureBlock;
 
 - (id)initWithAPIVersion:(NSString *)version
                  apiHost:(NSString *)apiHost
@@ -74,7 +74,7 @@
         self.userPrimaryKeyField = userPrimaryKeyField;
         self.userPasswordField = userPasswordField;
         self.refreshing = NO;
-        self.tokenRefreshFailedBlock = nil;
+        self.tokenRefreshFailureBlock = nil;
         
         NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
         if (!applicationName) {
@@ -330,9 +330,9 @@
     
 }
 
-- (void)setRefreshTokenFailedErrorBlock:(void (^)(NSError *error, SMFullResponseFailureBlock originalFailureBlock))block
+- (void)setTokenRefreshFailureBlock:(void (^)(NSError *error, SMFailureBlock originalFailureBlock))block
 {
-    self.tokenRefreshFailedBlock = block;
+    self.tokenRefreshFailureBlock = block;
 }
 
 

@@ -181,14 +181,17 @@
             if (originalError) {
                 [userInfo setObject:originalError forKey:SMOriginalErrorCausingRefreshKey];
             }
-            __block NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:userInfo];
-            if (self.session.tokenRefreshFailedBlock) {
+            __block NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:userInfo];
+            if (self.session.tokenRefreshFailureBlock) {
                 dispatch_async(failureCallbackQueue, ^{
-                    self.session.tokenRefreshFailedBlock(error, failureBlock);
+                    SMFailureBlock newFailureBlock = ^(NSError *error){
+                        failureBlock(nil, nil, error, nil);
+                    };
+                    self.session.tokenRefreshFailureBlock(refreshError, newFailureBlock);
                 });
             } else if (failureBlock) {
                 dispatch_async(failureCallbackQueue, ^{
-                    failureBlock(request, nil, error, nil);
+                    failureBlock(request, nil, refreshError, nil);
                 });
             }
         }];
