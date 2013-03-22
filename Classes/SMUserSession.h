@@ -17,6 +17,8 @@
 #import "SMResponseBlocks.h"
 #import "AFHTTPClient.h"
 
+typedef void (^SMTokenRefreshFailedBlock)(NSError *error, SMFullResponseFailureBlock originalFailureBlock);
+
 @class SMNetworkReachability;
 @class SMOAuth2Client;
 @class SMRequestOptions;
@@ -109,6 +111,8 @@
  @since Available in iOS SDK 1.0.0 and later.
  */
 @property (atomic) BOOL refreshing;
+
+@property (readonly, nonatomic, copy) SMTokenRefreshFailedBlock tokenRefreshFailedBlock;
 
 /**
  Internal method used by `SMUserSession` to check if the expiration date on the current access token has expired.
@@ -254,5 +258,7 @@
  @since Available in iOS SDK 1.1.0 and later.
  */
 - (void)SMSaveUserIdentifierMap;
+
+- (void)setRefreshTokenFailedErrorBlock:(void (^)(NSError *error, SMFullResponseFailureBlock originalFailureBlock))block;
 
 @end

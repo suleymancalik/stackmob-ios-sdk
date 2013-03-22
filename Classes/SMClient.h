@@ -380,6 +380,8 @@
 - (void)refreshLoginWithOnSuccess:(SMResultSuccessBlock)successBlock
                         onFailure:(SMFailureBlock)failureBlock;
 
+- (void)setRefreshTokenFailedErrorBlock:(void (^)(NSError *error, SMFullResponseFailureBlock originalFailureBlock))block;
+
 #pragma mark Retrieve User
 ///-------------------------------
 /// @name Retrieve the Logged In User

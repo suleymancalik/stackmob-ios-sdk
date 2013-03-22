@@ -177,12 +177,16 @@
         [self.session refreshTokenWithSuccessCallbackQueue:newQueueForRefresh failureCallbackQueue:newQueueForRefresh onSuccess:^(NSDictionary *userObject) {
             [self queueRequest:[self.session signRequest:request] options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
         } onFailure:^(NSError *theError) {
-            if (failureBlock) {
-                NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:theError, SMRefreshErrorObjectKey, @"Attempt to refresh access token failed.", NSLocalizedDescriptionKey, nil];
-                if (originalError) {
-                    [userInfo setObject:originalError forKey:SMOriginalErrorCausingRefreshKey];
-                }
-                __block NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:userInfo];
+            NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:theError, SMRefreshErrorObjectKey, @"Attempt to refresh access token failed.", NSLocalizedDescriptionKey, nil];
+            if (originalError) {
+                [userInfo setObject:originalError forKey:SMOriginalErrorCausingRefreshKey];
+            }
+            __block NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:userInfo];
+            if (self.session.tokenRefreshFailedBlock) {
+                dispatch_async(failureCallbackQueue, ^{
+                    self.session.tokenRefreshFailedBlock(error, failureBlock);
+                });
+            } else if (failureBlock) {
                 dispatch_async(failureCallbackQueue, ^{
                     failureBlock(request, nil, error, nil);
                 });
