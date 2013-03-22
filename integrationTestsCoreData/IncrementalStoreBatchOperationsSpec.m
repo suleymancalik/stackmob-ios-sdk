@@ -21,7 +21,6 @@
 
 SPEC_BEGIN(IncrementalStoreBatchOperationsSpec)
 
-
 describe(@"Inserting/Updating/Deleting many objects works fine", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -441,5 +440,68 @@ describe(@"With 401s and other errors", ^{
         
     });
     
+});
+describe(@"Calling refresh block", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    
+    beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        moc = [cds contextForCurrentThread];
+        
+    });
+    it(@"refresh token failure, async save", ^{
+        [[client.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
+        NSManagedObject *todo = [NSEntityDescription insertNewObjectForEntityForName:@"Oauth2test" inManagedObjectContext:moc];
+        [todo setValue:@"bob" forKey:@"name"];
+        [todo setValue:@"primarykey" forKey:[todo primaryKeyField]];
+        
+        __block BOOL refreshFailed = NO;
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [client.session setRefreshTokenFailedErrorBlock:^(NSError *error, SMFullResponseFailureBlock originalFailureBlock) {
+                [[[error userInfo] objectForKey:SMFailedRefreshBlock] shouldBeNil];
+                [[theValue([error code]) should] equal:theValue(SMErrorRefreshTokenFailed)];
+                refreshFailed = YES;
+                originalFailureBlock(nil, nil, nil, nil);
+                syncReturn(semaphore);
+            }];
+            [moc saveOnSuccess:^{
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                syncReturn(semaphore);
+            }];
+        });
+        
+        [[theValue(refreshFailed) should] beYes];
+    });
+    it(@"refresh token failure, async fetch", ^{
+        [[client.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
+        
+        __block BOOL refreshFailed = NO;
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [client.session setRefreshTokenFailedErrorBlock:^(NSError *error, SMFullResponseFailureBlock originalFailureBlock) {
+                [[[error userInfo] objectForKey:SMFailedRefreshBlock] shouldBeNil];
+                [[theValue([error code]) should] equal:theValue(SMErrorRefreshTokenFailed)];
+                refreshFailed = YES;
+                originalFailureBlock(nil, nil, nil, nil);
+                syncReturn(semaphore);
+            }];
+            NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
+            [moc executeFetchRequest:fetch onSuccess:^(NSArray *results) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                syncReturn(semaphore);
+            }];
+        });
+        
+        [[theValue(refreshFailed) should] beYes];
+    });
 });
 SPEC_END

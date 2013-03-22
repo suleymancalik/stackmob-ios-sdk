@@ -380,6 +380,16 @@
 - (void)refreshLoginWithOnSuccess:(SMResultSuccessBlock)successBlock
                         onFailure:(SMFailureBlock)failureBlock;
 
+
+/**
+ Set a block to be executed whenever a token refresh request fails.
+ 
+ When a token refresh failure occurs.
+ 
+ @param block An SMRefreshTokenFailedBlock instance.
+ 
+ @since Available in iOS SDK 1.4.0 and later.
+ */
 - (void)setRefreshTokenFailedErrorBlock:(void (^)(NSError *error, SMFullResponseFailureBlock originalFailureBlock))block;
 
 #pragma mark Retrieve User

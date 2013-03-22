@@ -112,6 +112,11 @@ typedef void (^SMTokenRefreshFailedBlock)(NSError *error, SMFullResponseFailureB
  */
 @property (atomic) BOOL refreshing;
 
+/**
+ Optional block to be executed whenever a token refresh request fails.
+ 
+ @since Available in iOS SDK 1.4.0 and later.
+ */
 @property (readonly, nonatomic, copy) SMTokenRefreshFailedBlock tokenRefreshFailedBlock;
 
 /**
@@ -259,6 +264,15 @@ typedef void (^SMTokenRefreshFailedBlock)(NSError *error, SMFullResponseFailureB
  */
 - (void)SMSaveUserIdentifierMap;
 
+/**
+ Set a block to be executed whenever a token refresh request fails.
+ 
+ When a token refresh failure occurs.
+ 
+ @param block An SMRefreshTokenFailedBlock instance.
+ 
+ @since Available in iOS SDK 1.4.0 and later.
+ */
 - (void)setRefreshTokenFailedErrorBlock:(void (^)(NSError *error, SMFullResponseFailureBlock originalFailureBlock))block;
 
 @end
