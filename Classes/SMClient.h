@@ -673,6 +673,7 @@
  
  @param fbToken A Facebook access token obtained from Facebook.
  @param createUser Pass YES to create a new user if no existing user is associated with the provided token.
+ @param username If createUser is YES, the primary key (username) to give the created user.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  @since Available in iOS SDK 1.0.0 and later.
@@ -704,6 +705,7 @@
  
  @param fbToken A Facebook access token obtained from Facebook.
  @param createUser Pass YES to create a new user if no existing user is associated with the provided token.
+ @param username If createUser is YES, the primary key (username) to give the created user.
  @param options An options object contains headers and other configuration for this request.
  @param successCallbackQueue The dispatch queue used to execute the success block.
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
@@ -932,6 +934,7 @@
  @param twitterToken A Twitter token obtained from Twitter.
  @param twitterSecret A Twitter secret obtained from Twitter.
  @param createUser Pass YES to create a new user if no existing user is associated with the provided tokens.
+ @param username If createUser is YES, the primary key (username) to give the created user.
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  @since Available in iOS SDK 1.4.0 and later.
@@ -972,6 +975,7 @@
  @param twitterToken A Twitter token obtained from Twitter.
  @param twitterSecret A Twitter secret obtained from Twitter.
  @param createUser Pass YES to create a new user if no existing user is associated with the provided tokens.
+ @param username If createUser is YES, the primary key (username) to give the created user.
  @param options An options object contains headers and other configuration for this request.
  @param successCallbackQueue The dispatch queue used to execute the success block.
  @param failureCallbackQueue The dispatch queue used to execute the failure block.
