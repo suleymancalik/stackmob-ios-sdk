@@ -458,12 +458,12 @@ static SMClient *defaultClient = nil;
                      onSuccess:(SMResultSuccessBlock)successBlock
                      onFailure:(SMFailureBlock)failureBlock
 {
-    [self loginWithFacebookToken:fbToken createUserIfNeeded:NO onSuccess:successBlock onFailure:failureBlock];
+    [self loginWithFacebookToken:fbToken createUserIfNeeded:NO usernameForCreate:nil onSuccess:successBlock onFailure:failureBlock];
 }
 
-- (void)loginWithFacebookToken:(NSString *)fbToken createUserIfNeeded:(BOOL)createUser onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
+- (void)loginWithFacebookToken:(NSString *)fbToken createUserIfNeeded:(BOOL)createUser usernameForCreate:(NSString *)username onSuccess:(SMResultSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
-    [self loginWithFacebookToken:fbToken createUserIfNeeded:createUser options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+    [self loginWithFacebookToken:fbToken createUserIfNeeded:createUser usernameForCreate:username options:[SMRequestOptions optionsWithHTTPS] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
 }
 
 // Deprecated
@@ -472,26 +472,33 @@ static SMClient *defaultClient = nil;
                      onSuccess:(SMResultSuccessBlock)successBlock
                      onFailure:(SMFailureBlock)failureBlock
 {
-    [self loginWithFacebookToken:fbToken createUserIfNeeded:NO options:options successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+    [self loginWithFacebookToken:fbToken createUserIfNeeded:NO usernameForCreate:nil options:options successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
 }
 
 - (void)loginWithFacebookToken:(NSString *)fbToken
             createUserIfNeeded:(BOOL)createUser
+             usernameForCreate:(NSString *)username
                        options:(SMRequestOptions *)options
           successCallbackQueue:(dispatch_queue_t)successCallbackQueue
           failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                      onSuccess:(SMResultSuccessBlock)successBlock
                      onFailure:(SMFailureBlock)failureBlock
 {
-    // EDIT for create user if needed parameter
     if (fbToken == nil) {
         if (failureBlock) {
             NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:nil];
             failureBlock(error);
         }
     } else {
-        NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:fbToken, FB_TOKEN_KEY, nil];
-        [self.session doTokenRequestWithEndpoint:@"facebookAccessToken" credentials:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
+        NSMutableDictionary *args = [NSMutableDictionary dictionaryWithObjectsAndKeys:fbToken, FB_TOKEN_KEY, nil];
+        NSString *endpoint = @"facebookAccessToken";
+        if (createUser) {
+            endpoint = [endpoint stringByAppendingString:@"WithCreate"];
+            if (username != nil) {
+                [args setObject:username forKey:@"username"];
+            }
+        }
+        [self.session doTokenRequestWithEndpoint:endpoint credentials:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
     }
 }
 
@@ -658,16 +665,17 @@ static SMClient *defaultClient = nil;
                     onSuccess:(SMResultSuccessBlock)successBlock
                     onFailure:(SMFailureBlock)failureBlock
 {
-    [self loginWithTwitterToken:twitterToken twitterSecret:twitterSecret createUserIfNeeded:NO onSuccess:successBlock onFailure:failureBlock];
+    [self loginWithTwitterToken:twitterToken twitterSecret:twitterSecret createUserIfNeeded:NO usernameForCreate:nil onSuccess:successBlock onFailure:failureBlock];
 }
 
 - (void)loginWithTwitterToken:(NSString *)twitterToken
                 twitterSecret:(NSString *)twitterSecret
            createUserIfNeeded:(BOOL)createUser
+            usernameForCreate:(NSString *)username
                     onSuccess:(SMResultSuccessBlock)successBlock
                     onFailure:(SMFailureBlock)failureBlock
 {
-    [self loginWithTwitterToken:twitterToken twitterSecret:twitterSecret createUserIfNeeded:createUser options:[SMRequestOptions options] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+    [self loginWithTwitterToken:twitterToken twitterSecret:twitterSecret createUserIfNeeded:createUser usernameForCreate:username options:[SMRequestOptions options] successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
 }
 
 // Deprecated
@@ -677,27 +685,34 @@ static SMClient *defaultClient = nil;
                     onSuccess:(SMResultSuccessBlock)successBlock
                     onFailure:(SMFailureBlock)failureBlock
 {
-    [self loginWithTwitterToken:twitterToken twitterSecret:twitterSecret createUserIfNeeded:NO options:options successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
+    [self loginWithTwitterToken:twitterToken twitterSecret:twitterSecret createUserIfNeeded:NO usernameForCreate:nil options:options successCallbackQueue:dispatch_get_main_queue() failureCallbackQueue:dispatch_get_main_queue() onSuccess:successBlock onFailure:failureBlock];
 }
 
 - (void)loginWithTwitterToken:(NSString *)twitterToken
                 twitterSecret:(NSString *)twitterSecret
            createUserIfNeeded:(BOOL)createUser
+            usernameForCreate:(NSString *)username
                       options:(SMRequestOptions *)options
          successCallbackQueue:(dispatch_queue_t)successCallbackQueue
          failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                     onSuccess:(SMResultSuccessBlock)successBlock
                     onFailure:(SMFailureBlock)failureBlock
 {
-    // Edit for create user if needed
     if (twitterToken == nil || twitterSecret == nil) {
         if (failureBlock) {
             NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:nil];
             failureBlock(error);
         }
     } else {
-        NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:twitterToken, TW_TOKEN_KEY, twitterSecret, TW_SECRET_KEY, nil];
-        [self.session doTokenRequestWithEndpoint:@"twitterAccessToken" credentials:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
+        NSMutableDictionary *args = [NSMutableDictionary dictionaryWithObjectsAndKeys:twitterToken, TW_TOKEN_KEY, twitterSecret, TW_SECRET_KEY, nil];
+        NSString *endpoint = @"twitterAccessToken";
+        if (createUser) {
+            endpoint = [endpoint stringByAppendingString:@"WithCreate"];
+            if (username != nil) {
+                [args setObject:username forKey:@"username"];
+            }
+        }
+        [self.session doTokenRequestWithEndpoint:endpoint credentials:args options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
     }
 }
 

@@ -679,6 +679,7 @@
  */
 - (void)loginWithFacebookToken:(NSString *)fbToken
             createUserIfNeeded:(BOOL)createUser
+             usernameForCreate:(NSString *)username
                      onSuccess:(SMResultSuccessBlock)successBlock
                      onFailure:(SMFailureBlock)failureBlock;
 
@@ -712,6 +713,7 @@
  */
 - (void)loginWithFacebookToken:(NSString *)fbToken
             createUserIfNeeded:(BOOL)createUser
+             usernameForCreate:(NSString *)username
                        options:(SMRequestOptions *)options
           successCallbackQueue:(dispatch_queue_t)successCallbackQueue
           failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
@@ -937,6 +939,7 @@
 - (void)loginWithTwitterToken:(NSString *)twitterToken
                 twitterSecret:(NSString *)twitterSecret
            createUserIfNeeded:(BOOL)createUser
+            usernameForCreate:(NSString *)username
                     onSuccess:(SMResultSuccessBlock)successBlock
                     onFailure:(SMFailureBlock)failureBlock;
 
@@ -979,6 +982,7 @@
 - (void)loginWithTwitterToken:(NSString *)twitterToken
                 twitterSecret:(NSString *)twitterSecret
            createUserIfNeeded:(BOOL)createUser
+            usernameForCreate:(NSString *)username
                       options:(SMRequestOptions *)options
          successCallbackQueue:(dispatch_queue_t)successCallbackQueue
          failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
