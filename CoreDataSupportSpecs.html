@@ -51,6 +51,7 @@
 
 <p>As part of the integration between StackMob and Core Data, our goal is to support as much Core Data functionality as we can, including attribute types, fetch request settings and predicate formats.</p>
 <p>As we continually improve our SDK this page will stay up to date with everything that is currently supported.</p>
+<p>Features without date to indicate starting support date are assumed v1.0.0+</p>
 
 <h2>Data Type Maps</h2>
 
@@ -92,19 +93,19 @@
         <td>String, Binary (see <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMBinaryDataConversion.html">SMBinaryDataConversion</a>)</td>
     </tr>
     <tr>
-        <td>Boolean</td>
+        <td>Boolean <i>(v1.1.1+)</i></td>
         <td>Boolean</td>
     </tr>
     <tr>
         <td>NSDate</td>
-        <td>Integer, Representing the number of seconds since 1970</td>
+        <td>Integer, Representing the number of milliseconds since 1970</td>
     </tr>
     <tr>
         <td>Binary Data</td>
         <td>Currently Not Supported</td>
     </tr>
     <tr>
-        <td>Transformable</td>
+        <td>Transformable <i>(v1.3.0+)</i></td>
         <td>Geopoint (lat/lon) - See <a href="https://developer.stackmob.com/tutorials/ios/Saving-Geo-Location-Data">Saving Geo Location Data Tutorial</td>
     </tr>
 </table>
@@ -144,7 +145,7 @@
         <td>String</td>
     </tr>
     <tr>
-        <td>Geopoint (lat/lon)</td>
+        <td>Geopoint (lat/lon) <i>(v1.3.0+)</i></td>
         <td>Transformable - See <a href="https://developer.stackmob.com/tutorials/ios/Saving-Geo-Location-Data">Saving Geo Location Data Tutorial</a></td>
     </tr>
 </table>
@@ -199,9 +200,21 @@
 </ul>
 
 <h3>Compound Predicates</h3>
+<p>For a tutorial on using compound predicates see the <a href="https://developer.stackmob.com/tutorials/ios/Advanced-Queries" target="_blank">Advanced Query Tutorial</a>.
 <ul>
-	<li>NSAndPredicateType</li>
+	<li>NSAndPredicateType - Use [NSPredicate andPredicateWithSubpredicates:arrayOfPredicates] or AND in predicate format string.</li>
+	<li>NSORPredicateType - Use [NSPredicate orPredicateWithSubpredicates:arrayOfPredicates] or OR in predicate format string.</li>
 </ul>
+
+<h2>User Objects</h2>
+
+
+<h2>Geo-Data <i>(v1.3.0+)</i></h2>
+
+
+<h2>Concurrency API <i>(v1.2.0+)</i></h2>
+
+<h2>Global and Per-Request Options <i>(v1.3.0+)</i></h2>
 
 					
 				</div>
