@@ -4,7 +4,7 @@
 
 **Features**
 
-* OR query support, allowing, for example, the ability to query "todo where A AND (B OR (C AND D) OR E)".  See <a href="http://developer.stackmob.com/tutorials/ios/Advanced-Queries" target="_blank>Advanced Query Tutorial</a> for all details.
+* OR query support, allowing, for example, the ability to query "todo where A AND (B OR (C AND D) OR E)".  See <a href="http://developer.stackmob.com/tutorials/ios/Advanced-Queries" target="_blank">Advanced Query Tutorial</a> for all details.
 * Support for querying where field equals / does not equal the empty string. Using core data, use [NSPredicate predicateWithFormat:@"field == ''"]. Using lower level datastore API, use [query where:field isEqualTo:@""].
 * Add loginWithFacebookToken:createUserIfNeeded:usernameForCreate:onSuccess:onFailure:. Allows login to StackMob using Facebook credentials and optionally create a StackMob user if one doesn't already exist that is linked to the credentials used.
 * Add loginWithTwitterToken:twitterSecret:createUserIfNeeded:usernameForCreate:onSuccess:onFailure:. Allows login to StackMob using Twitter credentials and optionally create a StackMob user if one doesn't already exist that is linked to the credentials used.
