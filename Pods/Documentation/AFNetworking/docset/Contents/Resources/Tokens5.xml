@@ -60,7 +60,7 @@
 			<Abstract type="html">Returns the shared network activity indicator manager object for the system.</Abstract>
 			<DeclaredIn>AFNetworkActivityIndicatorManager.h</DeclaredIn>			
 			
-			<Declaration>+ (AFNetworkActivityIndicatorManager *)sharedManager</Declaration>
+			<Declaration>+ (instancetype)sharedManager</Declaration>
 			
 			<ReturnValue><Abstract type="html">The systemwide network activity indicator manager.</Abstract></ReturnValue>
 			<Anchor>//api/name/sharedManager</Anchor>

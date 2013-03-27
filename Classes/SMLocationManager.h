@@ -17,11 +17,13 @@
 #import <CoreLocation/CoreLocation.h>
 
 /**
- `SMLocationManager` provides a `CLLocationManager` singleton. 
+ SMLocationManager is a built-in `CLLocationManager` singleton for use in retrieving `CLLocationCoordinate2D` points. 
+ 
+ Many apps make use of geo location data; `SMLocationManager` aides in this process by eliminating the boilerplate code needed to build a `CLLocationManager` singleton.
  
  ## Using SMLocationManager ##
  
- SMLocationManager is a built-in `CLLocationManager` singleton for use in retrieving `CLLocationCoordinate2D` points. Many apps make use of geo location data; `SMLocationManager` aides in this process by eliminating the boilerplate code needed to build a `CLLocationManager` singleton.
+ First, import the class where needed: `#import "SMLocationManager.h"`.
  
  To start retrieving data, first prompt `SMLocationManager` to start listening for updates from the GPS:
  
@@ -68,22 +70,28 @@
 
 /**
  locationManager is the `CLLocationManager` this singleton uses to receive updates.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 @property (nonatomic, strong) CLLocationManager* locationManager;
 
 /**
  locationManagerError is a property to store errors that the `CLLocationManager` returns.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
 */
 @property (nonatomic, strong) NSError *locationManagerError;
 
 ///-------------------------------
-/// @name Properties
+/// @name Shared Instance
 ///-------------------------------
 
 /**
  Returns the instance on `SMLocationManager`.
  
  @return The shared instance of `SMLocationManager`.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 + (SMLocationManager *)sharedInstance;
 

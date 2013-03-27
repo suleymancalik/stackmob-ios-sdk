@@ -21,6 +21,78 @@
 
 SPEC_BEGIN(SMUserSessionIntegrationSpec)
 
+describe(@"refresh token fail block", ^{
+    __block SMDataStore *dataStore = nil;
+    __block SMClient *client = nil;
+    beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        dataStore = [client dataStore];
+        
+    });
+    it(@"refresh token fail block should get called", ^{
+        __block BOOL tokenFailure = NO;
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [client setTokenRefreshFailureBlock:^(NSError *error, SMFailureBlock originalFailureBlock) {
+                tokenFailure = YES;
+                originalFailureBlock(error);
+                syncReturn(semaphore);
+            }];
+            [[client.dataStore.session stubAndReturn:@"1234"] refreshToken];
+            [[client.dataStore.session stubAndReturn:theValue(YES)] accessTokenHasExpired];
+            [client.dataStore createObject:[NSDictionary dictionaryWithObjectsAndKeys:@"bob", @"title", nil] inSchema:@"todo" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                NSLog(@"Schema is %@", schema);
+                NSLog(@"Failure with error: %@", theError);
+            }];
+        });
+        
+        [[theValue(tokenFailure) should] beYes];
+    });
+    it(@"refresh token fail block should get called during failure block from 401", ^{
+        __block BOOL tokenFailure = NO;
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [client setTokenRefreshFailureBlock:^(NSError *error, SMFailureBlock originalFailureBlock) {
+                tokenFailure = YES;
+                originalFailureBlock(error);
+                syncReturn(semaphore);
+            }];
+            [[client.dataStore.session stubAndReturn:@"1234"] refreshToken];
+            [[client.dataStore.session stubAndReturn:theValue(YES)] accessTokenHasExpired];
+            [[client.dataStore.session stubAndReturn:theValue(NO)] eligibleForTokenRefresh:any()];
+            [client.dataStore createObject:[NSDictionary dictionaryWithObjectsAndKeys:@"bob", @"name", nil] inSchema:@"oauth2test" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                NSLog(@"Schema is %@", schema);
+                NSLog(@"Failure with error: %@", theError);
+            }];
+        });
+        
+        [[theValue(tokenFailure) should] beYes];
+    });
+    it(@"block should get called when refresh token is nil", ^{
+        __block BOOL tokenFailure = NO;
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [client setTokenRefreshFailureBlock:^(NSError *error, SMFailureBlock originalFailureBlock) {
+                tokenFailure = YES;
+                originalFailureBlock(error);
+                syncReturn(semaphore);
+            }];
+            [[client.dataStore.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
+            [client.dataStore createObject:[NSDictionary dictionaryWithObjectsAndKeys:@"bob", @"title", nil] inSchema:@"todo" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                NSLog(@"Schema is %@", schema);
+                NSLog(@"Failure with error: %@", theError);
+            }];
+        });
+        
+        [[theValue(tokenFailure) should] beYes];
+    });
+});
+
+
 describe(@"basic auth", ^{
     __block SMDataStore *dataStore = nil;
     __block SMUserSession *userSession = nil;

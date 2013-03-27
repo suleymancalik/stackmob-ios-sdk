@@ -49,7 +49,6 @@ describe(@"with a prepopulated database of people", ^{
     afterEach(^{
         [SMIntegrationTestHelpers destroyAllForFixturesNamed:fixtureNames];
     });
-    
     describe(@"-query with initWithSchema", ^{
         beforeEach(^{
             query = [[SMQuery alloc] initWithSchema:@"people"];
@@ -149,7 +148,6 @@ describe(@"with a prepopulated database of people", ^{
             });
         });
     });
-    
     describe(@"multiple where clauses per query", ^{
         beforeEach(^{
             query = [[SMQuery alloc] initWithSchema:@"people"];
@@ -405,7 +403,205 @@ describe(@"with a prepopulated database of people", ^{
             });
         });
     });
+    describe(@"OR", ^{
+        it(@"or-query, single or", ^{
+            // Person where:
+            // armor_class = 17 || first_name == "Jonah"
+            // Should return Matt and Jonah
+            
+            SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [rootQuery where:@"armor_class" isEqualTo:[NSNumber numberWithInt:17]];
+            
+            SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+            
+            [rootQuery or:subQuery];
+            
+            // Perform Query
+            synchronousQuery(sm, rootQuery, ^(NSArray *results) {
+                [[results should] haveCountOf:2];
+                NSMutableArray *array = [NSMutableArray arrayWithObjects:[[results objectAtIndex:0] objectForKey:@"first_name"], [[results objectAtIndex:1] objectForKey:@"first_name"], nil];
+                [[array should] contain:@"Matt"];
+                [[array should] contain:@"Jonah"];
+                
+            }, ^(NSError *error){
+                [error shouldBeNil];
+            });
+        });
+        it(@"or-query, multiple ors", ^{
+            // Person where:
+            // armor_class < 17 && ((first_name == "Jonah" && last_name == "Williams) || first_name == "Jon" || company == "Carbon Five")
+            // Should return Jon and Jonah
+            
+            SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [rootQuery where:@"armor_class" isLessThan:[NSNumber numberWithInt:17]];
+            
+            SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+            [subQuery where:@"last_name" isEqualTo:@"Williams"];
+            
+            SMQuery *subQuery2 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery2 where:@"first_name" isEqualTo:@"Jon"];
+            
+            SMQuery *subQuery3 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery3 where:@"company" isEqualTo:@"Carbon Five"];
+            
+            [rootQuery and:[[subQuery or:subQuery2] or:subQuery3]];
+            
+            // Perform Query
+            synchronousQuery(sm, rootQuery, ^(NSArray *results) {
+                [[results should] haveCountOf:2];
+                NSMutableArray *array = [NSMutableArray arrayWithObjects:[[results objectAtIndex:0] objectForKey:@"first_name"], [[results objectAtIndex:1] objectForKey:@"first_name"], nil];
+                [[array should] contain:@"Jon"];
+                [[array should] contain:@"Jonah"];
+            }, ^(NSError *error){
+                [error shouldBeNil];
+            });
+        });
+        it(@"or-query multiple ands in or", ^{
+            // Person where:
+            // armor_class < 17 && ((first_name == "Jonah" && last_name == "Williams) || (first_name == "Jon" && last_name == "Cooper") || company == "Carbon Five")
+            // Should return Jon and Jonah
+            
+            SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [rootQuery where:@"armor_class" isLessThan:[NSNumber numberWithInt:17]];
+            
+            SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+            [subQuery where:@"last_name" isEqualTo:@"Williams"];
+            
+            SMQuery *subQuery2 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery2 where:@"first_name" isEqualTo:@"Jon"];
+            [subQuery2 where:@"last_name" isEqualTo:@"Cooper"];
+            
+            SMQuery *subQuery3 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery3 where:@"company" isEqualTo:@"Carbon Five"];
+            
+            [rootQuery and:[[subQuery or:subQuery2] or:subQuery3]];
+            
+            // Perform Query
+            synchronousQuery(sm, rootQuery, ^(NSArray *results) {
+                [[results should] haveCountOf:2];
+                NSMutableArray *array = [NSMutableArray arrayWithObjects:[[results objectAtIndex:0] objectForKey:@"first_name"], [[results objectAtIndex:1] objectForKey:@"first_name"], nil];
+                [[array should] contain:@"Jon"];
+                [[array should] contain:@"Jonah"];
+            }, ^(NSError *error){
+                [error shouldBeNil];
+            });
+        });
+        it(@"single query duplicate key should throw exception", ^{
+            SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [rootQuery where:@"first_name" isEqualTo:@"Jon"];
+            
+            SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+            
+            [[theBlock(^{
+                [rootQuery or:subQuery];
+            }) should] raiseWithName:SMExceptionIncompatibleObject];
+            
+        });
+        it(@"multiple ors query duplicate key should throw exception", ^{
+            SMQuery *rootQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [rootQuery where:@"armor_class" isLessThan:[NSNumber numberWithInt:17]];
+            
+            SMQuery *subQuery = [[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery where:@"first_name" isEqualTo:@"Jonah"];
+            [subQuery where:@"last_name" isEqualTo:@"Williams"];
+            
+            SMQuery *subQuery2 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery2 where:@"first_name" isEqualTo:@"Jon"];
+            
+            SMQuery *subQuery3 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery3 where:@"company" isEqualTo:@"Carbon Five"];
+            
+            SMQuery *subQuery4 =[[SMQuery alloc] initWithSchema:@"People"];
+            [subQuery4 where:@"company" isEqualTo:@"StackMob"];
+            
+            
+            [[theBlock(^{
+                [rootQuery and:[[[subQuery or:subQuery2] or:subQuery4] or:subQuery3]];
+            }) should] raiseWithName:SMExceptionIncompatibleObject];
+        });
+    });
+});
 
+describe(@"empty string", ^{
+    beforeEach(^{
+        sm = [SMIntegrationTestHelpers dataStore];
+        // Create objects for testing empty string
+        NSDictionary *emptyStringDict = [NSDictionary dictionaryWithObjectsAndKeys:@"", @"title", @"1234", @"todo_id", nil];
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [sm createObject:emptyStringDict inSchema:@"todo" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                [theError shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        NSDictionary *nonEmptyStringDict = [NSDictionary dictionaryWithObjectsAndKeys:@"full", @"title", @"5678", @"todo_id", nil];
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [sm createObject:nonEmptyStringDict inSchema:@"todo" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                [theError shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+    });
+    afterEach(^{
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [sm deleteObjectId:@"1234" inSchema:@"todo" onSuccess:^(NSString *theObjectId, NSString *schema) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                [theError shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [sm deleteObjectId:@"5678" inSchema:@"todo" onSuccess:^(NSString *theObjectId, NSString *schema) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                [theError shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        
+    });
+    it(@"-whereFieldIsEqualToEmptyString", ^{
+        __block NSArray *theResults = nil;
+        SMQuery *emptyStringQuery = [[SMQuery alloc] initWithSchema:@"todo"];
+        [emptyStringQuery where:@"title" isEqualTo:@""];
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [sm performQuery:emptyStringQuery onSuccess:^(NSArray *results) {
+                theResults = results;
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                [error shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        
+        [[theResults should] haveCountOf:1];
+        [[[[theResults objectAtIndex:0] objectForKey:@"todo_id"] should] equal:@"1234"];
+    });
+    it(@"-whereFieldIsNotEqualToEmptyString", ^{
+        __block NSArray *theResults = nil;
+        SMQuery *emptyStringQuery = [[SMQuery alloc] initWithSchema:@"todo"];
+        [emptyStringQuery where:@"title" isNotEqualTo:@""];
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [sm performQuery:emptyStringQuery onSuccess:^(NSArray *results) {
+                theResults = results;
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                [error shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        
+        [[theResults should] haveCountOf:1];
+        [[[[theResults objectAtIndex:0] objectForKey:@"todo_id"] should] equal:@"5678"];
+    });
 });
 
 SPEC_END

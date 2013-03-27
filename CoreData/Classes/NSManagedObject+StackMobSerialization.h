@@ -23,11 +23,15 @@
 
 /**
  Returns the StackMob equivalent schema for the entity name.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSString *)SMSchema;
 
 /**
  Returns the unique StackMob ID for this object using the designated primary key attribute for the `NSManagedObject` instance entity.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSString *)SMObjectId;
 
@@ -40,11 +44,15 @@
  
     [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]];
  
+ @since Available in iOS SDK 1.1.1 and later.
+ 
  */
 - (NSString *)assignObjectId;
 
 /**
  Converts the value returned from <primaryKeyField> to its StackMob equivalent field.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSString *)SMPrimaryKeyField;
 
@@ -54,11 +62,15 @@
  lowercaseEntityNameId or lowercaseEntityName_id is returned, if found as an attribute.
  
  @note If lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity's attributes, a `SMExceptionIncompatibleObject` exception is thrown.
+ 
+ @since Available in iOS SDK 1.1.1 and later.
  */
 - (NSString *)primaryKeyField;
 
 /**
  Converts an `NSManagedObject` into an equivalent dictionary form for StackMob to process.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSDictionary *)SMDictionarySerialization;
 
@@ -88,6 +100,8 @@
  @param error The error address.
  
  @return The value for the relationship. If an error occurs this method will return nil for a to-one relationship and a to-many relationship will stay faulted.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (id)valueForRelationshipKey:(NSString *)key error:(NSError *__autoreleasing*)error;
 

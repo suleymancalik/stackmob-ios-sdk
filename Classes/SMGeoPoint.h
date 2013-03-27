@@ -21,6 +21,8 @@
 
 /**
  Category on `NSDictionary` which provides helper methods to get the latitude and longitude from a GeoPoint. 
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 @interface NSDictionary (GeoPoint)
 
@@ -28,6 +30,8 @@
  Return the latitude.
  
  @return An `NSNumber` representing the latitude of the GeoPoint.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 - (NSNumber *)latitude;
 
@@ -35,6 +39,8 @@
  Return the longitude.
  
  @return An `NSNumber` representing the longitude of the GeoPoint.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 - (NSNumber *)longitude;
 
@@ -71,7 +77,21 @@
     SMPredicate *predicate = [SMPredicate predicateWhere:@"geopoint" isWithin:3.5 milesOfGeoPoint:geoPoint];
     [fetchRequest setPredicate:predicate];
  
+ Once you've made a fetch request, make sure to unarchive the NSData:
+    
     // Execute fetch request
+    [self.managedObjectContext executeFetchRequest:fetchRequest onSuccess:^(NSArray *results) {
+        
+        NSManagedObject *object = [results objectAtIndex:0];
+ 
+        NSData *data = [object objectForKey:@"location"];
+        
+        SMGeoPoint *geoPoint = [NSKeyedUnarchiver unarchiveObjectWithData:data]
+ 
+    } onFailure:^(NSError *error) {
+ 
+            NSLog(@"Error: %@", error);
+    }];
  
  **Important:** Fetching from the cache using `SMPredicate` is not supported, and will return an empty array of results. Similarly, when a fetch is performed from the network (StackMob), any results are not cached.
  
@@ -119,6 +139,8 @@
  @param longitude The longitude, represented as an `NSNumber`.
  
  @return An instance of `SMGeoPoint`, for use as an attribute or as part of a query.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 + (SMGeoPoint *)geoPointWithLatitude:(NSNumber *)latitude longitude:(NSNumber *)longitude;
 
@@ -128,6 +150,8 @@
  @param coordinate The `CLLocationCoordinate2D` coordinate
  
  @return An instance of `SMGeoPoint`, for use as an attribute or as part of a query.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
  */
 + (SMGeoPoint *)geoPointWithCoordinate:(CLLocationCoordinate2D)coordinate;
 
@@ -140,6 +164,8 @@
  
  @param successBlock <i>typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
   */
 + (void)getGeoPointForCurrentLocationOnSuccess:(SMGeoPointSuccessBlock)successBlock onFailure:(SMFailureBlock) failureBlock;
 
@@ -149,6 +175,8 @@
  @param options An options object that contains configurations for this request.
  @param successBlock <i>typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
   */
 + (void)getGeoPointForCurrentLocationWithOptions:(SMRequestOptions *)options
                                        onSuccess:(SMGeoPointSuccessBlock)successBlock
@@ -162,6 +190,8 @@
  @param failureCallbackQueue The dispatch queue used to execute the failure block. If nil is passed, the main queue is used.
  @param successBlock <i>typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint)</i>. A block object to execute upon success.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
+ 
+ @since Available in iOS SDK 1.3.0 and later.
   */
 + (void)getGeoPointForCurrentLocationWithOptions:(SMRequestOptions *)options
                             successCallbackQueue:(dispatch_queue_t)successCallbackQueue

@@ -144,6 +144,28 @@
 		</Token>
 		
 		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/AFURLConnectionOperation/setResponseStringEncoding:</TokenIdentifier>
+			<Abstract type="html">The string encoding of the response.</Abstract>
+			<DeclaredIn>AFURLConnectionOperation.h</DeclaredIn>			
+			
+			<Declaration>@property (readonly, nonatomic, assign) NSStringEncoding responseStringEncoding</Declaration>
+			
+			
+			<Anchor>//api/name/responseStringEncoding</Anchor>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instp/AFURLConnectionOperation/responseStringEncoding</TokenIdentifier>
+			<Abstract type="html">The string encoding of the response.</Abstract>
+			<DeclaredIn>AFURLConnectionOperation.h</DeclaredIn>			
+			
+			<Declaration>@property (readonly, nonatomic, assign) NSStringEncoding responseStringEncoding</Declaration>
+			
+			
+			<Anchor>//api/name/responseStringEncoding</Anchor>
+		</Token>
+		
+		<Token>
 			<TokenIdentifier>//apple_ref/occ/instm/AFURLConnectionOperation/setInputStream:</TokenIdentifier>
 			<Abstract type="html">The input stream used to read data to be sent during the request.</Abstract>
 			<DeclaredIn>AFURLConnectionOperation.h</DeclaredIn>			
@@ -185,6 +207,28 @@
 			
 			
 			<Anchor>//api/name/outputStream</Anchor>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instm/AFURLConnectionOperation/setUserInfo:</TokenIdentifier>
+			<Abstract type="html">The user info dictionary for the receiver.</Abstract>
+			<DeclaredIn>AFURLConnectionOperation.h</DeclaredIn>			
+			
+			<Declaration>@property (nonatomic, strong) NSDictionary *userInfo</Declaration>
+			
+			
+			<Anchor>//api/name/userInfo</Anchor>
+		</Token>
+		
+		<Token>
+			<TokenIdentifier>//apple_ref/occ/instp/AFURLConnectionOperation/userInfo</TokenIdentifier>
+			<Abstract type="html">The user info dictionary for the receiver.</Abstract>
+			<DeclaredIn>AFURLConnectionOperation.h</DeclaredIn>			
+			
+			<Declaration>@property (nonatomic, strong) NSDictionary *userInfo</Declaration>
+			
+			
+			<Anchor>//api/name/userInfo</Anchor>
 		</Token>
 		
 		<Token>

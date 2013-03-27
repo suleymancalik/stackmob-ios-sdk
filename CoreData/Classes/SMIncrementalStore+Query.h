@@ -29,6 +29,8 @@
  @param error If an error occurs during the translation, it is placed here as an instance of `SMError`.
  
  @return An instance of `SMQuery` representing the received fetch request.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (SMQuery *)queryForFetchRequest:(NSFetchRequest *)fetchRequest
                             error:(NSError *__autoreleasing *)error;
@@ -40,6 +42,8 @@
  @param error If an error occurs during the translation, it is placed here as an instance of `SMError`.
  
  @return An instance of `SMQuery` representing the received fetch request.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (SMQuery *)queryForEntity:(NSEntityDescription *)entityDescription
                   predicate:(NSPredicate *)predicate

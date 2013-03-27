@@ -15,11 +15,20 @@
  */
 
 #import "SMQuery.h"
+#import "SMError.h"
 
 #define CONCAT(prefix, suffix) ([NSString stringWithFormat:@"%@%@", prefix, suffix])
 
 #define EARTH_RADIAN_MILES 3956.6
 #define EARTH_RADIAN_KM    6367.5
+
+@interface SMQuery () {
+    int _andGroup;
+    int _orGroup;
+    BOOL _isOrQuery;
+}
+
+@end
 
 @implementation SMQuery
 
@@ -49,6 +58,9 @@
         _schemaName = [schema lowercaseString];
         _requestParameters = [NSMutableDictionary dictionaryWithCapacity:1];
         _requestHeaders = [NSMutableDictionary dictionaryWithCapacity:1];
+        _andGroup = 0;
+        _orGroup = 0;
+        _isOrQuery = NO;
     }
     return self;
 }
@@ -59,6 +71,9 @@
     if(value == nil) {
         [requestParametersCopy setObject:@"true"
                                   forKey:CONCAT(field, @"[null]")];
+    } else if ([value isEqual:@""]) {
+        [requestParametersCopy setObject:@"true"
+                                  forKey:CONCAT(field, @"[empty]")];
     } else {
         [requestParametersCopy setObject:[self marshalValue:value] 
                                   forKey:field];
@@ -72,6 +87,9 @@
     if(value == nil) {
         [requestParametersCopy setObject:@"false"
                                   forKey:CONCAT(field, @"[null]")];
+    } else if ([value isEqual:@""]) {
+        [requestParametersCopy setObject:@"false"
+                                  forKey:CONCAT(field, @"[empty]")];
     } else {
         [requestParametersCopy setObject:[self marshalValue:value]
                                   forKey:CONCAT(field, @"[ne]")];
@@ -251,6 +269,72 @@
     }
     
     return value;
+}
+
+- (void)SM_setKeysAndValuesFrom:(NSDictionary *)requestParameters to:(NSMutableDictionary *__autoreleasing*)newParameters
+{
+    BOOL shouldAddAnd = NO;
+    __block NSString *keyToSet = @"";
+    shouldAddAnd = [requestParameters count] > 1 ? YES : NO;
+    if (shouldAddAnd) {
+        _andGroup += 1;
+        [requestParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+            keyToSet = [NSString stringWithFormat:@"[or%d].[and%d].%@", _orGroup, _andGroup, key];
+            if (![[*newParameters allKeys] containsObject:keyToSet]) {
+                [*newParameters setObject:obj forKey:keyToSet];
+            } else {
+                [NSException raise:SMExceptionIncompatibleObject format:@"Duplicate parameter key found: %@.  This may cause unexpected query results as the key to set will override the existing key/value.  To include a condition where a key can be one of multiple values, use IN i.e. 'key IN [value1, value2]'.", keyToSet];
+            }
+        }];
+    } else {
+        [requestParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+            keyToSet = [NSString stringWithFormat:@"[or%d].%@", _orGroup, key];
+            if (![[*newParameters allKeys] containsObject:keyToSet]) {
+                [*newParameters setObject:obj forKey:keyToSet];
+            } else {
+                [NSException raise:SMExceptionIncompatibleObject format:@"Duplicate parameter key found: %@.  This may cause unexpected query results as the key to set will override the existing key/value.  To include a condition where a key can be one of multiple values, use IN i.e. 'key IN [value1, value2]'.", keyToSet];
+            }
+        }];
+    }
+}
+
+- (SMQuery *)or:(SMQuery *)query
+{
+    NSMutableDictionary *newParameters = [NSMutableDictionary dictionary];
+    if (_isOrQuery) {
+        NSMutableDictionary *currentParametersCopy = [self.requestParameters mutableCopy];
+        [self SM_setKeysAndValuesFrom:query.requestParameters to:&newParameters];
+        
+        // Enumerate through entries to be added and check for duplicate keys that would be overriden
+        [newParameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+            if (![[currentParametersCopy allKeys] containsObject:key]) {
+                [currentParametersCopy setObject:obj forKey:key];
+            } else {
+                [NSException raise:SMExceptionIncompatibleObject format:@"Duplicate parameter key found: '%@'.  This may cause unexpected query results as the new key/value will override the existing key/value.  To include a condition where a key can be one of multiple values, use IN i.e. 'key IN [value1, value2]'.", key];
+            }
+        }];
+        self.requestParameters = [NSDictionary dictionaryWithDictionary:currentParametersCopy];
+        
+    } else {
+        _isOrQuery = YES;
+        _orGroup += 1;
+        
+        [self SM_setKeysAndValuesFrom:self.requestParameters to:&newParameters];
+        [self SM_setKeysAndValuesFrom:query.requestParameters to:&newParameters];
+        
+        self.requestParameters = [NSDictionary dictionaryWithDictionary:newParameters];
+    }
+    
+    return self;
+}
+
+- (SMQuery *)and:(SMQuery *)query
+{
+    NSMutableDictionary *requestParametersCopy = [self.requestParameters mutableCopy];
+    [requestParametersCopy addEntriesFromDictionary:query.requestParameters];
+    self.requestParameters = [NSDictionary dictionaryWithDictionary:requestParametersCopy];
+    
+    return self;
 }
 
 @end

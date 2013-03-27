@@ -38,6 +38,8 @@
  @param context The managed object context to insert the object into.
  
  @return An newly instantiated managed object to define a user.
+ 
+ @since Available in iOS SDK 1.1.0 and later.
  */
 - (id)initWithEntity:(NSEntityDescription *)entity insertIntoManagedObjectContext:(NSManagedObjectContext *)context;
 
@@ -49,6 +51,8 @@
  @param context The managed object context to insert the object into.
  
  @return An newly instantiated managed object to define a user.
+ 
+ @since Available in iOS SDK 1.1.0 and later.
  */
 - (id)initWithEntity:(NSEntityDescription *)entity client:(SMClient *)client insertIntoManagedObjectContext:(NSManagedObjectContext *)context;
 
@@ -60,15 +64,19 @@
  Sets the password to associate with the user object.
  
  @param password The password associated with the user object to be used for authentication.
+ 
+ @since Available in iOS SDK 1.1.0 and later.
  */
 - (void)setPassword:(NSString *)password;
 
 /**
  Removes the password.
  
- This method is called upon successful persistence of the user object on StackMob to delete the password any prevent further accessing. 
+ This method is called upon successful persistence of the user object on StackMob to delete the password any prevent further accessing.
  
  **Important:** Call this method if the creation of a user object fails and you delete or undo the original insert of the user object.
+ 
+ @since Available in iOS SDK 1.1.0 and later.
  */
 - (void)removePassword;
 

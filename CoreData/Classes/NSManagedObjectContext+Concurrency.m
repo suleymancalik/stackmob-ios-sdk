@@ -113,11 +113,7 @@
         
         if (!tempContextSaveSuccess) {
             
-            if (failureBlock) {
-                dispatch_async(failureCallbackQueue, ^{
-                    failureBlock(saveError);
-                });
-            }
+            [self callFailureBlock:failureBlock queue:failureCallbackQueue error:saveError];
             
         } else {
             // Save Main Context
@@ -137,11 +133,7 @@
                 
                 if (!mainContextSaveSuccess) {
                     
-                    if (failureBlock) {
-                        dispatch_async(failureCallbackQueue, ^{
-                            failureBlock(saveError);
-                        });
-                    }
+                    [self callFailureBlock:failureBlock queue:failureCallbackQueue error:saveError];
                     
                 } else {
                     // Main Context should always have a private queue parent
@@ -164,11 +156,7 @@
                             
                             if (!privateContextSaveSuccess) {
                                 
-                                if (failureBlock) {
-                                    dispatch_async(failureCallbackQueue, ^{
-                                        failureBlock(saveError);
-                                    });
-                                }
+                                [self callFailureBlock:failureBlock queue:failureCallbackQueue error:saveError];
                                 
                             } else {
                                 
@@ -192,8 +180,6 @@
         
     }];
 }
-
-
 
 - (BOOL)saveAndWait:(NSError *__autoreleasing*)error
 {
@@ -315,11 +301,7 @@
         }
         
         if (fetchError) {
-            if (failureBlock) {
-                dispatch_async(failureCallbackQueue, ^{
-                    failureBlock(fetchError);
-                });
-            }
+            [self callFailureBlock:failureBlock queue:failureCallbackQueue error:fetchError];
         } else {
             if (successBlock) {
                 if (returnIDs) {
@@ -402,6 +384,29 @@
     }
 }
 
-
+- (void)callFailureBlock:(SMFailureBlock)failureBlock queue:(dispatch_queue_t)queue error:(NSError *)saveError {
+    
+    if ([saveError code] == SMErrorRefreshTokenFailed) {
+        NSDictionary *userInfo = [saveError userInfo];
+        SMTokenRefreshFailureBlock tokenRefreshBlock = [userInfo objectForKey:SMFailedRefreshBlock];
+        if (tokenRefreshBlock) {
+            // Remove refresh block from userInfo
+            NSMutableDictionary *newUserInfo = [userInfo mutableCopy];
+            [newUserInfo removeObjectForKey:SMFailedRefreshBlock];
+            NSError *newError = [NSError errorWithDomain:[saveError domain] code:[saveError code] userInfo:newUserInfo];
+            tokenRefreshBlock(newError, failureBlock);
+        } else {
+            if (failureBlock) {
+                dispatch_async(queue, ^{
+                    failureBlock(saveError);
+                });
+            }
+        }
+    } else if (failureBlock) {
+        dispatch_async(queue, ^{
+            failureBlock(saveError);
+        });
+    }
+}
 
 @end

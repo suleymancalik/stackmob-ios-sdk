@@ -62,6 +62,8 @@ NSString *const SMFailedRequestSuccessBlock = @"SMFailedRequestSuccessBlock";
 NSString *const SMFailedRequestFailureBlock = @"SMFailedRequestFailureBlock";
 NSString *const SMFailedRequestOriginalSuccessBlock = @"SMFailedRequestOriginalSuccessBlock";
 
+NSString *const SMFailedRefreshBlock = @"SMFailedRefreshBlock";
+
 
 BOOL SM_CORE_DATA_DEBUG = NO;
 unsigned int SM_MAX_LOG_LENGTH = 10000;
@@ -307,7 +309,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     //   http://developer.apple.com/library/ios/#releasenotes/ObjectiveC/RN-TransitioningToARC
     //
     
-    if (result == nil) {
+    if (result == nil && error != NULL) {
         *error = (__bridge id)(__bridge_retained CFTypeRef)*error;
     }
     
@@ -649,10 +651,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                         refreshSuccess = YES;
                         dispatch_group_leave(group);
                     } onFailure:^(NSError *theError) {
+                        
                         refreshSuccess = NO;
                         success = NO;
                         [failedRequests addObjectsFromArray:failedRequestsWithUnauthorizedResponse];
                         [self SM_setErrorAndUserInfoWithFailedOperations:failedRequests errorCode:SMErrorRefreshTokenFailed error:error];
+                        
                         dispatch_group_leave(group);
                     }];
                     
@@ -723,15 +727,20 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 {
     if (SM_CORE_DATA_DEBUG) {DLog()}
     
-    if (error != NULL) {
+    if (error != NULL && *error == nil) {
         __block NSMutableArray *failedInsertedObjects = [NSMutableArray array];
         [failedOperations enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             NSManagedObjectID *oid = [self newObjectIDForEntity:[obj objectForKey:SMFailedRequestObjectEntity] referenceObject:[obj objectForKey:SMFailedRequestObjectPrimaryKey]];
             NSDictionary *failedObject = [NSDictionary dictionaryWithObjectsAndKeys:oid, SMFailedManagedObjectID, [obj objectForKey:SMFailedRequestError], SMFailedManagedObjectError, nil];
             [failedInsertedObjects addObject:failedObject];
         }];
-        NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:errorCode userInfo:[NSDictionary dictionaryWithObjectsAndKeys:failedInsertedObjects, SMInsertedObjectFailures, nil]];
-        *error = (__bridge id)(__bridge_retained CFTypeRef)refreshError;
+        NSError *errorToSet = nil;
+        if (errorCode == SMErrorRefreshTokenFailed && self.coreDataStore.session.tokenRefreshFailureBlock) {
+            errorToSet = [[NSError alloc] initWithDomain:SMErrorDomain code:errorCode userInfo:[NSDictionary dictionaryWithObjectsAndKeys:failedInsertedObjects, SMInsertedObjectFailures, self.coreDataStore.session.tokenRefreshFailureBlock, SMFailedRefreshBlock, nil]];
+        } else {
+            errorToSet = [[NSError alloc] initWithDomain:SMErrorDomain code:errorCode userInfo:[NSDictionary dictionaryWithObjectsAndKeys:failedInsertedObjects, SMInsertedObjectFailures, nil]];
+        }
+        *error = (__bridge id)(__bridge_retained CFTypeRef)errorToSet;
     }
     [failedOperations removeAllObjects];
     return YES;
@@ -784,9 +793,18 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             [self.coreDataStore.session doTokenRequestWithEndpoint:@"refreshToken" credentials:[NSDictionary dictionaryWithObjectsAndKeys:self.coreDataStore.session.refreshToken, @"refresh_token", nil] options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *userObject) {
                 dispatch_group_leave(group);
             } onFailure:^(NSError *theError) {
+                
                 success = NO;
                 if (error != NULL) {
-                    NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:nil];
+                    // Check if tokenRefreshFailBlock
+                    NSError *refreshError = nil;
+                    if (self.coreDataStore.session.tokenRefreshFailureBlock) {
+                        NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:self.coreDataStore.session.tokenRefreshFailureBlock, SMFailedRefreshBlock, nil];
+                        refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:userInfo];
+                    } else {
+                        refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:nil];
+                    }
+                    
                     *error = (__bridge id)(__bridge_retained CFTypeRef)refreshError;
                 }
                 dispatch_group_leave(group);
@@ -1107,7 +1125,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             default:
                 if (SM_CORE_DATA_DEBUG) { DLog(@"Fetch switch: default") }
                 if (error != NULL) {
-                    NSError *errorToReturn = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:nil];
+                    NSError *errorToReturn = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:nil];
                     *error = (__bridge id)(__bridge_retained CFTypeRef)errorToReturn;
                 }
                 break;
