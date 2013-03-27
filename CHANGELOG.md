@@ -4,12 +4,12 @@
 
 **Features**
 
-* OR query support, allowing, for example, the ability to query "todo where A AND (B OR (C AND D) OR E)".  See <a href="http://developer.stackmob.com/tutorials/ios/Advanced-Queries" target="_blank>Advanced Query Tutorial</a> for all details.
+* OR query support, allowing, for example, the ability to query "todo where A AND (B OR (C AND D) OR E)".  See <a href="http://developer.stackmob.com/tutorials/ios/Advanced-Queries" target="_blank">Advanced Query Tutorial</a> for all details.
 * Support for querying where field equals / does not equal the empty string. Using core data, use [NSPredicate predicateWithFormat:@"field == ''"]. Using lower level datastore API, use [query where:field isEqualTo:@""].
 * Add loginWithFacebookToken:createUserIfNeeded:usernameForCreate:onSuccess:onFailure:. Allows login to StackMob using Facebook credentials and optionally create a StackMob user if one doesn't already exist that is linked to the credentials used.
 * Add loginWithTwitterToken:twitterSecret:createUserIfNeeded:usernameForCreate:onSuccess:onFailure:. Allows login to StackMob using Twitter credentials and optionally create a StackMob user if one doesn't already exist that is linked to the credentials used.
-* Token unlinking for Facebook and Twitter - See <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html" target="_blank>SMClient class reference</a> for method definitions.
-* Add SMClient / SMUserSession method setTokenRefreshFailureBlock:.  See <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMUserSession.html#//api/name/setTokenRefreshFailureBlock:" target="_blank>SMUserSession class reference</a> for method definition and examples.
+* Token unlinking for Facebook and Twitter - See <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html" target="_blank">SMClient class reference</a> for method definitions.
+* Add SMClient / SMUserSession method setTokenRefreshFailureBlock:.  See <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMUserSession.html#//api/name/setTokenRefreshFailureBlock:" target="_blank">SMUserSession class reference</a> for method definition and examples.
 * Every SMClient method now has an additional method definition which has parameter options for success and failure callback queues.  This is used a lot internally so callbacks are not run on the main thread, but is exposed so you can do the same.
 * Update AFNetworking dependency to 1.1.0 for Xcode 4.6 support.
 * Add Availability section to all methods in API reference.
