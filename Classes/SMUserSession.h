@@ -187,13 +187,19 @@ typedef void (^SMTokenRefreshFailureBlock)(NSError *error, SMFailureBlock origin
  
  In the following example, if the fetch failed because there was an error refreshing the session access token, the refresh token failure block would get called instead:
  
-    // Set block, probably during application initialization
+    // Set refresh token failure block, probably during application initialization.
+    // If you are accessing instance variables or calling self methods,
+    // you may need to declare a __block or __weak self variable to avoid retain cycle warnings.
+    // Here is a good Stack Overflow article addressing the issue: http://stackoverflow.com/questions/4352561/retain-cycle-on-self-with-blocks
+    
+    __block id blockSelf = self;
+    __block SMUserSession *currentSession = self.client.session;
     [self.client setTokenRefreshFailureBlock:^(NSError *error, SMFailureBlock originalFailureBlock) {
         // Reset local session info
-        [self.client.session clearSessionInfo];
+        [currentSession clearSessionInfo];
  
         // Show custom login screen
-        [self showLoginScreen];
+        [blockSelf showLoginScreen];
  
         // Optionally call original failure block
         originalFailureBlock(error);
@@ -209,8 +215,8 @@ typedef void (^SMTokenRefreshFailureBlock)(NSError *error, SMFailureBlock origin
         NSLog(@"Error fetching: %@", error);
     }];
  
- **Important:** Block execution applies only to asynchronous methods with callbacks.
- 
+ **Note:** Block execution applies only to asynchronous methods with callbacks.
+  
  @param block An SMTokenRefreshFailureBlock instance.
  
  @since Available in iOS SDK 1.4.0 and later.
