@@ -27,6 +27,8 @@ typedef id(^MapBlock)(id item);
  @param block The block to apply to each object in the array.
  
  @return A new array where the provided block has been applied to each object.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSArray *)map:(MapBlock)block;
 

@@ -27,6 +27,7 @@
 @interface SMUserSession ()
 
 @property (nonatomic, copy) NSString *oauthStorageKey;
+@property (readwrite, nonatomic, copy) SMTokenRefreshFailureBlock tokenRefreshFailureBlock;
 
 - (NSURL *)SM_getStoreURLForUserIdentifierTable;
 - (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL;
@@ -49,6 +50,7 @@
 @synthesize oauthStorageKey = _SM_oauthStorageKey;
 @synthesize networkMonitor = _SM_networkMonitor;
 @synthesize userIdentifierMap = _SM_userIdentifierMap;
+@synthesize tokenRefreshFailureBlock = _tokenRefreshFailureBlock;
 
 - (id)initWithAPIVersion:(NSString *)version
                  apiHost:(NSString *)apiHost
@@ -72,6 +74,7 @@
         self.userPrimaryKeyField = userPrimaryKeyField;
         self.userPasswordField = userPasswordField;
         self.refreshing = NO;
+        self.tokenRefreshFailureBlock = nil;
         
         NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
         if (!applicationName) {
@@ -108,21 +111,32 @@
 - (void)refreshTokenOnSuccess:(void (^)(NSDictionary *userObject))successBlock
                     onFailure:(void (^)(NSError *theError))failureBlock
 {
-    [self refreshTokenWithSuccessCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
     
+    [self refreshTokenWithSuccessCallbackQueue:nil failureCallbackQueue:nil onSuccess:successBlock onFailure:failureBlock];
 }
 
 - (void)refreshTokenWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(void (^)(NSDictionary *userObject))successBlock onFailure:(void (^)(NSError *theError))failureBlock
 {
+    if (!successCallbackQueue) {
+        successCallbackQueue = dispatch_get_main_queue();
+    }
+    if (!failureCallbackQueue) {
+        failureCallbackQueue = dispatch_get_main_queue();
+    }
+    
     if (self.refreshToken == nil) {
         if (failureBlock) {
-            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Refresh Token is nil", NSLocalizedDescriptionKey, nil]];
-            failureBlock(error);
+            NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorInvalidArguments userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Refresh Token is nil", NSLocalizedDescriptionKey, nil]];
+            dispatch_async(failureCallbackQueue, ^{
+                failureBlock(refreshError);
+            });
         }
     } else if (self.refreshing) {
         if (failureBlock) {
-            NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
-            failureBlock(error);
+            NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
+            dispatch_async(failureCallbackQueue, ^{
+                failureBlock(refreshError);
+            });
         }
     } else {
         self.refreshing = YES;//Don't ever trigger two refreshToken calls
@@ -314,6 +328,11 @@
         [NSException raise:SMExceptionCacheError format:@"Error saving identifier data with error %@", error];
     }
     
+}
+
+- (void)setTokenRefreshFailureBlock:(void (^)(NSError *error, SMFailureBlock originalFailureBlock))block
+{
+    _tokenRefreshFailureBlock = block;
 }
 
 

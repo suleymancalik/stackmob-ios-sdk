@@ -99,7 +99,6 @@ describe(@"with a prepopulated database of people", ^{
             });
         });
     });
-    
     describe(@"where clauses", ^{
         beforeEach(^{
             query = [[SMQuery alloc] initWithSchema:@"peoplepermissions"];
@@ -523,7 +522,86 @@ describe(@"with a prepopulated database of people", ^{
             }) should] raiseWithName:SMExceptionIncompatibleObject];
         });
     });
+    describe(@"empty string", ^{
+        beforeEach(^{
+            
+            // Create objects for testing empty string
+            NSDictionary *emptyStringDict = [NSDictionary dictionaryWithObjectsAndKeys:@"", @"first_name", @"1234", @"personpermissions_id", nil];
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [sm createObject:emptyStringDict inSchema:@"personpermissions" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                    [theError shouldBeNil];
+                    syncReturn(semaphore);
+                }];
+            });
+            NSDictionary *nonEmptyStringDict = [NSDictionary dictionaryWithObjectsAndKeys:@"full", @"first_name", @"5678", @"personpermissions_id", nil];
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [sm createObject:nonEmptyStringDict inSchema:@"personpermissions" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                    [theError shouldBeNil];
+                    syncReturn(semaphore);
+                }];
+            });
+            
+        });
+        afterEach(^{
+            
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [sm deleteObjectId:@"1234" inSchema:@"personpermissions" onSuccess:^(NSString *theObjectId, NSString *schema) {
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                    [theError shouldBeNil];
+                    syncReturn(semaphore);
+                }];
+            });
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [sm deleteObjectId:@"5678" inSchema:@"personpermissions" onSuccess:^(NSString *theObjectId, NSString *schema) {
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                    [theError shouldBeNil];
+                    syncReturn(semaphore);
+                }];
+            });
+        });
+        it(@"-whereFieldIsEqualToEmptyString", ^{
+            __block NSArray *theResults = nil;
+            SMQuery *emptyStringQuery = [[SMQuery alloc] initWithSchema:@"personpermissions"];
+            [emptyStringQuery where:@"first_name" isEqualTo:@""];
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [sm performQuery:emptyStringQuery onSuccess:^(NSArray *results) {
+                    theResults = results;
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *error) {
+                    [error shouldBeNil];
+                    syncReturn(semaphore);
+                }];
+            });
+            
+            [[theResults should] haveCountOf:1];
+            [[[[theResults objectAtIndex:0] objectForKey:@"personpermissions_id"] should] equal:@"1234"];
+        });
+        it(@"-whereFieldIsNotEqualToEmptyString", ^{
+            __block NSArray *theResults = nil;
+            SMQuery *emptyStringQuery = [[SMQuery alloc] initWithSchema:@"personpermissions"];
+            [emptyStringQuery where:@"first_name" isNotEqualTo:@""];
+            syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+                [sm performQuery:emptyStringQuery onSuccess:^(NSArray *results) {
+                    theResults = results;
+                    syncReturn(semaphore);
+                } onFailure:^(NSError *error) {
+                    [error shouldBeNil];
+                    syncReturn(semaphore);
+                }];
+            });
+            
+            [[theResults should] haveCountOf:1];
+            [[[[theResults objectAtIndex:0] objectForKey:@"personpermissions_id"] should] equal:@"5678"];
+        });
+    });
     
 });
+
 
 SPEC_END

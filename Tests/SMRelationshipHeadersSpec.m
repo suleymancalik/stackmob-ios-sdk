@@ -30,7 +30,9 @@ describe(@"SMRelationshipHeaders", ^{
     
     beforeEach(^{
         if (mom == nil) {
-           mom = [NSManagedObjectModel mergedModelFromBundles:[NSBundle allBundles]]; 
+            NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+            NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+            mom = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
         }
         
         SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];

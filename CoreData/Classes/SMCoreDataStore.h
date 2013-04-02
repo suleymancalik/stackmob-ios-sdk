@@ -111,6 +111,8 @@ typedef enum {
  An instance of `NSPersistentStoreCoordinator` with the `SMIncrementalStore` class as it's persistent store type.
  
  Uses the `NSManagedObjectModel` passed to the `coreDataStoreWithManagedObjectModel:` method in <SMClient>.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 @property(nonatomic, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 
@@ -118,6 +120,8 @@ typedef enum {
  An instance of `NSManagedObjectContext` set to use on the main thread.
  
  This managed object context has a private queue parent context set to ensure proper parent/child asynchronous saving.  The persistent store coordinator is set on the parent context. Merge policy is set to NSMergeByPropertyObjectTrumpMergePolicy.
+ 
+ @since Available in iOS SDK 1.2.0 and later.
  */
 @property (nonatomic, strong) NSManagedObjectContext *mainThreadContext;
 
@@ -125,11 +129,16 @@ typedef enum {
  An instance of `NSManagedObjectContext` set to use on the main thread.
  
  This property is deprecated. Use <contextForCurrentThread> to obtain a properly initialized managed object context.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ @note Deprecated in version 1.2.0. Use <contextForCurrentThread>.
  */
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext __attribute__((deprecated));
 
 /**
  The cache policy to adhere by during fetch requests.
+ 
+ @since Available in iOS SDK 1.2.0 and later.
  */
 @property (nonatomic) SMCachePolicy cachePolicy;
 
@@ -144,6 +153,7 @@ typedef enum {
  
  Customizing other options can result in unexpected requests, which can lead to save/fetch failures.
  
+ @since Available in iOS SDK 1.3.0 and later.
  */
 @property (nonatomic, strong) SMRequestOptions *globalRequestOptions;
 
@@ -158,6 +168,8 @@ typedef enum {
  @param apiVersion The API version of your StackMob application.
  @param session The session containing the credentials to use for requests made to StackMob by Core Data.
  @param managedObjectModel The managed object model to set to the persistent store coordinator.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel;
 
@@ -172,6 +184,7 @@ typedef enum {
  
  If the current thread is the main thread, returns a context initialized with a NSMainQueueConcurrencyType.  Otherwise, returns a context initialized with a NSPrivateQueueConcurrencyType, with the mainThreadContext as its parent.
  
+ @since Available in iOS SDK 1.2.0 and later.
  */
 - (NSManagedObjectContext *)contextForCurrentThread;
 
@@ -182,6 +195,8 @@ typedef enum {
  
  @param mergePolicy The default merge policy to use going forward.
  @param apply Whether or not to set mergePolicy as the merge policy for the existing mainThreadContext and its private parent context.
+ 
+ @since Available in iOS SDK 1.2.0 and later.
  */
 - (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply;
 
@@ -193,6 +208,8 @@ typedef enum {
  Removes the cache entry for the provided NSManagedObjectID.
  
  @param objectID The managed object ID of the object to remove from the cache, if an entry exists.
+ 
+ @since Available in iOS SDK 1.2.0 and later.
  */
 - (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID;
 
@@ -200,6 +217,8 @@ typedef enum {
  Removes the cache entries for the provided array of NSManagedObject instances.
  
  @param managedObjects An array of managed objects to remove from the cache, if entries exist.
+ 
+ @since Available in iOS SDK 1.2.0 and later.
  */
 - (void)purgeCacheOfMangedObjects:(NSArray *)managedObjects;
 
@@ -207,6 +226,8 @@ typedef enum {
  Removes the cache entries for the provided array of NSManagedObjectID instances.
  
  @param managedObjectIDs An array of managed object IDs whose objects should be removed from the cache, if entries exist.
+ 
+ @since Available in iOS SDK 1.2.0 and later.
  */
 - (void)purgeCacheOfManagedObjectsIDs:(NSArray *)managedObjectIDs;
 
@@ -214,11 +235,15 @@ typedef enum {
  Removes all the cache entries whose entity matches the provided entity name.
  
  @param entityName The name of the entity.
+ 
+ @since Available in iOS SDK 1.2.0 and later.
  */
 - (void)purgeCacheOfObjectsWithEntityName:(NSString *)entityName;
 
 /**
  Clears the cache of all entries.
+ 
+ @since Available in iOS SDK 1.2.0 and later.
  */
 - (void)resetCache;
 

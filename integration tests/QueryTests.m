@@ -148,7 +148,6 @@ describe(@"with a prepopulated database of people", ^{
             });
         });
     });
-    
     describe(@"multiple where clauses per query", ^{
         beforeEach(^{
             query = [[SMQuery alloc] initWithSchema:@"people"];
@@ -524,6 +523,84 @@ describe(@"with a prepopulated database of people", ^{
                 [rootQuery and:[[[subQuery or:subQuery2] or:subQuery4] or:subQuery3]];
             }) should] raiseWithName:SMExceptionIncompatibleObject];
         });
+    });
+});
+
+describe(@"empty string", ^{
+    beforeEach(^{
+        sm = [SMIntegrationTestHelpers dataStore];
+        // Create objects for testing empty string
+        NSDictionary *emptyStringDict = [NSDictionary dictionaryWithObjectsAndKeys:@"", @"title", @"1234", @"todo_id", nil];
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [sm createObject:emptyStringDict inSchema:@"todo" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                [theError shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        NSDictionary *nonEmptyStringDict = [NSDictionary dictionaryWithObjectsAndKeys:@"full", @"title", @"5678", @"todo_id", nil];
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [sm createObject:nonEmptyStringDict inSchema:@"todo" onSuccess:^(NSDictionary *theObject, NSString *schema) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
+                [theError shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+    });
+    afterEach(^{
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [sm deleteObjectId:@"1234" inSchema:@"todo" onSuccess:^(NSString *theObjectId, NSString *schema) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                [theError shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [sm deleteObjectId:@"5678" inSchema:@"todo" onSuccess:^(NSString *theObjectId, NSString *schema) {
+                syncReturn(semaphore);
+            } onFailure:^(NSError *theError, NSString *theObjectId, NSString *schema) {
+                [theError shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        
+    });
+    it(@"-whereFieldIsEqualToEmptyString", ^{
+        __block NSArray *theResults = nil;
+        SMQuery *emptyStringQuery = [[SMQuery alloc] initWithSchema:@"todo"];
+        [emptyStringQuery where:@"title" isEqualTo:@""];
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [sm performQuery:emptyStringQuery onSuccess:^(NSArray *results) {
+                theResults = results;
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                [error shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        
+        [[theResults should] haveCountOf:1];
+        [[[[theResults objectAtIndex:0] objectForKey:@"todo_id"] should] equal:@"1234"];
+    });
+    it(@"-whereFieldIsNotEqualToEmptyString", ^{
+        __block NSArray *theResults = nil;
+        SMQuery *emptyStringQuery = [[SMQuery alloc] initWithSchema:@"todo"];
+        [emptyStringQuery where:@"title" isNotEqualTo:@""];
+        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
+            [sm performQuery:emptyStringQuery onSuccess:^(NSArray *results) {
+                theResults = results;
+                syncReturn(semaphore);
+            } onFailure:^(NSError *error) {
+                [error shouldBeNil];
+                syncReturn(semaphore);
+            }];
+        });
+        
+        [[theResults should] haveCountOf:1];
+        [[[[theResults objectAtIndex:0] objectForKey:@"todo_id"] should] equal:@"5678"];
     });
 });
 

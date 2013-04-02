@@ -913,4 +913,72 @@ describe(@"fetch requests for managed objects", ^{
     });
 });
 
+
+describe(@"empty string", ^{
+    __block NSManagedObjectContext *moc = nil;
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObject *todoObject1 = nil;
+    __block NSManagedObject *todoObject2 = nil;
+    beforeEach(^{
+        client = [SMIntegrationTestHelpers defaultClient];
+        [SMClient setDefaultClient:client];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        moc = [cds contextForCurrentThread];
+        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        
+        // Create todos
+        todoObject1 = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
+        [todoObject1 setValue:@"1234" forKey:@"todoId"];
+        [todoObject1 setValue:@"" forKey:@"title"];
+        
+        todoObject2 = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
+        [todoObject2 setValue:@"5678" forKey:@"todoId"];
+        [todoObject2 setValue:@"full" forKey:@"title"];
+    });
+    afterEach(^{
+        [moc deleteObject:todoObject1];
+        [moc deleteObject:todoObject2];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+    });
+    it(@"equal to empty string", ^{
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
+        [fetch setPredicate:[NSPredicate predicateWithFormat:@"title == ''"]];
+        
+        NSError *error = nil;
+        NSArray *results = [moc executeFetchRequestAndWait:fetch error:&error];
+        
+        [error shouldBeNil];
+        [[results should] haveCountOf:1];
+        [[[[results objectAtIndex:0] valueForKey:@"todoId"] should] equal:@"1234"];
+        
+    });
+    it(@"equal to empty string", ^{
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+            [error shouldBeNil];
+        }];
+        
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
+        [fetch setPredicate:[NSPredicate predicateWithFormat:@"title != ''"]];
+        
+        NSError *error = nil;
+        NSArray *results = [moc executeFetchRequestAndWait:fetch error:&error];
+        
+        [error shouldBeNil];
+        [[results should] haveCountOf:1];
+        [[[[results objectAtIndex:0] valueForKey:@"todoId"] should] equal:@"5678"];
+        
+    });
+});
+
+
 SPEC_END

@@ -190,6 +190,11 @@
             [*query where:lhs isEqualTo:rhs];
             break;
         case NSNotEqualToPredicateOperatorType:
+            if ([rhs isKindOfClass:[NSManagedObject class]]) {
+                rhs = (NSString *)[self referenceObjectForObjectID:[rhs objectID]];;
+            } else if ([rhs isKindOfClass:[NSManagedObjectID class]]) {
+                rhs = (NSString *)[self referenceObjectForObjectID:rhs];
+            }
             [*query where:lhs isNotEqualTo:rhs];
             break;
         case NSLessThanPredicateOperatorType:

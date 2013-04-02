@@ -177,14 +177,21 @@
         [self.session refreshTokenWithSuccessCallbackQueue:newQueueForRefresh failureCallbackQueue:newQueueForRefresh onSuccess:^(NSDictionary *userObject) {
             [self queueRequest:[self.session signRequest:request] options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
         } onFailure:^(NSError *theError) {
-            if (failureBlock) {
-                NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:theError, SMRefreshErrorObjectKey, @"Attempt to refresh access token failed.", NSLocalizedDescriptionKey, nil];
-                if (originalError) {
-                    [userInfo setObject:originalError forKey:SMOriginalErrorCausingRefreshKey];
-                }
-                __block NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:userInfo];
+            NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:theError, SMRefreshErrorObjectKey, @"Attempt to refresh access token failed.", NSLocalizedDescriptionKey, nil];
+            if (originalError) {
+                [userInfo setObject:originalError forKey:SMOriginalErrorCausingRefreshKey];
+            }
+            __block NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:userInfo];
+            if (self.session.tokenRefreshFailureBlock) {
                 dispatch_async(failureCallbackQueue, ^{
-                    failureBlock(request, nil, error, nil);
+                    SMFailureBlock newFailureBlock = ^(NSError *error){
+                        failureBlock(nil, nil, error, nil);
+                    };
+                    self.session.tokenRefreshFailureBlock(refreshError, newFailureBlock);
+                });
+            } else if (failureBlock) {
+                dispatch_async(failureCallbackQueue, ^{
+                    failureBlock(request, nil, refreshError, nil);
                 });
             }
         }];

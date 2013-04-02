@@ -35,6 +35,8 @@ extern NSString *const SMCachePurgeOfObjectsFromEntityName;
 extern NSString *const SMThreadDefaultOptions;
 extern NSString *const SMRequestSpecificOptions;
 
+extern NSString *const SMFailedRefreshBlock;
+
 extern BOOL SM_CORE_DATA_DEBUG;
 extern unsigned int SM_MAX_LOG_LENGTH;
 

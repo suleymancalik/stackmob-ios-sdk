@@ -29,21 +29,29 @@
 
 /**
  An `NSMutableArray` containing parameters for the query string in the form key=value.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 @property (nonatomic, strong) NSMutableArray *queryStringParameters;
 
 /**
  The name of the custom code method.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 @property (nonatomic, strong) NSString *method;
 
 /**
  An optional body to send to the custom code method.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 @property (nonatomic, strong) NSString *requestBody;
 
 /**
  The HTTP Verb to use in the request to the custom code method.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
  */
 @property (nonatomic, strong) NSString *httpVerb;
 
@@ -58,6 +66,7 @@
  @param body An optional body to be sent with the request.  Pass `nil` for no body.
  
  @return A new POST request for the specified custom code method.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (id)initPostRequestWithMethod:(NSString *)method body:(NSString *)body;
 
@@ -68,6 +77,7 @@
  @param body An optional body to be sent with the request.  Pass `nil` for no body.
  
  @return A new PUT request for the specified custom code method.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (id)initPutRequestWithMethod:(NSString *)method body:(NSString *)body;
 
@@ -77,6 +87,7 @@
  @param method The name of the method.
  
  @return A new GET request for the specified custom code method.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (id)initGetRequestWithMethod:(NSString *)method;
 
@@ -86,6 +97,7 @@
  @param method The name of the method.
  
  @return A new DELETE request for the specified custom code method.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (id)initDeleteRequestWithMethod:(NSString *)method;
 
@@ -106,6 +118,7 @@
  
  @param key The left side of the query string parameter.
  @param value The right side of the query string parameter.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)addQueryStringParameterWhere:(NSString *)key equals:(NSString *)value;
 

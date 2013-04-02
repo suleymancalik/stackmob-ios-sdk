@@ -25,11 +25,49 @@
  */
 @interface SMOAuth2Client : AFHTTPClient
 
+///-------------------------------
+/// @name Properties
+///-------------------------------
+
+/**
+ The StackMob API version being used.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
 @property (nonatomic, copy) NSString *version;
+
+/**
+ The StackMob public key.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
 @property (nonatomic, copy) NSString *publicKey;
+
+/**
+ The host for this Oauth2 client.
+ 
+ Defaults to api.stackmob.com.
+ @since Available in iOS SDK 1.0.0 and later.
+ */
 @property (nonatomic, copy) NSString *apiHost;
+
+/**
+ The access token used to sign requests.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
 @property (nonatomic, copy) NSString *accessToken;
+
+/**
+ The mac key used to sign requests.
+ 
+ @since Available in iOS SDK 1.0.0 and later.
+ */
 @property (nonatomic, copy) NSString *macKey;
+
+///-------------------------------
+/// @name Initialize
+///-------------------------------
 
 /**
  Initialize method used by <SMUserSession>.
@@ -38,11 +76,16 @@
  @param apiHost The host to connect to for API requests.
  @param publicKey Your StackMob application's OAuth2 public key.
  @return An instance of `SMOAuth2Client`
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (id)initWithAPIVersion:(NSString *)version 
                    scheme:(NSString *)scheme
                   apiHost:(NSString *)apiHost
                 publicKey:(NSString *)publicKey;
+
+///-------------------------------
+/// @name Request Methods
+///-------------------------------
 
 /**
  Creates a signed request using the given parameters.
@@ -52,6 +95,7 @@
  @param parameters A dictionary to be used as the body of the request.
  
  @return A signed request to be placed on an operation queue.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSMutableURLRequest *)requestWithMethod:(NSString *)method 
                                        path:(NSString *)path 
@@ -64,6 +108,7 @@
  @param options Options to be applied to the request.
  
  @return A signed request to be placed on an operation queue.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSMutableURLRequest *)customCodeRequest:(SMCustomCodeRequest *)request options:(SMRequestOptions *)options;
 
@@ -72,6 +117,7 @@
  
  @param request An instance of `NSMutableURLRequest` to be signed with this client's credentials.
  @param path The encoded path to use for signing.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)signRequest:(NSMutableURLRequest *)request path:(NSString *)path;
 
@@ -79,6 +125,7 @@
  Returns whether the client has non-nil values for both the accessToken and macKey.
  
  @return `YES` is the credentials are valid, otherwise `NO`.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (BOOL)hasValidCredentials;
 
@@ -86,6 +133,7 @@
  Return the port that the host is connected to.
  
  @return The port that is being connected to.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSString *)getPort;
 
@@ -98,6 +146,7 @@
  @param path The REST path.
  
  @return A string that is set in signRequest: for the Authorization header.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSString *)createMACHeaderForHttpMethod:(NSString *)method path:(NSString *)path;
 
@@ -110,6 +159,7 @@
  @param nonce The nonce to use for the authorization.
  
  @return A string that is set in <signRequest:> for the Authorization header.
+ @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSString *)createMACHeaderForHttpMethod:(NSString *)method path:(NSString *)path timestamp:(double)timestamp nonce:(NSString *)nonce;
 
