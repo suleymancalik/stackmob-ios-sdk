@@ -214,5 +214,10 @@ BOOL SM_CACHE_ENABLED = NO;
     [self setCachePolicy:newCachePolicy];
 }
 
+- (void)syncWithServer
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"SyncWithServer" object:self userInfo:nil];
+}
+
 @end
 

@@ -248,5 +248,7 @@ typedef enum {
 - (void)resetCache;
 
 
+// SYNC METHODS
+- (void)syncWithServer;
 
 @end
