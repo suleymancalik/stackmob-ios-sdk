@@ -22,7 +22,7 @@
 #import "User3.h"
 
 SPEC_BEGIN(SMIncrementalStoreFetchTest)
-/*
+
 describe(@"with fixtures", ^{
     __block NSArray *fixturesToLoad;
     __block NSDictionary *fixtures;
@@ -497,7 +497,9 @@ describe(@"with fixtures", ^{
         });
     });
 });
-*/
+
+
+/*
 describe(@"OR query from network should return same as cache", ^{
     __block NSManagedObjectContext *moc = nil;
     __block SMClient *client = nil;
@@ -754,7 +756,7 @@ describe(@"Advanced OR from network should yeild same results as cache", ^{
         }
     });
 });
-
+*/
 describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^{
     __block NSManagedObjectContext *moc = nil;
     __block SMClient *client = nil;

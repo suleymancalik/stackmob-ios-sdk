@@ -72,7 +72,7 @@
  
  @since Available in iOS SDK 1.0.0 and later.
  */
-- (NSDictionary *)SMDictionarySerialization;
+- (NSDictionary *)SMDictionarySerialization:(BOOL)serializeFullObjects;
 
 /**
  Use to retrieve the value of a relationship.  
