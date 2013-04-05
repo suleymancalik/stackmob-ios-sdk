@@ -32,6 +32,10 @@ BOOL SM_CACHE_ENABLED = NO;
 @property (nonatomic, strong) id defaultMergePolicy;
 @property (nonatomic) dispatch_queue_t cachePurgeQueue;
 
+@property (nonatomic, strong, readwrite) SMSyncFailedObjectsCallback failedInsertsCallback;
+@property (nonatomic, strong, readwrite) SMSyncFailedObjectsCallback failedUpdatesCallback;
+@property (nonatomic, strong, readwrite) SMSyncFailedObjectsCallback failedDeletesCallback;
+
 - (NSManagedObjectContext *)SM_newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
 - (void)SM_didReceiveSetCachePolicyNotification:(NSNotification *)notification;
 
@@ -61,6 +65,10 @@ BOOL SM_CACHE_ENABLED = NO;
         self.globalRequestOptions = [SMRequestOptions options];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveSetCachePolicyNotification:) name:SMSetCachePolicyNotification object:self.session.networkMonitor];
+        
+        self.failedInsertsCallback = nil;
+        self.failedUpdatesCallback = nil;
+        self.failedDeletesCallback = nil;
     }
     
     return self;
@@ -218,6 +226,39 @@ BOOL SM_CACHE_ENABLED = NO;
 {
     [[NSNotificationCenter defaultCenter] postNotificationName:@"SyncWithServer" object:self userInfo:nil];
 }
+
+- (void)setCallbackForFailedSyncInserts:(void (^)(NSArray *failedObjects))block
+{
+    self.failedInsertsCallback = block;
+}
+
+- (void)setCallbackForFailedSyncUpdates:(void (^)(NSArray *failedObjects))block
+{
+    self.failedUpdatesCallback = block;
+}
+
+- (void)setCallbackForFailedSyncDeletes:(void (^)(NSArray *failedObjects))block
+{
+    self.failedDeletesCallback = block;
+}
+
+- (void)purgeDirtyQueueOfManagedObjectIDs:(NSArray *)objectIDs
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoveObjectsFromDirtyQueue" object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectIDs, @"ObjectIDs", [NSNumber numberWithInt:0], @"Type", nil]];
+}
+
+/*
+- (void)removeFailedSyncUpdatesFromDirtyQueue:(NSArray *)objectIDs
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoveUpdatesFromDirtyQueue" object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectIDs, @"ObjectIDs", nil]];
+}
+
+
+- (void)removeFailedSyncDeletesFromDirtyQueue:(NSArray *)objectIDs
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoveDeletesFromDirtyQueue" object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectIDs, @"ObjectIDs", nil]];
+}
+*/
 
 @end
 

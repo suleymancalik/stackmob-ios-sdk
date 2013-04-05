@@ -300,6 +300,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveSyncWithServerNotifcation:) name:@"SyncWithServer" object:self.coreDataStore];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didRecievePurgeDirtyQueueOfManagedObjectIDsNotification:) name:@"RemoveObjectsFromDirtyQueue" object:self.coreDataStore];
+    
 }
 
 - (void)SM_unregisterForNotifications
@@ -310,6 +312,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:SMResetCacheNotification object:self.coreDataStore];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"SyncWithServer" object:self.coreDataStore];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"RemoveObjectsFromDirtyQueue" object:self.coreDataStore];
 }
 
 - (void)SM_handleWillSave:(NSNotification *)notification
@@ -2130,9 +2133,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         }
     } else {
         self.dirtyQueue = [NSMutableDictionary dictionary];
-        [self.dirtyQueue setObject:[NSDictionary dictionary] forKey:SMDirtyInsertedObjectKeys];
-        [self.dirtyQueue setObject:[NSDictionary dictionary] forKey:SMDirtyUpdatedObjectKeys];
-        [self.dirtyQueue setObject:[NSDictionary dictionary] forKey:SMDirtyDeletedObjectKeys];
+        [self.dirtyQueue setObject:[NSArray array] forKey:SMDirtyInsertedObjectKeys];
+        [self.dirtyQueue setObject:[NSArray array] forKey:SMDirtyUpdatedObjectKeys];
+        [self.dirtyQueue setObject:[NSArray array] forKey:SMDirtyDeletedObjectKeys];
     }
 }
 
@@ -2684,50 +2687,90 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     
-    __block NSMutableDictionary *insertedList = [[self.dirtyQueue objectForKey:SMDirtyInsertedObjectKeys] mutableCopy];
-    __block NSMutableDictionary *updatedList = [[self.dirtyQueue objectForKey:SMDirtyUpdatedObjectKeys] mutableCopy];
-    __block NSMutableDictionary *deletedList = [[self.dirtyQueue objectForKey:SMDirtyDeletedObjectKeys] mutableCopy];
+    __block NSMutableArray *insertedList = [[self.dirtyQueue objectForKey:SMDirtyInsertedObjectKeys] mutableCopy];
+    __block NSMutableArray *updatedList = [[self.dirtyQueue objectForKey:SMDirtyUpdatedObjectKeys] mutableCopy];
+    __block NSMutableArray *deletedList = [[self.dirtyQueue objectForKey:SMDirtyDeletedObjectKeys] mutableCopy];
     switch (state) {
         case 0:
             [primaryKeys enumerateObjectsUsingBlock:^(id dictObj, NSUInteger idx, BOOL *stop) {
-                NSString *key = [dictObj objectForKey:SMDirtyObjectPrimaryKey];
-                if (![[insertedList allKeys] containsObject:key]) {
-                    [insertedList setObject:[dictObj objectForKey:SMDirtyObjectEntityName] forKey:key];
+                NSArray *entry = [NSArray arrayWithObjects:[dictObj objectForKey:SMDirtyObjectPrimaryKey], [dictObj objectForKey:SMDirtyObjectEntityName], nil];
+                if (![insertedList containsObject:entry]) {
+                    [insertedList addObject:entry];
                 }
             }];
-            [self.dirtyQueue setObject:[NSDictionary dictionaryWithDictionary:insertedList] forKey:SMDirtyInsertedObjectKeys];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:insertedList] forKey:SMDirtyInsertedObjectKeys];
             break;
         case 1:
             // If an updated key already exists in inserted, leave it there
             [primaryKeys enumerateObjectsUsingBlock:^(id dictObj, NSUInteger idx, BOOL *stop) {
-                NSString *key = [dictObj objectForKey:SMDirtyObjectPrimaryKey];
-                if (![[insertedList allKeys] containsObject:key] && ![[updatedList allKeys] containsObject:key]) {
-                    [updatedList setObject:[dictObj objectForKey:SMDirtyObjectEntityName] forKey:key];
+                NSArray *entry = [NSArray arrayWithObjects:[dictObj objectForKey:SMDirtyObjectPrimaryKey], [dictObj objectForKey:SMDirtyObjectEntityName], nil];
+                if (![insertedList containsObject:entry] && ![updatedList containsObject:entry]) {
+                    [updatedList addObject:entry];
                 }
             }];
-            [self.dirtyQueue setObject:[NSDictionary dictionaryWithDictionary:insertedList] forKey:SMDirtyInsertedObjectKeys];
-            [self.dirtyQueue setObject:[NSDictionary dictionaryWithDictionary:updatedList] forKey:SMDirtyUpdatedObjectKeys];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:insertedList] forKey:SMDirtyInsertedObjectKeys];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:updatedList] forKey:SMDirtyUpdatedObjectKeys];
             break;
         case 2:
             // If it exists in inserted, remove completely
             // If it exists in updated, move to deleted
             [primaryKeys enumerateObjectsUsingBlock:^(id dictObj, NSUInteger idx, BOOL *stop) {
-                NSString *key = [dictObj objectForKey:SMDirtyObjectPrimaryKey];
-                if ([[insertedList allKeys] containsObject:key]) {
-                    [insertedList removeObjectForKey:key];
-                } else if ([[updatedList allKeys] containsObject:key]) {
-                    [updatedList removeObjectForKey:key];
-                    [deletedList setObject:[dictObj objectForKey:SMDirtyObjectEntityName] forKey:key];
-                } else if (![[deletedList allKeys] containsObject:key]) {
-                    [deletedList setObject:[dictObj objectForKey:SMDirtyObjectEntityName] forKey:key];
+                NSArray *entry = [NSArray arrayWithObjects:[dictObj objectForKey:SMDirtyObjectPrimaryKey], [dictObj objectForKey:SMDirtyObjectEntityName], nil];
+                if ([insertedList containsObject:entry]) {
+                    [insertedList removeObject:entry];
+                } else if ([updatedList containsObject:entry]) {
+                    [updatedList removeObject:entry];
+                    [deletedList addObject:entry];
+                } else if (![deletedList containsObject:entry]) {
+                    [deletedList addObject:entry];
                 }
             }];
-            [self.dirtyQueue setObject:[NSDictionary dictionaryWithDictionary:insertedList] forKey:SMDirtyInsertedObjectKeys];
-            [self.dirtyQueue setObject:[NSDictionary dictionaryWithDictionary:updatedList] forKey:SMDirtyUpdatedObjectKeys];
-            [self.dirtyQueue setObject:[NSDictionary dictionaryWithDictionary:deletedList] forKey:SMDirtyDeletedObjectKeys];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:insertedList] forKey:SMDirtyInsertedObjectKeys];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:updatedList] forKey:SMDirtyUpdatedObjectKeys];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:deletedList] forKey:SMDirtyDeletedObjectKeys];
             break;
         default:
             [NSException raise:SMExceptionIncompatibleObject format:@"State %d not recognized", state];
+            break;
+    }
+    
+    [self SM_saveDirtyQueue];
+}
+
+- (void)SM_didRecievePurgeDirtyQueueOfManagedObjectIDsNotification:(NSNotification *)notification
+{
+    NSDictionary *userInfo = [notification userInfo];
+    [self SM_purgeDirtyQueueOfManagedObjectIDs:[userInfo objectForKey:@"ObjectIDs"] type:[[userInfo objectForKey:@"Type"] intValue]];
+}
+
+- (void)SM_purgeDirtyQueueOfManagedObjectIDs:(NSArray *)arrayOfManagedObjectIDs type:(int)type
+{
+    __block NSMutableArray *dirtyObjects = nil;
+    switch (type) {
+        case 0: {
+            dirtyObjects = [[self.dirtyQueue objectForKey:SMDirtyInsertedObjectKeys] mutableCopy];
+            [arrayOfManagedObjectIDs enumerateObjectsUsingBlock:^(id managedObjectID, NSUInteger idx, BOOL *stop) {
+                NSString *entityName = [[managedObjectID entity] name];
+                NSString *primaryKey = [self referenceObjectForObjectID:managedObjectID];
+                NSArray *entry = [NSArray arrayWithObjects:primaryKey, entityName, nil];
+                if ([dirtyObjects containsObject:entry]) {
+                    [dirtyObjects removeObject:entry];
+                }
+            }];
+            [self.dirtyQueue setObject:[NSArray arrayWithArray:dirtyObjects] forKey:SMDirtyInsertedObjectKeys];
+        }
+            break;
+        case 1: {
+            NSLog(@"NEED TO IMPLEMENT");
+            break;
+        }
+        case 2: {
+            NSLog(@"NEED TO IMPLEMENT");
+            break;
+        }
+        default: {
+            [NSException raise:SMExceptionCacheError format:@"Type not supported: %d", type];
+        }
             break;
     }
     
@@ -2769,15 +2812,20 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)syncWithServer
 {
+    // TODO execute error callbacks at time of merge function return?
+    // TODO queue to run error callbacks on?
+    
     NSMutableDictionary *syncFailures = [NSMutableDictionary dictionary];
-    BOOL executeErrorCallback = NO;
+    BOOL executeInsertsErrorCallback = NO;
+    BOOL executeUpdatesErrorCallback = NO;
+    BOOL executeDeletesErrorCallback = NO;
     
     // Handle dirty inserts
     NSMutableArray *syncInsertFailures = [NSMutableArray array];
     [self mergeDirtyInserts:&syncInsertFailures];
     if ([syncInsertFailures count] > 0) {
         [syncFailures setObject:[NSArray arrayWithArray:syncInsertFailures] forKey:@"SyncInsertFailures"];
-        executeErrorCallback = YES;
+        executeInsertsErrorCallback = YES;
     } else {
         [syncFailures setObject:[NSArray array] forKey:@"SyncInsertFailures"];
     }
@@ -2787,7 +2835,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [self mergeDirtyUpdates:&syncUpdateFailures];
     if ([syncUpdateFailures count] > 0) {
         [syncFailures setObject:[NSArray arrayWithArray:syncUpdateFailures] forKey:@"SyncUpdateFailures"];
-        executeErrorCallback = YES;
+        executeUpdatesErrorCallback = YES;
     } else {
         [syncFailures setObject:[NSArray array] forKey:@"SyncUpdateFailures"];
     }
@@ -2797,14 +2845,23 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [self mergeDirtyDeletes:&syncDeleteFailures];
     if ([syncDeleteFailures count] > 0) {
         [syncFailures setObject:[NSArray arrayWithArray:syncDeleteFailures] forKey:@"SyncDeleteFailures"];
-        executeErrorCallback = YES;
+        executeDeletesErrorCallback = YES;
     } else {
         [syncFailures setObject:[NSArray array] forKey:@"SyncDeleteFailures"];
     }
     
     // Send outcome to error callback
-    if (executeErrorCallback) {
+    if (executeInsertsErrorCallback && self.coreDataStore.failedInsertsCallback) {
         // execute callback
+        self.coreDataStore.failedInsertsCallback(syncInsertFailures);
+    }
+    if (executeUpdatesErrorCallback && self.coreDataStore.failedUpdatesCallback) {
+        // execute callback
+        self.coreDataStore.failedUpdatesCallback(syncUpdateFailures);
+    }
+    if (executeDeletesErrorCallback && self.coreDataStore.failedDeletesCallback) {
+        // execute callback
+        self.coreDataStore.failedDeletesCallback(syncDeleteFailures);
     }
 }
 
@@ -2816,47 +2873,48 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     NSMutableSet *objectsToInsert = [NSMutableSet set];
     
     // Grab all dirty inserts
-    NSDictionary *dirtyInsertedObjects = [self.dirtyQueue objectForKey:SMDirtyInsertedObjectKeys];
+    NSArray *dirtyInsertedObjects = [self.dirtyQueue objectForKey:SMDirtyInsertedObjectKeys];
     
     // ?? Batch read ??
     
     if ([dirtyInsertedObjects count] > 0) {
         
         // For each object,
-        [dirtyInsertedObjects enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-            
+        [dirtyInsertedObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             // Read object from server
+            NSString *objectPrimaryKey = obj[0];
+            NSString *objectEntityName = obj[1];
+            
             NSManagedObjectContext *context = self.localManagedObjectContext;
-            NSEntityDescription *entityDesc = [NSEntityDescription entityForName:obj inManagedObjectContext:context];
+            NSEntityDescription *entityDesc = [NSEntityDescription entityForName:objectEntityName inManagedObjectContext:context];
             NSError *error = nil;
-            NSDictionary *serverObject = [self SM_retrieveAndSerializeObjectWithID:key entity:entityDesc  options:[SMRequestOptions options] context:context includeRelationships:YES cacheResult:NO error:&error];
-            // TODO remove this line
-            NSLog(@"server object is %@", serverObject);
-            if ([error code] == SMErrorNotFound) {
-                // Object doesn't already exist on the server, add it to list
+            NSDictionary *serverObject = [self SM_retrieveAndSerializeObjectWithID:objectPrimaryKey entity:entityDesc  options:[SMRequestOptions options] context:context includeRelationships:YES cacheResult:NO error:&error];
+            
+            if ([error code] == SMErrorNotFound && !serverObject) {
                 // Fetch object from cache
-                NSFetchRequest *fetchFromCache = [[NSFetchRequest alloc] initWithEntityName:obj];
-                [fetchFromCache setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", [entityDesc primaryKeyField], key]];
+                NSFetchRequest *fetchFromCache = [[NSFetchRequest alloc] initWithEntityName:objectEntityName];
+                [fetchFromCache setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", [entityDesc primaryKeyField], objectPrimaryKey]];
                 NSError *fetchError = nil;
                 NSArray *cacheResults = [self.localManagedObjectContext executeFetchRequest:fetchFromCache error:&fetchError];
                 
-                if ([cacheResults count] == 1) {
-                    NSManagedObject *objectToAdd = [cacheResults lastObject];
-                    [objectsToInsert addObject:objectToAdd];
-                } else {
+                if ([cacheResults count] != 1) {
                     // more than one result in cache? Or no result in cache?
                     // handle error
                     [NSException raise:SMExceptionCacheError format:@"MORE THAN ONE RESULT IN CACHE FOUND"];
                 }
+                
+                // Object doesn't already exist on the server, add it to list
+                NSManagedObject *objectToAdd = [cacheResults lastObject];
+                [objectsToInsert addObject:objectToAdd];
             } else {
                 
-                // TODO Object already exists
                 // Add object to list of failed synced objects
-                // TODO clean this up
-                NSDictionary *failedObjectInfo = [NSDictionary dictionaryWithObjectsAndKeys:key, @"Key", obj, @"EntityName", error, @"Error", nil];
+                // Object Failure Info: error, SMFailedManagedObjectError, managed object ID from key, SMFailedManagedObjectID
+                NSEntityDescription *desc = [NSEntityDescription entityForName:objectEntityName inManagedObjectContext:[self.coreDataStore contextForCurrentThread]];
+                NSManagedObjectID *objectIDToAdd = [self newObjectIDForEntity:desc referenceObject:objectPrimaryKey];
+                NSDictionary *failedObjectInfo = [NSDictionary dictionaryWithObjectsAndKeys:objectIDToAdd, SMFailedManagedObjectID, error, SMFailedManagedObjectError, nil];
                 [*syncFailures addObject:failedObjectInfo];
             }
-            
         }];
         
         // Send inserts to server
@@ -2866,13 +2924,13 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         // Remove objects from dirty queue
         if (success) {
-            [self.dirtyQueue setObject:[NSDictionary dictionary] forKey:SMDirtyInsertedObjectKeys];
+            [self.dirtyQueue setObject:[NSArray array] forKey:SMDirtyInsertedObjectKeys];
             [self SM_saveDirtyQueue];
         } else {
             
-            // TODO handle error
             // move failed objects from saveError to syncFailures
-            [*syncFailures addObject:saveError];
+            NSArray *failedInserts = [[saveError userInfo] objectForKey:SMInsertedObjectFailures];
+            [*syncFailures addObjectsFromArray:failedInserts];
         }
         
     }

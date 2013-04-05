@@ -26,6 +26,8 @@ typedef enum {
     SMCachePolicyTryCacheElseNetwork = 3,
 } SMCachePolicy;
 
+typedef void (^SMSyncFailedObjectsCallback)(NSArray *failedObjects);
+
 @class SMIncrementalStore;
 
 /**
@@ -157,6 +159,10 @@ typedef enum {
  */
 @property (nonatomic, strong) SMRequestOptions *globalRequestOptions;
 
+@property (nonatomic, strong, readonly) SMSyncFailedObjectsCallback failedInsertsCallback;
+@property (nonatomic, strong, readonly) SMSyncFailedObjectsCallback failedUpdatesCallback;
+@property (nonatomic, strong, readonly) SMSyncFailedObjectsCallback failedDeletesCallback;
+
 
 ///-------------------------------
 /// @name Initialize
@@ -250,5 +256,10 @@ typedef enum {
 
 // SYNC METHODS
 - (void)syncWithServer;
+- (void)setCallbackForFailedSyncInserts:(void (^)(NSArray *failedObjects))block;
+- (void)setCallbackForFailedSyncUpdates:(void (^)(NSArray *failedObjects))block;
+- (void)setCallbackForFailedSyncDeletes:(void (^)(NSArray *failedObjects))block;
+
+- (void)purgeDirtyQueueOfManagedObjectIDs:(NSArray *)objectIDs;
 
 @end
