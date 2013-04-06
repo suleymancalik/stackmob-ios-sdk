@@ -26,6 +26,17 @@ typedef enum {
     SMCachePolicyTryCacheElseNetwork = 3,
 } SMCachePolicy;
 
+typedef enum {
+    SMClientObject = 0,
+    SMServerObject = 1,
+} SMMergeObjectKey;
+
+typedef int (^SMSyncMergePolicy)(NSDictionary *clientObject, NSDictionary *serverObject);
+
+extern SMSyncMergePolicy const SMMergePolicyClientWins;
+extern SMSyncMergePolicy const SMMergePolicyServerWins;
+extern SMSyncMergePolicy const SMMergePolicyLastModifiedWins;
+
 typedef void (^SMSyncFailedObjectsCallback)(NSArray *failedObjects);
 
 @class SMIncrementalStore;
@@ -261,5 +272,8 @@ typedef void (^SMSyncFailedObjectsCallback)(NSArray *failedObjects);
 - (void)setCallbackForFailedSyncDeletes:(void (^)(NSArray *failedObjects))block;
 
 - (void)purgeDirtyQueueOfManagedObjectIDs:(NSArray *)objectIDs;
+
+@property (nonatomic, strong) SMSyncMergePolicy mergePolicy;
+
 
 @end

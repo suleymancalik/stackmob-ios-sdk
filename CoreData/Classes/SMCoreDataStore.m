@@ -25,6 +25,31 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 NSString *const SMSetCachePolicyNotification = @"SMSetCachePolicyNotification";
 BOOL SM_CACHE_ENABLED = NO;
 
+SMSyncMergePolicy const SMMergePolicyClientWins = ^(NSDictionary *clientObject, NSDictionary *serverObject){
+    
+    return SMClientObject;
+    
+};
+
+SMSyncMergePolicy const SMMergePolicyServerWins = ^(NSDictionary *clientObject, NSDictionary *serverObject){
+    
+    return SMServerObject;
+    
+};
+
+SMSyncMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject, NSDictionary *serverObject){
+    
+    NSDate *clientLastModDate = [clientObject objectForKey:@"lastmoddate"];
+    NSDate *serverLastModDate = [serverObject objectForKey:@"lastmoddate"];
+    
+    if ([clientLastModDate laterDate:serverLastModDate] == clientLastModDate) {
+        return SMClientObject;
+    } else {
+        return SMServerObject;
+    }
+    
+};
+
 @interface SMCoreDataStore ()
 
 @property(nonatomic, readwrite, strong)NSManagedObjectModel *managedObjectModel;
@@ -52,6 +77,7 @@ BOOL SM_CACHE_ENABLED = NO;
 @synthesize cachePurgeQueue = _cachePurgeQueue;
 @synthesize cachePolicy = _cachePolicy;
 @synthesize globalRequestOptions = _globalRequestOptions;
+@synthesize mergePolicy = _mergePolicy;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
@@ -69,6 +95,8 @@ BOOL SM_CACHE_ENABLED = NO;
         self.failedInsertsCallback = nil;
         self.failedUpdatesCallback = nil;
         self.failedDeletesCallback = nil;
+        
+        self.mergePolicy = SMMergePolicyLastModifiedWins;
     }
     
     return self;

@@ -210,6 +210,10 @@
         [self attachObjectIdToDictionary:&objectDictionary];
     }
     
+    // Remove any instances of createddate or lastmoddate
+    [objectDictionary removeObjectForKey:@"createddate"];
+    [objectDictionary removeObjectForKey:@"lastmoddate"];
+    
     
     return objectDictionary;
 }
