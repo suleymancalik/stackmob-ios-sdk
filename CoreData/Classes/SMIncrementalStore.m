@@ -78,6 +78,8 @@ NSString *const SMDirtyDeletedObjectKeys = @"SMDirtyDeletedObjectKeys";
 NSString *const SMDirtyObjectPrimaryKey = @"SMDirtyObjectPrimaryKey";
 NSString *const SMDirtyObjectEntityName = @"SMDirtyObjectEntityName";
 
+NSString *const SMDeletedDate = @"SMDeletedDate";
+
 BOOL SM_CORE_DATA_DEBUG = NO;
 unsigned int SM_MAX_LOG_LENGTH = 10000;
 
@@ -115,17 +117,17 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 // INSERTS
 - (BOOL)SM_handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable;
-- (BOOL)SM_handleInsertedObjectsWhenOnline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context serializeFullObjects:(BOOL)serializeFullObjects options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
+- (BOOL)SM_handleInsertedObjectsWhenOnline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context serializeFullObjects:(BOOL)serializeFullObjects successBlockAddition:(void (^)(NSString *primaryKey, NSString *entityName))successBlockAddition options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
 - (BOOL)SM_handleInsertedObjectsWhenOffline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
 
 // UPDATES
 - (BOOL)SM_handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable;
-- (BOOL)SM_handleUpdatedObjectsWhenOnline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context serializeFullObjects:(BOOL)serializeFullObjects options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
+- (BOOL)SM_handleUpdatedObjectsWhenOnline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context serializeFullObjects:(BOOL)serializeFullObjects successBlockAddition:(void (^)(NSString *primaryKey, NSString *entityName))successBlockAddition options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
 - (BOOL)SM_handleUpdatedObjectsWhenOffline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
 
 // DELETES
 - (BOOL)SM_handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable;
-- (BOOL)SM_handleDeletedObjectsWhenOnline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
+- (BOOL)SM_handleDeletedObjectsWhenOnline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context successBlockAddition:(void (^)(NSString *primaryKey, NSString *entityName))successBlockAddition options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
 - (BOOL)SM_handleDeletedObjectsWhenOffline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
 
 
@@ -514,19 +516,18 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     
     if (networkAvailable) {
-        return [self SM_handleInsertedObjectsWhenOnline:insertedObjects inContext:context serializeFullObjects:NO options:options error:error];
+        return [self SM_handleInsertedObjectsWhenOnline:insertedObjects inContext:context serializeFullObjects:NO successBlockAddition:nil options:options error:error];
     } else {
         return [self SM_handleInsertedObjectsWhenOffline:insertedObjects inContext:context options:options error:error];
     }
 }
 
-- (BOOL)SM_handleInsertedObjectsWhenOnline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context serializeFullObjects:(BOOL)serializeFullObjects options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
+- (BOOL)SM_handleInsertedObjectsWhenOnline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context serializeFullObjects:(BOOL)serializeFullObjects successBlockAddition:(void (^)(NSString *primaryKey, NSString *entityName))successBlockAddition options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     
     if (SM_CORE_DATA_DEBUG) { DLog() }
     if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be inserted are %@", truncateOutputIfExceedsMaxLogLength(insertedObjects))}
     
     __block BOOL success = YES;
-    //__block SMRequestOptions *optionsForInsert = [options copy];
     
     // create a group dispatch and queue
     dispatch_queue_t queue = dispatch_queue_create("Inserted Object Queue", NULL);
@@ -577,6 +578,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 // Add object to list of objects to be cached [primaryKey, dictionary of object, entity desc, context]
                 NSArray *objectReadyForCache = [NSArray arrayWithObjects:[managedObject valueForKey:[managedObject primaryKeyField]], theObject, [managedObject entity], context, nil];
                 [objectsToBeCached addObject:objectReadyForCache];
+                
+                if (successBlockAddition) {
+                    successBlockAddition(insertedObjectID, [[managedObject entity] name]);
+                }
                 
             };
             
@@ -695,13 +700,13 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     if (networkAvailable) {
-        return [self SM_handleUpdatedObjectsWhenOnline:updatedObjects inContext:context serializeFullObjects:NO options:options error:error];
+        return [self SM_handleUpdatedObjectsWhenOnline:updatedObjects inContext:context serializeFullObjects:NO successBlockAddition:nil options:options error:error];
     } else {
         return [self SM_handleUpdatedObjectsWhenOffline:updatedObjects inContext:context options:options error:error];
     }
 }
 
-- (BOOL)SM_handleUpdatedObjectsWhenOnline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context serializeFullObjects:(BOOL)serializeFullObjects options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
+- (BOOL)SM_handleUpdatedObjectsWhenOnline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context serializeFullObjects:(BOOL)serializeFullObjects successBlockAddition:(void (^)(NSString *primaryKey, NSString *entityName))successBlockAddition options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     
     if (SM_CORE_DATA_DEBUG) { DLog() }
     if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be updated are %@", truncateOutputIfExceedsMaxLogLength(updatedObjects)) }
@@ -734,6 +739,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             // Add object to list of objects to be cached [primaryKey, dictionary of object, entity desc, context]
             NSArray *objectReadyForCache = [NSArray arrayWithObjects:[managedObject valueForKey:[managedObject primaryKeyField]], theObject, [managedObject entity], context, nil];
             [objectsToBeCached addObject:objectReadyForCache];
+            
+            if (successBlockAddition) {
+                successBlockAddition(updatedObjectID, [[managedObject entity] name]);
+            }
             
         };
         
@@ -842,13 +851,13 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     if (networkAvailable) {
-        return [self SM_handleDeletedObjectsWhenOnline:deletedObjects inContext:context options:options error:error];
+        return [self SM_handleDeletedObjectsWhenOnline:deletedObjects inContext:context successBlockAddition:nil options:options error:error];
     } else {
         return [self SM_handleDeletedObjectsWhenOffline:deletedObjects inContext:context options:options error:error];
     }
 }
 
-- (BOOL)SM_handleDeletedObjectsWhenOnline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context  options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
+- (BOOL)SM_handleDeletedObjectsWhenOnline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context successBlockAddition:(void (^)(NSString *primaryKey, NSString *entityName))successBlockAddition options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error {
     
     if (SM_CORE_DATA_DEBUG) { DLog() }
     if (SM_CORE_DATA_DEBUG) { DLog(@"objects to be deleted are %@", truncateOutputIfExceedsMaxLogLength(deletedObjects)) }
@@ -926,7 +935,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         NSString *primaryKey = [obj valueForKey:[obj primaryKeyField]];
         [deletedObjectInfo addObject:[NSDictionary dictionaryWithObjectsAndKeys:primaryKey, ObjectID, [[obj entity] name], ObjectEntityName, nil]];
         //[deletedObjectIDs addObject:primaryKey];
-        [deletedObjectIDs addObject:[NSDictionary dictionaryWithObjectsAndKeys:primaryKey, SMDirtyObjectPrimaryKey, [[obj entity] name], SMDirtyObjectEntityName, nil]];
+        [deletedObjectIDs addObject:[NSDictionary dictionaryWithObjectsAndKeys:primaryKey, SMDirtyObjectPrimaryKey, [[obj entity] name], SMDirtyObjectEntityName, [NSDate date], SMDeletedDate, nil]];
     }];
     
     BOOL purgeSuccess = [self SM_purgeObjectsFromCacheByStackMobIDInfo:deletedObjectInfo];
@@ -2720,14 +2729,15 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             // If it exists in inserted, remove completely
             // If it exists in updated, move to deleted
             [primaryKeys enumerateObjectsUsingBlock:^(id dictObj, NSUInteger idx, BOOL *stop) {
-                NSArray *entry = [NSArray arrayWithObjects:[dictObj objectForKey:SMDirtyObjectPrimaryKey], [dictObj objectForKey:SMDirtyObjectEntityName], nil];
-                if ([insertedList containsObject:entry]) {
-                    [insertedList removeObject:entry];
-                } else if ([updatedList containsObject:entry]) {
-                    [updatedList removeObject:entry];
-                    [deletedList addObject:entry];
-                } else if (![deletedList containsObject:entry]) {
-                    [deletedList addObject:entry];
+                NSArray *entryToCompare = [NSArray arrayWithObjects:[dictObj objectForKey:SMDirtyObjectPrimaryKey], [dictObj objectForKey:SMDirtyObjectEntityName], nil];
+                NSArray *entryToInsert = [NSArray arrayWithObjects:[dictObj objectForKey:SMDirtyObjectPrimaryKey], [dictObj objectForKey:SMDirtyObjectEntityName], [dictObj objectForKey:SMDeletedDate], nil];
+                if ([insertedList containsObject:entryToCompare]) {
+                    [insertedList removeObject:entryToCompare];
+                } else if ([updatedList containsObject:entryToCompare]) {
+                    [updatedList removeObject:entryToCompare];
+                    [deletedList addObject:entryToInsert];
+                } else if (![deletedList containsObject:entryToCompare]) {
+                    [deletedList addObject:entryToInsert];
                 }
             }];
             [self.dirtyQueue setObject:[NSArray arrayWithArray:insertedList] forKey:SMDirtyInsertedObjectKeys];
@@ -2826,8 +2836,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     // Grab all dirty inserts
     NSArray *dirtyInsertedObjects = [self.dirtyQueue objectForKey:SMDirtyInsertedObjectKeys];
     
-    // ?? Batch read ??
-    
     if ([dirtyInsertedObjects count] > 0) {
         
         SMRequestOptions *options = self.coreDataStore.globalRequestOptions;
@@ -2837,6 +2845,28 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         // For each object,
         [dirtyInsertedObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            
+            // Send all objects and report objects that error on insert
+            NSString *objectPrimaryKey = obj[0];
+            NSString *objectEntityName = obj[1];
+            NSEntityDescription *entityDesc = [NSEntityDescription entityForName:objectEntityName inManagedObjectContext:self.localManagedObjectContext];
+            // Fetch object from cache
+            NSFetchRequest *fetchFromCache = [[NSFetchRequest alloc] initWithEntityName:objectEntityName];
+            [fetchFromCache setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", [entityDesc primaryKeyField], objectPrimaryKey]];
+            NSError *fetchError = nil;
+            NSArray *cacheResults = [self.localManagedObjectContext executeFetchRequest:fetchFromCache error:&fetchError];
+            
+            if ([cacheResults count] != 1) {
+                // more than one result in cache? Or no result in cache?
+                // handle error
+                [NSException raise:SMExceptionCacheError format:@"MORE THAN ONE RESULT IN CACHE FOUND"];
+            }
+            
+            // Object doesn't already exist on the server, add it to list
+            NSManagedObject *objectToAdd = [cacheResults lastObject];
+            [objectsToInsert addObject:objectToAdd];
+            
+            /*
             // Read object from server
             NSString *objectPrimaryKey = obj[0];
             NSString *objectEntityName = obj[1];
@@ -2871,22 +2901,26 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 NSDictionary *failedObjectInfo = [NSDictionary dictionaryWithObjectsAndKeys:objectIDToAdd, SMFailedManagedObjectID, error, SMFailedManagedObjectError, nil];
                 [*syncFailures addObject:failedObjectInfo];
             }
+             */
         }];
         
         // Send inserts to server
-        // TODO use global request options
+        __block NSMutableArray *objectInfoToPurgeFromDirtyQueue = [NSMutableArray array];
         NSError *saveError = nil;
-        BOOL success = [self SM_handleInsertedObjectsWhenOnline:objectsToInsert inContext:self.localManagedObjectContext serializeFullObjects:YES options:options error:&saveError];
+        BOOL success = [self SM_handleInsertedObjectsWhenOnline:objectsToInsert inContext:self.localManagedObjectContext serializeFullObjects:YES successBlockAddition:^(NSString *primaryKey, NSString *entityName) {
+            [objectInfoToPurgeFromDirtyQueue addObject:[NSArray arrayWithObjects:primaryKey, entityName, nil]];
+        } options:options error:&saveError];
         
         // Remove objects from dirty queue
-        if (success) {
-            [self.dirtyQueue setObject:[NSArray array] forKey:SMDirtyInsertedObjectKeys];
-            [self SM_saveDirtyQueue];
-        } else {
+        if (!success) {
             
             // move failed objects from saveError to syncFailures
             NSArray *failedInserts = [[saveError userInfo] objectForKey:SMInsertedObjectFailures];
             [*syncFailures addObjectsFromArray:failedInserts];
+        }
+        
+        if ([objectInfoToPurgeFromDirtyQueue count] > 0) {
+            [self SM_purgeDirtyQueueOfEntries:objectInfoToPurgeFromDirtyQueue type:0];
         }
         
     }
@@ -2907,6 +2941,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         __block NSMutableArray *objectsToMergeWithCache = [NSMutableArray array];
         __block NSMutableArray *cacheMergeEntriesToPurgeFromDirtyQueue = [NSMutableArray array];
+        
+        __block NSMutableArray *entriesToPurgeFromDirtyQueue = [NSMutableArray array];
         
         SMRequestOptions *options = self.coreDataStore.globalRequestOptions;
         
@@ -2943,21 +2979,16 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 // Add object to update list or merge server object into cache
                 switch (objectToUse) {
                     case SMClientObject: {
-                        NSLog(@"client object");
                         [objectsToMergeWithServer addObject:clientObject];
-                        
-                        NSArray *clientObjectInfoForPurge = [NSArray arrayWithObjects:objectPrimaryKey, objectEntityName, nil];
-                        [serverMergeEntriesToPurgeFromDirtyQueue addObject:clientObjectInfoForPurge];
                     }
                         break;
                     case SMServerObject: {
-                        NSLog(@"server object");
                         // Create object info objectID, values, entity
                         NSArray *serverObjectInfo = [NSArray arrayWithObjects:objectPrimaryKey, serverObject, entityDesc, nil];
                         [objectsToMergeWithCache addObject:serverObjectInfo];
                         // Add object info for purge
                         NSArray *serverObjectInfoForPurge = [NSArray arrayWithObjects:objectPrimaryKey, objectEntityName, nil];
-                        [cacheMergeEntriesToPurgeFromDirtyQueue addObject:serverObjectInfoForPurge];
+                        [entriesToPurgeFromDirtyQueue addObject:serverObjectInfoForPurge];
                     }
                         break;
                     default:
@@ -2979,49 +3010,50 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         }];
         
         // Send updates to server
-        // TODO use global request options
         if ([objectsToMergeWithServer count] > 0) {
             
             NSError *saveError = nil;
-            BOOL success = [self SM_handleUpdatedObjectsWhenOnline:objectsToMergeWithServer inContext:self.localManagedObjectContext serializeFullObjects:YES options:options error:&saveError];
+            BOOL success = [self SM_handleUpdatedObjectsWhenOnline:objectsToMergeWithServer inContext:self.localManagedObjectContext serializeFullObjects:YES successBlockAddition:^(NSString *primaryKey, NSString *entityName) {
+                [entriesToPurgeFromDirtyQueue addObject:[NSArray arrayWithObjects:primaryKey, entityName, nil]];
+            } options:options error:&saveError];
             
             // Remove merged objects from dirty queue
-            if (success) {
-                [self SM_purgeDirtyQueueOfEntries:serverMergeEntriesToPurgeFromDirtyQueue type:1];
-            } else {
-                
+            if (!success) {
                 // move failed objects from saveError to syncFailures
                 NSArray *failedUpdates = [[saveError userInfo] objectForKey:SMUpdatedObjectFailures];
                 [*syncFailures addObjectsFromArray:failedUpdates];
             }
+            
+            [self SM_purgeDirtyQueueOfEntries:serverMergeEntriesToPurgeFromDirtyQueue type:1];
             
         }
         
         // Send updates to cache
         // TODO should this return some kind of success
         if ([objectsToMergeWithCache count] > 0) {
-            
             [self SM_cacheSerializedObjects:objectsToMergeWithCache];
-            [self SM_purgeDirtyQueueOfEntries:cacheMergeEntriesToPurgeFromDirtyQueue type:1];
-            
         }
+        
+        if ([entriesToPurgeFromDirtyQueue count] > 0) {
+            [self SM_purgeDirtyQueueOfEntries:entriesToPurgeFromDirtyQueue type:1];
+        }
+        
+        
         
     }
 }
 
 - (void)mergeDirtyDeletes:(NSMutableArray **)syncFailures
 {
-    /*
-    // TODO update options to use global options
     
-    __block NSMutableArray *objectsToPurgeFromDirtyQueue = [NSMutableArray array];
-    
-    // Grab all dirty inserts
+    // Grab all dirty deletes
     NSArray *dirtyDeletedObjects = [self.dirtyQueue objectForKey:SMDirtyDeletedObjectKeys];
-    
-    // ?? Batch read ??
-    
+        
     if ([dirtyDeletedObjects count] > 0) {
+        
+        __block NSMutableArray *objectsToPurgeFromDirtyQueue = [NSMutableArray array];
+        __block NSMutableArray *objectsToDelete = [NSMutableArray array];
+        SMRequestOptions *options = self.coreDataStore.globalRequestOptions;
         
         [dirtyDeletedObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             
@@ -3032,27 +3064,44 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             NSManagedObjectContext *context = self.localManagedObjectContext;
             NSEntityDescription *entityDesc = [NSEntityDescription entityForName:objectEntityName inManagedObjectContext:context];
             NSError *error = nil;
-            NSDictionary *serverObject = [self SM_retrieveAndSerializeObjectWithID:objectPrimaryKey entity:entityDesc  options:[SMRequestOptions options] context:context includeRelationships:YES cacheResult:NO error:&error];
+            NSDictionary *serverObject = [self SM_retrieveAndSerializeObjectWithID:objectPrimaryKey entity:entityDesc  options:options context:context includeRelationships:YES cacheResult:NO error:&error];
             
-            if (serverObject) {
-                // Retrieve current cached object
-                NSFetchRequest *fetchFromCache = [[NSFetchRequest alloc] initWithEntityName:objectEntityName];
-                [fetchFromCache setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", [entityDesc primaryKeyField], objectPrimaryKey]];
-                NSError *fetchError = nil;
-                NSArray *cacheResults = [self.localManagedObjectContext executeFetchRequest:fetchFromCache error:&fetchError];
+            // If object was already deleted, just remove from the dirty queue
+            if (!serverObject && [error code] == SMErrorNotFound) {
+                [objectsToPurgeFromDirtyQueue addObject:obj];
+            } else if (serverObject) {
                 
-                if ([cacheResults count] != 1) {
-                    // more than one result in cache? Or no result in cache?
-                    // handle error
-                    [NSException raise:SMExceptionCacheError format:@"MORE THAN ONE RESULT IN CACHE FOUND"];
+                NSDictionary *clientObjectDictRep = [NSDictionary dictionaryWithObjectsAndKeys:obj[2], @"lastmoddate", nil];
+                // Apply merge policy
+                SMMergeObjectKey objectToUse = self.coreDataStore.mergePolicy(clientObjectDictRep, serverObject);
+                
+                // Add object to update list or merge server object into cache
+                switch (objectToUse) {
+                    case SMClientObject: {
+                        // Add object to be deleted from server
+                        [objectsToDelete addObject:clientObjectDictRep];
+                        
+                    }
+                        break;
+                    case SMServerObject: {
+                        
+                        // Update cache with object
+                        
+                        /*
+                        NSLog(@"server object");
+                        // Create object info objectID, values, entity
+                        NSArray *serverObjectInfo = [NSArray arrayWithObjects:objectPrimaryKey, serverObject, entityDesc, nil];
+                        [objectsToMergeWithCache addObject:serverObjectInfo];
+                        // Add object info for purge
+                        NSArray *serverObjectInfoForPurge = [NSArray arrayWithObjects:objectPrimaryKey, objectEntityName, nil];
+                        [cacheMergeEntriesToPurgeFromDirtyQueue addObject:serverObjectInfoForPurge];
+                         */
+                    }
+                        break;
+                    default:
+                        [NSException raise:SMExceptionCacheError format:@"Case %d for merge policy object winner not supported.", objectToUse];
+                        break;
                 }
-                
-                NSManagedObject *clientObject = [cacheResults lastObject];
-                NSDictionary *clientObjectDictRep = [clientObject dictionaryWithValuesForKeys:[[entityDesc propertiesByName] allKeys]];
-                
-                // Check dates to see if good to delete from server
-                
-                
                 
             } else {
                 
@@ -3063,13 +3112,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             }
             
         }];
-        
+        /*
         // Send updates to server
-        // TODO use global request options
-        if ([objectsToMergeWithServer count] > 0) {
+        if ([objectsToDelete count] > 0) {
             
             NSError *saveError = nil;
-            BOOL success = [self SM_handleUpdatedObjectsWhenOnline:objectsToMergeWithServer inContext:self.localManagedObjectContext serializeFullObjects:YES options:[SMRequestOptions options] error:&saveError];
+            BOOL success = [self SM_handleDeletedObjectsWhenOnline:objectsToDelete inContext:self.localManagedObjectContext serializeFullObjects:YES options:options error:&saveError];
             
             // Remove merged objects from dirty queue
             if (success) {
@@ -3083,6 +3131,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             
         }
         
+        if (
+        
         // Send updates to cache
         // TODO should this return some kind of success
         if ([objectsToMergeWithCache count] > 0) {
@@ -3091,9 +3141,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             [self SM_purgeDirtyQueueOfEntries:cacheMergeEntriesToPurgeFromDirtyQueue type:2];
             
         }
+         */
     }
-     */
-
 }
 
 #pragma mark - Purging the Cache

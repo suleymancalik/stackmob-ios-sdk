@@ -105,13 +105,14 @@
     NSDictionary *valuesToSerialize = serializeFullObjects ? [self dictionaryWithValuesForKeys:[[selfEntity propertiesByName] allKeys]] : self.changedValues;
     
     [valuesToSerialize enumerateKeysAndObjectsUsingBlock:^(id propertyKey, id propertyValue, BOOL *stop) {
+        
         NSPropertyDescription *property = [[selfEntity propertiesByName] objectForKey:propertyKey];
         if ([property isKindOfClass:[NSAttributeDescription class]]) {
             NSAttributeDescription *attributeDescription = (NSAttributeDescription *)property;
             if (attributeDescription.attributeType != NSUndefinedAttributeType) {
                 if (attributeDescription.attributeType == NSDateAttributeType) {
-                    NSDate *dateValue = propertyValue;
-                    if (dateValue != nil) {
+                    if (propertyValue != nil && propertyValue != [NSNull null]) {
+                        NSDate *dateValue = propertyValue;
                         unsigned long long convertedDate = (unsigned long long)[dateValue timeIntervalSince1970] * 1000;
                         NSNumber *numberToSet = [NSNumber numberWithUnsignedLongLong:convertedDate];
                         [objectDictionary setObject:numberToSet forKey:[selfEntity SMFieldNameForProperty:property]];
