@@ -37,6 +37,10 @@ extern NSString *const SMRequestSpecificOptions;
 
 extern NSString *const SMFailedRefreshBlock;
 
+extern NSString *const SMMarkObjectAsSyncedNotification;
+extern NSString *const SMMarkArrayOfObjectsAsSyncedNotification;
+extern NSString *const SMSyncWithServerNotification;
+
 extern BOOL SM_CORE_DATA_DEBUG;
 extern unsigned int SM_MAX_LOG_LENGTH;
 

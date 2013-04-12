@@ -25,19 +25,13 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 NSString *const SMSetCachePolicyNotification = @"SMSetCachePolicyNotification";
 BOOL SM_CACHE_ENABLED = NO;
 
-SMSyncMergePolicy const SMMergePolicyClientWins = ^(NSDictionary *clientObject, NSDictionary *serverObject){
+SMMergePolicy const SMMergePolicyClientWins = ^(NSDictionary *clientObject, NSDictionary *serverObject){
     
     return SMClientObject;
     
 };
 
-SMSyncMergePolicy const SMMergePolicyServerWins = ^(NSDictionary *clientObject, NSDictionary *serverObject){
-    
-    return SMServerObject;
-    
-};
-
-SMSyncMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject, NSDictionary *serverObject){
+SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject, NSDictionary *serverObject){
     
     NSDate *clientLastModDate = [clientObject objectForKey:@"lastmoddate"];
     NSDate *serverLastModDate = [serverObject objectForKey:@"lastmoddate"];
@@ -54,7 +48,7 @@ SMSyncMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientOb
 
 @property(nonatomic, readwrite, strong)NSManagedObjectModel *managedObjectModel;
 @property (nonatomic, strong) NSManagedObjectContext *privateContext;
-@property (nonatomic, strong) id defaultMergePolicy;
+@property (nonatomic, strong) id defaultCoreDataMergePolicy;
 @property (nonatomic) dispatch_queue_t cachePurgeQueue;
 
 @property (nonatomic, strong, readwrite) SMSyncFailedObjectsCallback failedInsertsCallback;
@@ -73,18 +67,20 @@ SMSyncMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientOb
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize mainThreadContext = _mainThreadContext;
 @synthesize privateContext = _privateContext;
-@synthesize defaultMergePolicy = _defaultMergePolicy;
+@synthesize defaultCoreDataMergePolicy = _defaultCoreDataMergePolicy;
+@synthesize defaultSMMergePolicy = _defaultSMMergePolicy;
 @synthesize cachePurgeQueue = _cachePurgeQueue;
 @synthesize cachePolicy = _cachePolicy;
 @synthesize globalRequestOptions = _globalRequestOptions;
-@synthesize mergePolicy = _mergePolicy;
+@synthesize updateSMMergePolicy = _updateSMMergePolicy;
+@synthesize deleteSMMergePolicy = _deleteSMMergePolicy;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
     self = [super initWithAPIVersion:apiVersion session:session];
     if (self) {
         _managedObjectModel = managedObjectModel;
-        _defaultMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
+        _defaultCoreDataMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
         self.cachePurgeQueue = dispatch_queue_create("Purge Cache Of Object Queue", NULL);
         [self setCachePolicy:SMCachePolicyTryNetworkOnly];
         
@@ -96,7 +92,10 @@ SMSyncMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientOb
         self.failedUpdatesCallback = nil;
         self.failedDeletesCallback = nil;
         
-        self.mergePolicy = SMMergePolicyLastModifiedWins;
+        self.defaultSMMergePolicy = SMMergePolicyLastModifiedWins;
+        self.updateSMMergePolicy = nil;
+        self.deleteSMMergePolicy = nil;
+        
     }
     
     return self;
@@ -132,7 +131,7 @@ SMSyncMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientOb
 {
     if (_privateContext == nil) {
         _privateContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        [_privateContext setMergePolicy:self.defaultMergePolicy];
+        [_privateContext setMergePolicy:self.defaultCoreDataMergePolicy];
         [_privateContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
     }
     return _privateContext;
@@ -152,7 +151,7 @@ SMSyncMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientOb
 {
     if (_mainThreadContext == nil) {
         _mainThreadContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-        [_mainThreadContext setMergePolicy:self.defaultMergePolicy];
+        [_mainThreadContext setMergePolicy:self.defaultCoreDataMergePolicy];
         [_mainThreadContext setParentContext:self.privateContext];
         [_mainThreadContext setContextShouldObtainPermanentIDsBeforeSaving:YES];
     }
@@ -162,7 +161,7 @@ SMSyncMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientOb
 - (NSManagedObjectContext *)SM_newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent
 {
     NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    [context setMergePolicy:self.defaultMergePolicy];
+    [context setMergePolicy:self.defaultCoreDataMergePolicy];
     [context setParentContext:parent];
     [context setContextShouldObtainPermanentIDsBeforeSaving:YES];
     
@@ -190,9 +189,14 @@ SMSyncMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientOb
 
 - (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply
 {
-    if (mergePolicy != self.defaultMergePolicy) {
+    [self setDefaultCoreDataMergePolicy:mergePolicy applyToMainThreadContextAndParent:apply];
+}
+
+- (void)setDefaultCoreDataMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply
+{
+    if (mergePolicy != self.defaultCoreDataMergePolicy) {
         
-        self.defaultMergePolicy = mergePolicy;
+        self.defaultCoreDataMergePolicy = mergePolicy;
         
         if (apply) {
             [self.mainThreadContext setMergePolicy:mergePolicy];
@@ -252,41 +256,33 @@ SMSyncMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientOb
 
 - (void)syncWithServer
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"SyncWithServer" object:self userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SMSyncWithServerNotification object:self userInfo:nil];
 }
 
-- (void)setCallbackForFailedSyncInserts:(void (^)(NSArray *failedObjects))block
+- (void)setSyncCallbackForFailedInserts:(void (^)(NSArray *failedObjects))block
 {
     self.failedInsertsCallback = block;
 }
 
-- (void)setCallbackForFailedSyncUpdates:(void (^)(NSArray *failedObjects))block
+- (void)setSyncCallbackForFailedUpdates:(void (^)(NSArray *failedObjects))block
 {
     self.failedUpdatesCallback = block;
 }
 
-- (void)setCallbackForFailedSyncDeletes:(void (^)(NSArray *failedObjects))block
+- (void)setSyncCallbackForFailedDeletes:(void (^)(NSArray *failedObjects))block
 {
     self.failedDeletesCallback = block;
 }
 
-- (void)purgeDirtyQueueOfManagedObjectIDs:(NSArray *)objectIDs
+- (void)markObjectAsSynced:(NSManagedObjectID *)objectID
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoveObjectsFromDirtyQueue" object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectIDs, @"ObjectIDs", [NSNumber numberWithInt:0], @"Type", nil]];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SMMarkObjectAsSyncedNotification object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectID, @"ObjectID", nil]];
 }
 
-/*
-- (void)removeFailedSyncUpdatesFromDirtyQueue:(NSArray *)objectIDs
+- (void)markArrayOfObjectsAsSynced:(NSArray *)objectIDs
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoveUpdatesFromDirtyQueue" object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectIDs, @"ObjectIDs", nil]];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SMMarkArrayOfObjectsAsSyncedNotification object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectIDs, @"ObjectIDs", nil]];
 }
-
-
-- (void)removeFailedSyncDeletesFromDirtyQueue:(NSArray *)objectIDs
-{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoveDeletesFromDirtyQueue" object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectIDs, @"ObjectIDs", nil]];
-}
-*/
 
 @end
 

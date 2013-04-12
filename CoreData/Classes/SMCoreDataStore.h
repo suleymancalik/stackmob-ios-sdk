@@ -31,11 +31,11 @@ typedef enum {
     SMServerObject = 1,
 } SMMergeObjectKey;
 
-typedef int (^SMSyncMergePolicy)(NSDictionary *clientObject, NSDictionary *serverObject);
+typedef int (^SMMergePolicy)(NSDictionary *clientObject, NSDictionary *serverObject);
 
-extern SMSyncMergePolicy const SMMergePolicyClientWins;
-extern SMSyncMergePolicy const SMMergePolicyServerWins;
-extern SMSyncMergePolicy const SMMergePolicyLastModifiedWins;
+extern SMMergePolicy const SMMergePolicyClientWins;
+extern SMMergePolicy const SMMergePolicyServerWins;
+extern SMMergePolicy const SMMergePolicyLastModifiedWins;
 
 typedef void (^SMSyncFailedObjectsCallback)(NSArray *failedObjects);
 
@@ -170,10 +170,6 @@ typedef void (^SMSyncFailedObjectsCallback)(NSArray *failedObjects);
  */
 @property (nonatomic, strong) SMRequestOptions *globalRequestOptions;
 
-@property (nonatomic, strong, readonly) SMSyncFailedObjectsCallback failedInsertsCallback;
-@property (nonatomic, strong, readonly) SMSyncFailedObjectsCallback failedUpdatesCallback;
-@property (nonatomic, strong, readonly) SMSyncFailedObjectsCallback failedDeletesCallback;
-
 
 ///-------------------------------
 /// @name Initialize
@@ -214,8 +210,12 @@ typedef void (^SMSyncFailedObjectsCallback)(NSArray *failedObjects);
  @param apply Whether or not to set mergePolicy as the merge policy for the existing mainThreadContext and its private parent context.
  
  @since Available in iOS SDK 1.2.0 and later.
+ 
+ @note Deprecated in version 1.5.0. Use <setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:>.
  */
-- (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply;
+- (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply __deprecated;
+
+- (void)setDefaultCoreDataMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply;
 
 ///-------------------------------
 /// @name Manually Purging the Cache
@@ -267,13 +267,22 @@ typedef void (^SMSyncFailedObjectsCallback)(NSArray *failedObjects);
 
 // SYNC METHODS
 - (void)syncWithServer;
-- (void)setCallbackForFailedSyncInserts:(void (^)(NSArray *failedObjects))block;
-- (void)setCallbackForFailedSyncUpdates:(void (^)(NSArray *failedObjects))block;
-- (void)setCallbackForFailedSyncDeletes:(void (^)(NSArray *failedObjects))block;
 
-- (void)purgeDirtyQueueOfManagedObjectIDs:(NSArray *)objectIDs;
+// TODO decide on method name
 
-@property (nonatomic, strong) SMSyncMergePolicy mergePolicy;
+- (void)setSyncCallbackForFailedInserts:(void (^)(NSArray *failedObjects))block;
+- (void)setSyncCallbackForFailedUpdates:(void (^)(NSArray *failedObjects))block;
+- (void)setSyncCallbackForFailedDeletes:(void (^)(NSArray *failedObjects))block;
 
+- (void)markObjectAsSynced:(NSManagedObjectID *)objectID;
+- (void)markArrayOfObjectsAsSynced:(NSArray *)objectIDs;
+
+@property (nonatomic, strong) SMMergePolicy defaultSMMergePolicy;
+@property (nonatomic, strong) SMMergePolicy updateSMMergePolicy;
+@property (nonatomic, strong) SMMergePolicy deleteSMMergePolicy;
+
+@property (nonatomic, strong, readonly) SMSyncFailedObjectsCallback failedInsertsCallback;
+@property (nonatomic, strong, readonly) SMSyncFailedObjectsCallback failedUpdatesCallback;
+@property (nonatomic, strong, readonly) SMSyncFailedObjectsCallback failedDeletesCallback;
 
 @end
