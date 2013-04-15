@@ -188,6 +188,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
         NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         [fetchRequest setEntity:entity];
+        [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"done == TRUE"]];
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
             if (error != nil) {
                 DLog(@"Error userInfo is %@", [error userInfo]);
@@ -284,6 +285,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to false", ^{
      NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
      NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
      [fetchRequest setEntity:entity];
+     [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"done == FALSE"]];
      [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
          if (error != nil) {
              DLog(@"Error userInfo is %@", [error userInfo]);

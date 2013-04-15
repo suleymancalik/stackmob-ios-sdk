@@ -179,10 +179,12 @@
     }
     
     id rhs = comparisonPredicate.rightExpression.constantValue;
-    
+    NSAttributeDescription *attributeDesc = [[[*query entity] attributesByName] objectForKey:comparisonPredicate.leftExpression.keyPath];
     switch (comparisonPredicate.predicateOperatorType) {
         case NSEqualToPredicateOperatorType:
-            if ([rhs isKindOfClass:[NSManagedObject class]]) {
+            if (attributeDesc != nil && [attributeDesc attributeType] == NSBooleanAttributeType) {
+                rhs = [NSNumber numberWithBool:YES];
+            } else if ([rhs isKindOfClass:[NSManagedObject class]]) {
                 rhs = (NSString *)[self referenceObjectForObjectID:[rhs objectID]];;
             } else if ([rhs isKindOfClass:[NSManagedObjectID class]]) {
                 rhs = (NSString *)[self referenceObjectForObjectID:rhs];
