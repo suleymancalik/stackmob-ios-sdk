@@ -693,9 +693,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         // Assign createddate
         if ([dictionaryRepOfManagedObject objectForKey:@"createddate"]) {
-            NSDate *currentDate = [NSDate date];
-            NSDate *dateToSet = [currentDate dateByAddingTimeInterval:self.serverTimeDiff];
-            [dictionaryRepOfManagedObject setObject:[NSDate date] forKey:@"createddate"];
+            [dictionaryRepOfManagedObject setObject:[[NSDate date] dateByAddingTimeInterval:self.serverTimeDiff] forKey:@"createddate"];
         }
         
         // Add object to list of objects to be cached [primaryKey, dictionary of object, entity desc, context]
@@ -867,7 +865,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         // Assign lastmoddate and createddate?
         if ([dictionaryRepOfManagedObject objectForKey:@"lastmoddate"]) {
-            [dictionaryRepOfManagedObject setObject:[NSDate date] forKey:@"lastmoddate"];
+            [dictionaryRepOfManagedObject setObject:[[NSDate date] dateByAddingTimeInterval:self.serverTimeDiff] forKey:@"lastmoddate"];
         }
         
         // Add object to list of objects to be cached [primaryKey, dictionary of object, entity desc, context]
@@ -985,7 +983,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         NSString *primaryKey = [obj valueForKey:[obj primaryKeyField]];
         [deletedObjectInfo addObject:[NSDictionary dictionaryWithObjectsAndKeys:primaryKey, ObjectID, [[obj entity] name], ObjectEntityName, nil]];
         //[deletedObjectIDs addObject:primaryKey];
-        [deletedObjectIDs addObject:[NSDictionary dictionaryWithObjectsAndKeys:primaryKey, SMDirtyObjectPrimaryKey, [[obj entity] name], SMDirtyObjectEntityName, [NSDate date], SMDeletedDate, nil]];
+        [deletedObjectIDs addObject:[NSDictionary dictionaryWithObjectsAndKeys:primaryKey, SMDirtyObjectPrimaryKey, [[obj entity] name], SMDirtyObjectEntityName, [[NSDate date] dateByAddingTimeInterval:self.serverTimeDiff], SMDeletedDate, nil]];
+        
     }];
     
     BOOL purgeSuccess = [self SM_purgeObjectsFromCacheByStackMobIDInfo:deletedObjectInfo];
