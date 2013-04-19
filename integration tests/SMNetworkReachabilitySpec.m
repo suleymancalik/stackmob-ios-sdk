@@ -30,17 +30,17 @@ describe(@"SMNetworkReachability", ^{
         [client.session.networkMonitor setNetworkStatusChangeBlock:^(SMNetworkStatus status) {
             NSLog(@"block is getting called with status %d", status);
         }];
-        if ([client.session.networkMonitor currentNetworkStatus] == Reachable) {
+        if ([client.session.networkMonitor currentNetworkStatus] == SMNetworkStatusReachable) {
             NSLog(@"We are reachable");
         }
         switch ([client.session.networkMonitor currentNetworkStatus]) {
-            case  Reachable:
+            case SMNetworkStatusReachable:
                 NSLog(@"Reachable via switch statement");
                 break;
-            case NotReachable:
+            case SMNetworkStatusNotReachable:
                 NSLog(@"Not reachable");
                 break;
-            case Unknown:
+            case SMNetworkStatusUnknown:
                 NSLog(@"Unknowwn");
                 break;
             default:

@@ -34,7 +34,6 @@ typedef enum {
 typedef int (^SMMergePolicy)(NSDictionary *clientObject, NSDictionary *serverObject);
 
 extern SMMergePolicy const SMMergePolicyClientWins;
-extern SMMergePolicy const SMMergePolicyServerWins;
 extern SMMergePolicy const SMMergePolicyLastModifiedWins;
 
 typedef void (^SMSyncFailedObjectsCallback)(NSArray *failedObjects);

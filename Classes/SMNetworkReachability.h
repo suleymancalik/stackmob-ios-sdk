@@ -23,9 +23,12 @@ extern NSString * SMNetworkStatusDidChangeNotification;
 extern NSString * SMCurrentNetworkStatusKey;
 
 typedef enum {
-    Unknown = -1,
-    NotReachable  = 0,
-    Reachable = 1,
+    Unknown __deprecated = -1,
+    NotReachable __deprecated = 0,
+    Reachable __deprecated = 1,
+    SMNetworkStatusUnknown = -1,
+    SMNetworkStatusNotReachable = 0,
+    SMNetworkStatusReachable = 1,
 } SMNetworkStatus;
 
 /**
@@ -44,9 +47,9 @@ typedef enum {
  This method will return an SMNetworkStatus, defined as:
  
         typedef enum {
-            Unknown = -1,
-            NotReachable  = 0,
-            Reachable = 1,
+            SMNetworkStatusUnknown = -1,
+            SMNetworkStatusNotReachable  = 0,
+            SMNetworkStatusReachable = 1,
         } SMNetworkStatus;
  
  
@@ -56,20 +59,20 @@ typedef enum {
  
  An example of testing reachability before sending a request would look like this:
  
-        if ([client.session.networkMonitor currentNetworkStatus] == Reachable) {
+        if ([client.session.networkMonitor currentNetworkStatus] == SMNetworkStatusReachable) {
             // send request
         }
  
  You can also handle each state case by case in a switch statement:
  
         switch([client.session.networkMonitor currentNetworkStatus]) {
-            case  Reachable:
+            case  SMNetworkStatusReachable:
                 // do Reachable stuff
                 break;
-            case NotReachable:
+            case SMNetworkStatusNotReachable:
                 // do NotReachable stuff
                 break;
-            case Unknown:
+            case SMNetworkStatusUnknown:
                 // do Unknown stuff
                 break;
             default:
@@ -83,7 +86,7 @@ typedef enum {
  
  In order to access the value of `SMCurrentNetworkStatusKey` in a format for comparing to specific states or use in a switch statement, retrieve the intValue like this:
  
-        if ([[[notification userInfo] objectForKey:SMCurrentNetworkStatusKey] intValue] == Reachable) {
+        if ([[[notification userInfo] objectForKey:SMCurrentNetworkStatusKey] intValue] == SMNetworkStatusReachable) {
             // do Reachable stuff
         }
  
@@ -100,6 +103,10 @@ typedef enum {
             // maybe notify some objects
  
         }];
+ 
+ ## Deprecations
+ 
+ As of version X.X.X, network status options are prefixed with SMNetowrkStatus.  Instead of Reachable, use SMNetworkStatusReachable.  This change was made for consistency purposes.
  
  */
 @interface SMNetworkReachability : AFHTTPClient

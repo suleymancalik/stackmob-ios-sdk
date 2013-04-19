@@ -44,11 +44,11 @@
 - (void)networkDidChange:(NSNotification *)notification
 {
     NSLog(@"user info is %@", [notification userInfo]);
-    if ([[[notification userInfo] objectForKey:SMCurrentNetworkStatusKey] intValue] == Reachable) {
+    if ([[[notification userInfo] objectForKey:SMCurrentNetworkStatusKey] intValue] == SMNetworkStatusReachable) {
         NSLog(@"Reachable");
     }
     switch ([[[notification userInfo] objectForKey:SMCurrentNetworkStatusKey] intValue]) {
-        case  Reachable:
+        case  SMNetworkStatusReachable:
             NSLog(@"Reachable via switch statement");
             break;
         default:
