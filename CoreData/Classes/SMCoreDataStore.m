@@ -51,9 +51,10 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
 @property (nonatomic, strong) id defaultCoreDataMergePolicy;
 @property (nonatomic) dispatch_queue_t cachePurgeQueue;
 
-@property (nonatomic, strong, readwrite) SMSyncFailedObjectsCallback failedInsertsCallback;
-@property (nonatomic, strong, readwrite) SMSyncFailedObjectsCallback failedUpdatesCallback;
-@property (nonatomic, strong, readwrite) SMSyncFailedObjectsCallback failedDeletesCallback;
+@property (nonatomic, strong, readwrite) SMMergeCallback mergeCallbackForFailedInserts;
+@property (nonatomic, strong, readwrite) SMMergeCallback mergeCallbackForFailedUpdates;
+@property (nonatomic, strong, readwrite) SMMergeCallback mergeCallbackForFailedDeletes;
+@property (nonatomic, strong, readwrite) SMMergeCallback syncWithServerCompletionCallback;
 
 - (NSManagedObjectContext *)SM_newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
 - (void)SM_didReceiveSetCachePolicyNotification:(NSNotification *)notification;
@@ -72,8 +73,8 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
 @synthesize cachePurgeQueue = _cachePurgeQueue;
 @synthesize cachePolicy = _cachePolicy;
 @synthesize globalRequestOptions = _globalRequestOptions;
-@synthesize updateSMMergePolicy = _updateSMMergePolicy;
-@synthesize deleteSMMergePolicy = _deleteSMMergePolicy;
+@synthesize updateOperationSMMergePolicy = _updateOperationSMMergePolicy;
+@synthesize deleteOperationSMMergePolicy = _deleteOperationSMMergePolicy;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
@@ -88,13 +89,14 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveSetCachePolicyNotification:) name:SMSetCachePolicyNotification object:self.session.networkMonitor];
         
-        self.failedInsertsCallback = nil;
-        self.failedUpdatesCallback = nil;
-        self.failedDeletesCallback = nil;
+        self.mergeCallbackForFailedInserts = nil;
+        self.mergeCallbackForFailedUpdates = nil;
+        self.mergeCallbackForFailedDeletes = nil;
+        self.syncWithServerCompletionCallback = nil;
         
         self.defaultSMMergePolicy = SMMergePolicyLastModifiedWins;
-        self.updateSMMergePolicy = nil;
-        self.deleteSMMergePolicy = nil;
+        self.updateOperationSMMergePolicy = nil;
+        self.deleteOperationSMMergePolicy = nil;
         
     }
     
@@ -259,6 +261,7 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
     [[NSNotificationCenter defaultCenter] postNotificationName:SMSyncWithServerNotification object:self userInfo:nil];
 }
 
+/*
 - (void)setSyncCallbackForFailedInserts:(void (^)(NSArray *failedObjects))block
 {
     self.failedInsertsCallback = block;
@@ -273,6 +276,7 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
 {
     self.failedDeletesCallback = block;
 }
+ */
 
 - (void)markObjectAsSynced:(NSManagedObjectID *)objectID
 {

@@ -2871,17 +2871,22 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         }
         
         // Send outcome to error callback
-        if (executeInsertsErrorCallback && self.coreDataStore.failedInsertsCallback) {
+        if (executeInsertsErrorCallback && self.coreDataStore.mergeCallbackForFailedInserts) {
             // execute callback
-            self.coreDataStore.failedInsertsCallback(syncInsertFailures);
+            self.coreDataStore.mergeCallbackForFailedInserts(syncInsertFailures);
         }
-        if (executeUpdatesErrorCallback && self.coreDataStore.failedUpdatesCallback) {
+        if (executeUpdatesErrorCallback && self.coreDataStore.mergeCallbackForFailedUpdates) {
             // execute callback
-            self.coreDataStore.failedUpdatesCallback(syncUpdateFailures);
+            self.coreDataStore.mergeCallbackForFailedUpdates(syncUpdateFailures);
         }
-        if (executeDeletesErrorCallback && self.coreDataStore.failedDeletesCallback) {
+        if (executeDeletesErrorCallback && self.coreDataStore.mergeCallbackForFailedDeletes) {
             // execute callback
-            self.coreDataStore.failedDeletesCallback(syncDeleteFailures);
+            self.coreDataStore.mergeCallbackForFailedDeletes(syncDeleteFailures);
+        }
+        
+        // TODO send objects to block
+        if (self.coreDataStore.syncWithServerCompletionCallback) {
+            self.coreDataStore.syncWithServerCompletionCallback([NSArray array]);
         }
 
     }
@@ -3030,7 +3035,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 NSDictionary *clientObjectDictRep = [clientObject dictionaryWithValuesForKeys:[[entityDesc propertiesByName] allKeys]];
                 
                 // Apply merge policy
-                SMMergeObjectKey objectToUse = self.coreDataStore.updateSMMergePolicy ? self.coreDataStore.updateSMMergePolicy(clientObjectDictRep, serverObject) : self.coreDataStore.defaultSMMergePolicy(clientObjectDictRep, serverObject);
+                SMMergeObjectKey objectToUse = self.coreDataStore.updateOperationSMMergePolicy ? self.coreDataStore.updateOperationSMMergePolicy(clientObjectDictRep, serverObject) : self.coreDataStore.defaultSMMergePolicy(clientObjectDictRep, serverObject);
                 
                 // Add object to update list or merge server object into cache
                 switch (objectToUse) {
@@ -3139,7 +3144,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 NSDictionary *clientObjectDictRep = [NSDictionary dictionaryWithObjectsAndKeys:obj[2], @"lastmoddate", nil];
                 
                 // Apply merge policy
-                SMMergeObjectKey objectToUse = self.coreDataStore.deleteSMMergePolicy ? self.coreDataStore.deleteSMMergePolicy(clientObjectDictRep, serverObject) : self.coreDataStore.defaultSMMergePolicy(clientObjectDictRep, serverObject);
+                SMMergeObjectKey objectToUse = self.coreDataStore.deleteOperationSMMergePolicy ? self.coreDataStore.deleteOperationSMMergePolicy(clientObjectDictRep, serverObject) : self.coreDataStore.defaultSMMergePolicy(clientObjectDictRep, serverObject);
                 
                 // Add object to update list or merge server object into cache
                 switch (objectToUse) {

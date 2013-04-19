@@ -36,7 +36,7 @@ typedef int (^SMMergePolicy)(NSDictionary *clientObject, NSDictionary *serverObj
 extern SMMergePolicy const SMMergePolicyClientWins;
 extern SMMergePolicy const SMMergePolicyLastModifiedWins;
 
-typedef void (^SMSyncFailedObjectsCallback)(NSArray *failedObjects);
+typedef void (^SMMergeCallback)(NSArray *objects);
 
 @class SMIncrementalStore;
 
@@ -267,21 +267,22 @@ typedef void (^SMSyncFailedObjectsCallback)(NSArray *failedObjects);
 // SYNC METHODS
 - (void)syncWithServer;
 
-// TODO decide on method name
-
-- (void)setSyncCallbackForFailedInserts:(void (^)(NSArray *failedObjects))block;
+/*
+- (void)setMergeCallbackForFailedInserts:(void (^)(NSArray *failedObjects))block;
 - (void)setSyncCallbackForFailedUpdates:(void (^)(NSArray *failedObjects))block;
 - (void)setSyncCallbackForFailedDeletes:(void (^)(NSArray *failedObjects))block;
+*/
 
 - (void)markObjectAsSynced:(NSManagedObjectID *)objectID;
 - (void)markArrayOfObjectsAsSynced:(NSArray *)objectIDs;
 
 @property (nonatomic, strong) SMMergePolicy defaultSMMergePolicy;
-@property (nonatomic, strong) SMMergePolicy updateSMMergePolicy;
-@property (nonatomic, strong) SMMergePolicy deleteSMMergePolicy;
+@property (nonatomic, strong) SMMergePolicy updateOperationSMMergePolicy;
+@property (nonatomic, strong) SMMergePolicy deleteOperationSMMergePolicy;
 
-@property (nonatomic, strong, readonly) SMSyncFailedObjectsCallback failedInsertsCallback;
-@property (nonatomic, strong, readonly) SMSyncFailedObjectsCallback failedUpdatesCallback;
-@property (nonatomic, strong, readonly) SMSyncFailedObjectsCallback failedDeletesCallback;
+@property (nonatomic, strong, readonly) SMMergeCallback mergeCallbackForFailedInserts;
+@property (nonatomic, strong, readonly) SMMergeCallback mergeCallbackForFailedUpdates;
+@property (nonatomic, strong, readonly) SMMergeCallback mergeCallbackForFailedDeletes;
+@property (nonatomic, strong, readonly) SMMergeCallback syncWithServerCompletionCallback;
 
 @end
