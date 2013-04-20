@@ -175,10 +175,17 @@
 
 <h2>Fetch Requests</h2>
 
+<b>Supported:</b>
 <ul>
 	<li>Sort Descriptors</li>
 	<li>Fetch Offset</li>
 	<li>Fetch Limit</li>
+	<li>Fetch Entity with predicate "relationship key == managed object or managed object ID", for to-one relationships</li>
+</ul>
+<b>Not Supported</b>
+<ul>
+	<li>Fetching Entity with predicate "relationshipKey.attribute == value"</li>
+	<li>Fetching Geo-point data from the cache</li>
 </ul>
 
 <h2>Predicates</h2>
@@ -208,13 +215,45 @@
 
 <h2>User Objects</h2>
 
+<p>To create proper user objects, create an entity matching your StackMob schema used for user objects.  For example purposes we will use User.</p>
+<p>Add the appropriate fields, leaving password out (we don't want to store the user's password directly through Core Data).</p>
+<p>Create a managed object subclass.  In the header file import <code>StackMob.h</code> and change the class inheritance from <code>NSManagedObject</code> to <code>SMUserManagedObject</code>.</p>
+<p>If you wish to declare a custom init function, do so as well.</p>
+<p>Your header file will look something like:</p>
+
+<pre><code>
+#import "StackMob.h"
+
+@interface User : SMUserManagedObject
+
+@property (nonatomic, retain) NSString * username;
+@property (nonatomic, retain) NSString * email;
+
+@end
+</code></pre>
+
+<a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMUserManagedObject.html" target="_blank">SMUserManagedObject</a> provides a few helper methods, including a method to set the password as well as an init function that must be called in any custom init implementation.
+
 
 <h2>Geo-Data <i>(v1.3.0+)</i></h2>
+
+<p><a href="http://developer.stackmob.com/tutorials/ios/Saving-Geo-Location-Data" target="_blank">Save Geo-location data in your managed objects.</a></p>
+<p><a href="http://developer.stackmob.com/tutorials/ios/Querying-Geo-Location-Data" target="_blank">Query Geo-location data using fetch requests.</a></p>
 
 
 <h2>Concurrency API <i>(v1.2.0+)</i></h2>
 
+<p>The concurrency API brings a new set of asynchronous and synchronous operations to Core Data.  All methods follow patterns to execute saves and fetches on background queues on private contexts.  It is recommended to use these methods to achieve optimal performance between Core Data, StackMob and the local caching system.</p>
+
+<p>All methods can be found in the <a href="http://stackmob.github.io/stackmob-ios-sdk/Categories/NSManagedObjectContext+Concurrency.html" target="_blank">SMManagedObjectContext+Concurrency Class Reference</a>.</p>
+
 <h2>Global and Per-Request Options <i>(v1.3.0+)</i></h2>
+
+<p>Define and set a custom instance of `SMRequestOptions` for Core Data to use when sending requests to StackMob.</p>
+<p>Default options as well as per-operation (save/fetch) options can be set.</p>
+<p>Currently, only the HTTPS setting is honored.</p>
+<p>Global request options property found in <a href="http://stackmob.github.io/stackmob-ios-sdk/Classes/SMCoreDataStore.html#//api/name/globalRequestOptions" target="_blank">SMCoreDataStore</a>.</p>
+<p>Per-operation request options parameter available using <a href="http://stackmob.github.io/stackmob-ios-sdk/Categories/NSManagedObjectContext+Concurrency.html" target="_blank">Concurrency API methods, Per Request Options section</a>.<p>
 
 					
 				</div>
