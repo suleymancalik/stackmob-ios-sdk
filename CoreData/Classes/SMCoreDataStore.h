@@ -280,9 +280,9 @@ typedef void (^SMMergeCallback)(NSArray *objects);
 @property (nonatomic, strong) SMMergePolicy updateOperationSMMergePolicy;
 @property (nonatomic, strong) SMMergePolicy deleteOperationSMMergePolicy;
 
-@property (nonatomic, strong, readonly) SMMergeCallback mergeCallbackForFailedInserts;
-@property (nonatomic, strong, readonly) SMMergeCallback mergeCallbackForFailedUpdates;
-@property (nonatomic, strong, readonly) SMMergeCallback mergeCallbackForFailedDeletes;
-@property (nonatomic, strong, readonly) SMMergeCallback syncWithServerCompletionCallback;
+@property (nonatomic, strong) SMMergeCallback mergeCallbackForFailedInserts;
+@property (nonatomic, strong) SMMergeCallback mergeCallbackForFailedUpdates;
+@property (nonatomic, strong) SMMergeCallback mergeCallbackForFailedDeletes;
+@property (nonatomic, strong) SMMergeCallback syncWithServerCompletionCallback;
 
 @end

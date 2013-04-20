@@ -51,10 +51,10 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
 @property (nonatomic, strong) id defaultCoreDataMergePolicy;
 @property (nonatomic) dispatch_queue_t cachePurgeQueue;
 
-@property (nonatomic, strong, readwrite) SMMergeCallback mergeCallbackForFailedInserts;
-@property (nonatomic, strong, readwrite) SMMergeCallback mergeCallbackForFailedUpdates;
-@property (nonatomic, strong, readwrite) SMMergeCallback mergeCallbackForFailedDeletes;
-@property (nonatomic, strong, readwrite) SMMergeCallback syncWithServerCompletionCallback;
+//@property (nonatomic, strong, readwrite) SMMergeCallback mergeCallbackForFailedInserts;
+//@property (nonatomic, strong, readwrite) SMMergeCallback mergeCallbackForFailedUpdates;
+//@property (nonatomic, strong, readwrite) SMMergeCallback mergeCallbackForFailedDeletes;
+//@property (nonatomic, strong, readwrite) SMMergeCallback syncWithServerCompletionCallback;
 
 - (NSManagedObjectContext *)SM_newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
 - (void)SM_didReceiveSetCachePolicyNotification:(NSNotification *)notification;

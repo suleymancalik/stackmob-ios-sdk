@@ -1282,17 +1282,31 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     dispatch_queue_t queue = dispatch_queue_create("Fetch Objects Queue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
-    dispatch_group_enter(group);
-    [self.coreDataStore performQuery:query options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSArray *results) {
-        resultsWithoutOID = results;
+    NSMutableURLRequest *queryRequest = [[self.coreDataStore.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"GET" path:[query schemaName] parameters:[query requestParameters]];
+    [query.requestHeaders enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        [queryRequest setValue:(NSString *)obj forHTTPHeaderField:(NSString *)key];
+    }];
+    
+    __block NSDate *fetchDate = nil;
+    SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON){
+        fetchDate = [[response allHeaderFields] objectForKey:@"Date"];
+        resultsWithoutOID = (NSArray *)JSON;
         dispatch_group_leave(group);
-    } onFailure:^(NSError *queryError) {
+    };
+    
+    SMFailureBlock failureBlock = ^(NSError *queryError){
         
         if (error != NULL) {
             *error = (__bridge id)(__bridge_retained CFTypeRef)queryError;
         }
         dispatch_group_leave(group);
-    }];
+    };
+    
+    SMFullResponseFailureBlock urlFailureBlock = [self.coreDataStore SMFullResponseFailureBlockForFailureBlock:failureBlock];
+    
+    dispatch_group_enter(group);
+    
+    [self.coreDataStore queueRequest:queryRequest options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:urlSuccessBlock onFailure:urlFailureBlock];
     
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     
