@@ -175,11 +175,97 @@
 
 <h2>Fetch Requests</h2>
 
-<b>Supported:</b>
+<p>Support Table is based on <code>NSFetchRequest</code> methods.  Additional support, especially in regards to managing how results are returned, is planned for future releases.</p>
+<table cellpadding="8px" width="600px">
+    <tr align="center">
+        <th>NSFetchRequest method</th>
+        <th>Supported</th>
+    </tr>
+    <tr>
+        <td>fetchRequestWithEntityName:</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>entityName / initWithEntityName:</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>entity / setEntity:</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>includesSubentities / setIncludesSubEntities:</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>predicate / setPredicate:</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>fetchLimit / setFetchLimit:</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>fetchOffset / setFetchOffset:</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>fetchBatchSize / setFetchBatchSize:</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>affectedStores / setAffectedStores:</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>sortDescriptors / setSortDescriptors:</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>relationshipKeyPathsForPrefetching / setRelationshipKeyPathsForPrefetching:</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>resultType / setResultType:</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>includesPendingChanges / setIncludesPendingChanges:</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>propertiesToFetch / setPropertiesToFetch:</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>returnsDistinctRestults / setReturnsDistinctResults:</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>includesPropertyValues / setIncludesPropertyValues:</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>shouldRefreshRefetchedObjects / setShouldRefreshRefetchedObjects:</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>returnObjectsAsFaults / setReturnObjectsAsFaults:</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>propertiesToGroupBy / setPropertiesToGroupBy:</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>havingPredicate / setHavingPredicate:</td>
+        <td>NO</td>
+    </tr>
+    
+</table>
+
+<b>Additional Supported Features:</b>
 <ul>
-	<li>Sort Descriptors</li>
-	<li>Fetch Offset</li>
-	<li>Fetch Limit</li>
 	<li>Fetch Entity with predicate "relationship key == managed object or managed object ID", for to-one relationships</li>
 </ul>
 <b>Not Supported</b>
