@@ -284,5 +284,6 @@ typedef void (^SMMergeCallback)(NSArray *objects);
 @property (nonatomic, strong) SMMergeCallback mergeCallbackForFailedUpdates;
 @property (nonatomic, strong) SMMergeCallback mergeCallbackForFailedDeletes;
 @property (nonatomic, strong) SMMergeCallback syncWithServerCompletionCallback;
+@property (nonatomic) dispatch_queue_t mergeCallbackQueue;
 
 @end

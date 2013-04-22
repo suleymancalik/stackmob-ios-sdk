@@ -75,28 +75,38 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
 @synthesize globalRequestOptions = _globalRequestOptions;
 @synthesize updateOperationSMMergePolicy = _updateOperationSMMergePolicy;
 @synthesize deleteOperationSMMergePolicy = _deleteOperationSMMergePolicy;
+@synthesize mergeCallbackQueue = _mergeCallbackQueue;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
     self = [super initWithAPIVersion:apiVersion session:session];
     if (self) {
         _managedObjectModel = managedObjectModel;
-        _defaultCoreDataMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
+        
+        
+        /// Init callback queues
+        self.mergeCallbackQueue = dispatch_get_main_queue();
         self.cachePurgeQueue = dispatch_queue_create("Purge Cache Of Object Queue", NULL);
+        
+        /// Set default cache and merge policies
         [self setCachePolicy:SMCachePolicyTryNetworkOnly];
+        _defaultCoreDataMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
+        self.defaultSMMergePolicy = SMMergePolicyLastModifiedWins;
+        self.updateOperationSMMergePolicy = nil;
+        self.deleteOperationSMMergePolicy = nil;
         
-        self.globalRequestOptions = [SMRequestOptions options];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveSetCachePolicyNotification:) name:SMSetCachePolicyNotification object:self.session.networkMonitor];
-        
+        /// Init callbacks
         self.mergeCallbackForFailedInserts = nil;
         self.mergeCallbackForFailedUpdates = nil;
         self.mergeCallbackForFailedDeletes = nil;
         self.syncWithServerCompletionCallback = nil;
         
-        self.defaultSMMergePolicy = SMMergePolicyLastModifiedWins;
-        self.updateOperationSMMergePolicy = nil;
-        self.deleteOperationSMMergePolicy = nil;
+        /// Init global request options
+        self.globalRequestOptions = [SMRequestOptions options];
+        
+        /// Add observer for set cache policy
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveSetCachePolicyNotification:) name:SMSetCachePolicyNotification object:self.session.networkMonitor];
+        
         
     }
     
