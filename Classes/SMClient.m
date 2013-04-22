@@ -277,7 +277,7 @@ static SMClient *defaultClient = nil;
             failureBlock(error);
         }
     } else {
-        NSDictionary *args = [NSDictionary dictionaryWithObject:username forKey:self.userPrimaryKeyField];
+        NSDictionary *args = [NSDictionary dictionaryWithObject:username forKey:DEFAULT_PRIMARY_KEY_FIELD_NAME];
         [self.dataStore createObject:args inSchema:[self.userSchema stringByAppendingPathComponent:@"forgotPassword"] onSuccess:^(NSDictionary *theObject, NSString *schema) {
             if (successBlock) {
                 successBlock(theObject);
