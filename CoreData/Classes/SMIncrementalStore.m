@@ -1929,8 +1929,17 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             [cacheObjectsToBePurged addObject:obj];
         }];
         [self SM_purgeCacheManagedObjectsFromCache:cacheObjectsToBePurged];
-        __block NSMutableSet *newRelationshipContents = [cacheParentObject mutableSetValueForKey:[relationship name]];
-        [newRelationshipContents removeAllObjects];
+        
+        //Using NSObject here as NSMutableSet and NSMutableOrderedSet don't share a mutable base class
+        //By doing this and casting in the right place we avoid having to duplicate a lot of code
+        __block NSObject *newRelationshipContents = nil;
+        if ([relationship isOrdered]) {
+            newRelationshipContents = [cacheParentObject mutableOrderedSetValueForKey:[relationship name]];
+            [(NSMutableOrderedSet *)newRelationshipContents removeAllObjects];
+        } else {
+            newRelationshipContents = [cacheParentObject mutableSetValueForKey:[relationship name]];
+            [(NSMutableSet *)newRelationshipContents removeAllObjects];
+        }
         
         if (relationshipContents) {
             // Cache and relate new objects
@@ -1946,7 +1955,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 // Cache object
                 [self SM_cacheObjectWithID:relatedObjectPrimaryKey values:expandedObject entity:[relationship destinationEntity] context:context];
                 NSManagedObject *newlyCachedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:relatedObjectPrimaryKey entityName:[[relationship destinationEntity] name]]];
-                [newRelationshipContents addObject:newlyCachedObject];
+                
+                if ([relationship isOrdered]) {
+                    [(NSMutableOrderedSet *)newRelationshipContents addObject:newlyCachedObject];
+                } else {
+                    [(NSMutableSet *)newRelationshipContents addObject:newlyCachedObject];
+                }
             }];
             
             [self SM_saveCache:error];
@@ -2048,12 +2062,24 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             if ([property isKindOfClass:[NSAttributeDescription class]]) {
                 [object setValue:propertyValueFromSerializedDict forKey:propertyName];
             } else if ([(NSRelationshipDescription *)property isToMany]) {
-                __block NSMutableSet *objectRelationshipSet = [object mutableSetValueForKey:propertyName];
-                [objectRelationshipSet removeAllObjects];
-                [(NSSet *)propertyValueFromSerializedDict enumerateObjectsUsingBlock:^(id obj, BOOL *stopEnum) {
-                    NSManagedObject *objectToAdd = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:obj] entityName:[[property destinationEntity] name]]];
-                    [objectRelationshipSet addObject:objectToAdd];
-                }];
+                
+                if ([(NSRelationshipDescription *)property isOrdered]) {
+                    __block NSMutableOrderedSet *objectRelationshipSet = nil;
+                    objectRelationshipSet = [object mutableOrderedSetValueForKey:propertyName];
+                    [objectRelationshipSet removeAllObjects];
+                    [(NSSet *)propertyValueFromSerializedDict enumerateObjectsUsingBlock:^(id obj, BOOL *stopEnum) {
+                        NSManagedObject *objectToAdd = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:obj] entityName:[[property destinationEntity] name]]];
+                        [objectRelationshipSet addObject:objectToAdd];
+                    }];
+                } else {
+                    __block NSMutableSet *objectRelationshipSet = nil;
+                    objectRelationshipSet = [object mutableSetValueForKey:propertyName];
+                    [objectRelationshipSet removeAllObjects];
+                    [(NSSet *)propertyValueFromSerializedDict enumerateObjectsUsingBlock:^(id obj, BOOL *stopEnum) {
+                        NSManagedObject *objectToAdd = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:obj] entityName:[[property destinationEntity] name]]];
+                        [objectRelationshipSet addObject:objectToAdd];
+                    }];
+                }
             } else {
                 // Recursively cache child objects, if any
                 if ([propertyValueFromSerializedDict isKindOfClass:[NSDictionary class]]) {
@@ -2126,7 +2152,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         NSError *fetchError = nil;
         NSArray *results = [self.localManagedObjectContext executeFetchRequest:fetchRequest error:&fetchError];
-        NSLog(@"results are %@", results);
+        if (SM_CORE_DATA_DEBUG) {DLog(@"results are %@", results);}
         if ([results count] == 0) {
             // delete object we are replacing
             NSManagedObjectID *cacheObjectId = [[self localPersistentStoreCoordinator] managedObjectIDForURIRepresentation:[NSURL URLWithString:cacheReferenceId]];
