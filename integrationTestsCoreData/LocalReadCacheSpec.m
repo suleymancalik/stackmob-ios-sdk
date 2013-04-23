@@ -328,7 +328,7 @@ describe(@"Fetch with Cache", ^{
             __block NSString *superpowerId = nil;
             
             [[theValue([cds cachePolicy]) should] equal:theValue(SMCachePolicyTryNetworkOnly)];
-            
+            SM_CORE_DATA_DEBUG = YES;
             // fetch new object, which will fault
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"] context:moc] andBlock:^(NSArray *results, NSError *error) {
                 [[theValue([results count]) should] equal:theValue(1)];
@@ -440,7 +440,7 @@ describe(@"Fetch with Cache", ^{
             [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                 [error shouldBeNil];
             }];
-            
+            SM_CORE_DATA_DEBUG = NO;
         });
     });
     
