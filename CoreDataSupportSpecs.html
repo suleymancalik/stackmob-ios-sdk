@@ -280,17 +280,71 @@
 
 <p>Predicate's <b>leftExpression</b> must be of type <b>NSKeyPathExpressionType</b>.</p>
 <p>Predicate's <b>rightExpression</b> must be of type <b>NSConstantValueExpressionType</b>.</p>
-<p>Supported Predicate Operator Types:
-<ul>
-	<li>NSEqualToPredicateOperatorType</li>
-	<li>NSNotEqualToPredicateOperatorType</li>
-	<li>NSLessThanPredicateOperatorType</li>
-	<li>NSLessThanOrEqualToPredicateOperatorType</li>
-	<li>NSGreaterThanPredicateOperatorType</li>
-	<li>NSGreaterThanOrEqualToPredicateOperatorType</li>
-	<li>NSBetweenPredicateOperatorType</li>
-	<li>NSInPredicateOperatorType</li>
-</ul>
+
+<p>Supported Predicate Operator Types: (based on NSPredicateOperatorType)</p>
+<table cellpadding="8px" width="600px">
+    <tr align="center">
+        <th>NSPredicateOperatorType</th>
+        <th>Supported</th>
+    </tr>
+    <tr>
+        <td>NSLessThanPredicateOperatorType</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>NSLessThanOrEqualToPredicateOperatorType</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>NSGreaterThanPredicateOperatorType</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>NSGreaterThanOrEqualToPredicateOperatorType</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>NSEqualToPredicateOperatorType</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>NSNotEqualToPredicateOperatorType</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>NSMatchesPredicateOperatorType</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>NSLikePredicateOperatorType</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>NSBeginsWithPredicateOperatorType</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>NSEndsWithPredicateOperatorType</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>NSInPredicateOperatorType</td>
+        <td><b>YES</b></td>
+    </tr>
+    <tr>
+        <td>NSCustomSelectorPredicateOperatorType</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>NSContainsPredicateOperatorType</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>NSBetweenPredicateOperatorType</td>
+        <td><b>YES</b></td>
+    </tr>
+
+</table>
 
 <h3>Compound Predicates</h3>
 <p>For a tutorial on using compound predicates see the <a href="https://developer.stackmob.com/tutorials/ios/Advanced-Queries" target="_blank">Advanced Query Tutorial</a>.
