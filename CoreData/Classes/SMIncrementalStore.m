@@ -60,6 +60,8 @@ NSString *const SMMarkObjectAsSyncedNotification = @"SMMarkObjectAsSyncedNotific
 NSString *const SMMarkArrayOfObjectsAsSyncedNotification = @"SMMarkArrayOfObjectsAsSyncedNotification";
 NSString *const SMSyncWithServerNotification = @"SMSyncWithServerNotification";
 
+NSString *const SMLastModDateKey = @"lastmoddate";
+
 ///-------------------------------
 /// Internal Constants
 ///-------------------------------
@@ -83,7 +85,6 @@ NSString *const SMDirtyObjectPrimaryKey = @"SMDirtyObjectPrimaryKey";
 NSString *const SMDirtyObjectEntityName = @"SMDirtyObjectEntityName";
 
 NSString *const SMDeletedDateKey = @"SMDeletedDate";
-NSString *const SMLastModDateKey = @"lastmoddate";
 NSString *const SMCreatedDateKey = @"createddate";
 NSString *const SMServerTimeDiff = @"SMServerTimeDiff";
 
@@ -507,10 +508,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [query.requestHeaders enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
         [request setValue:(NSString *)obj forHTTPHeaderField:(NSString *)key];
     }];
+    __block NSDate *requestDate = [NSDate date];
     SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *successRequest, NSHTTPURLResponse *response, id JSON) {
         
         // Calculate server time diff if needed
-        [self SM_recordServerTimeDiffFromResponse:response];
+        NSDate *responseDate = [NSDate date];
+        [self SM_recordServerTimeDiffFromResponse:response requestDate:requestDate responseDate:responseDate];
         
         networkAvailable = YES;
         dispatch_group_leave(group);
@@ -521,8 +524,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         if ([error code] == SMErrorNetworkNotReachable) {
             networkAvailable = NO;
         } else {
-            // Calculate server time diff
-            [self SM_recordServerTimeDiffFromResponse:response];
+            // Calculate server time diff if needed
+            NSDate *responseDate = [NSDate date];
+            [self SM_recordServerTimeDiffFromResponse:response requestDate:requestDate responseDate:responseDate];
             
             networkAvailable = YES;
         }
@@ -530,6 +534,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     };
     
     dispatch_group_enter(group);
+    
     [self.coreDataStore queueRequest:request options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:urlSuccessBlock onFailure:urlFailureBlock];
     
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
@@ -544,20 +549,51 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 }
 
 
-- (void)SM_recordServerTimeDiffFromResponse:(NSHTTPURLResponse *)response {
+- (void)SM_recordServerTimeDiffFromResponse:(NSHTTPURLResponse *)response requestDate:(NSDate *)requestDate responseDate:(NSDate *)responseDate {
     
     NSString *header = [[response allHeaderFields] objectForKey:@"Date"];
     
     if (header != nil) {
         
+        double totalRequestTime = fabsl([requestDate timeIntervalSinceDate:responseDate]);
+        NSLog(@"totalRequestTime is %f", totalRequestTime);
+        
+        
+        long double serverTime = [header doubleValue] / 1000.0000;
+        NSLog(@"server time is %Lf", serverTime);
+        double clientServerDiff = fabsl(serverTime - [responseDate timeIntervalSince1970]);
+        NSLog(@"diff in client/server is %f", clientServerDiff);
+        
+        if (clientServerDiff > totalRequestTime) {
+            self.serverTimeDiff = serverTime - [responseDate timeIntervalSince1970] > 0 ? serverTime - [responseDate timeIntervalSince1970] - totalRequestTime : serverTime - [responseDate timeIntervalSince1970] + totalRequestTime;
+            
+            NSLog(@"device date is %@, server time diff is %f", responseDate, self.serverTimeDiff);
+            NSLog(@"device date with server time applied is %@", [responseDate dateByAddingTimeInterval:self.serverTimeDiff]);
+            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithDouble:self.serverTimeDiff] forKey:SMServerTimeDiff];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Server Time Diff is %f", self.serverTimeDiff) }
+        }
+        
+        /*
         NSDateFormatter *rfcFormatter = [[NSDateFormatter alloc] init];
         [rfcFormatter setDateFormat:@"EEE, dd MMM yyyy HH:mm:ss zzz"];
         NSDate *serverTime = [rfcFormatter dateFromString:header];
-        self.serverTimeDiff = [serverTime timeIntervalSinceDate:[NSDate date]];
-        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithDouble:self.serverTimeDiff] forKey:SMServerTimeDiff];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        NSLog(@"server time is %f", [serverTime timeIntervalSince1970]);
+        double clientServerDiff = fabsl([serverTime timeIntervalSinceDate:responseDate]);
         
-        NSLog(@"Server time diff is %f", self.serverTimeDiff);
+        // if (abs(serverTime - clientTime) > abs(reponseTime - requestTime)), record
+        if (clientServerDiff > totalRequestTime) {
+            self.serverTimeDiff = [serverTime timeIntervalSince1970] - [responseDate timeIntervalSince1970] > 0 ? [serverTime timeIntervalSinceDate:responseDate] - totalRequestTime : [serverTime timeIntervalSinceDate:responseDate] + totalRequestTime;
+            
+            NSLog(@"device date is %@, server time diff is %f", responseDate, self.serverTimeDiff);
+            NSLog(@"device date with server time applied is %@", [responseDate dateByAddingTimeInterval:self.serverTimeDiff]);
+            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithDouble:self.serverTimeDiff] forKey:SMServerTimeDiff];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            if (SM_CORE_DATA_DEBUG) { DLog(@"Server Time Diff is %f", self.serverTimeDiff) }
+        }
+         */
+        
+        
     }
 }
 
@@ -866,8 +902,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         [dictionaryRepOfManagedObject addEntriesFromDictionary:[self SM_extractRelationshipships:[managedObject dictionaryWithValuesForKeys:[[[managedObject entity] relationshipsByName] allKeys]]]];
         
         // Assign lastmoddate and createddate?
+        NSLog(@"Before updating client object offline, lastmoddate is %@ with interval %f", [dictionaryRepOfManagedObject objectForKey:@"lastmoddate"], [[dictionaryRepOfManagedObject objectForKey:@"lastmoddate"] timeIntervalSince1970]);
         if ([dictionaryRepOfManagedObject objectForKey:@"lastmoddate"]) {
-            [dictionaryRepOfManagedObject setObject:[[NSDate date] dateByAddingTimeInterval:self.serverTimeDiff] forKey:@"lastmoddate"];
+            NSDate *dateToSet = [NSDate date];
+            NSLog(@"Date before applying server time diff is %f", [dateToSet timeIntervalSince1970]);
+            [dictionaryRepOfManagedObject setObject:[dateToSet dateByAddingTimeInterval:self.serverTimeDiff] forKey:@"lastmoddate"];
+            NSLog(@"After updating client object offline, lastmoddate is now %@ with interval %f", [dictionaryRepOfManagedObject objectForKey:@"lastmoddate"], [[dictionaryRepOfManagedObject objectForKey:@"lastmoddate"] timeIntervalSince1970]);
         }
         
         // Add object to list of objects to be cached [primaryKey, dictionary of object, entity desc, context]
@@ -2495,7 +2535,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     if (SM_CORE_DATA_DEBUG) {DLog()}
     
     // Get cached managed object or create if needed
-    unsigned long long convertedValue = [[values objectForKey:SMLastModDateKey] unsignedLongLongValue] / 1000;
+    long double convertedValue = [[values objectForKey:SMLastModDateKey] doubleValue] / 1000.0000;
     NSDate *serverLastModDate = [NSDate dateWithTimeIntervalSince1970:convertedValue];
     NSManagedObject *cacheManagedObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:objectID entityName:[entity name] createIfNeeded:YES serverLastModDate:serverLastModDate]];
     
@@ -2893,7 +2933,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     BOOL networkIsReachable = [self SM_checkNetworkAvailability];
     
     if (networkIsReachable) {
-        
+        //__block NSMutableArray *mergedObjects = [NSMutableArray array];
         [self.coreDataStore.globalRequestOptions setTryRefreshToken:YES];
         
         BOOL executeInsertsErrorCallback = NO;
@@ -2924,20 +2964,28 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         // Send outcome to error callback
         if (executeInsertsErrorCallback && self.coreDataStore.mergeCallbackForFailedInserts) {
             // execute callback
-            self.coreDataStore.mergeCallbackForFailedInserts(syncInsertFailures);
+            dispatch_async(self.coreDataStore.mergeCallbackQueue, ^{
+                self.coreDataStore.mergeCallbackForFailedInserts(syncInsertFailures);
+            });
         }
         if (executeUpdatesErrorCallback && self.coreDataStore.mergeCallbackForFailedUpdates) {
             // execute callback
-            self.coreDataStore.mergeCallbackForFailedUpdates(syncUpdateFailures);
+            dispatch_async(self.coreDataStore.mergeCallbackQueue, ^{
+                self.coreDataStore.mergeCallbackForFailedUpdates(syncUpdateFailures);
+            });
         }
         if (executeDeletesErrorCallback && self.coreDataStore.mergeCallbackForFailedDeletes) {
             // execute callback
-            self.coreDataStore.mergeCallbackForFailedDeletes(syncDeleteFailures);
+            dispatch_async(self.coreDataStore.mergeCallbackQueue, ^{
+                self.coreDataStore.mergeCallbackForFailedDeletes(syncDeleteFailures);
+            });
         }
         
         // TODO send objects to block
         if (self.coreDataStore.syncWithServerCompletionCallback) {
-            self.coreDataStore.syncWithServerCompletionCallback([NSArray array]);
+            dispatch_async(self.coreDataStore.mergeCallbackQueue, ^{
+                self.coreDataStore.syncWithServerCompletionCallback([NSArray array]);
+            });
         }
 
     }
@@ -3046,18 +3094,17 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     // Grab all dirty inserts
     NSArray *dirtyUpdatedObjects = [self.dirtyQueue objectForKey:SMDirtyUpdatedObjectKeys];
     
-    
     if ([dirtyUpdatedObjects count] > 0) {
         
-        __block NSMutableSet *objectsToMergeWithServer = [NSMutableSet set];
-        __block NSMutableArray *serverMergeEntriesToPurgeFromDirtyQueue = [NSMutableArray array];
-        
+        __block NSMutableSet *objectsToMergeWithServerAsUpdates = [NSMutableSet set];
+        __block NSMutableSet *objectsToMergeWithServerAsInserts = [NSMutableSet set];
         __block NSMutableArray *objectsToMergeWithCache = [NSMutableArray array];
-        
         __block NSMutableArray *entriesToPurgeFromDirtyQueue = [NSMutableArray array];
+        __block NSMutableArray *objectsToPurgeFromCache = [NSMutableArray array];
         
         SMRequestOptions *options = self.coreDataStore.globalRequestOptions;
         
+        // For each object
         [dirtyUpdatedObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             
             // Read object from server
@@ -3067,9 +3114,11 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             NSManagedObjectContext *context = self.localManagedObjectContext;
             NSEntityDescription *entityDesc = [NSEntityDescription entityForName:objectEntityName inManagedObjectContext:context];
             NSError *error = nil;
-            NSDictionary *serverObject = [self SM_retrieveAndSerializeObjectWithID:objectPrimaryKey entity:entityDesc  options:options context:context includeRelationships:YES cacheResult:NO error:&error];
+            NSDictionary *serverObject = [self SM_retrieveAndSerializeObjectWithID:objectPrimaryKey entity:entityDesc options:options context:context includeRelationships:YES cacheResult:NO error:&error];
             
-            if (serverObject) {
+            // Continue as long as possible error was not 404
+            if (serverObject || (error && [error code] == SMErrorNotFound)) {
+                
                 // Retrieve current cached object
                 NSFetchRequest *fetchFromCache = [[NSFetchRequest alloc] initWithEntityName:objectEntityName];
                 [fetchFromCache setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", [entityDesc primaryKeyField], objectPrimaryKey]];
@@ -3085,19 +3134,38 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 NSManagedObject *clientObject = [cacheResults lastObject];
                 NSDictionary *clientObjectDictRep = [clientObject dictionaryWithValuesForKeys:[[entityDesc propertiesByName] allKeys]];
                 
+                // Get server base date
+                __block NSDate *serverBaseLMD = nil;
+                NSDictionary *cacheEntry = [[self.cacheMappingTable objectForKey:objectEntityName] copy];
+                NSArray *primaryKeyEntry = [cacheEntry objectForKey:objectPrimaryKey];
+                if ([primaryKeyEntry count] == 2) {
+                    serverBaseLMD = primaryKeyEntry[1];
+                }
+                
                 // Apply merge policy
-                SMMergeObjectKey objectToUse = self.coreDataStore.updateOperationSMMergePolicy ? self.coreDataStore.updateOperationSMMergePolicy(clientObjectDictRep, serverObject) : self.coreDataStore.defaultSMMergePolicy(clientObjectDictRep, serverObject);
+                SMMergeObjectKey objectToUse = self.coreDataStore.updatesSMMergePolicy ? self.coreDataStore.updatesSMMergePolicy(clientObjectDictRep, serverObject, serverBaseLMD) : self.coreDataStore.defaultSMMergePolicy(clientObjectDictRep, serverObject, serverBaseLMD);
                 
                 // Add object to update list or merge server object into cache
                 switch (objectToUse) {
                     case SMClientObject: {
-                        [objectsToMergeWithServer addObject:clientObject];
+                        if (!serverObject) {
+                            // object was deleted from server, must send object as insert
+                            [objectsToMergeWithServerAsInserts addObject:clientObject];
+                        } else {
+                            [objectsToMergeWithServerAsUpdates addObject:clientObject];
+                        }
                     }
                         break;
                     case SMServerObject: {
-                        // Create object info objectID, values, entity
-                        NSArray *serverObjectInfo = [NSArray arrayWithObjects:objectPrimaryKey, serverObject, entityDesc, nil];
-                        [objectsToMergeWithCache addObject:serverObjectInfo];
+                        if (!serverObject) {
+                            // object was deleted from server, delete object from cache
+                            [objectsToPurgeFromCache addObject:clientObject];
+                        } else {
+                            // Create object info objectID, values, entity
+                            NSArray *serverObjectInfo = [NSArray arrayWithObjects:objectPrimaryKey, serverObject, entityDesc, nil];
+                            [objectsToMergeWithCache addObject:serverObjectInfo];
+                        }
+
                         // Add object info for purge
                         NSArray *serverObjectInfoForPurge = [NSArray arrayWithObjects:objectPrimaryKey, objectEntityName, nil];
                         [entriesToPurgeFromDirtyQueue addObject:serverObjectInfoForPurge];
@@ -3122,21 +3190,34 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         }];
         
         // Send updates to server
-        if ([objectsToMergeWithServer count] > 0) {
+        if ([objectsToMergeWithServerAsUpdates count] > 0) {
             
             NSError *saveError = nil;
-            BOOL success = [self SM_handleUpdatedObjectsWhenOnline:objectsToMergeWithServer inContext:self.localManagedObjectContext serializeFullObjects:YES successBlockAddition:^(NSString *primaryKey, NSString *entityName) {
+            BOOL success = [self SM_handleUpdatedObjectsWhenOnline:objectsToMergeWithServerAsUpdates inContext:self.localManagedObjectContext serializeFullObjects:YES successBlockAddition:^(NSString *primaryKey, NSString *entityName) {
                 [entriesToPurgeFromDirtyQueue addObject:[NSArray arrayWithObjects:primaryKey, entityName, nil]];
             } options:options error:&saveError];
             
-            // Remove merged objects from dirty queue
             if (!success) {
                 // move failed objects from saveError to syncFailures
                 NSArray *failedUpdates = [[saveError userInfo] objectForKey:SMUpdatedObjectFailures];
                 [*syncFailures addObjectsFromArray:failedUpdates];
             }
             
-            [self SM_purgeDirtyQueueOfEntries:serverMergeEntriesToPurgeFromDirtyQueue type:1];
+        }
+        
+        // Send updates to server
+        if ([objectsToMergeWithServerAsInserts count] > 0) {
+            
+            NSError *saveError = nil;
+            BOOL success = [self SM_handleInsertedObjectsWhenOnline:objectsToMergeWithServerAsInserts inContext:self.localManagedObjectContext serializeFullObjects:YES successBlockAddition:^(NSString *primaryKey, NSString *entityName) {
+                [entriesToPurgeFromDirtyQueue addObject:[NSArray arrayWithObjects:primaryKey, entityName, nil]];
+            } options:options error:&saveError];
+            
+            if (!success) {
+                // move failed objects from saveError to syncFailures
+                NSArray *failedUpdates = [[saveError userInfo] objectForKey:SMUpdatedObjectFailures];
+                [*syncFailures addObjectsFromArray:failedUpdates];
+            }
             
         }
         
@@ -3144,6 +3225,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         // TODO should this return some kind of success
         if ([objectsToMergeWithCache count] > 0) {
             [self SM_cacheSerializedObjects:objectsToMergeWithCache];
+        }
+        
+        if ([objectsToPurgeFromCache count] > 0) {
+            [self SM_purgeCacheManagedObjectsFromCache:objectsToPurgeFromCache];
         }
         
         if ([entriesToPurgeFromDirtyQueue count] > 0) {
@@ -3194,8 +3279,16 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 
                 NSDictionary *clientObjectDictRep = [NSDictionary dictionaryWithObjectsAndKeys:obj[2], @"lastmoddate", nil];
                 
+                // Get server base date
+                __block NSDate *serverBaseLMD = nil;
+                NSDictionary *cacheEntry = [[self.cacheMappingTable objectForKey:objectEntityName] copy];
+                NSArray *primaryKeyEntry = [cacheEntry objectForKey:objectPrimaryKey];
+                if ([primaryKeyEntry count] == 2) {
+                    serverBaseLMD = primaryKeyEntry[1];
+                }
+                
                 // Apply merge policy
-                SMMergeObjectKey objectToUse = self.coreDataStore.deleteOperationSMMergePolicy ? self.coreDataStore.deleteOperationSMMergePolicy(clientObjectDictRep, serverObject) : self.coreDataStore.defaultSMMergePolicy(clientObjectDictRep, serverObject);
+                SMMergeObjectKey objectToUse = self.coreDataStore.deletesSMMergePolicy ? self.coreDataStore.deletesSMMergePolicy(clientObjectDictRep, serverObject, serverBaseLMD) : self.coreDataStore.defaultSMMergePolicy(clientObjectDictRep, serverObject, serverBaseLMD);
                 
                 // Add object to update list or merge server object into cache
                 switch (objectToUse) {
@@ -3698,7 +3791,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 if (value == [NSNull null]) {
                     [serializedDictionary setObject:value forKey:attributeName];
                 } else if (value && attributeDescription.attributeType == NSDateAttributeType) {
-                    unsigned long long convertedValue = [value unsignedLongLongValue] / 1000;
+                    long double convertedValue = [value doubleValue] / 1000.0000;
                     NSDate *convertedDate = [NSDate dateWithTimeIntervalSince1970:convertedValue];
                     [serializedDictionary setObject:convertedDate forKey:attributeName];
                 } else if (value && attributeDescription.attributeType == NSTransformableAttributeType) {

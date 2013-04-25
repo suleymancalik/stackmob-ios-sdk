@@ -25,23 +25,52 @@ static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey
 NSString *const SMSetCachePolicyNotification = @"SMSetCachePolicyNotification";
 BOOL SM_CACHE_ENABLED = NO;
 
-SMMergePolicy const SMMergePolicyClientWins = ^(NSDictionary *clientObject, NSDictionary *serverObject){
+SMMergePolicy const SMMergePolicyClientWins = ^(NSDictionary *clientObject, NSDictionary *serverObject, NSDate *serverBaseLastModDate){
     
     return SMClientObject;
     
 };
 
-SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject, NSDictionary *serverObject){
+SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject, NSDictionary *serverObject, NSDate *serverBaseLastModDate){
     
-    NSDate *clientLastModDate = [clientObject objectForKey:@"lastmoddate"];
-    NSDate *serverLastModDate = [serverObject objectForKey:@"lastmoddate"];
+    NSDate *clientLastModDate = [clientObject objectForKey:SMLastModDateKey];
+    NSDate *serverLastModDate = [serverObject objectForKey:SMLastModDateKey];
+    NSLog(@"client lmd is %f and server lmd is %f", [clientLastModDate timeIntervalSince1970], [serverLastModDate timeIntervalSince1970]);
     
+    NSComparisonResult result = [serverLastModDate compare:clientLastModDate];
+    
+    if (result == NSOrderedAscending) {
+        // client is last modified
+        NSLog(@"winner is client");
+        return SMClientObject;
+    } else if (result == NSOrderedDescending) {
+        // server is last modified
+        NSLog(@"winner is server");
+        return SMServerObject;
+    } else {
+        // DO SOMETHING
+        NSLog(@"Dates are ordered same");
+        return SMClientObject;
+    }
+    
+    /*
     if ([clientLastModDate laterDate:serverLastModDate] == clientLastModDate) {
         return SMClientObject;
     } else {
         return SMServerObject;
     }
+     */
     
+};
+
+SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObject, NSDictionary *serverObject, NSDate *serverBaseLastModDate){
+    
+    NSDate *serverLastModDate = [serverObject objectForKey:SMLastModDateKey];
+    if (![serverBaseLastModDate isEqualToDate:serverLastModDate]) {
+        return SMServerObject;
+    } else {
+        return SMClientObject;
+    }
 };
 
 @interface SMCoreDataStore ()
@@ -50,11 +79,6 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
 @property (nonatomic, strong) NSManagedObjectContext *privateContext;
 @property (nonatomic, strong) id defaultCoreDataMergePolicy;
 @property (nonatomic) dispatch_queue_t cachePurgeQueue;
-
-//@property (nonatomic, strong, readwrite) SMMergeCallback mergeCallbackForFailedInserts;
-//@property (nonatomic, strong, readwrite) SMMergeCallback mergeCallbackForFailedUpdates;
-//@property (nonatomic, strong, readwrite) SMMergeCallback mergeCallbackForFailedDeletes;
-//@property (nonatomic, strong, readwrite) SMMergeCallback syncWithServerCompletionCallback;
 
 - (NSManagedObjectContext *)SM_newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
 - (void)SM_didReceiveSetCachePolicyNotification:(NSNotification *)notification;
@@ -73,8 +97,10 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
 @synthesize cachePurgeQueue = _cachePurgeQueue;
 @synthesize cachePolicy = _cachePolicy;
 @synthesize globalRequestOptions = _globalRequestOptions;
-@synthesize updateOperationSMMergePolicy = _updateOperationSMMergePolicy;
-@synthesize deleteOperationSMMergePolicy = _deleteOperationSMMergePolicy;
+@synthesize insertsSMMergePolicy = _insertsSMMergePolicy;
+@synthesize updatesSMMergePolicy = _updatesSMMergePolicy;
+@synthesize deletesSMMergePolicy = _deletesSMMergePolicy;
+@synthesize syncWithServerCompletionCallback = _syncWithServerCompletionCallback;
 @synthesize mergeCallbackQueue = _mergeCallbackQueue;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
@@ -92,8 +118,9 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
         [self setCachePolicy:SMCachePolicyTryNetworkOnly];
         _defaultCoreDataMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
         self.defaultSMMergePolicy = SMMergePolicyLastModifiedWins;
-        self.updateOperationSMMergePolicy = nil;
-        self.deleteOperationSMMergePolicy = nil;
+        self.insertsSMMergePolicy = nil;
+        self.updatesSMMergePolicy = nil;
+        self.deletesSMMergePolicy = nil;
         
         /// Init callbacks
         self.mergeCallbackForFailedInserts = nil;
@@ -296,6 +323,10 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
 - (void)markArrayOfObjectsAsSynced:(NSArray *)objectIDs
 {
     [[NSNotificationCenter defaultCenter] postNotificationName:SMMarkArrayOfObjectsAsSyncedNotification object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectIDs, @"ObjectIDs", nil]];
+}
+
+- (void)setSyncWithServerCompletionCallback:(void (^)(NSArray *objects))block {
+    _syncWithServerCompletionCallback = block;
 }
 
 @end

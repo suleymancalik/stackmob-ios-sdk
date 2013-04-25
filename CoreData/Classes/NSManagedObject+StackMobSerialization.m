@@ -113,7 +113,8 @@
                 if (attributeDescription.attributeType == NSDateAttributeType) {
                     if (propertyValue != nil && propertyValue != [NSNull null]) {
                         NSDate *dateValue = propertyValue;
-                        unsigned long long convertedDate = (unsigned long long)[dateValue timeIntervalSince1970] * 1000;
+                        long double convertedDate = (long double)[dateValue timeIntervalSince1970] * 1000.0000;
+                        //unsigned long long convertedDate = (unsigned long long)[dateValue timeIntervalSince1970] * 1000;
                         NSNumber *numberToSet = [NSNumber numberWithUnsignedLongLong:convertedDate];
                         [objectDictionary setObject:numberToSet forKey:[selfEntity SMFieldNameForProperty:property]];
                     }

@@ -55,7 +55,7 @@
         <attribute name="superpower_id" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="person" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Person" inverseName="superpower" inverseEntity="Person" syncable="YES"/>
     </entity>
-    <entity name="Todo" syncable="YES">
+    <entity name="Todo" parentEntity="StackMob" syncable="YES">
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="todoId" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="category" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="todo" inverseEntity="Category" syncable="YES"/>
@@ -78,10 +78,10 @@
         <element name="Oauth2test" positionX="-135" positionY="-27" width="128" height="75"/>
         <element name="Person" positionX="-468" positionY="-129" width="128" height="165"/>
         <element name="Random" positionX="187" positionY="-108" width="128" height="165"/>
+        <element name="StackMob" positionX="160" positionY="192" width="128" height="75"/>
         <element name="Superpower" positionX="-171" positionY="123" width="128" height="120"/>
         <element name="Todo" positionX="-218" positionY="396" width="128" height="105"/>
         <element name="User3" positionX="-477" positionY="135" width="128" height="90"/>
         <element name="User4" positionX="-108" positionY="-135" width="128" height="75"/>
-        <element name="StackMob" positionX="160" positionY="192" width="128" height="75"/>
     </elements>
 </model>

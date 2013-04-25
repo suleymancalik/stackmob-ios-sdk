@@ -41,6 +41,8 @@ extern NSString *const SMMarkObjectAsSyncedNotification;
 extern NSString *const SMMarkArrayOfObjectsAsSyncedNotification;
 extern NSString *const SMSyncWithServerNotification;
 
+extern NSString *const SMLastModDateKey;
+
 extern BOOL SM_CORE_DATA_DEBUG;
 extern unsigned int SM_MAX_LOG_LENGTH;
 
@@ -70,5 +72,7 @@ extern unsigned int SM_MAX_LOG_LENGTH;
  @note You should never have to instantiate your own instance of `SMIncrementalStore`.  It is used when creating a persistent store coordinator in `SMCoreDataStore` so that `NSPersistentStore` methods divert to the overridden versions in this class. 
  */
 @interface SMIncrementalStore : NSIncrementalStore
+
+- (BOOL)SM_checkNetworkAvailability;
 
 @end

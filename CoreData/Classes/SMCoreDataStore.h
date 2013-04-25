@@ -31,12 +31,12 @@ typedef enum {
     SMServerObject = 1,
 } SMMergeObjectKey;
 
-typedef int (^SMMergePolicy)(NSDictionary *clientObject, NSDictionary *serverObject);
+typedef int (^SMMergePolicy)(NSDictionary *clientObject, NSDictionary *serverObject, NSDate *serverBaseLastModDate);
+typedef void (^SMMergeCallback)(NSArray *objects);
 
 extern SMMergePolicy const SMMergePolicyClientWins;
 extern SMMergePolicy const SMMergePolicyLastModifiedWins;
-
-typedef void (^SMMergeCallback)(NSArray *objects);
+extern SMMergePolicy const SMMergePolicyServerModifiedWins;
 
 @class SMIncrementalStore;
 
@@ -265,25 +265,24 @@ typedef void (^SMMergeCallback)(NSArray *objects);
 
 
 // SYNC METHODS
-- (void)syncWithServer;
 
-/*
-- (void)setMergeCallbackForFailedInserts:(void (^)(NSArray *failedObjects))block;
-- (void)setSyncCallbackForFailedUpdates:(void (^)(NSArray *failedObjects))block;
-- (void)setSyncCallbackForFailedDeletes:(void (^)(NSArray *failedObjects))block;
-*/
+- (void)syncWithServer;
 
 - (void)markObjectAsSynced:(NSManagedObjectID *)objectID;
 - (void)markArrayOfObjectsAsSynced:(NSArray *)objectIDs;
 
 @property (nonatomic, strong) SMMergePolicy defaultSMMergePolicy;
-@property (nonatomic, strong) SMMergePolicy updateOperationSMMergePolicy;
-@property (nonatomic, strong) SMMergePolicy deleteOperationSMMergePolicy;
+@property (nonatomic, strong) SMMergePolicy insertsSMMergePolicy;
+@property (nonatomic, strong) SMMergePolicy updatesSMMergePolicy;
+@property (nonatomic, strong) SMMergePolicy deletesSMMergePolicy;
 
 @property (nonatomic, strong) SMMergeCallback mergeCallbackForFailedInserts;
 @property (nonatomic, strong) SMMergeCallback mergeCallbackForFailedUpdates;
 @property (nonatomic, strong) SMMergeCallback mergeCallbackForFailedDeletes;
-@property (nonatomic, strong) SMMergeCallback syncWithServerCompletionCallback;
+@property (nonatomic, strong, setter = setSyncWithServerCompletionCallback:) SMMergeCallback syncWithServerCompletionCallback;
+
+- (void)setSyncWithServerCompletionCallback:(void (^)(NSArray *objects))block;
+
 @property (nonatomic) dispatch_queue_t mergeCallbackQueue;
 
 @end

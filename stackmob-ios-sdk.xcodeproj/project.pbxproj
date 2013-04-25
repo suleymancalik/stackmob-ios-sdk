@@ -189,7 +189,6 @@
 		DE9784A9163B5880001119D1 /* NSManagedObject+StackMobSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9784A5163B5880001119D1 /* NSManagedObject+StackMobSerialization.m */; };
 		DE9784DC163B6A79001119D1 /* NSEntityDescription+StackMobSerialization.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE9784A2163B5880001119D1 /* NSEntityDescription+StackMobSerialization.h */; };
 		DE9784DD163B6A79001119D1 /* NSManagedObject+StackMobSerialization.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE9784A4163B5880001119D1 /* NSManagedObject+StackMobSerialization.h */; };
-		DEA9AF2A1726160D006956A9 /* LocalReadCacheSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE96D84E165DA06500303710 /* LocalReadCacheSpec.m */; };
 		DEA9ED69164B1CBF006B7326 /* SMOAuth1Client.h in Headers */ = {isa = PBXBuildFile; fileRef = DEA9ED62164B1CBF006B7326 /* SMOAuth1Client.h */; };
 		DEA9ED6A164B1CBF006B7326 /* SMOAuth1Client.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED63164B1CBF006B7326 /* SMOAuth1Client.m */; };
 		DEA9ED6B164B1CBF006B7326 /* SMPushClient.h in Headers */ = {isa = PBXBuildFile; fileRef = DEA9ED64164B1CBF006B7326 /* SMPushClient.h */; };
@@ -242,6 +241,7 @@
 		DEE18F62160A77A200BDCCC6 /* NSEntityDescription_StackMobSerializationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18615E2C08B00224E4E /* NSEntityDescription_StackMobSerializationSpec.m */; };
 		DEE18F63160A77AD00BDCCC6 /* NSManagedObject+StackMobSerializationSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE05E18715E2C08B00224E4E /* NSManagedObject+StackMobSerializationSpec.m */; };
 		DEEDC32816C984B4008B1CC2 /* Common.h in Headers */ = {isa = PBXBuildFile; fileRef = DEEDC32616C984B4008B1CC2 /* Common.h */; };
+		DEF173011727493D00F51660 /* SMMergePolicySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF173001727493D00F51660 /* SMMergePolicySpec.m */; };
 		DEF756B61624918E006FD554 /* KeychainWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF756B41624918E006FD554 /* KeychainWrapper.h */; };
 		DEF756B71624918E006FD554 /* KeychainWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF756B51624918E006FD554 /* KeychainWrapper.m */; };
 		DEFA4EBF1628A93E00E75101 /* User4.h in Headers */ = {isa = PBXBuildFile; fileRef = DEFA4EBD1628A93E00E75101 /* User4.h */; };
@@ -492,6 +492,7 @@
 		DEE18F59160A611E00BDCCC6 /* SMRelationshipHeadersSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMRelationshipHeadersSpec.m; sourceTree = "<group>"; };
 		DEE585271631F3C40009A1DE /* SMUpdateObjectsOptimizationSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMUpdateObjectsOptimizationSpec.m; sourceTree = "<group>"; };
 		DEEDC32616C984B4008B1CC2 /* Common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
+		DEF173001727493D00F51660 /* SMMergePolicySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMMergePolicySpec.m; sourceTree = "<group>"; };
 		DEF756B41624918E006FD554 /* KeychainWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeychainWrapper.h; sourceTree = "<group>"; };
 		DEF756B51624918E006FD554 /* KeychainWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeychainWrapper.m; sourceTree = "<group>"; };
 		DEF9B4C415992FA100B1D5AE /* SMUserSessionSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMUserSessionSpec.m; sourceTree = "<group>"; };
@@ -820,6 +821,7 @@
 				DEB68FBF169F95EE00CC45F4 /* NSManagedObjectContext+ConcurrencySpec.m */,
 				DE1D16A216E694590045EDB5 /* LocalWriteCacheSpec.m */,
 				DEA052E316EEADF9009F7462 /* OfflineLocalWriteCacheSpec.m */,
+				DEF173001727493D00F51660 /* SMMergePolicySpec.m */,
 			);
 			path = integrationTestsCoreData;
 			sourceTree = "<group>";
@@ -1377,7 +1379,7 @@
 				DE01F13C16F78CE800453088 /* User3.m in Sources */,
 				DE01F16316F7FE0000453088 /* Person.m in Sources */,
 				DEFB471A16F8E8E2002AF936 /* SMTestProperties.m in Sources */,
-				DEA9AF2A1726160D006956A9 /* LocalReadCacheSpec.m in Sources */,
+				DEF173011727493D00F51660 /* SMMergePolicySpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

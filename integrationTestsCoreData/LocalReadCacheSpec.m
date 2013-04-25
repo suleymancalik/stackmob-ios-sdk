@@ -48,6 +48,7 @@ describe(@"LocalReadCacheInitialization", ^{
         SM_CACHE_ENABLED = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
     });
     it(@"Initializes the sqlite database", ^{
         
@@ -328,7 +329,7 @@ describe(@"Fetch with Cache", ^{
             __block NSString *superpowerId = nil;
             
             [[theValue([cds cachePolicy]) should] equal:theValue(SMCachePolicyTryNetworkOnly)];
-            SM_CORE_DATA_DEBUG = YES;
+            //SM_CORE_DATA_DEBUG = YES;
             // fetch new object, which will fault
             [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:[SMCoreDataIntegrationTestHelpers makePersonFetchRequest:[NSPredicate predicateWithFormat:@"first_name == 'Jon'"] context:moc] andBlock:^(NSArray *results, NSError *error) {
                 [[theValue([results count]) should] equal:theValue(1)];
@@ -440,7 +441,7 @@ describe(@"Fetch with Cache", ^{
             [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
                 [error shouldBeNil];
             }];
-            SM_CORE_DATA_DEBUG = NO;
+            //SM_CORE_DATA_DEBUG = NO;
         });
     });
     
@@ -1255,9 +1256,11 @@ describe(@"Testing cache using Entity with a GeoPoint attribute", ^{
         //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient: client];
-        NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-        NSManagedObjectModel *mom = [NSManagedObjectModel mergedModelFromBundles:[NSArray arrayWithObject:bundle]];
-        cds = [client coreDataStoreWithManagedObjectModel:mom];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
         [cds setCachePolicy:SMCachePolicyTryNetworkOnly];
         moc = [cds contextForCurrentThread];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
