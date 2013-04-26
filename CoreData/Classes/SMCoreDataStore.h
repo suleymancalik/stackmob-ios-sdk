@@ -268,19 +268,22 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
 
 - (void)syncWithServer;
 
-- (void)markObjectAsSynced:(NSManagedObjectID *)objectID;
-- (void)markArrayOfObjectsAsSynced:(NSArray *)objectIDs;
+- (void)markFailedObjectAsSynced:(NSDictionary *)object purgeFromCache:(BOOL)purge;
+- (void)markArrayOfFailedObjectsAsSynced:(NSArray *)objects purgeFromCache:(BOOL)purge;
 
 @property (nonatomic, strong) SMMergePolicy defaultSMMergePolicy;
 @property (nonatomic, strong) SMMergePolicy insertsSMMergePolicy;
 @property (nonatomic, strong) SMMergePolicy updatesSMMergePolicy;
 @property (nonatomic, strong) SMMergePolicy deletesSMMergePolicy;
 
-@property (nonatomic, strong) SMMergeCallback mergeCallbackForFailedInserts;
-@property (nonatomic, strong) SMMergeCallback mergeCallbackForFailedUpdates;
-@property (nonatomic, strong) SMMergeCallback mergeCallbackForFailedDeletes;
+@property (nonatomic, strong, setter = setMergeCallbackForFailedInserts:) SMMergeCallback mergeCallbackForFailedInserts;
+@property (nonatomic, strong, setter = setMergeCallbackForFailedUpdates:) SMMergeCallback mergeCallbackForFailedUpdates;
+@property (nonatomic, strong, setter = setMergeCallbackForFailedDeletes:) SMMergeCallback mergeCallbackForFailedDeletes;
 @property (nonatomic, strong, setter = setSyncWithServerCompletionCallback:) SMMergeCallback syncWithServerCompletionCallback;
 
+- (void)setMergeCallbackForFailedInserts:(void (^)(NSArray *objects))block;
+- (void)setMergeCallbackForFailedUpdates:(void (^)(NSArray *objects))block;
+- (void)setMergeCallbackForFailedDeletes:(void (^)(NSArray *objects))block;
 - (void)setSyncWithServerCompletionCallback:(void (^)(NSArray *objects))block;
 
 @property (nonatomic) dispatch_queue_t mergeCallbackQueue;

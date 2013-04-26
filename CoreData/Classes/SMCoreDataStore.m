@@ -48,18 +48,13 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
         NSLog(@"winner is server");
         return SMServerObject;
     } else {
-        // DO SOMETHING
-        NSLog(@"Dates are ordered same");
-        return SMClientObject;
+        if (!serverLastModDate) {
+            return SMClientObject;
+        } else {
+            // Dates are actually the same, default to server
+            return SMServerObject;
+        }
     }
-    
-    /*
-    if ([clientLastModDate laterDate:serverLastModDate] == clientLastModDate) {
-        return SMClientObject;
-    } else {
-        return SMServerObject;
-    }
-     */
     
 };
 
@@ -298,34 +293,38 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
     [[NSNotificationCenter defaultCenter] postNotificationName:SMSyncWithServerNotification object:self userInfo:nil];
 }
 
-/*
-- (void)setSyncCallbackForFailedInserts:(void (^)(NSArray *failedObjects))block
+- (void)markFailedObjectAsSynced:(NSDictionary *)object purgeFromCache:(BOOL)purge
 {
-    self.failedInsertsCallback = block;
+    NSManagedObjectID *objectID = [object objectForKey:SMFailedManagedObjectID];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SMMarkObjectAsSyncedNotification object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectID, @"ObjectID", [NSNumber numberWithBool:purge], @"Purge", nil]];
 }
 
-- (void)setSyncCallbackForFailedUpdates:(void (^)(NSArray *failedObjects))block
+- (void)markArrayOfFailedObjectsAsSynced:(NSArray *)objects purgeFromCache:(BOOL)purge
 {
-    self.failedUpdatesCallback = block;
+    NSMutableArray *managedObjectIDs = [NSMutableArray arrayWithCapacity:[objects count]];
+    [objects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [managedObjectIDs addObject:[obj objectForKey:SMFailedManagedObjectID]];
+    }];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SMMarkArrayOfObjectsAsSyncedNotification object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithArray:managedObjectIDs], @"ObjectIDs", [NSNumber numberWithBool:purge], @"Purge", nil]];
 }
 
-- (void)setSyncCallbackForFailedDeletes:(void (^)(NSArray *failedObjects))block
+- (void)setMergeCallbackForFailedInserts:(void (^)(NSArray *))block
 {
-    self.failedDeletesCallback = block;
-}
- */
-
-- (void)markObjectAsSynced:(NSManagedObjectID *)objectID
-{
-    [[NSNotificationCenter defaultCenter] postNotificationName:SMMarkObjectAsSyncedNotification object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectID, @"ObjectID", nil]];
+    _mergeCallbackForFailedInserts = block;
 }
 
-- (void)markArrayOfObjectsAsSynced:(NSArray *)objectIDs
+- (void)setMergeCallbackForFailedUpdates:(void (^)(NSArray *))block
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:SMMarkArrayOfObjectsAsSyncedNotification object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectIDs, @"ObjectIDs", nil]];
+    _mergeCallbackForFailedUpdates = block;
 }
 
-- (void)setSyncWithServerCompletionCallback:(void (^)(NSArray *objects))block {
+- (void)setMergeCallbackForFailedDeletes:(void (^)(NSArray *))block
+{
+    _mergeCallbackForFailedDeletes = block;
+}
+
+- (void)setSyncWithServerCompletionCallback:(void (^)(NSArray *objects))block
+{
     _syncWithServerCompletionCallback = block;
 }
 

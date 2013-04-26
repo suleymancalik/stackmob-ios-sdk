@@ -24,6 +24,22 @@
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="oauth2test_id" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
+    <entity name="Offlinepermsdelete" parentEntity="StackMob" syncable="YES">
+        <attribute name="offlinepermsdeleteId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="Offlinepermsget" parentEntity="StackMob" syncable="YES">
+        <attribute name="offlinepermsgetId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="Offlinepermspost" parentEntity="StackMob" syncable="YES">
+        <attribute name="offlinepermspostId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="Offlinepermsput" parentEntity="StackMob" syncable="YES">
+        <attribute name="offlinepermsputId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <entity name="Person" representedClassName="Person" parentEntity="StackMob" syncable="YES">
         <attribute name="armor_class" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="company" optional="YES" attributeType="String" syncable="YES"/>
@@ -83,5 +99,9 @@
         <element name="Todo" positionX="-218" positionY="396" width="128" height="105"/>
         <element name="User3" positionX="-477" positionY="135" width="128" height="90"/>
         <element name="User4" positionX="-108" positionY="-135" width="128" height="75"/>
+        <element name="Offlinepermspost" positionX="160" positionY="192" width="128" height="75"/>
+        <element name="Offlinepermsget" positionX="160" positionY="192" width="128" height="75"/>
+        <element name="Offlinepermsput" positionX="160" positionY="192" width="128" height="75"/>
+        <element name="Offlinepermsdelete" positionX="160" positionY="192" width="128" height="75"/>
     </elements>
 </model>
