@@ -2947,6 +2947,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 {
     // TODO execute error callbacks at time of merge function return?
     // TODO queue to run error callbacks on?
+    if (SM_CORE_DATA_DEBUG) {DLog()}
     
     BOOL networkIsReachable = [self SM_checkNetworkAvailability];
     
@@ -3012,6 +3013,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)mergeDirtyInserts:(NSMutableArray **)syncFailures
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()}
+    
     // Grab all dirty inserts
     NSArray *dirtyInsertedObjects = [self.dirtyQueue objectForKey:SMDirtyInsertedObjectKeys];
     __block NSMutableArray *failedObjects = [NSMutableArray array];
@@ -3040,7 +3043,15 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             // Check if no conflict
             // Retrieve current cached object
             NSFetchRequest *fetchFromCache = [[NSFetchRequest alloc] initWithEntityName:objectEntityName];
-            [fetchFromCache setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", [entityDesc primaryKeyField], objectPrimaryKey]];
+            
+            NSString *objectPrimaryKeyField = nil;
+            if ([[[entityDesc name] lowercaseString] isEqualToString:self.coreDataStore.session.userSchema]) {
+                objectPrimaryKeyField = self.coreDataStore.session.userPrimaryKeyField;
+            } else {
+                objectPrimaryKeyField = [entityDesc primaryKeyField];
+            }
+            
+            [fetchFromCache setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", objectPrimaryKeyField, objectPrimaryKey]];
             NSError *fetchError = nil;
             NSArray *cacheResults = [self.localManagedObjectContext executeFetchRequest:fetchFromCache error:&fetchError];
             
@@ -3153,6 +3164,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)mergeDirtyUpdates:(NSMutableArray **)syncFailures
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()}
     
     // Grab all dirty inserts
     NSArray *dirtyUpdatedObjects = [self.dirtyQueue objectForKey:SMDirtyUpdatedObjectKeys];
@@ -3183,8 +3195,15 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             if (serverObject || (error && [error code] == SMErrorNotFound)) {
                 
                 // Retrieve current cached object
+                NSString *objectPrimaryKeyField = nil;
+                if ([[[entityDesc name] lowercaseString] isEqualToString:self.coreDataStore.session.userSchema]) {
+                    objectPrimaryKeyField = self.coreDataStore.session.userPrimaryKeyField;
+                } else {
+                    objectPrimaryKeyField = [entityDesc primaryKeyField];
+                }
+                
                 NSFetchRequest *fetchFromCache = [[NSFetchRequest alloc] initWithEntityName:objectEntityName];
-                [fetchFromCache setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", [entityDesc primaryKeyField], objectPrimaryKey]];
+                [fetchFromCache setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", objectPrimaryKeyField, objectPrimaryKey]];
                 NSError *fetchError = nil;
                 NSArray *cacheResults = [self.localManagedObjectContext executeFetchRequest:fetchFromCache error:&fetchError];
                 
@@ -3314,6 +3333,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)mergeDirtyDeletes:(NSMutableArray **)syncFailures
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()}
     
     // Grab all dirty deletes
     __block NSArray *dirtyDeletedObjects = [self.dirtyQueue objectForKey:SMDirtyDeletedObjectKeys];
@@ -3731,12 +3751,16 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_didRecieveMarkObjectAsSyncedNotification:(NSNotification *)notification
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()}
+    
     NSDictionary *userInfo = [notification userInfo];
     [self SM_markObjectsAsSynced:[NSArray arrayWithObject:[userInfo objectForKey:@"ObjectID"]] purge:[[userInfo objectForKey:@"Purge"] boolValue]];
 }
 
 - (void)SM_didRecieveMarkArrayOfObjectsAsSyncedNotification:(NSNotification *)notification
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()}
+    
     NSDictionary *userInfo = [notification userInfo];
     NSArray *objectIDsToPurge = [userInfo objectForKey:@"ObjectIDs"];
     [self SM_markObjectsAsSynced:objectIDsToPurge purge:[[userInfo objectForKey:@"Purge"] boolValue]];
@@ -3745,6 +3769,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_markObjectsAsSynced:(NSArray *)objectIDsToPurge purge:(BOOL)purge
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()}
+    
     [self SM_purgeDirtyQueueOfManagedObjectIDs:objectIDsToPurge];
     
     if (purge) {
@@ -3765,6 +3791,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_purgeDirtyQueueOfManagedObjectIDs:(NSArray *)arrayOfManagedObjectIDs
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()}
+    
     __block NSMutableArray *managedObjectIDs = [arrayOfManagedObjectIDs mutableCopy];
     [self SM_purgeDirtyQueueOfManagedObjectIDs:&managedObjectIDs type:0];
     if ([managedObjectIDs count] > 0) {
@@ -3777,6 +3805,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_purgeDirtyQueueOfManagedObjectIDs:(NSMutableArray **)arrayOfManagedObjectIDs type:(int)type
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()}
+    
     __block NSMutableArray *dirtyObjects = nil;
     __block NSString *listName = nil;
     __block BOOL removed = NO;
@@ -3827,6 +3857,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_purgeDirtyQueueOfEntries:(NSArray *)entries type:(int)type
 {
+    if (SM_CORE_DATA_DEBUG) {DLog()}
+    
     __block NSMutableArray *dirtyObjects = nil;
     switch (type) {
         case 0: {
