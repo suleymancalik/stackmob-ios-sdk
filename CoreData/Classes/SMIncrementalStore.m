@@ -302,6 +302,15 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (void)dealloc
 {
     [self SM_unregisterForNotifications];
+    
+    /*
+#if !OS_OBJECT_USE_OBJC
+    dispatch_queue_t queue = [SMIncrementalStore fetchQueue];
+    dispatch_group_t group = [SMIncrementalStore fetchGroup];
+    dispatch_release(group);
+    dispatch_release(queue);
+#endif
+     */
 }
 
 - (void)SM_registerForNotifications
@@ -1339,6 +1348,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     }
     
     __block NSArray *resultsWithoutOID;
+    
     
     // create a group dispatch and queue
     dispatch_queue_t queue = dispatch_queue_create("Fetch Objects Queue", NULL);
@@ -3688,7 +3698,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 DLog(@"Did not get cache object with error %@", anError)
                 success = NO;
                 *stop = YES;
-                
             } else {
                 // delete object from cache
                 [self.localManagedObjectContext deleteObject:cacheObject];
