@@ -24,6 +24,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _fetchQueue = dispatch_queue_create("com.stackmob.fetchQueue", NULL);
+        //_fetchQueue = dispatch_queue_create("com.stackmob.fetchQueue", DISPATCH_QUEUE_CONCURRENT);
     });
     
     return _fetchQueue;
@@ -285,7 +286,7 @@
 - (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
     //__block NSPersistentStoreCoordinator *psc = self.persistentStoreCoordinator;
-    dispatch_queue_t aQueue = [NSManagedObjectContext fetchQueue];//dispatch_queue_create("Fetch Queue", NULL);
+    dispatch_queue_t aQueue = [NSManagedObjectContext fetchQueue]; //dispatch_queue_create("Fetch Queue", NULL);
     __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
     
     // Error checks

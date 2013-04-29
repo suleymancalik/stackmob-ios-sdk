@@ -881,28 +881,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     return nil;
 }
 
-/*
-+ (dispatch_queue_t)fetchQueue {
-    static dispatch_queue_t _fetchQueue;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        _fetchQueue = dispatch_queue_create("com.stackmob.internalFetchQueue", NULL);
-    });
-    
-    return _fetchQueue;
-}
-
-+ (dispatch_group_t)fetchGroup {
-    static dispatch_group_t _fetchGroup;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        _fetchGroup = dispatch_group_create();
-    });
-    
-    return _fetchGroup;
-}
- */
-
 - (id)SM_fetchObjectsFromNetwork:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError * __autoreleasing *)error {
     
     if (SM_CORE_DATA_DEBUG) { DLog() }
@@ -921,8 +899,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("Fetch Objects Queue", NULL); //[SMIncrementalStore fetchQueue];
-    dispatch_group_t group = dispatch_group_create(); //[SMIncrementalStore fetchGroup];
+    dispatch_queue_t queue = dispatch_queue_create("Fetch Objects Queue", NULL);
+    dispatch_group_t group = dispatch_group_create();
     
     dispatch_group_enter(group);
     [self.coreDataStore performQuery:query options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSArray *results) {
