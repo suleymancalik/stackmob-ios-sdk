@@ -19,6 +19,16 @@
 
 @implementation NSManagedObjectContext (Concurrency)
 
++ (dispatch_queue_t)fetchQueue {
+    static dispatch_queue_t _fetchQueue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _fetchQueue = dispatch_queue_create("com.stackmob.fetchQueue", NULL);
+    });
+    
+    return _fetchQueue;
+}
+
 - (void)dealloc
 {
     [self setContextShouldObtainPermanentIDsBeforeSaving:NO];
@@ -274,12 +284,12 @@
 
 - (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
-    dispatch_queue_t aQueue = dispatch_queue_create("Fetch Queue", NULL);
+    dispatch_queue_t aQueue = [NSManagedObjectContext fetchQueue];//dispatch_queue_create("Fetch Queue", NULL);
     __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
     
     // Error checks
     if ([mainContext concurrencyType] != NSMainQueueConcurrencyType) {
-        [NSException raise:SMExceptionIncompatibleObject format:@"Method saveAndWait: main context should be of type NSMainQueueConcurrencyType"];
+        [NSException raise:SMExceptionIncompatibleObject format:@"Method executeFetchRequest: main context should be of type NSMainQueueConcurrencyType"];
     }
     
     dispatch_async(aQueue, ^{
@@ -339,7 +349,7 @@
     
     // Error checks
     if ([mainContext concurrencyType] != NSMainQueueConcurrencyType) {
-        [NSException raise:SMExceptionIncompatibleObject format:@"Method saveAndWait: main context should be of type NSMainQueueConcurrencyType"];
+        [NSException raise:SMExceptionIncompatibleObject format:@"Method executeFetchRequestAndWait: main context should be of type NSMainQueueConcurrencyType"];
     }
     
     __block NSArray *resultsOfFetch = nil;
