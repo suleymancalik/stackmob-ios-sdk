@@ -557,7 +557,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     if (header != nil) {
         
         double totalRequestTime = fabsl([requestDate timeIntervalSinceDate:responseDate]);
-        NSLog(@"totalRequestTime is %f", totalRequestTime);
+        if (SM_CORE_DATA_DEBUG) { DLog(@"totalRequestTime is %f", totalRequestTime) }
         
         /*
         long double serverTime = [header doubleValue] / 1000.0000;
@@ -579,15 +579,15 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         NSDateFormatter *rfcFormatter = [[NSDateFormatter alloc] init];
         [rfcFormatter setDateFormat:@"EEE, dd MMM yyyy HH:mm:ss zzz"];
         NSDate *serverTime = [rfcFormatter dateFromString:header];
-        NSLog(@"server time is %f", [serverTime timeIntervalSince1970]);
+        if (SM_CORE_DATA_DEBUG) { DLog(@"server time is %f", [serverTime timeIntervalSince1970]) }
         double clientServerDiff = fabsl([serverTime timeIntervalSinceDate:responseDate]);
         
         // if (abs(serverTime - clientTime) > abs(reponseTime - requestTime)), record
         if (clientServerDiff > totalRequestTime) {
             self.serverTimeDiff = [serverTime timeIntervalSince1970] - [responseDate timeIntervalSince1970] > 0 ? [serverTime timeIntervalSinceDate:responseDate] - totalRequestTime : [serverTime timeIntervalSinceDate:responseDate] + totalRequestTime;
             
-            NSLog(@"device date is %@, server time diff is %f", responseDate, self.serverTimeDiff);
-            NSLog(@"device date with server time applied is %@", [responseDate dateByAddingTimeInterval:self.serverTimeDiff]);
+            if (SM_CORE_DATA_DEBUG) { DLog(@"device date is %@, server time diff is %f", responseDate, self.serverTimeDiff) }
+            if (SM_CORE_DATA_DEBUG) { DLog(@"device date with server time applied is %@", [responseDate dateByAddingTimeInterval:self.serverTimeDiff]) }
             [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithDouble:self.serverTimeDiff] forKey:SMServerTimeDiff];
             [[NSUserDefaults standardUserDefaults] synchronize];
             if (SM_CORE_DATA_DEBUG) { DLog(@"Server Time Diff is %f", self.serverTimeDiff) }
@@ -902,16 +902,18 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         [dictionaryRepOfManagedObject addEntriesFromDictionary:[self SM_extractRelationshipships:[managedObject dictionaryWithValuesForKeys:[[[managedObject entity] relationshipsByName] allKeys]]]];
         
         // Assign lastmoddate and createddate?
-        NSLog(@"Before updating client object offline, lastmoddate is %@ with interval %f", [dictionaryRepOfManagedObject objectForKey:@"lastmoddate"], [[dictionaryRepOfManagedObject objectForKey:@"lastmoddate"] timeIntervalSince1970]);
+        
+        // TODO remove NSLogs
+        //NSLog(@"Before updating client object offline, lastmoddate is %@ with interval %f", [dictionaryRepOfManagedObject objectForKey:@"lastmoddate"], [[dictionaryRepOfManagedObject objectForKey:@"lastmoddate"] timeIntervalSince1970]);
         
         if ([[[managedObject entity] attributesByName] objectForKey:SMCreatedDateKey] == nil) {
             [NSException raise:SMExceptionIncompatibleObject format:@"No `lastmoddate` attribute found for entity %@. All entities using the cache offline must have this attribute or inherit from a parent entity which has this attribute.", [[managedObject entity] name]];
         }
         
         NSDate *dateToSet = [NSDate date];
-        NSLog(@"Date before applying server time diff is %f", [dateToSet timeIntervalSince1970]);
+        //NSLog(@"Date before applying server time diff is %f", [dateToSet timeIntervalSince1970]);
         [dictionaryRepOfManagedObject setObject:[dateToSet dateByAddingTimeInterval:self.serverTimeDiff] forKey:@"lastmoddate"];
-        NSLog(@"After updating client object offline, lastmoddate is now %@ with interval %f", [dictionaryRepOfManagedObject objectForKey:@"lastmoddate"], [[dictionaryRepOfManagedObject objectForKey:@"lastmoddate"] timeIntervalSince1970]);
+        //NSLog(@"After updating client object offline, lastmoddate is now %@ with interval %f", [dictionaryRepOfManagedObject objectForKey:@"lastmoddate"], [[dictionaryRepOfManagedObject objectForKey:@"lastmoddate"] timeIntervalSince1970]);
         
         // Add object to list of objects to be cached [primaryKey, dictionary of object, entity desc, context]
         NSArray *objectReadyForCache = [NSArray arrayWithObjects:[managedObject valueForKey:[managedObject primaryKeyField]], dictionaryRepOfManagedObject, [managedObject entity], context, nil];
@@ -2814,8 +2816,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         [objectIDsForEntity setObject:valueToSave forKey:objectID];
     } else {
         // Need to replace
-        //[self.localManagedObjectContext]
-        NSLog(@"got here");
+
     }
     
     [list setObject:[NSDictionary dictionaryWithDictionary:objectIDsForEntity] forKey:entityName];

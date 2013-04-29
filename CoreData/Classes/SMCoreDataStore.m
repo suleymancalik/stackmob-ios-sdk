@@ -35,17 +35,17 @@ SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject
     
     NSDate *clientLastModDate = [clientObject objectForKey:SMLastModDateKey];
     NSDate *serverLastModDate = [serverObject objectForKey:SMLastModDateKey];
-    NSLog(@"client lmd is %f and server lmd is %f", [clientLastModDate timeIntervalSince1970], [serverLastModDate timeIntervalSince1970]);
+    if (SM_CORE_DATA_DEBUG) { DLog(@"client lmd is %f and server lmd is %f", [clientLastModDate timeIntervalSince1970], [serverLastModDate timeIntervalSince1970]) }
     
     NSComparisonResult result = [serverLastModDate compare:clientLastModDate];
     
     if (result == NSOrderedAscending) {
         // client is last modified
-        NSLog(@"winner is client");
+        //NSLog(@"winner is client");
         return SMClientObject;
     } else if (result == NSOrderedDescending) {
         // server is last modified
-        NSLog(@"winner is server");
+        //NSLog(@"winner is server");
         return SMServerObject;
     } else {
         if (!serverLastModDate) {
