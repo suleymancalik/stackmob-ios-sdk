@@ -15,7 +15,7 @@
  */
 
 #import "SMDataStore.h"
-#import "SMSyncedObjects.h"
+#import "SMSyncedObject.h"
 
 extern NSString *const SMSetCachePolicyNotification;
 extern BOOL SM_CACHE_ENABLED;
@@ -33,8 +33,7 @@ typedef enum {
 } SMMergeObjectKey;
 
 typedef int (^SMMergePolicy)(NSDictionary *clientObject, NSDictionary *serverObject, NSDate *serverBaseLastModDate);
-typedef void (^SMSyncFailureCallback)(NSArray *objects);
-typedef void (^SMSyncSuccessCallback)(SMSyncedObjects *objects);
+typedef void (^SMSyncCallback)(NSArray *objects);
 
 extern SMMergePolicy const SMMergePolicyClientWins;
 extern SMMergePolicy const SMMergePolicyLastModifiedWins;
@@ -278,15 +277,15 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
 @property (nonatomic, strong) SMMergePolicy updatesSMMergePolicy;
 @property (nonatomic, strong) SMMergePolicy deletesSMMergePolicy;
 
-@property (nonatomic, strong, setter = setMergeCallbackForFailedInserts:) SMSyncFailureCallback mergeCallbackForFailedInserts;
-@property (nonatomic, strong, setter = setMergeCallbackForFailedUpdates:) SMSyncFailureCallback mergeCallbackForFailedUpdates;
-@property (nonatomic, strong, setter = setMergeCallbackForFailedDeletes:) SMSyncFailureCallback mergeCallbackForFailedDeletes;
-@property (nonatomic, strong, setter = setSyncCompletionCallback:) SMSyncSuccessCallback syncCompletionCallback;
+@property (nonatomic, strong, setter = setMergeCallbackForFailedInserts:) SMSyncCallback mergeCallbackForFailedInserts;
+@property (nonatomic, strong, setter = setMergeCallbackForFailedUpdates:) SMSyncCallback mergeCallbackForFailedUpdates;
+@property (nonatomic, strong, setter = setMergeCallbackForFailedDeletes:) SMSyncCallback mergeCallbackForFailedDeletes;
+@property (nonatomic, strong, setter = setSyncCompletionCallback:) SMSyncCallback syncCompletionCallback;
 
 - (void)setMergeCallbackForFailedInserts:(void (^)(NSArray *objects))block;
 - (void)setMergeCallbackForFailedUpdates:(void (^)(NSArray *objects))block;
 - (void)setMergeCallbackForFailedDeletes:(void (^)(NSArray *objects))block;
-- (void)setSyncCompletionCallback:(void (^)(SMSyncedObjects *objects))block;
+- (void)setSyncCompletionCallback:(void (^)(NSArray *objects))block;
 
 @property (nonatomic) dispatch_queue_t mergeCallbackQueue;
 

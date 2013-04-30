@@ -24,7 +24,7 @@
 #import "SMDataStore+Protected.h"
 #import "AFHTTPClient.h"
 #import "SMIncrementalStoreNode.h"
-#import "SMSyncedObjects.h"
+#import "SMSyncedObject.h"
 
 #define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 #define CACHE_MAP_FILE @"CacheMap.plist"
@@ -3045,9 +3045,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         }
         
         if (self.coreDataStore.syncCompletionCallback) {
-            SMSyncedObjects *objects = [[SMSyncedObjects alloc] initWithInserts:syncInsertSuccesses updates:syncUpdateSuccesses deletes:syncDeleteSuccesses];
+            //NSArray *objects = [[NSArray alloc] initWithInserts:syncInsertSuccesses updates:syncUpdateSuccesses deletes:syncDeleteSuccesses];
             dispatch_async(self.coreDataStore.mergeCallbackQueue, ^{
-                self.coreDataStore.syncCompletionCallback(objects);
+                self.coreDataStore.syncCompletionCallback([NSArray array]);
             });
         }
 

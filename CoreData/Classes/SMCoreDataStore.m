@@ -323,7 +323,7 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
     _mergeCallbackForFailedDeletes = block;
 }
 
-- (void)setSyncCompletionCallback:(void (^)(SMSyncedObjects *objects))block
+- (void)setSyncCompletionCallback:(void (^)(NSArray *objects))block
 {
     _syncCompletionCallback = block;
 }
