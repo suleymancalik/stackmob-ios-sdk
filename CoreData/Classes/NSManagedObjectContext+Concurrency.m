@@ -19,17 +19,6 @@
 
 @implementation NSManagedObjectContext (Concurrency)
 
-+ (dispatch_queue_t)fetchQueue {
-    static dispatch_queue_t _fetchQueue;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        _fetchQueue = dispatch_queue_create("com.stackmob.fetchQueue", NULL);
-        //_fetchQueue = dispatch_queue_create("com.stackmob.fetchQueue", DISPATCH_QUEUE_CONCURRENT);
-    });
-    
-    return _fetchQueue;
-}
-
 - (void)dealloc
 {
     [self setContextShouldObtainPermanentIDsBeforeSaving:NO];
@@ -285,8 +274,6 @@
 
 - (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock
 {
-    //__block NSPersistentStoreCoordinator *psc = self.persistentStoreCoordinator;
-    dispatch_queue_t aQueue = [NSManagedObjectContext fetchQueue]; //dispatch_queue_create("Fetch Queue", NULL);
     __block NSManagedObjectContext *mainContext = [self concurrencyType] == NSMainQueueConcurrencyType ? self : self.parentContext;
     
     // Error checks
@@ -294,28 +281,10 @@
         [NSException raise:SMExceptionIncompatibleObject format:@"Method executeFetchRequest: main context should be of type NSMainQueueConcurrencyType"];
     }
     
-    dispatch_async(aQueue, ^{
+    NSManagedObjectContext *backgroundContext = mainContext.parentContext;
+    
+    [backgroundContext performBlock:^{
         NSError *fetchError = nil;
-        
-        /*
-        __block NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
-		
-        NSManagedObjectContext *backgroundContext = nil;
-        __block NSManagedObjectContext *threadContext = [threadDict objectForKey:@"SM_ManagedObjectContextKey"];
-		if (threadContext == nil)
-		{
-			threadContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-            [threadContext setPersistentStoreCoordinator:psc];
-            [threadContext setMergePolicy:NSMergeByPropertyObjectTrumpMergePolicy];
-			[threadDict setObject:threadContext forKey:@"SM_ManagedObjectContextKey"];
-            
-		}
-        
-        backgroundContext = threadContext;
-         */
-        
-        NSManagedObjectContext *backgroundContext = mainContext.parentContext;
-        
         NSFetchRequest *fetchCopy = [request copy];
         [fetchCopy setResultType:NSManagedObjectIDResultType];
         
@@ -340,27 +309,25 @@
                         successBlock(resultsOfFetch);
                     });
                 } else {
-                    /*
-                    __block NSArray *managedObjectsToReturn = [resultsOfFetch map:^id(id item) {
-                        NSManagedObject *objectFromCurrentContext = [self objectWithID:item];
-                        [self refreshObject:objectFromCurrentContext mergeChanges:YES];
-                        return objectFromCurrentContext;
-                    }];
-                     */
                     dispatch_async(successCallbackQueue, ^{
-                        __block NSArray *managedObjectsToReturn = [resultsOfFetch map:^id(id item) {
-                            NSManagedObject *objectFromCurrentContext = [self objectWithID:item];
-                            [self refreshObject:objectFromCurrentContext mergeChanges:YES];
-                            return objectFromCurrentContext;
+                        
+                        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+                        [context setPersistentStoreCoordinator:[backgroundContext persistentStoreCoordinator]];
+                        [context performBlock:^{
+                            __block NSArray *managedObjectsToReturn = [resultsOfFetch map:^id(id item) {
+                                NSManagedObject *objectFromCurrentContext = [context objectWithID:item];
+                                [context refreshObject:objectFromCurrentContext mergeChanges:YES];
+                                return objectFromCurrentContext;
+                            }];
+                            successBlock(managedObjectsToReturn);
                         }];
-                        successBlock(managedObjectsToReturn);
                     });
                 }
             }
         }
-    });
+        
+    }];
     
-    NSLog(@"Got here");
 }
 
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request error:(NSError *__autoreleasing *)error
