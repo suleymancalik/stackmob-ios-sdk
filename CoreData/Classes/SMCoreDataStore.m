@@ -95,7 +95,7 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
 @synthesize insertsSMMergePolicy = _insertsSMMergePolicy;
 @synthesize updatesSMMergePolicy = _updatesSMMergePolicy;
 @synthesize deletesSMMergePolicy = _deletesSMMergePolicy;
-@synthesize syncWithServerCompletionCallback = _syncWithServerCompletionCallback;
+@synthesize syncCompletionCallback = _syncCompletionCallback;
 @synthesize mergeCallbackQueue = _mergeCallbackQueue;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
@@ -121,7 +121,7 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
         self.mergeCallbackForFailedInserts = nil;
         self.mergeCallbackForFailedUpdates = nil;
         self.mergeCallbackForFailedDeletes = nil;
-        self.syncWithServerCompletionCallback = nil;
+        self.syncCompletionCallback = nil;
         
         /// Init global request options
         self.globalRequestOptions = [SMRequestOptions options];
@@ -323,9 +323,9 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
     _mergeCallbackForFailedDeletes = block;
 }
 
-- (void)setSyncWithServerCompletionCallback:(void (^)(NSArray *objects))block
+- (void)setSyncCompletionCallback:(void (^)(SMSyncedObjects *objects))block
 {
-    _syncWithServerCompletionCallback = block;
+    _syncCompletionCallback = block;
 }
 
 @end

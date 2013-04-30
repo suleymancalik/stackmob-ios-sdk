@@ -66,7 +66,11 @@ describe(@"Insert 1 Offline, should send as an insert no merge, NO CONFLICT", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:1];
+            [[[objects updates] should] haveCountOf:0];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -154,7 +158,11 @@ describe(@"Insert 1 Offline at T1, Insert 1 Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:1];
+            [[[objects updates] should] haveCountOf:0];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -218,7 +226,11 @@ describe(@"Insert 1 Offline at T1, Insert 1 Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:1];
+            [[[objects updates] should] haveCountOf:0];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -282,7 +294,11 @@ describe(@"Insert 1 Offline at T1, Insert 1 Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:1];
+            [[[objects updates] should] haveCountOf:0];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -369,7 +385,11 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:1];
+            [[[objects updates] should] haveCountOf:0];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -433,7 +453,11 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:1];
+            [[[objects updates] should] haveCountOf:0];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -497,7 +521,11 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:1];
+            [[[objects updates] should] haveCountOf:0];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -532,7 +560,6 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
 //////////////////////////////
 /////////UPDATES///////////
 //////////////////////////////
-
 
 describe(@"Insert 1 Online, Update 1 Offline, NO CONFLICT", ^{
     __block SMTestProperties *testProperties = nil;
@@ -580,7 +607,11 @@ describe(@"Insert 1 Online, Update 1 Offline, NO CONFLICT", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:0];
+            [[[objects updates] should] haveCountOf:1];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -670,7 +701,11 @@ describe(@"Insert 1 Online, Update 1 Offline at T1, Update 1 Online at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:0];
+            [[[objects updates] should] haveCountOf:1];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -742,7 +777,11 @@ describe(@"Insert 1 Online, Update 1 Offline at T1, Update 1 Online at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:0];
+            [[[objects updates] should] haveCountOf:1];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -810,7 +849,11 @@ describe(@"Insert 1 Online, Update 1 Offline at T1, Update 1 Online at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:0];
+            [[[objects updates] should] haveCountOf:1];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -900,7 +943,11 @@ describe(@"Insert 1 Online, Update Online at T1, Update Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:0];
+            [[[objects updates] should] haveCountOf:1];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -968,7 +1015,11 @@ describe(@"Insert 1 Online, Update Online at T1, Update Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:0];
+            [[[objects updates] should] haveCountOf:1];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -1045,7 +1096,11 @@ describe(@"Insert 1 Online, Update Online at T1, Update Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:0];
+            [[[objects updates] should] haveCountOf:1];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -1137,7 +1192,11 @@ describe(@"Insert 1 Online, Update Offline at T1, Delete Online at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
+            [[[objects allObjects] should] haveCountOf:1];
+            [[[objects inserts] should] haveCountOf:0];
+            [[[objects updates] should] haveCountOf:1];
+            [[[objects deletes] should] haveCountOf:0];
             dispatch_group_leave(group);
         }];
         
@@ -1207,7 +1266,7 @@ describe(@"Insert 1 Online, Update Offline at T1, Delete Online at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -1277,7 +1336,7 @@ describe(@"Insert 1 Online, Update Offline at T1, Delete Online at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -1366,7 +1425,7 @@ describe(@"Insert 1 Online, Delete Online at T1, Update Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -1435,7 +1494,7 @@ describe(@"Insert 1 Online, Delete Online at T1, Update Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -1504,7 +1563,7 @@ describe(@"Insert 1 Online, Delete Online at T1, Update Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -1620,7 +1679,7 @@ describe(@"Insert 5 Online, Go offline and update 5, T2 update 2 Online", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -1745,7 +1804,7 @@ describe(@"Insert 5 Online, Go offline and update 5, T2 update 2 Online", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -1892,7 +1951,7 @@ describe(@"Insert 5 Online, T1 update 2 Online, Go offline and update 5,", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -2017,7 +2076,7 @@ describe(@"Insert 5 Online, T1 update 2 Online, Go offline and update 5,", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -2164,7 +2223,7 @@ describe(@"Insert 5 Online, Go offline and update 5, T2 delete 2 Online", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -2290,7 +2349,7 @@ describe(@"Insert 5 Online, Go offline and update 5, T2 delete 2 Online", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -2437,7 +2496,7 @@ describe(@"Insert 5 Online, Delete 2 online at T1, Go offline and update 5 at T2
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -2563,7 +2622,7 @@ describe(@"Insert 5 Online, Delete 2 online at T1, Go offline and update 5 at T2
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -2710,7 +2769,7 @@ describe(@"Insert 5 Online, Go offline and update 5, T2 update 1 and delete 1 On
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -2837,7 +2896,7 @@ describe(@"Insert 5 Online, Go offline and update 5, T2 update 1 and delete 1 On
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -2985,7 +3044,7 @@ describe(@"Insert 5 Online, Delete 1 online at T1, update 1 at T1, Go offline an
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -3112,7 +3171,7 @@ describe(@"Insert 5 Online, Delete 1 online at T1, update 1 at T1, Go offline an
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -3173,7 +3232,7 @@ describe(@"Insert 5 Online, Delete 1 online at T1, update 1 at T1, Go offline an
 //////////////////////////////
 /////////DELETES///////////
 //////////////////////////////
-
+/*
 describe(@"Insert 1 Online, Delete 1 Offline, NO CONFLICT", ^{
     __block SMTestProperties *testProperties = nil;
     beforeEach(^{
@@ -3223,7 +3282,7 @@ describe(@"Insert 1 Online, Delete 1 Offline, NO CONFLICT", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -3315,7 +3374,7 @@ describe(@"Insert 1 Online, Delete Offline at T1, Update Online at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -3382,7 +3441,7 @@ describe(@"Insert 1 Online, Delete Offline at T1, Update Online at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -3452,7 +3511,7 @@ describe(@"Insert 1 Online, Delete Offline at T1, Update Online at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -3542,7 +3601,7 @@ describe(@"Insert 1 Online, Update Online at T1, Delete Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -3608,7 +3667,7 @@ describe(@"Insert 1 Online, Update Online at T1, Delete Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -3674,7 +3733,7 @@ describe(@"Insert 1 Online, Update Online at T1, Delete Offline at T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
  
@@ -3765,7 +3824,7 @@ describe(@"Insert 1 Online, Delete 1 Offline at T1, Delete 1 Online at T2, NO CO
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -3857,7 +3916,7 @@ describe(@"Insert 1 Online, Delete 1 Online at T1, Delete 1 Offline at T2, NO CO
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -3918,7 +3977,7 @@ describe(@"Sync Errors, Inserting offline to a forbidden schema with POST perms"
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         __block SMCoreDataStore *blockCoreDataStore = testProperties.cds;
@@ -3990,7 +4049,7 @@ describe(@"Sync Errors, Inserting offline to a forbidden schema with GET perms",
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         __block SMCoreDataStore *blockCoreDataStore = testProperties.cds;
@@ -4122,7 +4181,7 @@ describe(@"Insert 5 Online, Go offline and delete 5, T2 update 2 Online", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -4247,7 +4306,7 @@ describe(@"Insert 5 Online, Go offline and delete 5, T2 update 2 Online", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -4373,7 +4432,7 @@ describe(@"Insert 5 Online, Go offline and delete 5, T2 update 2 Online", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -4520,7 +4579,7 @@ describe(@"Insert 5 Online, Update 2 Online T1, Go offline and delete 5 T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -4646,7 +4705,7 @@ describe(@"Insert 5 Online, Update 2 Online T1, Go offline and delete 5 T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyLastModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -4773,7 +4832,7 @@ describe(@"Insert 5 Online, Update 2 Online T1, Go offline and delete 5 T2", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -4884,7 +4943,7 @@ describe(@"Sync Errors, Updating offline to a forbidden schema with PUT perms", 
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         __block SMCoreDataStore *blockCoreDataStore = testProperties.cds;
@@ -4992,7 +5051,7 @@ describe(@"Sync Errors, Updating offline to a forbidden schema with GET perms", 
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         __block SMCoreDataStore *blockCoreDataStore = testProperties.cds;
@@ -5062,7 +5121,7 @@ describe(@"Sync Global request options with HTTPS", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyClientWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -5142,7 +5201,7 @@ describe(@"Syncing with user objects, Inserts", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -5221,7 +5280,7 @@ describe(@"Syncing with user objects, Updates", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -5291,7 +5350,7 @@ describe(@"Syncing with user objects, Deletes", ^{
         
         [testProperties.cds setMergeCallbackQueue:queue];
         [testProperties.cds setDefaultSMMergePolicy:SMMergePolicyServerModifiedWins];
-        [testProperties.cds setSyncWithServerCompletionCallback:^(NSArray *objects) {
+        [testProperties.cds setSyncCompletionCallback:^(SMSyncedObjects *objects) {
             dispatch_group_leave(group);
         }];
         
@@ -5317,6 +5376,6 @@ describe(@"Syncing with user objects, Deletes", ^{
         
     });
 });
-
+*/
 
 SPEC_END
