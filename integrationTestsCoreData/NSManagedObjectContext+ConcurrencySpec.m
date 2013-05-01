@@ -284,8 +284,8 @@ describe(@"sending options with requests, saves", ^{
         
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
+        if (!success) {
+            NSLog(@"no success");
         }
         
         User3 *user = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
@@ -298,9 +298,10 @@ describe(@"sending options with requests, saves", ^{
         options.isSecure = YES;
         error = nil;
         success = [moc saveAndWait:&error options:options];
-        if (success) {
-            NSLog(@"success");
+        if (!success) {
+            NSLog(@"no success");
         }
+        
         SM_CORE_DATA_DEBUG = NO;
     });
     it(@"saveAndWait:options:, not sending HTTPS", ^{
@@ -334,8 +335,8 @@ describe(@"sending options with requests, saves", ^{
         
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
+        if (!success) {
+            [error shouldBeNil];
         }
         
         User3 *user = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
@@ -348,8 +349,8 @@ describe(@"sending options with requests, saves", ^{
         
         error = nil;
         success = [moc saveAndWait:&error options:options];
-        if (success) {
-            NSLog(@"success");
+        if (!success) {
+            [error shouldBeNil];
         }
     });
     
@@ -382,10 +383,9 @@ describe(@"sending options with requests, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveOnSuccess:^{
-                NSLog(@"success");
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -401,10 +401,9 @@ describe(@"sending options with requests, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveWithSuccessCallbackQueue:dispatch_get_current_queue() failureCallbackQueue:dispatch_get_current_queue() options:options onSuccess:^{
-                NSLog(@"success");
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -439,10 +438,10 @@ describe(@"sending options with requests, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveOnSuccess:^{
-                NSLog(@"success");
+                
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -457,10 +456,10 @@ describe(@"sending options with requests, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveWithSuccessCallbackQueue:dispatch_get_current_queue() failureCallbackQueue:dispatch_get_current_queue() options:options onSuccess:^{
-                NSLog(@"success");
+                
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -541,9 +540,7 @@ describe(@"creating global request options, saves", ^{
         
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
-        }
+        [error shouldBeNil];
         
         User3 *user = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
         [user setUsername:[user assignObjectId]];
@@ -553,9 +550,7 @@ describe(@"creating global request options, saves", ^{
         
         error = nil;
         success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
-        }
+        [error shouldBeNil];
     });
     it(@"saveAndWait:options:, global request options regular", ^{
         /*
@@ -588,9 +583,7 @@ describe(@"creating global request options, saves", ^{
         
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
-        }
+        [error shouldBeNil];
         
         User3 *user = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
         [user setUsername:[user assignObjectId]];
@@ -600,9 +593,7 @@ describe(@"creating global request options, saves", ^{
         
         error = nil;
         success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
-        }
+        [error shouldBeNil];
     });
     
     it(@"saveOnSuccess:options:, global request options have HTTPS", ^{
@@ -636,10 +627,10 @@ describe(@"creating global request options, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveOnSuccess:^{
-                NSLog(@"success");
+            
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -652,10 +643,10 @@ describe(@"creating global request options, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveOnSuccess:^{
-                NSLog(@"success");
+                
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -691,10 +682,9 @@ describe(@"creating global request options, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveOnSuccess:^{
-                NSLog(@"success");
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -707,10 +697,9 @@ describe(@"creating global request options, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveOnSuccess:^{
-                NSLog(@"success");
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -908,9 +897,7 @@ describe(@"testing getting 500s", ^{
         
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
-        }
+        [error shouldBeNil];
         
     });
 });

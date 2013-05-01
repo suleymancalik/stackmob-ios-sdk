@@ -1498,8 +1498,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     else if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
         NSCompoundPredicate *compoundPredicate = (NSCompoundPredicate *)predicate;
         for (NSPredicate *subPredicate in [compoundPredicate subpredicates]) {
-             if([self containsSMPredicate:subPredicate])
-                 return YES;
+            if([self containsSMPredicate:subPredicate]) {
+                return YES;
+            }
         }
         
     }
@@ -3025,29 +3026,28 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         }
         
         // Send outcome to error callback
-        if (executeInsertsErrorCallback && self.coreDataStore.mergeCallbackForFailedInserts) {
+        if (executeInsertsErrorCallback && self.coreDataStore.syncCallbackForFailedInserts) {
             // execute callback
-            dispatch_async(self.coreDataStore.mergeCallbackQueue, ^{
-                self.coreDataStore.mergeCallbackForFailedInserts(syncInsertFailures);
+            dispatch_async(self.coreDataStore.syncCallbackQueue, ^{
+                self.coreDataStore.syncCallbackForFailedInserts(syncInsertFailures);
             });
         }
-        if (executeUpdatesErrorCallback && self.coreDataStore.mergeCallbackForFailedUpdates) {
+        if (executeUpdatesErrorCallback && self.coreDataStore.syncCallbackForFailedUpdates) {
             // execute callback
-            dispatch_async(self.coreDataStore.mergeCallbackQueue, ^{
-                self.coreDataStore.mergeCallbackForFailedUpdates(syncUpdateFailures);
+            dispatch_async(self.coreDataStore.syncCallbackQueue, ^{
+                self.coreDataStore.syncCallbackForFailedUpdates(syncUpdateFailures);
             });
         }
-        if (executeDeletesErrorCallback && self.coreDataStore.mergeCallbackForFailedDeletes) {
+        if (executeDeletesErrorCallback && self.coreDataStore.syncCallbackForFailedDeletes) {
             // execute callback
-            dispatch_async(self.coreDataStore.mergeCallbackQueue, ^{
-                self.coreDataStore.mergeCallbackForFailedDeletes(syncDeleteFailures);
+            dispatch_async(self.coreDataStore.syncCallbackQueue, ^{
+                self.coreDataStore.syncCallbackForFailedDeletes(syncDeleteFailures);
             });
         }
         
         if (self.coreDataStore.syncCompletionCallback) {
-            //NSArray *objects = [[NSArray alloc] initWithInserts:syncInsertSuccesses updates:syncUpdateSuccesses deletes:syncDeleteSuccesses];
-            dispatch_async(self.coreDataStore.mergeCallbackQueue, ^{
-                self.coreDataStore.syncCompletionCallback([NSArray array]);
+            dispatch_async(self.coreDataStore.syncCallbackQueue, ^{
+                self.coreDataStore.syncCompletionCallback(syncInsertSuccesses);
             });
         }
 
@@ -3136,7 +3136,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                         
                         // Add object ID for sync success
                         NSManagedObjectID *objectID = [self newObjectIDForEntity:entityDesc referenceObject:objectPrimaryKey];
-                        [successfulObjects addObject:objectID];
+                        [successfulObjects addObject:[[SMSyncedObject alloc] initWithObjectID:objectID actionTaken:SMSyncActionUpdatedCache]];
                     }
                         break;
                     default:
@@ -3169,7 +3169,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             NSError *saveError = nil;
             BOOL success = [self SM_handleInsertedObjectsWhenOnline:objectsToMergeWithServerAsInserts inContext:self.localManagedObjectContext serializeFullObjects:YES successBlockAddition:^(NSString *primaryKey, NSString *entityName, NSManagedObjectID *objectID) {
                 [entriesToPurgeFromDirtyQueue addObject:[NSArray arrayWithObjects:primaryKey, entityName, nil]];
-                [successfulObjects addObject:objectID];
+                [successfulObjects addObject:[[SMSyncedObject alloc] initWithObjectID:objectID actionTaken:SMSyncActionInsertedOnServer]];
             } options:options error:&saveError];
             
             if (!success) {
@@ -3186,7 +3186,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             NSError *saveError = nil;
             BOOL success = [self SM_handleUpdatedObjectsWhenOnline:objectsToMergeWithServerAsUpdates inContext:self.localManagedObjectContext serializeFullObjects:YES successBlockAddition:^(NSString *primaryKey, NSString *entityName, NSManagedObjectID *objectID) {
                 [entriesToPurgeFromDirtyQueue addObject:[NSArray arrayWithObjects:primaryKey, entityName, nil]];
-                [successfulObjects addObject:objectID];
+                [successfulObjects addObject:[[SMSyncedObject alloc] initWithObjectID:objectID actionTaken:SMSyncActionUpdatedOnServer]];
             } options:options error:&saveError];
             
             if (!success) {
@@ -3321,7 +3321,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                             
                             // Add object ID for sync success
                             NSManagedObjectID *objectID = [self newObjectIDForEntity:entityDesc referenceObject:objectPrimaryKey];
-                            [successfulObjects addObject:objectID];
+                            [successfulObjects addObject:[[SMSyncedObject alloc] initWithObjectID:objectID actionTaken:SMSyncActionUpdatedCache]];
                         }
                             break;
                         default:
@@ -3349,7 +3349,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             NSError *saveError = nil;
             BOOL success = [self SM_handleUpdatedObjectsWhenOnline:objectsToMergeWithServerAsUpdates inContext:self.localManagedObjectContext serializeFullObjects:YES successBlockAddition:^(NSString *primaryKey, NSString *entityName, NSManagedObjectID *objectID) {
                 [entriesToPurgeFromDirtyQueue addObject:[NSArray arrayWithObjects:primaryKey, entityName, nil]];
-                [successfulObjects addObject:objectID];
+                [successfulObjects addObject:[[SMSyncedObject alloc] initWithObjectID:objectID actionTaken:SMSyncActionUpdatedOnServer]];
             } options:options error:&saveError];
             
             if (!success) {
@@ -3366,7 +3366,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             NSError *saveError = nil;
             BOOL success = [self SM_handleInsertedObjectsWhenOnline:objectsToMergeWithServerAsInserts inContext:self.localManagedObjectContext serializeFullObjects:YES successBlockAddition:^(NSString *primaryKey, NSString *entityName, NSManagedObjectID *objectID) {
                 [entriesToPurgeFromDirtyQueue addObject:[NSArray arrayWithObjects:primaryKey, entityName, nil]];
-                [successfulObjects addObject:objectID];
+                [successfulObjects addObject:[[SMSyncedObject alloc] initWithObjectID:objectID actionTaken:SMSyncActionInsertedOnServer]];
             } options:options error:&saveError];
             
             if (!success) {
@@ -3478,6 +3478,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                             
                             // Purge object from dirty queue
                             [entriesToPurgeFromDirtyQueue addObject:obj];
+                            
+                            [successfulObjects addObject:[[SMSyncedObject alloc] initWithObjectID:objectPrimaryKey actionTaken:SMSyncActionUpdatedCache]];
+                            
                         }
                             break;
                         default:
@@ -3497,7 +3500,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             NSError *saveError = nil;
             BOOL success = [self SM_mergeDeletedObjectsWithServer:objectsToDelete inContext:self.localManagedObjectContext successBlockAddition:^(NSString *primaryKey, NSString *entityName, NSDate *deletedDate) {
                 [entriesToPurgeFromDirtyQueue addObject:[NSArray arrayWithObjects:primaryKey, entityName, deletedDate, nil]];
-                [successfulObjects addObject:primaryKey];
+                [successfulObjects addObject:[[SMSyncedObject alloc] initWithObjectID:primaryKey actionTaken:SMSyncActionDeletedFromServer]];
                 
             } options:options error:&saveError];
             

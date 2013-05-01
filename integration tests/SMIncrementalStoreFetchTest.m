@@ -961,7 +961,9 @@ describe(@"empty string", ^{
         
         [error shouldBeNil];
         [[results should] haveCountOf:1];
-        [[[[results objectAtIndex:0] valueForKey:@"todoId"] should] equal:@"1234"];
+        if ([results count] == 1) {
+            [[[[results objectAtIndex:0] valueForKey:@"todoId"] should] equal:@"1234"];
+        }
         
     });
     it(@"equal to empty string", ^{

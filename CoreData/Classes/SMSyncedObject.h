@@ -14,6 +14,21 @@
  * limitations under the License.
  */
 
+#import <CoreData/CoreData.h>
+
+typedef enum {
+    SMSyncActionInsertedOnServer = 0,
+    SMSyncActionUpdatedOnServer = 1,
+    SMSyncActionDeletedFromServer = 2,
+    SMSyncActionUpdatedCache = 3,
+} SMSyncAction;
+
 @interface SMSyncedObject : NSObject
+
+@property (nonatomic) id objectID;
+
+@property (nonatomic) SMSyncAction actionTaken;
+
+- (id)initWithObjectID:(id)objectID actionTaken:(SMSyncAction)actionTaken;
 
 @end
