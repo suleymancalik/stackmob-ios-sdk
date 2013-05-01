@@ -112,7 +112,6 @@ describe(@"SMUserManagedObject", ^{
             }];
         });
     });
-     
 
 });
 
@@ -122,7 +121,7 @@ describe(@"can set a client with different password field name and everything st
     __block User4 *person = nil;
     __block SMCoreDataStore *cds = nil;
     beforeEach(^{
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];

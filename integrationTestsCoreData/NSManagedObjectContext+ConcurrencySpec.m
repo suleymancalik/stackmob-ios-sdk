@@ -268,7 +268,7 @@ describe(@"sending options with requests, saves", ^{
          2 x secure enqueueHTTPRequestOperation
          */
         
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
@@ -302,7 +302,7 @@ describe(@"sending options with requests, saves", ^{
             NSLog(@"no success");
         }
         
-        SM_CORE_DATA_DEBUG = NO;
+        //SM_CORE_DATA_DEBUG = NO;
     });
     it(@"saveAndWait:options:, not sending HTTPS", ^{
         

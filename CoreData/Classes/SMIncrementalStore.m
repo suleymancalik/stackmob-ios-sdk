@@ -95,6 +95,7 @@ NSString *const SMCreatedDateKey = @"createddate";
 NSString *const SMServerTimeDiff = @"SMServerTimeDiff";
 
 BOOL SM_CORE_DATA_DEBUG = NO;
+static BOOL syncInProgress = NO;
 unsigned int SM_MAX_LOG_LENGTH = 10000;
 
 NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
@@ -500,12 +501,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     
     __block BOOL networkAvailable = NO;
-    // create a group dispatch and queue
+    // // todo group and queue should be static
     dispatch_queue_t queue = dispatch_queue_create("Network Availability Queue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
-    SMQuery *query = [[SMQuery alloc] initWithSchema:[[self.coreDataStore session] userSchema]];
-    [query fromIndex:0 toIndex:0];
+    //SMQuery *query = [[SMQuery alloc] initWithSchema:[[self.coreDataStore session] userSchema]];
+    //[query fromIndex:0 toIndex:0];
     
     SMRequestOptions *requestOptions = [SMRequestOptions options];
     requestOptions.tryRefreshToken = NO;
@@ -519,17 +520,22 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     }
     
     
-    NSMutableURLRequest *request = [[self.coreDataStore.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"GET" path:query.schemaName parameters:query.requestParameters];
+    NSMutableURLRequest *request = [[self.coreDataStore.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"HEAD" path:nil parameters:nil];
+    
+    /*
     [query.requestHeaders enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
         [request setValue:(NSString *)obj forHTTPHeaderField:(NSString *)key];
     }];
+     */
     //__block NSDate *requestDate = [NSDate date];
     SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *successRequest, NSHTTPURLResponse *response, id JSON) {
         
         // Calculate server time diff if needed
         //NSDate *responseDate = [NSDate date];
         //[self SM_recordServerTimeDiffFromResponse:response requestDate:requestDate responseDate:responseDate];
-        
+        NSString *header = [[response allHeaderFields] objectForKey:@"X-StackMob-TimeMillis"];
+        long double serverTime = [header doubleValue] / 1000.0000;
+        NSLog(@"server time is %Lf", serverTime);
         networkAvailable = YES;
         dispatch_group_leave(group);
         
@@ -2977,14 +2983,29 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 # pragma mark - Sync With Server
 
++ (dispatch_queue_t)syncQueue
+{
+    static dispatch_queue_t _syncQueue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _syncQueue = dispatch_queue_create("com.stackmob.syncQueue", NULL);
+    });
+    
+    return _syncQueue;
+}
+
 - (void)didReceiveSyncWithServerNotifcation:(NSNotification *)notification
 {
-    // Run sync on seperate queue
-    dispatch_queue_t serverSyncQueue = dispatch_queue_create("Server Sync Queue", NULL);
     
-    dispatch_async(serverSyncQueue, ^{
-        [self syncWithServer];
-    });
+    if (!syncInProgress) {
+        syncInProgress = YES;
+        dispatch_queue_t serverSyncQueue = [SMIncrementalStore syncQueue];
+        
+        dispatch_async(serverSyncQueue, ^{
+            [self syncWithServer];
+        });
+    }
+    
 }
 
 - (void)syncWithServer
@@ -3052,6 +3073,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         }
 
     }
+    
+    syncInProgress = NO;
     
 }
 

@@ -301,7 +301,7 @@ describe(@"Fetch with Cache", ^{
                 [[theValue([results count]) should] equal:theValue(1)];
                 
                 // this should be the in memory value
-                smFirstName = [[results objectAtIndex:0] valueForKey:@"first_name"];
+                smFirstName = [results objectAtIndex:0] ? [[results objectAtIndex:0] valueForKey:@"first_name"] : nil;
             }];
             
             // reset memory

@@ -36,7 +36,7 @@ describe(@"Basic insert when offline", ^{
     });
     afterEach(^{
         SM_CACHE_ENABLED = NO;
-        SM_CORE_DATA_DEBUG = NO;
+        //SM_CORE_DATA_DEBUG = NO;
     });
     it(@"A simple insert works", ^{
         // Make sure we are offline
@@ -228,7 +228,7 @@ describe(@"moving object from insert to update to delete - check dirty queue", ^
     });
     afterEach(^{
         SM_CACHE_ENABLED = NO;
-        SM_CORE_DATA_DEBUG = NO;
+        //SM_CORE_DATA_DEBUG = NO;
     });
     it(@"moves the primary key across the arrays in the dirty queue", ^{
         // Make sure we are offline
