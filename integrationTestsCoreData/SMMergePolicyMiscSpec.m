@@ -1456,7 +1456,6 @@ describe(@"syncInProgress", ^{
     beforeEach(^{
         SM_CACHE_ENABLED = YES;
         testProperties = [[SMTestProperties alloc] init];
-        [testProperties.client setUserSchema:@"User3"];
     });
     afterEach(^{
         NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
@@ -1524,6 +1523,7 @@ describe(@"syncInProgress", ^{
         [[results should] haveCountOf:1];
         [[[[results objectAtIndex:0] valueForKey:@"title"] should] equal:@"offline insert"];
     });
+    /*
     it(@"second test properly", ^{
         
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
@@ -1580,6 +1580,7 @@ describe(@"syncInProgress", ^{
         [[results should] haveCountOf:1];
         [[[[results objectAtIndex:0] valueForKey:@"title"] should] equal:@"offline insert"];
     });
+     */
 });
 
 

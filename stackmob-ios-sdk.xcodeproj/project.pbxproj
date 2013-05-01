@@ -185,8 +185,8 @@
 		DE9784DD163B6A79001119D1 /* NSManagedObject+StackMobSerialization.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE9784A4163B5880001119D1 /* NSManagedObject+StackMobSerialization.h */; };
 		DE9BCC00172F661B007CBA7F /* SMSyncedObject.h in Headers */ = {isa = PBXBuildFile; fileRef = DE9BCBFE172F661B007CBA7F /* SMSyncedObject.h */; };
 		DE9BCC01172F661B007CBA7F /* SMSyncedObject.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9BCBFF172F661B007CBA7F /* SMSyncedObject.m */; };
-		DE9BCC2F1730A069007CBA7F /* SMMergePolicyMiscSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9BCC1517309974007CBA7F /* SMMergePolicyMiscSpec.m */; };
 		DE9BCC301730AC14007CBA7F /* QueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 619EDF11159292AC0075BB93 /* QueryTests.m */; };
+		DE9BCC321731BDD0007CBA7F /* SMMergePolicyMiscSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9BCC1517309974007CBA7F /* SMMergePolicyMiscSpec.m */; };
 		DEA9ED69164B1CBF006B7326 /* SMOAuth1Client.h in Headers */ = {isa = PBXBuildFile; fileRef = DEA9ED62164B1CBF006B7326 /* SMOAuth1Client.h */; };
 		DEA9ED6A164B1CBF006B7326 /* SMOAuth1Client.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA9ED63164B1CBF006B7326 /* SMOAuth1Client.m */; };
 		DEA9ED6B164B1CBF006B7326 /* SMPushClient.h in Headers */ = {isa = PBXBuildFile; fileRef = DEA9ED64164B1CBF006B7326 /* SMPushClient.h */; };
@@ -1379,7 +1379,7 @@
 				DE01F13C16F78CE800453088 /* User3.m in Sources */,
 				DE01F16316F7FE0000453088 /* Person.m in Sources */,
 				DE1D1F3E172F44EF00B60EB0 /* SMTestProperties.m in Sources */,
-				DE9BCC2F1730A069007CBA7F /* SMMergePolicyMiscSpec.m in Sources */,
+				DE9BCC321731BDD0007CBA7F /* SMMergePolicyMiscSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
