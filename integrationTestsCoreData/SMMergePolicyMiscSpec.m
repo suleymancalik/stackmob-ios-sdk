@@ -1523,7 +1523,7 @@ describe(@"syncInProgress", ^{
         [[results should] haveCountOf:1];
         [[[[results objectAtIndex:0] valueForKey:@"title"] should] equal:@"offline insert"];
     });
-    /*
+    
     it(@"second test properly", ^{
         
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
@@ -1580,7 +1580,6 @@ describe(@"syncInProgress", ^{
         [[results should] haveCountOf:1];
         [[[[results objectAtIndex:0] valueForKey:@"title"] should] equal:@"offline insert"];
     });
-     */
 });
 
 

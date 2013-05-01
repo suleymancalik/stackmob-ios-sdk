@@ -105,7 +105,7 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
         
         /// Init callback queues
         self.syncCallbackQueue = dispatch_get_main_queue();
-        self.cachePurgeQueue = dispatch_queue_create("Purge Cache Of Object Queue", NULL);
+        self.cachePurgeQueue = dispatch_queue_create("com.stackmob.cachePurgeQueue", NULL);
         
         /// Set default cache and merge policies
         [self setCachePolicy:SMCachePolicyTryNetworkOnly];

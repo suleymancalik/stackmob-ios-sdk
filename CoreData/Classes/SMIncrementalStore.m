@@ -63,10 +63,6 @@ NSString *const SMSyncWithServerNotification = @"SMSyncWithServerNotification";
 
 NSString *const SMLastModDateKey = @"lastmoddate";
 
-NSString *const SMSyncInsertedObjects = @"SMSyncInsertedObjects";
-NSString *const SMSyncUpdatedObjects = @"SMSyncUpdatedObjects";
-NSString *const SMSyncDeletedObjects = @"SMSyncDeletedObjects";
-
 ///-------------------------------
 /// Internal Constants
 ///-------------------------------
@@ -309,14 +305,16 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 {
     [self SM_unregisterForNotifications];
     
-    /*
+    
 #if !OS_OBJECT_USE_OBJC
-    dispatch_queue_t queue = [SMIncrementalStore fetchQueue];
-    dispatch_group_t group = [SMIncrementalStore fetchGroup];
-    dispatch_release(group);
-    dispatch_release(queue);
+    dispatch_queue_t syncQueue = [SMIncrementalStore syncQueue];
+    dispatch_queue_t networkAvailableQueue = [SMIncrementalStore networkAvailabilityQueue];
+    dispatch_group_t networkAvailableGroup = [SMIncrementalStore networkAvailabilityGroup];
+    dispatch_release(syncQueue);
+    dispatch_release(networkAvailableQueue);
+    dispatch_release(networkAvailableGroup);
 #endif
-     */
+    
 }
 
 - (void)SM_registerForNotifications
@@ -496,14 +494,36 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     return [NSArray array];
 }
 
++ (dispatch_queue_t)networkAvailabilityQueue
+{
+    static dispatch_queue_t _networkAvailabilityQueue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _networkAvailabilityQueue = dispatch_queue_create("com.stackmob.networkAvailableQueue", NULL);
+    });
+    
+    return _networkAvailabilityQueue;
+}
+
++ (dispatch_group_t)networkAvailabilityGroup
+{
+    static dispatch_group_t _networkAvailabilityGroup;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _networkAvailabilityGroup = dispatch_group_create();
+    });
+    
+    return _networkAvailabilityGroup;
+}
+
 - (BOOL)SM_checkNetworkAvailability
 {
     if (SM_CORE_DATA_DEBUG) { DLog() }
     
     __block BOOL networkAvailable = NO;
-    // // todo group and queue should be static
-    dispatch_queue_t queue = dispatch_queue_create("Network Availability Queue", NULL);
-    dispatch_group_t group = dispatch_group_create();
+    
+    dispatch_queue_t queue = [SMIncrementalStore networkAvailabilityQueue];
+    dispatch_group_t group = [SMIncrementalStore networkAvailabilityGroup];
     
     //SMQuery *query = [[SMQuery alloc] initWithSchema:[[self.coreDataStore session] userSchema]];
     //[query fromIndex:0 toIndex:0];
@@ -559,12 +579,13 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [self.coreDataStore queueRequest:request options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:urlSuccessBlock onFailure:urlFailureBlock];
     
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-    
+  
+/*
 #if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
     dispatch_release(queue);
 #endif
-    
+*/
     return networkAvailable;
     
 }
@@ -636,7 +657,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("Inserted Object Queue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("com.stackmob.insertedObjectsQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
@@ -819,7 +840,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("Updated Objects Queue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("com.stackmob.updatedObjectsQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
@@ -973,7 +994,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("Deleted Objects Queue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("com.stackmob.deletedObjectsQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
@@ -1362,7 +1383,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("Fetch Objects Queue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("com.stackmob.fetchFromNetworkQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     dispatch_group_enter(group);
@@ -2409,7 +2430,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     __block NSError *blockError = nil;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("Retrieve Object From Server Queue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("com.stackmob.objectRetrievalQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     dispatch_group_enter(group);
@@ -3566,7 +3587,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     __block BOOL success = YES;
     
     // create a group dispatch and queue
-    dispatch_queue_t queue = dispatch_queue_create("Deleted Objects Merge Queue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("com.stackmob.mergeDeletedObjectsQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
