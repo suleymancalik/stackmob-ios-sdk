@@ -140,7 +140,7 @@ describe(@"Insert 1 Offline at T1, Insert 1 Offline at T2", ^{
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(YES)];
         
         // Insert 1 online
-        sleep(3);
+        //sleep(3);
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
         
@@ -208,7 +208,7 @@ describe(@"Insert 1 Offline at T1, Insert 1 Offline at T2", ^{
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(YES)];
         
         // Insert 1 online
-        sleep(3);
+        //sleep(3);
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
         
@@ -276,7 +276,7 @@ describe(@"Insert 1 Offline at T1, Insert 1 Offline at T2", ^{
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(YES)];
         
         // Insert 1 online
-        sleep(3);
+        //sleep(3);
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
         
@@ -366,7 +366,7 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Insert 1 offline
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -434,7 +434,7 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Insert 1 offline
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -502,7 +502,7 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Insert 1 offline
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];

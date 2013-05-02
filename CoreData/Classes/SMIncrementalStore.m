@@ -589,12 +589,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     NSMutableURLRequest *request = [[self.coreDataStore.session oauthClientWithHTTPS:options.isSecure] requestWithMethod:@"HEAD" path:nil parameters:nil];
     
-    //__block NSDate *requestDate = [NSDate date];
+    __block NSDate *requestDate = [NSDate date];
     SMFullResponseSuccessBlock urlSuccessBlock = ^(NSURLRequest *successRequest, NSHTTPURLResponse *response, id JSON) {
         
         // Calculate server time diff if needed
-        //NSDate *responseDate = [NSDate date];
-        //[self SM_recordServerTimeDiffFromResponse:response requestDate:requestDate responseDate:responseDate];
+        NSDate *responseDate = [NSDate date];
+        [self SM_recordServerTimeDiffFromResponse:response requestDate:requestDate responseDate:responseDate];
         
         networkAvailable = YES;
         dispatch_group_leave(group);
@@ -606,8 +606,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             networkAvailable = NO;
         } else {
             // Calculate server time diff if needed
-            //NSDate *responseDate = [NSDate date];
-            //[self SM_recordServerTimeDiffFromResponse:response requestDate:requestDate responseDate:responseDate];
+            NSDate *responseDate = [NSDate date];
+            [self SM_recordServerTimeDiffFromResponse:response requestDate:requestDate responseDate:responseDate];
             
             networkAvailable = YES;
         }
@@ -627,46 +627,43 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)SM_recordServerTimeDiffFromResponse:(NSHTTPURLResponse *)response requestDate:(NSDate *)requestDate responseDate:(NSDate *)responseDate {
     
-    NSString *header = [[response allHeaderFields] objectForKey:@"Date"];
+    NSString *header = [[response allHeaderFields] objectForKey:@"X-StackMob-Time-MS"];
     
     if (header != nil) {
         
         double totalRequestTime = fabsl([requestDate timeIntervalSinceDate:responseDate]);
-        if (SM_CORE_DATA_DEBUG) { DLog(@"totalRequestTime is %f", totalRequestTime) }
-        
-        /*
         long double serverTime = [header doubleValue] / 1000.0000;
-        NSLog(@"server time is %Lf", serverTime);
-        double clientServerDiff = fabsl(serverTime - [responseDate timeIntervalSince1970]);
-        NSLog(@"diff in client/server is %f", clientServerDiff);
+        long double clientTime = [responseDate timeIntervalSince1970];
+        double clientServerDiff = fabsl(serverTime - clientTime);
+        
+        if (SM_CORE_DATA_DEBUG) {
+            
+            DLog(@"client time in seconds is %F", [responseDate timeIntervalSince1970])
+            DLog(@"server time in seconds is %Lf", serverTime)
+            DLog(@"totalRequestTime is %f", totalRequestTime)
+            DLog(@"diff in client/server is %f", clientServerDiff)
+            
+        }
+        
+        NSTimeInterval newDiff;
         
         if (clientServerDiff > totalRequestTime) {
-            self.serverTimeDiff = serverTime - [responseDate timeIntervalSince1970] > 0 ? serverTime - [responseDate timeIntervalSince1970] - totalRequestTime : serverTime - [responseDate timeIntervalSince1970] + totalRequestTime;
             
-            NSLog(@"device date is %@, server time diff is %f", responseDate, self.serverTimeDiff);
-            NSLog(@"device date with server time applied is %@", [responseDate dateByAddingTimeInterval:self.serverTimeDiff]);
+            newDiff = serverTime - clientTime > 0 ? serverTime - clientTime - totalRequestTime : serverTime - clientTime + totalRequestTime;
+        } else {
+            
+            newDiff = 0.0;
+        }
+        
+        if (self.serverTimeDiff != newDiff) {
+            
+            self.serverTimeDiff = newDiff;
+            
             [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithDouble:self.serverTimeDiff] forKey:SMServerTimeDiff];
             [[NSUserDefaults standardUserDefaults] synchronize];
-            if (SM_CORE_DATA_DEBUG) { DLog(@"Server Time Diff is %f", self.serverTimeDiff) }
         }
-        */
         
-        NSDateFormatter *rfcFormatter = [[NSDateFormatter alloc] init];
-        [rfcFormatter setDateFormat:@"EEE, dd MMM yyyy HH:mm:ss zzz"];
-        NSDate *serverTime = [rfcFormatter dateFromString:header];
-        if (SM_CORE_DATA_DEBUG) { DLog(@"server time is %f", [serverTime timeIntervalSince1970]) }
-        double clientServerDiff = fabsl([serverTime timeIntervalSinceDate:responseDate]);
-        
-        // if (abs(serverTime - clientTime) > abs(reponseTime - requestTime)), record
-        if (clientServerDiff > totalRequestTime) {
-            self.serverTimeDiff = [serverTime timeIntervalSince1970] - [responseDate timeIntervalSince1970] > 0 ? [serverTime timeIntervalSinceDate:responseDate] - totalRequestTime : [serverTime timeIntervalSinceDate:responseDate] + totalRequestTime;
-            
-            if (SM_CORE_DATA_DEBUG) { DLog(@"device date is %@, server time diff is %f", responseDate, self.serverTimeDiff) }
-            if (SM_CORE_DATA_DEBUG) { DLog(@"device date with server time applied is %@", [responseDate dateByAddingTimeInterval:self.serverTimeDiff]) }
-            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithDouble:self.serverTimeDiff] forKey:SMServerTimeDiff];
-            [[NSUserDefaults standardUserDefaults] synchronize];
-            if (SM_CORE_DATA_DEBUG) { DLog(@"Server Time Diff is %f", self.serverTimeDiff) }
-        }
+        if (SM_CORE_DATA_DEBUG) { DLog(@"Server Time Diff is %f", self.serverTimeDiff) }
         
     }
 }

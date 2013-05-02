@@ -216,7 +216,7 @@ describe(@"Insert 1 Online, Update 1 Offline at T1, Update 1 Online at T2", ^{
         [saveError shouldBeNil];
         [testProperties.moc refreshObject:todo mergeChanges:YES];
         NSLog(@"After offline client update, todo is %@ with lastmoddate %f", todo, [[todo valueForKey:SMLastModDateKey] timeIntervalSince1970]);
-        sleep(3);
+        //sleep(3);
         // Update server at T2
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
@@ -286,7 +286,7 @@ describe(@"Insert 1 Online, Update 1 Offline at T1, Update 1 Online at T2", ^{
         [saveError shouldBeNil];
         
         // Update server at T2
-        sleep(3);
+        //sleep(3);
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
         
@@ -380,7 +380,7 @@ describe(@"Insert 1 Online, Update Online at T1, Update Offline at T2", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Update offline at T2
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -449,7 +449,7 @@ describe(@"Insert 1 Online, Update Online at T1, Update Offline at T2", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Update offline at T2
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -512,12 +512,6 @@ describe(@"Insert 1 Online, Update Online at T1, Update Offline at T2", ^{
         
         dispatch_group_enter(group);
         [testProperties.cds updateObjectWithId:@"1234" inSchema:@"todo" update:[NSDictionary dictionaryWithObjectsAndKeys:@"online server update", @"title", nil] options:[SMRequestOptions options] successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSDictionary *theObject, NSString *schema) {
-            NSLog(@"the object is %@", theObject);
-            long double convertedValue = [[theObject valueForKey:SMLastModDateKey] doubleValue] / 1000.0000;
-            NSDate *convertedDate = [NSDate dateWithTimeIntervalSince1970:convertedValue];
-            NSLog(@"converted date is %@", convertedDate);
-            double interval = [serverBase timeIntervalSinceDate:convertedDate];
-            NSLog(@"interval is %.4f", interval);
             dispatch_group_leave(group);
         } onFailure:^(NSError *theError, NSDictionary *theObject, NSString *schema) {
             [theError shouldBeNil];
@@ -527,7 +521,7 @@ describe(@"Insert 1 Online, Update Online at T1, Update Offline at T2", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Update offline at T2
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -614,7 +608,7 @@ describe(@"Insert 1 Online, Update Offline at T1, Delete Online at T2", ^{
         [saveError shouldBeNil];
         
         // Delete online at T2
-        sleep(3);
+        //sleep(3);
         
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
@@ -685,7 +679,7 @@ describe(@"Insert 1 Online, Update Offline at T1, Delete Online at T2", ^{
         [saveError shouldBeNil];
         
         // Delete online at T2
-        sleep(3);
+        //sleep(3);
         
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
@@ -755,7 +749,7 @@ describe(@"Insert 1 Online, Update Offline at T1, Delete Online at T2", ^{
         [saveError shouldBeNil];
         
         // Delete online at T2
-        sleep(3);
+        //sleep(3);
         
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
@@ -849,7 +843,7 @@ describe(@"Insert 1 Online, Delete Online at T1, Update Offline at T2", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Update offline at T2
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -918,7 +912,7 @@ describe(@"Insert 1 Online, Delete Online at T1, Update Offline at T2", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Update offline at T2
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -987,7 +981,7 @@ describe(@"Insert 1 Online, Delete Online at T1, Update Offline at T2", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Update offline at T2
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -1090,7 +1084,7 @@ describe(@"Insert 5 Online, Go offline and update 5, T2 update 2 Online", ^{
         [saveError shouldBeNil];
         
         // Update 2 Online at T2
-        sleep(3);
+        //sleep(3);
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
         
@@ -1215,7 +1209,7 @@ describe(@"Insert 5 Online, Go offline and update 5, T2 update 2 Online", ^{
         [saveError shouldBeNil];
         
         // Update 2 Online at T2
-        sleep(3);
+        //sleep(3);
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
         
@@ -1367,7 +1361,7 @@ describe(@"Insert 5 Online, T1 update 2 Online, Go offline and update 5,", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Update 5 offline at T2
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -1492,7 +1486,7 @@ describe(@"Insert 5 Online, T1 update 2 Online, Go offline and update 5,", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Update 5 offline at T2
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -1634,7 +1628,7 @@ describe(@"Insert 5 Online, Go offline and update 5, T2 delete 2 Online", ^{
         [saveError shouldBeNil];
         
         // Delete 2 Online at T2
-        sleep(3);
+        //sleep(3);
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
         
@@ -1759,7 +1753,7 @@ describe(@"Insert 5 Online, Go offline and update 5, T2 delete 2 Online", ^{
         [saveError shouldBeNil];
         
         // Delete 2 Online at T2
-        sleep(3);
+        //sleep(3);
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
         
@@ -1912,7 +1906,7 @@ describe(@"Insert 5 Online, Delete 2 online at T1, Go offline and update 5 at T2
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Update 5 offline at T2
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -2037,7 +2031,7 @@ describe(@"Insert 5 Online, Delete 2 online at T1, Go offline and update 5 at T2
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Update 5 offline at T2
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -2179,7 +2173,7 @@ describe(@"Insert 5 Online, Go offline and update 5, T2 update 1 and delete 1 On
         [saveError shouldBeNil];
         
         // update 1 Online at T2
-        sleep(3);
+        //sleep(3);
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
         
@@ -2305,7 +2299,7 @@ describe(@"Insert 5 Online, Go offline and update 5, T2 update 1 and delete 1 On
         [saveError shouldBeNil];
         
         // update 1 Online at T2
-        sleep(3);
+        //sleep(3);
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
         
@@ -2460,7 +2454,7 @@ describe(@"Insert 5 Online, Delete 1 online at T1, update 1 at T1, Go offline an
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Update 5 offline at T2
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
@@ -2586,7 +2580,7 @@ describe(@"Insert 5 Online, Delete 1 online at T1, update 1 at T1, Go offline an
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Update 5 offline at T2
-        sleep(3);
+        //sleep(3);
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
