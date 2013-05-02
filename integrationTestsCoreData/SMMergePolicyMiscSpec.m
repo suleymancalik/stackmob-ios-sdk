@@ -20,7 +20,7 @@
 #import "User3.h"
 
 SPEC_BEGIN(SMMergePolicyMiscSpec)
-/*
+
 describe(@"Sync Errors, Inserting offline to a forbidden schema with POST perms", ^{
     __block SMTestProperties *testProperties = nil;
     beforeEach(^{
@@ -1450,7 +1450,7 @@ describe(@"Syncing with user objects, Deletes", ^{
         
     });
 });
-*/	
+
 describe(@"syncInProgress", ^{
     __block SMTestProperties *testProperties = nil;
     beforeEach(^{
