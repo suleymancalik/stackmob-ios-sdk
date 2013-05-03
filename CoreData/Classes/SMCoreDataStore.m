@@ -18,8 +18,7 @@
 #import "SMIncrementalStore.h"
 #import "SMError.h"
 #import "NSManagedObjectContext+Concurrency.h"
-
-#define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
+#import "FileManagement.h"
 
 static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey";
 NSString *const SMSetCachePolicyNotification = @"SMSetCachePolicyNotification";
@@ -72,6 +71,7 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
 @property (nonatomic, strong) NSManagedObjectContext *privateContext;
 @property (nonatomic, strong) id defaultCoreDataMergePolicy;
 @property (nonatomic) dispatch_queue_t cachePurgeQueue;
+@property (nonatomic, strong) NSArray *currentDirtyQueue;
 
 - (NSManagedObjectContext *)SM_newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
 - (void)SM_didReceiveSetCachePolicyNotification:(NSNotification *)notification;
@@ -95,6 +95,8 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
 @synthesize deletesSMMergePolicy = _deletesSMMergePolicy;
 @synthesize syncCompletionCallback = _syncCompletionCallback;
 @synthesize syncCallbackQueue = _syncCallbackQueue;
+@synthesize syncInProgress = _syncInProgress;
+@synthesize currentDirtyQueue = _currentDirtyQueue;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
@@ -121,12 +123,18 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
         self.syncCallbackForFailedDeletes = nil;
         self.syncCompletionCallback = nil;
         
+        self.syncInProgress = NO;
+        
+        self.currentDirtyQueue = nil;
+        
         /// Init global request options
         self.globalRequestOptions = [SMRequestOptions options];
         
         /// Add observer for set cache policy
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveSetCachePolicyNotification:) name:SMSetCachePolicyNotification object:self.session.networkMonitor];
         
+        // Add observer for dirty queue
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveDirtyQueueNotification:) name:@"SMDirtyQueueNotification" object:nil];
         
     }
     
@@ -286,9 +294,49 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
     [self setCachePolicy:newCachePolicy];
 }
 
+- (void)SM_didReceiveDirtyQueueNotification:(NSNotification *)notification
+{
+    NSDictionary *dirtyQueue = [[notification userInfo] objectForKey:@"SMDirtyQueue"];
+    if (dirtyQueue) {
+        NSMutableArray *arrayOfDirtyObjects = [NSMutableArray array];
+        [arrayOfDirtyObjects addObjectsFromArray:[dirtyQueue objectForKey:SMDirtyInsertedObjectKeys]];
+        [arrayOfDirtyObjects addObjectsFromArray:[dirtyQueue objectForKey:SMDirtyUpdatedObjectKeys]];
+        [arrayOfDirtyObjects addObjectsFromArray:[dirtyQueue objectForKey:SMDirtyDeletedObjectKeys]];
+        self.currentDirtyQueue = [NSArray arrayWithArray:arrayOfDirtyObjects];
+    }
+}
+
 - (void)syncWithServer
 {
     [[NSNotificationCenter defaultCenter] postNotificationName:SMSyncWithServerNotification object:self userInfo:nil];
+}
+
+- (BOOL)isDirtyObject:(NSManagedObjectID *)objectID
+{
+    if (self.currentDirtyQueue) {
+        
+        if ([self.currentDirtyQueue count] == 0) {
+            return NO;
+        }
+        
+        NSString *entityName = [[objectID entity] name];
+        NSString *stringRepOfID = [[objectID URIRepresentation] absoluteString];
+        NSArray *components = [stringRepOfID componentsSeparatedByString:[NSString stringWithFormat:@"%@/p", entityName]];
+        if ([components count] != 2) {
+            // Handle error
+            [NSException raise:SMExceptionIncompatibleObject format:@"ObjectID in incorrect format."];
+        }
+        
+        NSString *primaryKey = [components lastObject];
+        
+        NSArray *entry = [NSArray arrayWithObjects:primaryKey, entityName, nil];
+        
+        if ([self.currentDirtyQueue containsObject:entry]) {
+            return YES;
+        }
+    }
+    
+    return NO;
 }
 
 - (void)markFailedObjectAsSynced:(NSDictionary *)object purgeFromCache:(BOOL)purge

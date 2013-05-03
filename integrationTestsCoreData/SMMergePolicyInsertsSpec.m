@@ -61,6 +61,8 @@ describe(@"Insert 1 Offline, should send as an insert no merge, NO CONFLICT", ^{
         
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(YES)];
         
+        [[theValue([testProperties.cds isDirtyObject:[todo objectID]]) should] beYes];
+        
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         dispatch_group_t group = dispatch_group_create();
         
@@ -96,7 +98,10 @@ describe(@"Insert 1 Offline, should send as an insert no merge, NO CONFLICT", ^{
         [[results should] haveCountOf:1];
         [[[[results objectAtIndex:0] valueForKey:@"title"] should] equal:@"offline insert"];
         
-        // TODO better testing that merge policy never gets called
+        [[theValue([testProperties.cds isDirtyObject:[[results objectAtIndex:0] objectID]]) should] beNo];
+        
+        
+        // better testing that merge policy never gets called
         
     });
     
@@ -138,6 +143,8 @@ describe(@"Insert 1 Offline at T1, Insert 1 Offline at T2", ^{
         [saveError shouldBeNil];
         
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(YES)];
+        
+        [[theValue([testProperties.cds isDirtyObject:[todo objectID]]) should] beYes];
         
         // Insert 1 online
         //sleep(3);
@@ -188,6 +195,8 @@ describe(@"Insert 1 Offline at T1, Insert 1 Offline at T2", ^{
         [[results should] haveCountOf:1];
         [[[[results objectAtIndex:0] valueForKey:@"title"] should] equal:@"offline client insert"];
         
+        [[theValue([testProperties.cds isDirtyObject:[[results objectAtIndex:0] objectID]]) should] beNo];
+        
     });
     
     it(@"Last Mod Wins MP, Should merge server object with cache", ^{
@@ -206,6 +215,8 @@ describe(@"Insert 1 Offline at T1, Insert 1 Offline at T2", ^{
         [saveError shouldBeNil];
         
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(YES)];
+        
+        [[theValue([testProperties.cds isDirtyObject:[todo objectID]]) should] beYes];
         
         // Insert 1 online
         //sleep(3);
@@ -256,6 +267,8 @@ describe(@"Insert 1 Offline at T1, Insert 1 Offline at T2", ^{
         [[results should] haveCountOf:1];
         [[[[results objectAtIndex:0] valueForKey:@"title"] should] equal:@"online server insert"];
         
+        [[theValue([testProperties.cds isDirtyObject:[[results objectAtIndex:0] objectID]]) should] beNo];
+        
     });
     
     it(@"Server Mod Wins MP, Should merge server object with cache", ^{
@@ -274,6 +287,8 @@ describe(@"Insert 1 Offline at T1, Insert 1 Offline at T2", ^{
         [saveError shouldBeNil];
         
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(YES)];
+        
+        [[theValue([testProperties.cds isDirtyObject:[todo objectID]]) should] beYes];
         
         // Insert 1 online
         //sleep(3);
@@ -323,6 +338,8 @@ describe(@"Insert 1 Offline at T1, Insert 1 Offline at T2", ^{
         results = [testProperties.moc executeFetchRequestAndWait:serverFetch error:&saveError];
         [[results should] haveCountOf:1];
         [[[[results objectAtIndex:0] valueForKey:@"title"] should] equal:@"online server insert"];
+        
+        [[theValue([testProperties.cds isDirtyObject:[[results objectAtIndex:0] objectID]]) should] beNo];
         
     });
     
@@ -381,6 +398,8 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(YES)];
         
+        [[theValue([testProperties.cds isDirtyObject:[todo objectID]]) should] beYes];
+        
         // Sync
         
         [testProperties.cds setSyncCallbackQueue:queue];
@@ -414,6 +433,8 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         results = [testProperties.moc executeFetchRequestAndWait:serverFetch error:&saveError];
         [[results should] haveCountOf:1];
         [[[[results objectAtIndex:0] valueForKey:@"title"] should] equal:@"offline client insert"];
+        
+        [[theValue([testProperties.cds isDirtyObject:[[results objectAtIndex:0] objectID]]) should] beNo];
         
     });
     
@@ -449,6 +470,8 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(YES)];
         
+        [[theValue([testProperties.cds isDirtyObject:[todo objectID]]) should] beYes];
+        
         // Sync
         
         [testProperties.cds setSyncCallbackQueue:queue];
@@ -482,6 +505,8 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         results = [testProperties.moc executeFetchRequestAndWait:serverFetch error:&saveError];
         [[results should] haveCountOf:1];
         [[[[results objectAtIndex:0] valueForKey:@"title"] should] equal:@"offline client insert"];
+        
+        [[theValue([testProperties.cds isDirtyObject:[[results objectAtIndex:0] objectID]]) should] beNo];
         
     });
     
@@ -517,6 +542,8 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(YES)];
         
+        [[theValue([testProperties.cds isDirtyObject:[todo objectID]]) should] beYes];
+        
         // Sync
         
         [testProperties.cds setSyncCallbackQueue:queue];
@@ -550,6 +577,8 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         results = [testProperties.moc executeFetchRequestAndWait:serverFetch error:&saveError];
         [[results should] haveCountOf:1];
         [[[[results objectAtIndex:0] valueForKey:@"title"] should] equal:@"online server insert"];
+        
+        [[theValue([testProperties.cds isDirtyObject:[[results objectAtIndex:0] objectID]]) should] beNo];
         
     });
     

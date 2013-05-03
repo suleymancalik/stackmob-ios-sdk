@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef OS_OBJECT_USE_OBJC 
+@class SMCoreDataStore;
 
-#define OS_OBJECT_USE_OBJC 0 
+@interface FileManagement : NSObject
 
-#endif
++ (NSURL *)SM_getStoreURLForFileComponent:(NSString *)fileComponent coreDataStore:(SMCoreDataStore *)coreDataStore;
++ (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL;
++ (void)SM_removeStoreURLPath:(NSURL *)storeURL;
 
-#define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
+@end

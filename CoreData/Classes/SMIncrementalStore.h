@@ -43,6 +43,10 @@ extern NSString *const SMSyncWithServerNotification;
 
 extern NSString *const SMLastModDateKey;
 
+extern NSString *const SMDirtyInsertedObjectKeys;
+extern NSString *const SMDirtyUpdatedObjectKeys;
+extern NSString *const SMDirtyDeletedObjectKeys;
+
 extern BOOL SM_CORE_DATA_DEBUG;
 extern unsigned int SM_MAX_LOG_LENGTH;
 

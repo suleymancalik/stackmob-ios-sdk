@@ -178,6 +178,14 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  */
 @property (nonatomic, strong, setter = setSyncCompletionCallback:) SMSyncCallback syncCompletionCallback;
 
+/**
+ Boolean indicating whether a sync with the server is in progress.
+ 
+ YES if a sync is in progress, otherwise NO.
+ 
+ @since Available in iOS SDK 1.5.0 and later.
+ */
+@property (nonatomic) BOOL syncInProgress;
 
 /**
  An instance of SMRequestOptions that will be used as the default for all save and fetch calls.
@@ -300,6 +308,19 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  @since Available in iOS SDK 1.5.0 and later.
  */
 - (void)syncWithServer;
+
+/**
+ Returns a Boolean indicating whether an object is potentially out of sync with its server representation.
+ 
+ An object is marked dirty when it is modified and saved while the device is offline.
+ 
+ @param objectID The NSManagedObjectID of the object.
+ 
+ YES if the object is dirty, otherwise NO.
+ 
+ @since Available in iOS SDK 1.5.0 and later.
+ */
+- (BOOL)isDirtyObject:(NSManagedObjectID *)objectID;
 
 /**
  Removes the "dirty" tag from an object. Optionally purges the object from the cache as well.

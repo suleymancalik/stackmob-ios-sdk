@@ -25,8 +25,8 @@
 #import "AFHTTPClient.h"
 #import "SMIncrementalStoreNode.h"
 #import "SMSyncedObject.h"
+#import "FileManagement.h"
 
-#define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
 #define CACHE_MAP_FILE @"CacheMap.plist"
 #define SQL_DB @"CoreDataStore.sqlite"
 #define DIRTY_QUEUE_FILE @"DirtyQueue.plist"
@@ -63,6 +63,10 @@ NSString *const SMSyncWithServerNotification = @"SMSyncWithServerNotification";
 
 NSString *const SMLastModDateKey = @"lastmoddate";
 
+NSString *const SMDirtyInsertedObjectKeys = @"SMDirtyInsertedObjectKeys";
+NSString *const SMDirtyUpdatedObjectKeys = @"SMDirtyUpdatedObjectKeys";
+NSString *const SMDirtyDeletedObjectKeys = @"SMDirtyDeletedObjectKeys";
+
 ///-------------------------------
 /// Internal Constants
 ///-------------------------------
@@ -78,10 +82,6 @@ NSString *const SMFailedRequestOriginalSuccessBlock = @"SMFailedRequestOriginalS
 NSString *const ObjectID = @"ObjectID";
 NSString *const ObjectEntityName = @"ObjectEntityName";
 
-NSString *const SMDirtyInsertedObjectKeys = @"SMDirtyInsertedObjectKeys";
-NSString *const SMDirtyUpdatedObjectKeys = @"SMDirtyUpdatedObjectKeys";
-NSString *const SMDirtyDeletedObjectKeys = @"SMDirtyDeletedObjectKeys";
-
 NSString *const SMDirtyObjectPrimaryKey = @"SMDirtyObjectPrimaryKey";
 NSString *const SMDirtyObjectEntityName = @"SMDirtyObjectEntityName";
 
@@ -91,7 +91,6 @@ NSString *const SMCreatedDateKey = @"createddate";
 NSString *const SMServerTimeDiff = @"SMServerTimeDiff";
 
 BOOL SM_CORE_DATA_DEBUG = NO;
-static BOOL syncInProgress = NO;
 unsigned int SM_MAX_LOG_LENGTH = 10000;
 
 NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
@@ -170,6 +169,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 @property (nonatomic) NSTimeInterval serverTimeDiff;
 
+@property (nonatomic, strong) NSNotificationQueue *notificationQueue;
+
 ///-------------------------------
 /// Saves and Fetches
 ///-------------------------------
@@ -211,8 +212,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 ///-------------------------------
 
 - (void)SM_configureCache;
-- (NSURL *)SM_getStoreURLForFileComponent:(NSString *)fileComponent;
-- (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL;
 
 - (void)SM_saveCacheMap;
 - (void)SM_readCacheMap;
@@ -321,6 +320,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 @synthesize callbackQueue = _callbackQueue;
 @synthesize isSaving = _isSaving;
 @synthesize serverTimeDiff = _serverTimeDiff;
+@synthesize notificationQueue = _notificationQueue;
 
 - (id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root configurationName:(NSString *)name URL:(NSURL *)url options:(NSDictionary *)options {
     if (SM_CORE_DATA_DEBUG) {DLog()}
@@ -341,6 +341,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_handleDidSave:) name:NSManagedObjectContextDidSaveNotification object:nil];
         
         if (SM_CACHE_ENABLED) {
+            self.notificationQueue = [[NSNotificationQueue alloc] initWithNotificationCenter:[NSNotificationCenter defaultCenter]];
             [self SM_unregisterForNotifications];
             [self SM_registerForNotifications];
             [self SM_configureCache];
@@ -2117,8 +2118,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         _localPersistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.localManagedObjectModel];
         
-        NSURL *storeURL = [self SM_getStoreURLForFileComponent:SQL_DB];
-        [self SM_createStoreURLPathIfNeeded:storeURL];
+        NSURL *storeURL = [FileManagement SM_getStoreURLForFileComponent:SQL_DB coreDataStore:self.coreDataStore];
+        [FileManagement SM_createStoreURLPathIfNeeded:storeURL];
         
         NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSMigratePersistentStoresAutomaticallyOption, [NSNumber numberWithBool:YES], NSInferMappingModelAutomaticallyOption, nil];
         
@@ -2134,79 +2135,13 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     return _localPersistentStoreCoordinator;
 }
 
-- (NSURL *)SM_getStoreURLForFileComponent:(NSString *)fileComponent
-{
-    if (SM_CORE_DATA_DEBUG) {DLog()}
-    
-    NSString *applicationName = [[[NSBundle mainBundle] infoDictionary] valueForKey:(NSString *)kCFBundleNameKey];
-    NSString *applicationDocumentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
-    NSString *applicationStorageDirectory = [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:applicationName];
-    
-    NSString *fullFileName = nil;
-    if (applicationName != nil)
-    {
-        fullFileName = [NSString stringWithFormat:@"%@-%@-%@", applicationName, self.coreDataStore.session.regularOAuthClient.publicKey, fileComponent];
-    } else {
-        fullFileName = [NSString stringWithFormat:@"%@-%@", self.coreDataStore.session.regularOAuthClient.publicKey, fileComponent];
-    }
-    
-    
-    NSArray *paths = [NSArray arrayWithObjects:applicationDocumentsDirectory, applicationStorageDirectory, nil];
-    
-    NSFileManager *fm = [[NSFileManager alloc] init];
-    
-    for (NSString *path in paths)
-    {
-        NSString *filepath = [path stringByAppendingPathComponent:fullFileName];
-        if ([fm fileExistsAtPath:filepath])
-        {
-            return [NSURL fileURLWithPath:filepath];
-        }
-        
-    }
-    
-    NSURL *aURL = [NSURL fileURLWithPath:[applicationStorageDirectory stringByAppendingPathComponent:fullFileName]];
-    return aURL;
-}
-
-- (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL
-{
-    if (SM_CORE_DATA_DEBUG) {DLog()}
-    
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSURL *pathToStore = [storeURL URLByDeletingLastPathComponent];
-    BOOL isDir;
-    BOOL fileExists = [fileManager fileExistsAtPath:[pathToStore path] isDirectory:&isDir];
-    if (!fileExists) {
-        NSError *error = nil;
-        BOOL pathWasCreated = [fileManager createDirectoryAtPath:[pathToStore path] withIntermediateDirectories:YES attributes:nil error:&error];
-        
-        if (!pathWasCreated) {
-            [NSException raise:SMExceptionAddPersistentStore format:@"Error creating sqlite persistent store: %@", error];
-        }
-    }
-    
-}
-
-- (void)SM_removeStoreURLPath:(NSURL *)storeURL
-{
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:[storeURL path]]) {
-        NSError *deleteError = nil;
-        BOOL delete = [fileManager removeItemAtURL:storeURL error:&deleteError];
-        if (!delete) {
-            [NSException raise:@"SMExceptionCouldNotDeleteSQLiteDatabase" format:@""];
-        }
-    }
-}
-
 - (void)SM_readCacheMap
 {
     if (SM_CORE_DATA_DEBUG) {DLog()}
     
     NSString *errorDesc = nil;
     NSPropertyListFormat format;
-    NSURL *mapPath = [self SM_getStoreURLForFileComponent:CACHE_MAP_FILE];
+    NSURL *mapPath = [FileManagement SM_getStoreURLForFileComponent:CACHE_MAP_FILE coreDataStore:self.coreDataStore];
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:[mapPath path]]) {
         NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:[mapPath path]];
@@ -2232,7 +2167,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     NSString *errorDesc = nil;
     NSError *error = nil;
-    NSURL *mapPath = [self SM_getStoreURLForFileComponent:CACHE_MAP_FILE];
+    NSURL *mapPath = [FileManagement SM_getStoreURLForFileComponent:CACHE_MAP_FILE coreDataStore:self.coreDataStore];
     
     NSData *mapData = [NSPropertyListSerialization dataFromPropertyList:self.cacheMappingTable
                                                                  format:NSPropertyListXMLFormat_v1_0
@@ -2255,7 +2190,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     NSString *errorDesc = nil;
     NSPropertyListFormat format;
-    NSURL *mapPath = [self SM_getStoreURLForFileComponent:DIRTY_QUEUE_FILE];
+    NSURL *mapPath = [FileManagement SM_getStoreURLForFileComponent:DIRTY_QUEUE_FILE coreDataStore:self.coreDataStore];
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:[mapPath path]]) {
         NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:[mapPath path]];
@@ -2284,7 +2219,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     NSString *errorDesc = nil;
     NSError *error = nil;
-    NSURL *mapPath = [self SM_getStoreURLForFileComponent:DIRTY_QUEUE_FILE];
+    NSURL *mapPath = [FileManagement SM_getStoreURLForFileComponent:DIRTY_QUEUE_FILE coreDataStore:self.coreDataStore];
     
     NSData *mapData = [NSPropertyListSerialization dataFromPropertyList:self.dirtyQueue
                                                                  format:NSPropertyListXMLFormat_v1_0
@@ -2297,6 +2232,11 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     BOOL successfulWrite = [mapData writeToFile:[mapPath path] options:NSDataWritingAtomic error:&error];
     if (!successfulWrite) {
         [NSException raise:SMExceptionCacheError format:@"Error saving dirty queue data with error %@", error];
+    } else {
+        
+        // Send dirtyQueue to core data store
+        NSNotification *notification = [NSNotification notificationWithName:@"SMDirtyQueueNotification" object:self userInfo:[NSDictionary dictionaryWithObject:[self.dirtyQueue copy] forKey:@"SMDirtyQueue"]];
+        [[NSNotificationCenter defaultCenter] postNotification:notification];
     }
     
 }
@@ -2870,8 +2810,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (void)didReceiveSyncWithServerNotifcation:(NSNotification *)notification
 {
     
-    if (!syncInProgress) {
-        syncInProgress = YES;
+    if (!self.coreDataStore.syncInProgress) {
+        self.coreDataStore.syncInProgress = YES;
         dispatch_queue_t serverSyncQueue = [SMIncrementalStore syncQueue];
         
         dispatch_async(serverSyncQueue, ^{
@@ -2947,7 +2887,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
     }
     
-    syncInProgress = NO;
+    self.coreDataStore.syncInProgress = NO;
     
 }
 
@@ -3551,8 +3491,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (void)SM_didRecieveCacheResetNotification:(NSNotification *)notification
 {
     if (SM_CORE_DATA_DEBUG) { DLog() }
-    NSURL *storeURL = [self SM_getStoreURLForFileComponent:SQL_DB];
-    [self SM_removeStoreURLPath:storeURL];
+    NSURL *storeURL = [FileManagement SM_getStoreURLForFileComponent:SQL_DB coreDataStore:self.coreDataStore];
+    [FileManagement SM_removeStoreURLPath:storeURL];
     
     [self.cacheMappingTable removeAllObjects];
     [self SM_saveCacheMap];
