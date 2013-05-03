@@ -19,6 +19,7 @@
 #import "SMError.h"
 #import "NSManagedObjectContext+Concurrency.h"
 #import "FileManagement.h"
+#import "Common.h"
 
 static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey";
 NSString *const SMSetCachePolicyNotification = @"SMSetCachePolicyNotification";

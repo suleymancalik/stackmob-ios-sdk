@@ -310,17 +310,30 @@
                     });
                 } else {
                     dispatch_async(successCallbackQueue, ^{
-                        
-                        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-                        [context setPersistentStoreCoordinator:[backgroundContext persistentStoreCoordinator]];
-                        [context performBlock:^{
-                            __block NSArray *managedObjectsToReturn = [resultsOfFetch map:^id(id item) {
-                                NSManagedObject *objectFromCurrentContext = [context objectWithID:item];
-                                [context refreshObject:objectFromCurrentContext mergeChanges:YES];
-                                return objectFromCurrentContext;
-                            }];
-                            successBlock(managedObjectsToReturn);
+                        // Add context for current thread
+                        NSManagedObjectContext *context = [[[SMClient defaultClient] coreDataStore] contextForCurrentThread];
+                        __block NSArray *managedObjectsToReturn = [resultsOfFetch map:^id(id item) {
+                            NSManagedObject *objectFromCurrentContext = [context objectWithID:item];
+                            [context refreshObject:objectFromCurrentContext mergeChanges:YES];
+                            return objectFromCurrentContext;
                         }];
+                        successBlock(managedObjectsToReturn);
+                        /*
+                        if ([NSThread isMainThread]) {
+                            context = mainContext;
+                        } else {
+                            NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
+                            NSManagedObjectContext *threadContext = [threadDict objectForKey:@"SM_ManagedObjectContextKey"];
+                            if (threadContext == nil)
+                            {
+                                threadContext = [self SM_newPrivateQueueContextWithParent:mainContext];
+                                [threadDict setObject:threadContext forKey:@"SM_ManagedObjectContextKey"];
+                            }
+                        }
+                        [context performBlock:^{
+                            
+                        }];
+                         */
                     });
                 }
             }

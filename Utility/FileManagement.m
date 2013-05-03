@@ -20,6 +20,7 @@
 #import "SMUserSession.h"
 #import "SMOAuth2Client.h"
 #import "SMError.h"
+#import "Common.h"
 
 @implementation FileManagement
 

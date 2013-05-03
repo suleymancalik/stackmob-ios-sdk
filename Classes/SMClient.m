@@ -30,6 +30,7 @@
 
 static SMClient *defaultClient = nil;
 
+
 @interface SMClient ()
 
 @property(nonatomic, readwrite, copy) NSString *publicKey;
@@ -114,6 +115,11 @@ static SMClient *defaultClient = nil;
 - (SMDataStore *)dataStore
 {
     return [[SMDataStore alloc] initWithAPIVersion:self.appAPIVersion session:self.session];
+}
+
+- (SMCoreDataStore *)coreDataStore
+{
+    return _SM_coreDataStore;
 }
 
 - (SMCoreDataStore *)coreDataStoreWithManagedObjectModel:(NSManagedObjectModel *)managedObjectModel

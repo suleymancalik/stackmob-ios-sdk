@@ -26,6 +26,7 @@
 #import "SMIncrementalStoreNode.h"
 #import "SMSyncedObject.h"
 #import "FileManagement.h"
+#import "Common.h"
 
 #define CACHE_MAP_FILE @"CacheMap.plist"
 #define SQL_DB @"CoreDataStore.sqlite"

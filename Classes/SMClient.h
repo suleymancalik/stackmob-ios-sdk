@@ -245,6 +245,15 @@
  */
 - (SMDataStore *)dataStore;
 
+/**
+ An `SMCoreDataStore` instance, available only after initializing a core data store.
+ 
+ To initialize, use <coreDataStoreWithManagedObjectModel:>.
+ 
+ @since Available in iOS SDK 1.5.0 and later.
+ */
+- (SMCoreDataStore *)coreDataStore;
+
 #pragma mark auth
 ///-------------------------------
 /// @name Basic Authentication
