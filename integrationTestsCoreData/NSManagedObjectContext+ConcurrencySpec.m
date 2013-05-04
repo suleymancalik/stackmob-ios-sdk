@@ -77,8 +77,8 @@ describe(@"fetching runs in the background", ^{
     });
     it(@"fetches, async method", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        dispatch_group_t group = dispatch_group_create();
-        dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
+        __block dispatch_group_t group = dispatch_group_create();
+        __block dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
         dispatch_group_enter(group);
         [moc executeFetchRequest:fetch returnManagedObjectIDs:NO successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSArray *results) {
@@ -817,15 +817,19 @@ describe(@"sending options with requests, fetches", ^{
         SMRequestOptions *options = [SMRequestOptions optionsWithHeaders:[NSDictionary dictionaryWithObjectsAndKeys:@"random", @"header", nil]];
         options.isSecure = YES;
         
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [moc executeFetchRequest:fetchRequest returnManagedObjectIDs:NO successCallbackQueue:dispatch_get_current_queue() failureCallbackQueue:dispatch_get_current_queue() options:options onSuccess:^(NSArray *results) {
-                [[theValue([results count]) should] equal:theValue(1)];
-                syncReturn(semaphore);
-            } onFailure:^(NSError *error) {
-                [error shouldBeNil];
-                syncReturn(semaphore);
-            }];
-        });
+        dispatch_group_t group = dispatch_group_create();
+        dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
+        
+        dispatch_group_enter(group);
+        [moc executeFetchRequest:fetchRequest returnManagedObjectIDs:NO successCallbackQueue:queue failureCallbackQueue:queue options:options onSuccess:^(NSArray *results) {
+            [[theValue([results count]) should] equal:theValue(1)];
+            dispatch_group_leave(group);
+        } onFailure:^(NSError *error) {
+            [error shouldBeNil];
+            dispatch_group_leave(group);
+        }];
+        
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
     });
     
@@ -843,15 +847,19 @@ describe(@"sending options with requests, fetches", ^{
         
         SMRequestOptions *options = [SMRequestOptions optionsWithHeaders:[NSDictionary dictionaryWithObjectsAndKeys:@"random", @"header", nil]];
         
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [moc executeFetchRequest:fetchRequest returnManagedObjectIDs:NO successCallbackQueue:dispatch_get_current_queue() failureCallbackQueue:dispatch_get_current_queue() options:options onSuccess:^(NSArray *results) {
-                [[theValue([results count]) should] equal:theValue(1)];
-                syncReturn(semaphore);
-            } onFailure:^(NSError *error) {
-                [error shouldBeNil];
-                syncReturn(semaphore);
-            }];
-        });
+        dispatch_group_t group = dispatch_group_create();
+        dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
+        
+        dispatch_group_enter(group);
+        [moc executeFetchRequest:fetchRequest returnManagedObjectIDs:NO successCallbackQueue:queue failureCallbackQueue:queue options:options onSuccess:^(NSArray *results) {
+            [[theValue([results count]) should] equal:theValue(1)];
+            dispatch_group_leave(group);
+        } onFailure:^(NSError *error) {
+            [error shouldBeNil];
+            dispatch_group_leave(group);
+        }];
+        
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     });
 });
 

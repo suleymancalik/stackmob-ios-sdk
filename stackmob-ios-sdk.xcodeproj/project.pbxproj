@@ -149,15 +149,12 @@
 		DE1D1F3E172F44EF00B60EB0 /* SMTestProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = DE1D1F3D172F44EF00B60EB0 /* SMTestProperties.m */; };
 		DE1F26691733375F00DA734F /* FileManagement.h in Headers */ = {isa = PBXBuildFile; fileRef = DE1F26671733375F00DA734F /* FileManagement.h */; };
 		DE1F266A1733375F00DA734F /* FileManagement.m in Sources */ = {isa = PBXBuildFile; fileRef = DE1F26681733375F00DA734F /* FileManagement.m */; };
-		DE1F266B1733483900DA734F /* SMMergePolicyInsertsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9BCC0F17309916007CBA7F /* SMMergePolicyInsertsSpec.m */; };
 		DE2EA1A116CC7304001FA904 /* SMGeoPoint.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 1D83529416C5ACD000814C71 /* SMGeoPoint.h */; };
 		DE2EA1A216CC7304001FA904 /* SMLocationManager.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = 1D8352A716C8512400814C71 /* SMLocationManager.h */; };
 		DE2EA1A316CC7304001FA904 /* Common.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DEEDC32616C984B4008B1CC2 /* Common.h */; };
 		DE3AE12A16810FAC000B2E80 /* AFHTTPClient+StackMob.h in Headers */ = {isa = PBXBuildFile; fileRef = DE3AE12816810FAC000B2E80 /* AFHTTPClient+StackMob.h */; };
 		DE3AE12B16810FAC000B2E80 /* AFHTTPClient+StackMob.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3AE12916810FAC000B2E80 /* AFHTTPClient+StackMob.m */; };
-		DE4DE3A11734740D0003C0A8 /* SMMergePolicyMiscSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9BCC1517309974007CBA7F /* SMMergePolicyMiscSpec.m */; };
-		DE4DE3A2173474100003C0A8 /* SMMergePolicyDeletesSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9BCC1317309959007CBA7F /* SMMergePolicyDeletesSpec.m */; };
-		DE4DE3A3173474140003C0A8 /* SMMergePolicyUpdatesSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9BCC111730994A007CBA7F /* SMMergePolicyUpdatesSpec.m */; };
+		DE4DE3AD173477A30003C0A8 /* NSManagedObjectContext+ConcurrencySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DEB68FBF169F95EE00CC45F4 /* NSManagedObjectContext+ConcurrencySpec.m */; };
 		DE64D6011623777900237570 /* SMUserManagedObject.h in Headers */ = {isa = PBXBuildFile; fileRef = DE64D5FF1623777900237570 /* SMUserManagedObject.h */; };
 		DE64D6021623777900237570 /* SMUserManagedObject.m in Sources */ = {isa = PBXBuildFile; fileRef = DE64D6001623777900237570 /* SMUserManagedObject.m */; };
 		DE64D61C1623BAE800237570 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE64D61B1623BAE800237570 /* Security.framework */; };
@@ -1390,10 +1387,7 @@
 				DE01F13C16F78CE800453088 /* User3.m in Sources */,
 				DE01F16316F7FE0000453088 /* Person.m in Sources */,
 				DE1D1F3E172F44EF00B60EB0 /* SMTestProperties.m in Sources */,
-				DE1F266B1733483900DA734F /* SMMergePolicyInsertsSpec.m in Sources */,
-				DE4DE3A11734740D0003C0A8 /* SMMergePolicyMiscSpec.m in Sources */,
-				DE4DE3A2173474100003C0A8 /* SMMergePolicyDeletesSpec.m in Sources */,
-				DE4DE3A3173474140003C0A8 /* SMMergePolicyUpdatesSpec.m in Sources */,
+				DE4DE3AD173477A30003C0A8 /* NSManagedObjectContext+ConcurrencySpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
