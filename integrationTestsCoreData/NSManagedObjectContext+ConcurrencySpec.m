@@ -757,7 +757,6 @@ describe(@"sending options with requests, fetches", ^{
         [error shouldBeNil];
         
     });
-    
     it(@"executeFetchRequestAndWait:error:, sending HTTPS", ^{
         
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
@@ -832,14 +831,14 @@ describe(@"sending options with requests, fetches", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
     });
-    
     it(@"executeFetchRequest:onSuccess, not sending HTTPS", ^{
         
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
         
-        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        // Used to be 1, 3 because we added code to pull values on different threads
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:3];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
         
@@ -850,16 +849,26 @@ describe(@"sending options with requests, fetches", ^{
         dispatch_group_t group = dispatch_group_create();
         dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         
+        __block NSManagedObjectID *objectID = nil;
         dispatch_group_enter(group);
         [moc executeFetchRequest:fetchRequest returnManagedObjectIDs:NO successCallbackQueue:queue failureCallbackQueue:queue options:options onSuccess:^(NSArray *results) {
             [[theValue([results count]) should] equal:theValue(1)];
+            // Add code here to test threading
+            
+            NSManagedObject *object = [results objectAtIndex:0];
+            NSString *first_name = [object valueForKey:@"first_name"];
+            NSLog(@"first_name is %@", first_name);
+            
+            objectID = [object objectID];
             dispatch_group_leave(group);
         } onFailure:^(NSError *error) {
             [error shouldBeNil];
             dispatch_group_leave(group);
         }];
-        
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+        NSManagedObject *bob = [moc objectWithID:objectID];
+        NSString *first_name = [bob valueForKey:@"first_name"];
+        NSLog(@"outside of block, first_name is %@", first_name);
     });
 });
 
