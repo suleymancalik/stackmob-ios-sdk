@@ -794,9 +794,12 @@ describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^
     });
     afterEach(^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        [moc deleteObject:user1];
-        [moc deleteObject:user2];
-        [moc deleteObject:user3];
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"User3"];
+        NSError *fetchError = nil;
+        NSArray *results = [moc executeFetchRequestAndWait:fetch error:&fetchError];
+        [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [moc deleteObject:obj];
+        }];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
                 DLog(@"Error userInfo is %@", [error userInfo]);

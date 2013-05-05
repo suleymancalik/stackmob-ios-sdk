@@ -315,27 +315,20 @@
                         
                         if ([NSThread isMainThread]) {
                             context = mainContext;
-                            __block NSArray *managedObjectsToReturn = [resultsOfFetch map:^id(id item) {
-                                NSManagedObject *objectFromCurrentContext = [context objectWithID:item];
-                                [context refreshObject:objectFromCurrentContext mergeChanges:YES];
-                                return objectFromCurrentContext;
-                            }];
-                            
-                            successBlock(managedObjectsToReturn);
                             
                         } else {
-                            
                             context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
                             [context setPersistentStoreCoordinator:[backgroundContext persistentStoreCoordinator]];
-                            __block NSArray *managedObjectsToReturn = [resultsOfFetch map:^id(id item) {
-                                NSManagedObject *objectFromCurrentContext = [context objectWithID:item];
-                                [context refreshObject:objectFromCurrentContext mergeChanges:YES];
-                                return objectFromCurrentContext;
-                            }];
-                            
-                            successBlock(managedObjectsToReturn);
                             
                         }
+                        
+                        __block NSArray *managedObjectsToReturn = [resultsOfFetch map:^id(id item) {
+                            NSManagedObject *objectFromCurrentContext = [context objectWithID:item];
+                            [context refreshObject:objectFromCurrentContext mergeChanges:YES];
+                            return objectFromCurrentContext;
+                        }];
+                        
+                        successBlock(managedObjectsToReturn);
                         
                     });
                 }
