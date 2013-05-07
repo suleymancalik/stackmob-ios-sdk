@@ -59,4 +59,10 @@
  */
 + (NSString *)stringForBinaryData:(NSData *)data name:(NSString *)name contentType:(NSString *)contentType;
 
++ (NSData *)dataForString:(NSString *)string;
+
++ (BOOL)binaryStringContainsURL:(NSString *)value;
+
+
+
 @end

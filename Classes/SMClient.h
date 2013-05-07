@@ -22,6 +22,7 @@
 @class SMDataStore;
 @class SMUserSession;
 @class SMCoreDataStore;
+@class SMNetworkReachability;
 
 #define DEFAULT_API_HOST @"api.stackmob.com"
 #define DEFAULT_USER_SCHEMA @"user"
@@ -169,6 +170,8 @@
  @since Available in iOS SDK 1.0.0 and later.
  */
 @property(nonatomic, readonly, strong) SMUserSession * session;
+
+@property (nonatomic, readonly, strong) SMNetworkReachability *networkMonitor;
 
 
 #pragma mark init
@@ -551,7 +554,6 @@
                                     to:(NSString *)newPassword
                              onSuccess:(SMResultSuccessBlock)successBlock
                              onFailure:(SMFailureBlock)failureBlock;
-
 
 #pragma mark Facebook
 ///-------------------------------

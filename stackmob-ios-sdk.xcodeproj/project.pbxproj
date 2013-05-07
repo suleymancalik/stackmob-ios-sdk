@@ -393,7 +393,7 @@
 		DE05E14E15E2C02200224E4E /* SMCustomCodeRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMCustomCodeRequest.m; sourceTree = "<group>"; };
 		DE05E14F15E2C02200224E4E /* SMDataStore+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SMDataStore+Protected.h"; sourceTree = "<group>"; };
 		DE05E15015E2C02200224E4E /* SMDataStore+Protected.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SMDataStore+Protected.m"; sourceTree = "<group>"; };
-		DE05E15115E2C02200224E4E /* SMDataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SMDataStore.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		DE05E15115E2C02200224E4E /* SMDataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SMDataStore.h; sourceTree = "<group>"; };
 		DE05E15215E2C02200224E4E /* SMDataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMDataStore.m; sourceTree = "<group>"; };
 		DE05E15315E2C02200224E4E /* SMError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMError.h; sourceTree = "<group>"; };
 		DE05E15415E2C02200224E4E /* SMError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMError.m; sourceTree = "<group>"; };

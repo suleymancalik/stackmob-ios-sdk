@@ -51,6 +51,11 @@ static SMClient *defaultClient = nil;
 @synthesize session = _SM_session;
 @synthesize coreDataStore = _SM_coreDataStore;
 
+- (SMNetworkReachability *)networkMonitor
+{
+    return self.session.networkMonitor;
+}
+
 + (void)setDefaultClient:(SMClient *)client
 {
     defaultClient = client;

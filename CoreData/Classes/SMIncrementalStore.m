@@ -810,7 +810,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         [dictionaryRepOfManagedObject setObject:dateToSet forKey:SMCreatedDateKey];
     
         // Assign lastmoddate
-        if ([[[managedObject entity] attributesByName] objectForKey:SMCreatedDateKey] == nil) {
+        if ([[[managedObject entity] attributesByName] objectForKey:SMLastModDateKey] == nil) {
             [NSException raise:SMExceptionIncompatibleObject format:@"No `lastmoddate` attribute found for entity %@. All entities using the cache offline must have this attribute or inherit from a parent entity which has this attribute.", [[managedObject entity] name]];
         }
         [dictionaryRepOfManagedObject setObject:dateToSet forKey:SMLastModDateKey];
@@ -2580,7 +2580,15 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     objectRelationshipSet = [object mutableSetValueForKey:propertyName];
                     [objectRelationshipSet removeAllObjects];
                     [(NSSet *)propertyValueFromSerializedDict enumerateObjectsUsingBlock:^(id obj, BOOL *stopEnum) {
-                        NSManagedObject *objectToAdd = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:obj] entityName:[[property destinationEntity] name] createIfNeeded:YES serverLastModDate:nil]];
+                        NSManagedObject *objectToAdd = nil;
+                        if ([obj isKindOfClass:[NSManagedObject class]]) {
+                            objectToAdd = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:[obj objectID]] entityName:[[property destinationEntity] name] createIfNeeded:YES serverLastModDate:nil]];
+                        } else if ([obj isKindOfClass:[NSManagedObjectID class]]) {
+                            objectToAdd = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:obj] entityName:[[property destinationEntity] name] createIfNeeded:YES serverLastModDate:nil]];
+                        } else {
+                            // String
+                            objectToAdd = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:obj entityName:[[property destinationEntity] name] createIfNeeded:YES serverLastModDate:nil]];
+                        }
                         
                         NSString *objectToAddPrimaryKey = nil;
                         if ([[[[property destinationEntity] name] lowercaseString] isEqualToString:[self.coreDataStore.session userSchema]]) {
@@ -2599,7 +2607,17 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             
             } else {
                 // Translate StackMob ID to Cache managed object ID and store
-                NSManagedObject *setObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:propertyValueFromSerializedDict] entityName:[[property destinationEntity] name] createIfNeeded:YES serverLastModDate:nil]];
+                // TODO Always managed object?
+                NSManagedObject *setObject = nil;
+                if ([propertyValueFromSerializedDict isKindOfClass:[NSManagedObject class]]) {
+                    setObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:[propertyValueFromSerializedDict objectID]] entityName:[[property destinationEntity] name] createIfNeeded:YES serverLastModDate:nil]];
+                } else if ([propertyValueFromSerializedDict isKindOfClass:[NSManagedObjectID class]]) {
+                    setObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:[self referenceObjectForObjectID:propertyValueFromSerializedDict] entityName:[[property destinationEntity] name] createIfNeeded:YES serverLastModDate:nil]];
+                } else {
+                    // String
+                    setObject = [self.localManagedObjectContext objectWithID:[self SM_retrieveCacheObjectForRemoteID:propertyValueFromSerializedDict entityName:[[property destinationEntity] name] createIfNeeded:YES serverLastModDate:nil]];
+                }
+                 
                 
                 NSString *objectToSetPrimaryKey = nil;
                 if ([[[[property destinationEntity] name] lowercaseString] isEqualToString:[self.coreDataStore.session userSchema]]) {
