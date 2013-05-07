@@ -21,7 +21,7 @@
 #import "Random.h"
 
 SPEC_BEGIN(CoreDataPropertyTypesSpec)
-
+/*
 describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
     __block NSManagedObjectContext *moc = nil;
     __block NSManagedObject *camelCaseObject = nil;
@@ -138,7 +138,7 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
      
      
 });
-
+*/
 describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
     __block NSManagedObjectContext *moc = nil;
     __block Random *booleanObject = nil;
@@ -167,6 +167,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
             }
         }];
     });
+    /*
     it(@"Will save without error after creation", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -176,7 +177,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
             }
         }];
     });
-    
+    */
     it(@"Will successfully read", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -188,7 +189,9 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
         NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
         [fetchRequest setEntity:entity];
-        [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"done == TRUE"]];
+        //[fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"done == TRUE"]];
+        [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"done == %@", [NSNumber numberWithBool:YES]]];
+        //[fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"done == 'true'"]];
         [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
             if (error != nil) {
                 DLog(@"Error userInfo is %@", [error userInfo]);
@@ -234,6 +237,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
  
 });
 
+/*
 describe(@"Testing CRUD on an Entity with a Boolean attribute set to false", ^{
     __block NSManagedObjectContext *moc = nil;
     __block NSManagedObject *booleanObject = nil;
@@ -285,7 +289,9 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to false", ^{
      NSEntityDescription *entity = [NSEntityDescription entityForName:@"Random" inManagedObjectContext:moc];
      NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
      [fetchRequest setEntity:entity];
-     [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"done == FALSE"]];
+     //[fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"done == FALSE"]];
+     //[fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"done == %@", [NSNumber numberWithBool:YES]]];
+     //[fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"done == 'true'"]];
      [SMCoreDataIntegrationTestHelpers executeSynchronousFetch:moc withRequest:fetchRequest andBlock:^(NSArray *results, NSError *error) {
          if (error != nil) {
              DLog(@"Error userInfo is %@", [error userInfo]);
@@ -330,7 +336,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to false", ^{
     });
      
 });
-
+*/
 describe(@"Testing CRUD on an Entity with a GeoPoint attribute", ^{
     __block NSManagedObjectContext *moc = nil;
     __block NSManagedObject *geoObject = nil;
