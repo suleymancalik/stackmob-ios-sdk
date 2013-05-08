@@ -216,6 +216,10 @@
     [objectDictionary removeObjectForKey:@"createddate"];
     [objectDictionary removeObjectForKey:@"lastmoddate"];
     
+    if ([[objectDictionary allKeys] indexOfObject:@"sm_owner"] != NSNotFound && [objectDictionary objectForKey:@"sm_owner"] == [NSNull null]) {
+        [objectDictionary removeObjectForKey:@"sm_owner"];
+    }
+    
     
     return objectDictionary;
 }

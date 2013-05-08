@@ -1572,6 +1572,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         return [NSArray array];
     }
     
+    // TODO replace managed objects or ids in predicate
     
     __block NSArray *localCacheResults = nil;
     __block NSError *localCacheError = nil;
@@ -1614,6 +1615,23 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     return [NSArray arrayWithArray:results];
     
 }
+
+/*
+- (NSPredicate *)SM_parsePredicate:(NSPredicate *)predicate
+{
+    NSComparisonPredicate *predicateToReturn = (NSComparisonPredicate *)predicate;
+    NSManagedObjectID *objectID = nil;
+    if ([predicateToReturn.rightExpression.constantValue isKindOfClass:[NSManagedObject class]]) {
+        objectID = [(NSManagedObject *)predicateToReturn.rightExpression.constantValue objectID];
+        NSString *referenceObject = [self referenceObjectForObjectID:objectID];
+        NSManagedObjectID *cacheObjectID = [self SM_retrieveCacheObjectForRemoteID:referenceObject entityName:[[objectID entity] name] createIfNeeded:NO serverLastModDate:nil];
+        NSLog(@"cache object id is %@", cacheObjectID);
+    }
+    
+    return predicateToReturn;
+    
+}
+ */
 
 // Returns NSArray<NSManagedObject>
 - (id)SM_fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError * __autoreleasing *)error {
