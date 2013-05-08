@@ -260,7 +260,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  @since Available in iOS SDK 1.2.0 and later.
  */
-- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID;
+- (void)purgeCacheOfManagedObjectID:(NSManagedObjectID *)objectID;
 
 /**
  Removes the cache entries for the provided array of NSManagedObject instances.
@@ -269,7 +269,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  @since Available in iOS SDK 1.2.0 and later.
  */
-- (void)purgeCacheOfMangedObjects:(NSArray *)managedObjects;
+- (void)purgeCacheOfManagedObjects:(NSArray *)managedObjects;
 
 /**
  Removes the cache entries for the provided array of NSManagedObjectID instances.

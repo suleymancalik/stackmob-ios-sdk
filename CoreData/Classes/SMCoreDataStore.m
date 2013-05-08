@@ -246,7 +246,7 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
     }
 }
 
-- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID
+- (void)purgeCacheOfManagedObjectID:(NSManagedObjectID *)objectID
 {
     dispatch_async(self.cachePurgeQueue, ^{
         NSDictionary *notificationUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:objectID, SMCachePurgeManagedObjectID, nil];
@@ -255,7 +255,7 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
     });
 }
 
-- (void)purgeCacheOfMangedObjects:(NSArray *)managedObjects
+- (void)purgeCacheOfManagedObjects:(NSArray *)managedObjects
 {
     NSMutableArray *arrayOfObjectIDs = [NSMutableArray arrayWithCapacity:[managedObjects count]];
     [managedObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {

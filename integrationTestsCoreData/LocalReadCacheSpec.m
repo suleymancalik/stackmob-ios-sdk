@@ -1018,7 +1018,7 @@ describe(@"Purging the Cache", ^{
         
         NSManagedObject *anItem = [resultfOfFetch objectAtIndex:0];
         
-        [cds purgeCacheOfMangedObjectID:[anItem objectID]];
+        [cds purgeCacheOfManagedObjectID:[anItem objectID]];
         
         sleep(5);
         
@@ -1100,7 +1100,7 @@ describe(@"purging cache of multiple objects at a time", ^{
             resultfOfFetch = results;
         }];
         
-        [cds purgeCacheOfMangedObjects:resultfOfFetch];
+        [cds purgeCacheOfManagedObjects:resultfOfFetch];
         
         sleep(5);
         
