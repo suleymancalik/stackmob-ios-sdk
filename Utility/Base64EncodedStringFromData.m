@@ -87,14 +87,14 @@ NSString * Base64EncodedStringFromData(NSData *data)
     return [[NSString alloc] initWithData:mutableData encoding:NSASCIIStringEncoding];
 }
 
-NSData * base64DecodeString(NSString *strBase64) {
+NSData * Base64DecodedDataFromString(NSString *strBase64) {
 	const char * objPointer = [strBase64 cStringUsingEncoding:NSASCIIStringEncoding];
 	int intLength = strlen(objPointer);
 	int intCurrent;
 	int i = 0, j = 0, k;
     
 	unsigned char * objResult;
-	objResult = calloc(intLength, sizeof(char));
+	objResult = calloc(intLength, sizeof(unsigned char));
     
 	// Run through the whole string, converting as we go
 	while ( ((intCurrent = *objPointer++) != '\0') && (intLength-- > 0) ) {

@@ -286,7 +286,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (BOOL)SM_doTokenRefreshIfNeededWithGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue  options:(SMRequestOptions *)options error:(NSError *__autoreleasing*)error;
 
-- (BOOL)SM_enqueueRegularOperations:(NSMutableArray *)regularOperations secureOperations:(NSMutableArray *)secureOperations withGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue options:(SMRequestOptions *)options refreshAndRetryUnauthorizedRequests:(NSMutableArray *)failedRequestsWithUnauthorizedResponse failedRequests:(NSMutableArray *)failedRequests errorListName:(NSString *)errorListName error:(NSError *__autoreleasing*)error;
+- (BOOL)SM_enqueueRegularOperations:(NSMutableArray *)regularOperations secureOperations:(NSMutableArray *)secureOperations withGroup:(dispatch_group_t)group  callbackGroup:(dispatch_group_t)callbackGroup queue:(dispatch_queue_t)queue options:(SMRequestOptions *)options refreshAndRetryUnauthorizedRequests:(NSMutableArray *)failedRequestsWithUnauthorizedResponse failedRequests:(NSMutableArray *)failedRequests errorListName:(NSString *)errorListName error:(NSError *__autoreleasing*)error;
 
 ///-------------------------------
 /// Misc
@@ -692,6 +692,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     // create a group dispatch and queue
     dispatch_queue_t queue = dispatch_queue_create("com.stackmob.insertedObjectsQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
+    dispatch_group_t callbackGroup = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
     __block NSMutableArray *regularOperations = [NSMutableArray array];
@@ -729,6 +730,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 [options setHeaders:headerDict];
             }
             
+            dispatch_group_enter(callbackGroup);
+            
             SMResultSuccessBlock operationSuccesBlock = ^(NSDictionary *theObject){
                 if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore inserted object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schemaName) }
                 if ([managedObject isKindOfClass:[SMUserManagedObject class]]) {
@@ -742,6 +745,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 if (successBlockAddition) {
                     successBlockAddition(insertedObjectID, [[managedObject entity] name], [self newObjectIDForEntity:[managedObject entity] referenceObject:insertedObjectID]);
                 }
+                
+                dispatch_group_leave(callbackGroup);
                 
             };
             
@@ -759,6 +764,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                     [failedRequests addObject:failedRequestDict];
                 }
                 
+                dispatch_group_leave(callbackGroup);
+                
             };
             
             AFJSONRequestOperation *op = [[self coreDataStore] postOperationForObject:[serializedObjDict objectForKey:SerializedDictKey] inSchema:schemaName options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:operationSuccesBlock onFailure:operationFailureBlock];
@@ -771,7 +778,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
     }];
     
-    success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests errorListName:SMInsertedObjectFailures error:error];
+    success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group callbackGroup:callbackGroup queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests errorListName:SMInsertedObjectFailures error:error];
+    
+    dispatch_group_wait(callbackGroup, DISPATCH_TIME_FOREVER);
     
     [self SM_serializeAndCacheObjects:objectsToBeCached];
     
@@ -779,6 +788,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 #if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
+    dispatch_release(callbackGroup);
     dispatch_release(queue);
 #endif
     return success;
@@ -875,6 +885,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     // create a group dispatch and queue
     dispatch_queue_t queue = dispatch_queue_create("com.stackmob.updatedObjectsQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
+    dispatch_group_t callbackGroup = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
     __block NSMutableArray *regularOperations = [NSMutableArray array];
@@ -892,6 +903,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         if (SM_CORE_DATA_DEBUG) { DLog(@"Serialized object dictionary: %@", truncateOutputIfExceedsMaxLogLength(serializedObjDict)) }
         
+        dispatch_group_enter(callbackGroup);
+        
         // Create success/failure blocks
         SMResultSuccessBlock operationSuccesBlock = ^(NSDictionary *theObject){
             if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore updated object %@ on schema %@", truncateOutputIfExceedsMaxLogLength(theObject) , schemaName) }
@@ -903,6 +916,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             if (successBlockAddition) {
                 successBlockAddition(updatedObjectID, [[managedObject entity] name], [self newObjectIDForEntity:[managedObject entity] referenceObject:updatedObjectID]);
             }
+            
+            dispatch_group_leave(callbackGroup);
             
         };
         
@@ -919,6 +934,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             } else {
                 [failedRequests addObject:failedRequestDict];
             }
+            
+            dispatch_group_leave(callbackGroup);
             
         };
         
@@ -946,12 +963,15 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
     }];
     
-    success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests errorListName:SMUpdatedObjectFailures error:error];
+    success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group callbackGroup:callbackGroup queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests errorListName:SMUpdatedObjectFailures error:error];
+    
+    dispatch_group_wait(callbackGroup, DISPATCH_TIME_FOREVER);
     
     [self SM_serializeAndCacheObjects:objectsToBeCached];
     
 #if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
+    dispatch_release(callbackGroup);
     dispatch_release(queue);
 #endif
     return success;
@@ -1023,6 +1043,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     // create a group dispatch and queue
     dispatch_queue_t queue = dispatch_queue_create("com.stackmob.deletedObjectsQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
+    dispatch_group_t callbackGroup = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
     __block NSMutableArray *regularOperations = [NSMutableArray array];
@@ -1037,12 +1058,16 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         __block NSString *deletedObjectID = [managedObject SMObjectId];
         __block NSString *deletedObjectEntityname = [[managedObject entity] name];
         
+        dispatch_group_enter(callbackGroup);
+        
         // Create success/failure blocks
         SMResultSuccessBlock operationSuccesBlock = ^(NSDictionary *theObject){
             if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore deleted object %@ on schema %@", deletedObjectID , schemaName) }
             
             // Purge cache of object
             [deletedObjectIDs addObject:[NSDictionary dictionaryWithObjectsAndKeys:deletedObjectID, ObjectID, deletedObjectEntityname, ObjectEntityName, nil]];
+            
+            dispatch_group_leave(callbackGroup);
             
         };
         
@@ -1060,6 +1085,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 [failedRequests addObject:failedRequestDict];
             }
             
+            dispatch_group_leave(callbackGroup);
+            
         };
         
         // if there are relationships present in the update, send as a POST
@@ -1069,7 +1096,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
     }];
     
-    success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests errorListName:SMDeletedObjectFailures error:error];
+    success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group callbackGroup:callbackGroup queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests errorListName:SMDeletedObjectFailures error:error];
+    
+    dispatch_group_wait(callbackGroup, DISPATCH_TIME_FOREVER);
     
     if (SM_CACHE_ENABLED && success && [deletedObjectIDs count] > 0) {
         [self SM_purgeObjectsFromCacheByStackMobIDInfo:deletedObjectIDs];
@@ -1077,6 +1106,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 #if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
+    dispatch_release(callbackGroup);
     dispatch_release(queue);
 #endif
     return success;
@@ -1137,7 +1167,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 }
 
 
-- (BOOL)SM_enqueueRegularOperations:(NSMutableArray *)regularOperations secureOperations:(NSMutableArray *)secureOperations withGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue options:(SMRequestOptions *)options refreshAndRetryUnauthorizedRequests:(NSMutableArray *)failedRequestsWithUnauthorizedResponse failedRequests:(NSMutableArray *)failedRequests errorListName:(NSString *)errorListName error:(NSError *__autoreleasing*)error
+- (BOOL)SM_enqueueRegularOperations:(NSMutableArray *)regularOperations secureOperations:(NSMutableArray *)secureOperations withGroup:(dispatch_group_t)group callbackGroup:(dispatch_group_t)callbackGroup queue:(dispatch_queue_t)queue options:(SMRequestOptions *)options refreshAndRetryUnauthorizedRequests:(NSMutableArray *)failedRequestsWithUnauthorizedResponse failedRequests:(NSMutableArray *)failedRequests errorListName:(NSString *)errorListName error:(NSError *__autoreleasing*)error
 {
     if (SM_CORE_DATA_DEBUG) {DLog()}
     
@@ -1176,6 +1206,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                         success = NO;
                         [failedRequests addObjectsFromArray:failedRequestsWithUnauthorizedResponse];
                         [self SM_setErrorAndUserInfoWithFailedOperations:failedRequests errorCode:SMErrorRefreshTokenFailed errorListName:errorListName error:error];
+                        
+                        for (unsigned int i = 0; i < [failedRequestsWithUnauthorizedResponse count]; i++) {
+                            dispatch_group_leave(callbackGroup);
+                        }
                         
                         dispatch_group_leave(group);
                     }];
@@ -1236,6 +1270,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             success = NO;
             [self SM_setErrorAndUserInfoWithFailedOperations:failedRequests errorCode:SMErrorCoreDataSave errorListName:errorListName error:error];
         }
+    } else {
+        for (unsigned int i=0; i < ([regularOperations count] + [secureOperations count]); i++) {
+            dispatch_group_leave(callbackGroup);
+        }
     }
     
     return success;
@@ -1289,6 +1327,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         [[[self.coreDataStore session] oauthClientWithHTTPS:isSecure] enqueueBatchOfHTTPRequestOperations:ops completionBlockQueue:queue progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations) {
             
         } completionBlock:^(NSArray *operations) {
+            if (SM_CORE_DATA_DEBUG) {DLog(@"Operations complete")}
             dispatch_group_leave(group);
         }];
     }
@@ -1297,6 +1336,9 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (BOOL)SM_doTokenRefreshIfNeededWithGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue options:(SMRequestOptions *)options error:(NSError *__autoreleasing*)error
 {
     if (SM_CORE_DATA_DEBUG) {DLog()}
+    
+    //dispatch_queue_t refreshQueue = dispatch_queue_create("com.stackmob.refreshQueue", NULL);
+    //dispatch_group_t refreshGroup = dispatch_group_create();
     
     __block BOOL success = YES;
     if ([self.coreDataStore.session eligibleForTokenRefresh:options]) {
@@ -1408,10 +1450,17 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
     __block NSArray *resultsWithoutOID;
     
-    
     // create a group dispatch and queue
     dispatch_queue_t queue = dispatch_queue_create("com.stackmob.fetchFromNetworkQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
+    
+    __block BOOL success = [self SM_doTokenRefreshIfNeededWithGroup:group queue:queue options:options error:error];
+    
+    if (!success) {
+        return nil;
+    }
+    
+    options.tryRefreshToken = NO;
     
     dispatch_group_enter(group);
     [self.coreDataStore performQuery:query options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSArray *results) {
@@ -1572,7 +1621,12 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         return [NSArray array];
     }
     
-    // TODO replace managed objects or ids in predicate
+    if (fetchRequest.predicate) {
+        NSPredicate *newPredicate = [self SM_parsePredicate:fetchRequest.predicate];
+        if (newPredicate) {
+            [fetchRequest setPredicate:newPredicate];
+        }
+    }
     
     __block NSArray *localCacheResults = nil;
     __block NSError *localCacheError = nil;
@@ -1616,22 +1670,38 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     
 }
 
-/*
+
 - (NSPredicate *)SM_parsePredicate:(NSPredicate *)predicate
 {
-    NSComparisonPredicate *predicateToReturn = (NSComparisonPredicate *)predicate;
+    if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
+        return nil;
+    }
+    NSComparisonPredicate *comparisonPredicate = (NSComparisonPredicate *)predicate;
+    NSPredicate *predicateToReturn = nil;
     NSManagedObjectID *objectID = nil;
-    if ([predicateToReturn.rightExpression.constantValue isKindOfClass:[NSManagedObject class]]) {
-        objectID = [(NSManagedObject *)predicateToReturn.rightExpression.constantValue objectID];
+    if ([comparisonPredicate.rightExpression.constantValue isKindOfClass:[NSManagedObject class]]) {
+        objectID = [(NSManagedObject *)comparisonPredicate.rightExpression.constantValue objectID];
         NSString *referenceObject = [self referenceObjectForObjectID:objectID];
         NSManagedObjectID *cacheObjectID = [self SM_retrieveCacheObjectForRemoteID:referenceObject entityName:[[objectID entity] name] createIfNeeded:NO serverLastModDate:nil];
-        NSLog(@"cache object id is %@", cacheObjectID);
+        
+        NSExpression *rightExpression = [NSExpression expressionForConstantValue:cacheObjectID];
+        predicateToReturn = [NSComparisonPredicate predicateWithLeftExpression:comparisonPredicate.leftExpression rightExpression:rightExpression modifier:comparisonPredicate.comparisonPredicateModifier type:comparisonPredicate.predicateOperatorType options:comparisonPredicate.options];
+        
+        
+    } else if ([comparisonPredicate.rightExpression.constantValue isKindOfClass:[NSManagedObjectID class]]) {
+        objectID = (NSManagedObjectID *)comparisonPredicate.rightExpression.constantValue;
+        NSString *referenceObject = [self referenceObjectForObjectID:objectID];
+        NSManagedObjectID *cacheObjectID = [self SM_retrieveCacheObjectForRemoteID:referenceObject entityName:[[objectID entity] name] createIfNeeded:NO serverLastModDate:nil];
+        
+        NSExpression *rightExpression = [NSExpression expressionForConstantValue:cacheObjectID];
+        predicateToReturn = [NSComparisonPredicate predicateWithLeftExpression:comparisonPredicate.leftExpression rightExpression:rightExpression modifier:comparisonPredicate.comparisonPredicateModifier type:comparisonPredicate.predicateOperatorType options:comparisonPredicate.options];
+        
+        
     }
     
     return predicateToReturn;
     
 }
- */
 
 // Returns NSArray<NSManagedObject>
 - (id)SM_fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError * __autoreleasing *)error {
@@ -2183,7 +2253,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (void)SM_saveCacheMap
 {
     if (SM_CORE_DATA_DEBUG) {DLog()}
-    
+    if (SM_CORE_DATA_DEBUG) {DLog(@"Saving current cache map: \n%@", self.cacheMappingTable)}
     NSString *errorDesc = nil;
     NSError *error = nil;
     NSURL *mapPath = [FileManagement SM_getStoreURLForFileComponent:CACHE_MAP_FILE coreDataStore:self.coreDataStore];
@@ -3418,6 +3488,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     // create a group dispatch and queue
     dispatch_queue_t queue = dispatch_queue_create("com.stackmob.mergeDeletedObjectsQueue", NULL);
     dispatch_group_t group = dispatch_group_create();
+    dispatch_group_t callbackGroup = dispatch_group_create();
     
     __block NSMutableArray *secureOperations = [NSMutableArray array];
     __block NSMutableArray *regularOperations = [NSMutableArray array];
@@ -3432,6 +3503,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         NSEntityDescription *entityDesc = [NSEntityDescription entityForName:deletedObjectEntityName inManagedObjectContext:context];
         NSString *schemaName = [entityDesc SMSchema];
         
+        dispatch_group_enter(callbackGroup);
+        
         // Create success/failure blocks
         SMResultSuccessBlock operationSuccesBlock = ^(NSDictionary *theObject){
             if (SM_CORE_DATA_DEBUG) { DLog(@"SMIncrementalStore deleted object %@ on schema %@", deletedObjectID , schemaName) }
@@ -3439,6 +3512,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
             if (successBlockAddition) {
                 successBlockAddition(deletedObjectID, deletedObjectEntityName, dictRepOfObj[2]);
             }
+            
+            dispatch_group_leave(callbackGroup);
             
         };
         
@@ -3456,6 +3531,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                 [failedRequests addObject:failedRequestDict];
             }
             
+            dispatch_group_leave(callbackGroup);
+            
         };
         
         // if there are relationships present in the update, send as a POST
@@ -3465,10 +3542,13 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
     }];
     
-    success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests errorListName:SMDeletedObjectFailures error:error];
+    success = [self SM_enqueueRegularOperations:regularOperations secureOperations:secureOperations withGroup:group callbackGroup:callbackGroup queue:queue options:options refreshAndRetryUnauthorizedRequests:failedRequestsWithUnauthorizedResponse failedRequests:failedRequests errorListName:SMDeletedObjectFailures error:error];
+    
+    dispatch_group_wait(callbackGroup, DISPATCH_TIME_FOREVER);
     
 #if !OS_OBJECT_USE_OBJC
     dispatch_release(group);
+    dispatch_release(callbackGroup);
     dispatch_release(queue);
 #endif
     return success;

@@ -21,7 +21,7 @@
 
 SPEC_BEGIN(IncrementalStoreBatchOperationsSpec)
 
-/*
+
 describe(@"Inserting/Updating/Deleting many objects works fine", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -441,7 +441,7 @@ describe(@"With 401s and other errors", ^{
     });
     
 });
-*/
+
 describe(@"Calling refresh block", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -465,18 +465,19 @@ describe(@"Calling refresh block", ^{
         [todo setValue:@"primarykey" forKey:[todo primaryKeyField]];
         
         __block BOOL refreshFailed = NO;
+        
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [client.session setTokenRefreshFailureBlock:^(NSError *error, SMFailureBlock originalFailureBlock) {
                 [[[error userInfo] objectForKey:SMFailedRefreshBlock] shouldBeNil];
                 [[theValue([error code]) should] equal:theValue(SMErrorRefreshTokenFailed)];
                 refreshFailed = YES;
-                originalFailureBlock(error);
+                NSLog(@"got to token refresh block");
                 syncReturn(semaphore);
             }];
-            [moc saveOnSuccess:^{
+            [moc saveOnSuccess:^(NSArray *results) {
                 syncReturn(semaphore);
             } onFailure:^(NSError *error) {
-                NSLog(@"error is %@", error);
+                NSLog(@"got here");
             }];
         });
         
@@ -491,12 +492,14 @@ describe(@"Calling refresh block", ^{
                 [[[error userInfo] objectForKey:SMFailedRefreshBlock] shouldBeNil];
                 [[theValue([error code]) should] equal:theValue(SMErrorRefreshTokenFailed)];
                 refreshFailed = YES;
+                //NSLog(@"got to token refresh block");
                 syncReturn(semaphore);
             }];
             __block NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
             [moc executeFetchRequest:fetch onSuccess:^(NSArray *results) {
                 syncReturn(semaphore);
             } onFailure:^(NSError *error) {
+                //NSLog(@"got here");
             }];
         });
         
