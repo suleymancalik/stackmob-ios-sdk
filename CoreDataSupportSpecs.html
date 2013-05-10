@@ -266,12 +266,12 @@
 
 <b>Additional Supported Features:</b>
 <ul>
-	<li>Fetch Entity with predicate "relationship key == managed object or managed object ID", for to-one relationships</li>
+	<li>Fetch Entity with predicates where "relationship key == managed object or managed object ID". <b>Important:</b> Predicate supported only for comparion predicates and to-one relationships.</li>
 </ul>
 <b>Not Supported</b>
 <ul>
-	<li>Fetching Entity with predicate "relationshipKey.attribute == value"</li>
-	<li>Fetching Geo-point data from the cache</li>
+	<li>Fetching Entity with key paths in predicate, i.e. "relationshipKey.attribute == value".</li>
+	<li>Fetching Geo-point data from the cache.</li>
 </ul>
 
 <h2>Predicates</h2>
