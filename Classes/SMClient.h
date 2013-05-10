@@ -253,7 +253,7 @@
  
  To initialize, use <coreDataStoreWithManagedObjectModel:>.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 - (SMCoreDataStore *)coreDataStore;
 

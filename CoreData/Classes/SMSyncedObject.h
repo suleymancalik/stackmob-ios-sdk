@@ -23,12 +23,24 @@ typedef enum {
     SMSyncActionUpdatedCache = 3,
 } SMSyncAction;
 
+/**
+ 
+ */
 @interface SMSyncedObject : NSObject
 
+/**
+ 
+ */
 @property (nonatomic) id objectID;
 
+/**
+ 
+ */
 @property (nonatomic) SMSyncAction actionTaken;
 
+/**
+ 
+ */
 - (id)initWithObjectID:(id)objectID actionTaken:(SMSyncAction)actionTaken;
 
 @end

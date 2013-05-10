@@ -23,6 +23,8 @@
 
 static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey";
 NSString *const SMSetCachePolicyNotification = @"SMSetCachePolicyNotification";
+NSString *const SMDirtyQueueNotification = @"SMDirtyQueueNotification";
+
 BOOL SM_CACHE_ENABLED = NO;
 
 SMMergePolicy const SMMergePolicyClientWins = ^(NSDictionary *clientObject, NSDictionary *serverObject, NSDate *serverBaseLastModDate){
@@ -135,7 +137,7 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveSetCachePolicyNotification:) name:SMSetCachePolicyNotification object:self.session.networkMonitor];
         
         // Add observer for dirty queue
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveDirtyQueueNotification:) name:@"SMDirtyQueueNotification" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveDirtyQueueNotification:) name:SMDirtyQueueNotification object:nil];
         
     }
     

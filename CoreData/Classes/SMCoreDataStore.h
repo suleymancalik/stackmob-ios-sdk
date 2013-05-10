@@ -18,6 +18,8 @@
 #import "SMSyncedObject.h"
 
 extern NSString *const SMSetCachePolicyNotification;
+extern NSString *const SMDirtyQueueNotification;
+
 extern BOOL SM_CACHE_ENABLED;
 
 typedef enum {
@@ -104,14 +106,23 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  Default is main thread.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 @property (nonatomic) dispatch_queue_t syncCallbackQueue;
 
 /**
+ Boolean indicating whether a sync with the server is in progress.
+ 
+ YES if a sync is in progress, otherwise NO.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic) BOOL syncInProgress;
+
+/**
  During sync, the global merge policy used to fix conflicts.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 @property (nonatomic, strong) SMMergePolicy defaultSMMergePolicy;
 
@@ -120,7 +131,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  Set this property only if you want a different merge policy other than the default to use for insert conflicts.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 @property (nonatomic, strong) SMMergePolicy insertsSMMergePolicy;
 
@@ -129,7 +140,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  Set this property only if you want a different merge policy other than the default to use for update conflicts.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 @property (nonatomic, strong) SMMergePolicy updatesSMMergePolicy;
 
@@ -138,7 +149,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  Set this property only if you want a different merge policy other than the default to use for delete conflicts.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 @property (nonatomic, strong) SMMergePolicy deletesSMMergePolicy;
 
@@ -147,7 +158,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  Set using <setSyncCallbackForFailedInserts:>.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 @property (nonatomic, strong, setter = setSyncCallbackForFailedInserts:) SMSyncCallback syncCallbackForFailedInserts;
 
@@ -156,7 +167,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  Set using <setSyncCallbackForFailedUpdates:>.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 @property (nonatomic, strong, setter = setSyncCallbackForFailedUpdates:) SMSyncCallback syncCallbackForFailedUpdates;
 
@@ -165,7 +176,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  Set using <setSyncCallbackForFailedDeletes:>.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 @property (nonatomic, strong, setter = setSyncCallbackForFailedDeletes:) SMSyncCallback syncCallbackForFailedDeletes;
 
@@ -174,18 +185,9 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  Set using <setSyncCompletionCallback:>.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 @property (nonatomic, strong, setter = setSyncCompletionCallback:) SMSyncCallback syncCompletionCallback;
-
-/**
- Boolean indicating whether a sync with the server is in progress.
- 
- YES if a sync is in progress, otherwise NO.
- 
- @since Available in iOS SDK 1.5.0 and later.
- */
-@property (nonatomic) BOOL syncInProgress;
 
 /**
  An instance of SMRequestOptions that will be used as the default for all save and fetch calls.
@@ -243,7 +245,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  @since Available in iOS SDK 1.2.0 and later.
  
- @note Deprecated in version 1.5.0. Use <setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:>.
+ @note Deprecated in version 2.0.0. Use <setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:>.
  */
 - (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply __deprecated;
 
@@ -305,7 +307,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  If a sync is already in progress, this method does nothing.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 - (void)syncWithServer;
 
@@ -318,7 +320,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  YES if the object is dirty, otherwise NO.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 - (BOOL)isDirtyObject:(NSManagedObjectID *)objectID;
 
@@ -327,7 +329,10 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  Takes an entry from the array passed to a sync error callback.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @param object The object to mark as synced.
+ @param purge A boolean value representing whether the object should be purged from the cache.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
  */
 - (void)markFailedObjectAsSynced:(NSDictionary *)object purgeFromCache:(BOOL)purge;
 
@@ -336,35 +341,46 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  Takes an array of entries from the array passed to a sync error callback.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @param objects The objects to mark as synced.
+ @param purge A boolean value representing whether the objects should be purged from the cache.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
  */
 - (void)markArrayOfFailedObjectsAsSynced:(NSArray *)objects purgeFromCache:(BOOL)purge;
 
 /**
  Use to set a callback executed when inserts on the server fail during a sync.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @param block The block to execute when there are failed inserts.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
  */
 - (void)setSyncCallbackForFailedInserts:(void (^)(NSArray *objects))block;
 
 /**
  Use to set a callback executed when updates on the server fail during a sync.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @param block The block to execute when there are failed updates.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
  */
 - (void)setSyncCallbackForFailedUpdates:(void (^)(NSArray *objects))block;
 
 /**
  Use to set a callback executed when deletes on the server fail during a sync.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @param block The block to execute when there are failed deletes.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
  */
 - (void)setSyncCallbackForFailedDeletes:(void (^)(NSArray *objects))block;
 
 /**
  Use to set a callback executed when a sync completes.
  
- @since Available in iOS SDK 1.5.0 and later.
+ @param block The block to execute when a sync with the server completes.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
  */
 - (void)setSyncCompletionCallback:(void (^)(NSArray *objects))block;
 

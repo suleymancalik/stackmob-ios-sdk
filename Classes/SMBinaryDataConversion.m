@@ -48,7 +48,7 @@
     
 }
 
-+ (BOOL)binaryStringContainsURL:(NSString *)value
++ (BOOL)stringContainsURL:(NSString *)value
 {
     NSRange range = [value rangeOfString:@"Content-Type"];
     return range.location == NSNotFound;

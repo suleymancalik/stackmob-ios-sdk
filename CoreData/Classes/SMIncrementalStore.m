@@ -111,7 +111,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 @property (nonatomic, strong) NSPersistentStoreCoordinator *localPersistentStoreCoordinator;
 @property (nonatomic, strong) NSManagedObjectModel *localManagedObjectModel;
 
-/**
+/*
  Structure is as follows:
  
  {
@@ -143,7 +143,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
  */
 @property (nonatomic, strong) __block NSMutableDictionary *cacheMappingTable;
 
-/**
+/*
  Strucutre is as follows:
  
  {
@@ -2916,8 +2916,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 
 - (void)didReceiveSyncWithServerNotifcation:(NSNotification *)notification
 {
-    
     if (!self.coreDataStore.syncInProgress) {
+        
         self.coreDataStore.syncInProgress = YES;
         dispatch_queue_t serverSyncQueue = [SMIncrementalStore syncQueue];
         
@@ -2995,7 +2995,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     }
     
     self.coreDataStore.syncInProgress = NO;
-    
 }
 
 - (void)mergeDirtyInserts:(NSMutableArray **)syncSuccesses failures:(NSMutableArray **)syncFailures
