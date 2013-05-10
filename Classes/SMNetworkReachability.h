@@ -106,7 +106,7 @@ typedef enum {
  
  ## Deprecations
  
- As of version X.X.X, network status options are prefixed with SMNetowrkStatus.  Instead of Reachable, use SMNetworkStatusReachable.  This change was made for consistency purposes.
+ As of version 2.0.0, network status options are prefixed with SMNetworkStatus.  For example, instead of `Reachable`, use `SMNetworkStatusReachable`.  This change was made for consistency purposes.
  
  */
 @interface SMNetworkReachability : AFHTTPClient

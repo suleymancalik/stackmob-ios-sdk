@@ -50,7 +50,7 @@ extern NSString *const SMDirtyDeletedObjectKeys;
 extern BOOL SM_CORE_DATA_DEBUG;
 extern unsigned int SM_MAX_LOG_LENGTH;
 
-/**
+/*
  `SMIncrementalStore` is the foundation used to integrate StackMob into Core Data.
  
  ## How it works ##
@@ -76,6 +76,7 @@ extern unsigned int SM_MAX_LOG_LENGTH;
  @note You should never have to instantiate your own instance of `SMIncrementalStore`.  It is used when creating a persistent store coordinator in `SMCoreDataStore` so that `NSPersistentStore` methods divert to the overridden versions in this class. 
  */
 @interface SMIncrementalStore : NSIncrementalStore
+
 
 - (BOOL)SM_checkNetworkAvailability;
 

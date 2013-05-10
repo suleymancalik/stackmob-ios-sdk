@@ -68,9 +68,9 @@ NSString *const SMDirtyInsertedObjectKeys = @"SMDirtyInsertedObjectKeys";
 NSString *const SMDirtyUpdatedObjectKeys = @"SMDirtyUpdatedObjectKeys";
 NSString *const SMDirtyDeletedObjectKeys = @"SMDirtyDeletedObjectKeys";
 
-///-------------------------------
-/// Internal Constants
-///-------------------------------
+/*
+ Internal Constants
+ */
 
 NSString *const SMFailedRequestError = @"SMFailedRequestError";
 NSString *const SMFailedRequestObjectPrimaryKey = @"SMFailedRequestObjectPrimaryKey";
@@ -101,10 +101,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 @interface SMIncrementalStore () {
     
 }
-
-///-------------------------------
-/// Properties
-///-------------------------------
 
 @property (nonatomic, strong) __block SMCoreDataStore *coreDataStore;
 @property (nonatomic, strong) __block NSManagedObjectContext *localManagedObjectContext;
@@ -171,140 +167,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 @property (nonatomic) NSTimeInterval serverTimeDiff;
 
 @property (nonatomic, strong) NSNotificationQueue *notificationQueue;
-
-///-------------------------------
-/// Saves and Fetches
-///-------------------------------
-
-- (id)SM_handleSaveRequest:(NSPersistentStoreRequest *)request
-               withContext:(NSManagedObjectContext *)context
-                     error:(NSError *__autoreleasing *)error;
-
-// INSERTS
-- (BOOL)SM_handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable;
-- (BOOL)SM_handleInsertedObjectsWhenOnline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context serializeFullObjects:(BOOL)serializeFullObjects successBlockAddition:(void (^)(NSString *primaryKey, NSString *entityName, NSManagedObjectID *objectID))successBlockAddition options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
-- (BOOL)SM_handleInsertedObjectsWhenOffline:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
-
-// UPDATES
-- (BOOL)SM_handleUpdatedObjects:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable;
-- (BOOL)SM_handleUpdatedObjectsWhenOnline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context serializeFullObjects:(BOOL)serializeFullObjects successBlockAddition:(void (^)(NSString *primaryKey, NSString *entityName, NSManagedObjectID *objectID))successBlockAddition options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
-- (BOOL)SM_handleUpdatedObjectsWhenOffline:(NSSet *)updatedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
-
-// DELETES
-- (BOOL)SM_handleDeletedObjects:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable;
-- (BOOL)SM_handleDeletedObjectsWhenOnline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
-- (BOOL)SM_handleDeletedObjectsWhenOffline:(NSSet *)deletedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
-
-
-// FETCHES
-- (id)SM_handleFetchRequest:(NSPersistentStoreRequest *)request
-                withContext:(NSManagedObjectContext *)context
-                      error:(NSError *__autoreleasing *)error;
-
-- (id)SM_fetchObjects:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError * __autoreleasing *)error;
-- (id)SM_fetchObjectIDs:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
-
-- (id)SM_fetchObjectsFromNetwork:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError * __autoreleasing *)error;
-
-- (id)SM_fetchObjectsFromCache:(NSFetchRequest *)fetchRequest withContext:(NSManagedObjectContext *)context error:(NSError * __autoreleasing *)error;
-
-///-------------------------------
-/// Cache Configuration
-///-------------------------------
-
-- (void)SM_configureCache;
-
-- (void)SM_saveCacheMap;
-- (void)SM_readCacheMap;
-
-- (void)SM_readDirtyQueue;
-- (void)SM_saveDirtyQueue;
-
-///-------------------------------
-/// New Values For Relationship
-///-------------------------------
-
-- (id)SM_newValueForRelationship:(NSRelationshipDescription *)relationship
-                 forObjectWithID:(NSManagedObjectID *)objectID
-                     withContext:(NSManagedObjectContext *)context
-                           error:(NSError *__autoreleasing *)error;
-
-///-------------------------------
-/// Retrieving Objects
-///-------------------------------
-
-- (NSDictionary *)SM_retrieveObjectWithID:(NSString *)objectID entity:(NSEntityDescription *)entity options:(SMRequestOptions *)options context:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error;
-
-- (NSDictionary *)SM_retrieveAndSerializeObjectWithID:(NSString *)objectID entity:(NSEntityDescription *)entity options:(SMRequestOptions *)options context:(NSManagedObjectContext *)context includeRelationships:(BOOL)includeRelationships cacheResult:(BOOL)shouldCache error:(NSError *__autoreleasing*)error;
-
-- (id)SM_retrieveRelatedObjectForRelationship:(NSRelationshipDescription *)relationship parentObject:(NSManagedObject *)parentObject referenceID:(NSString *)referenceID options:(SMRequestOptions *)options context:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error;
-
-- (id)SM_retrieveAndCacheRelatedObjectForRelationship:(NSRelationshipDescription *)relationship parentObject:(NSManagedObject *)parentObject referenceID:(NSString *)referenceID options:(SMRequestOptions *)options context:(NSManagedObjectContext *)context error:(NSError *__autoreleasing*)error;
-
-///-------------------------------
-/// Caching Objects
-///-------------------------------
-
-- (void)SM_serializeAndCacheObjectWithID:(NSString *)objectID values:(NSDictionary *)values entity:(NSEntityDescription *)entity context:(NSManagedObjectContext *)context;
-- (NSManagedObjectID *)SM_retrieveCacheObjectForRemoteID:(NSString *)remoteID entityName:(NSString *)entityName createIfNeeded:(BOOL)createIfNeeded serverLastModDate:(NSDate *)serverLastModDate;
-- (void)SM_populateManagedObject:(NSManagedObject *)object withDictionary:(NSDictionary *)dictionary entity:(NSEntityDescription *)entity;
-- (void)SM_populateCacheManagedObject:(NSManagedObject *)object withDictionary:(NSDictionary *)dictionary entity:(NSEntityDescription *)entity;
-
-- (BOOL)SM_saveCache:(NSError *__autoreleasing*)error;
-
-- (NSString *)SM_getRemoteIDForCacheManagedObjectID:(NSManagedObjectID *)cacheManagedObjectID;
-
-///-------------------------------
-/// Purging from the Cache
-///-------------------------------
-
-- (void)SM_didRecievePurgeObjectFromCacheNotification:(NSNotification *)notification;
-- (void)SM_didRecievePurgeObjectsFromCacheNotification:(NSNotification *)notification;
-- (void)SM_didRecievePurgeObjectFromCacheByEntityNotification:(NSNotification *)notification;
-- (void)SM_didRecieveCacheResetNotification:(NSNotification *)notification;
-
-- (BOOL)SM_purgeObjectsFromCacheByStackMobIDInfo:(NSArray *)arrayOfStackMobObjectIDInfo;
-- (BOOL)SM_purgeCacheManagedObjectsFromCache:(NSArray *)arrayOfManagedObjects;
-- (BOOL)SM_purgeObjectFromCacheWithStackMobIDInfo:(NSDictionary *)objectInfo error:(NSError *__autoreleasing*)error;
-- (BOOL)SM_purgeCacheManagedObjectFromCache:(NSManagedObject *)object;
-
-///-------------------------------
-/// Sync With Server
-///-------------------------------
-
-- (void)syncWithServer;
-
-///-------------------------------
-/// Operational Methods
-///-------------------------------
-
-- (void)SM_enqueueOperations:(NSArray *)ops dispatchGroup:(dispatch_group_t)group completionBlockQueue:(dispatch_queue_t)queue secure:(BOOL)isSecure;
-
-- (BOOL)SM_setErrorAndUserInfoWithFailedOperations:(NSMutableArray *)failedOperations errorCode:(int)errorCode errorListName:(NSString *)errorListName error:(NSError *__autoreleasing*)error;
-
-- (void)SM_waitForRefreshingWithTimeout:(int)timeout;
-
-- (BOOL)SM_doTokenRefreshIfNeededWithGroup:(dispatch_group_t)group queue:(dispatch_queue_t)queue  options:(SMRequestOptions *)options error:(NSError *__autoreleasing*)error;
-
-- (BOOL)SM_enqueueRegularOperations:(NSMutableArray *)regularOperations secureOperations:(NSMutableArray *)secureOperations withGroup:(dispatch_group_t)group  callbackGroup:(dispatch_group_t)callbackGroup queue:(dispatch_queue_t)queue options:(SMRequestOptions *)options refreshAndRetryUnauthorizedRequests:(NSMutableArray *)failedRequestsWithUnauthorizedResponse failedRequests:(NSMutableArray *)failedRequests errorListName:(NSString *)errorListName error:(NSError *__autoreleasing*)error;
-
-///-------------------------------
-/// Misc
-///-------------------------------
-
-- (NSString *)SM_remoteKeyForEntityName:(NSString *)entityName;
-- (NSDictionary *)SM_responseSerializationForDictionary:(NSDictionary *)theObject schemaEntityDescription:(NSEntityDescription *)entityDescription managedObjectContext:(NSManagedObjectContext *)context includeRelationships:(BOOL)includeRelationships;
-- (BOOL)SM_addPasswordToSerializedDictionary:(NSDictionary **)originalDictionary originalObject:(SMUserManagedObject *)object;
-
-///-------------------------------
-/// Notifications
-///-------------------------------
-
-- (void)SM_handleWillSave:(NSNotification *)notification;
-- (void)SM_handleDidSave:(NSNotification *)notification;
-
-- (void)SM_registerForNotifications;
-- (void)SM_unregisterForNotifications;
 
 @property (nonatomic) BOOL isSaving;
 

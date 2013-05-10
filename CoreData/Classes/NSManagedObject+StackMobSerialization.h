@@ -70,6 +70,8 @@
 /**
  Converts an `NSManagedObject` into an equivalent dictionary form for StackMob to process.
  
+ @param serializeFullObjects Whether to serialize the managed object's recently changed values or the entire object.
+ 
  @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSDictionary *)SMDictionarySerialization:(BOOL)serializeFullObjects;

@@ -50,15 +50,17 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  With your `SMCoreDataStore` object you can retrieve a managed object context configured with a `SMIncrementalStore` as it's persistent store to allow communication to StackMob from Core Data.  Obtain a managed object context for your thread using <contextForCurrentThread>.  You can obtain the managed object context for the main thread at any time with <mainThreadContext>.
  
- When saving or fetching from the context, use methods from the <NSManagedObjectContext+Concurrency> category to ensure proper asynchronous saving and fetching off of the main thread.
+ When saving or fetching from the context, use methods from the <a href="http://stackmob.github.io/stackmob-ios-sdk/Categories/NSManagedObjectContext+Concurrency.html" target="_blank">NSManagedObjectContext+Concurrency category</a> to ensure proper asynchronous saving and fetching off of the main thread.
  
  If you want to do your own context creation, use the <persistentStoreCoordinator> property to ensure your objects are being saved to the StackMob server.
  
- The default Core Datamerge policy set for all contexts created by this class is NSMergeByPropertyObjectTrumpMergePolicy.  Use <setDefaultMergePolicy:applyToMainThreadContextAndParent:> to change the default.
+ The default Core Datamerge policy set for all contexts created by this class is `NSMergeByPropertyObjectTrumpMergePolicy`.  Use <setDefaultMergePolicy:applyToMainThreadContextAndParent:> to change the default.
  
- Tutorial link coming soon for how to integrate offline sync into your application.
+ ## Using Offline Sync ##
  
- @note You should not have to initialize an instance of this class directly.  Instead, initialize an instance of <SMClient> and use the method <coreDataStoreWithManagedObjectModel:> to retrieve an instance completely configured and ready to communicate to StackMob.
+ All the settings for turing on/off the cache, managing policies and sync callbacks, and initializing the sync process can be found in the <a href="https://developer.stackmob.com/ios-sdk/offline-sync-guide" target="_blank">Offline Sync Guide</a>.
+ 
+ @note You should not have to initialize an instance of this class directly.  Instead, initialize an instance of <SMClient> and use the method `coreDataStoreWithManagedObjectModel:` to retrieve an instance completely configured and ready to communicate to StackMob.
  */
 @interface SMCoreDataStore : SMDataStore
 
@@ -90,6 +92,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  This property is deprecated. Use <contextForCurrentThread> to obtain a properly initialized managed object context.
  
  @since Available in iOS SDK 1.0.0 and later.
+ 
  @note Deprecated in version 1.2.0. Use <contextForCurrentThread>.
  */
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext __attribute__((deprecated));
@@ -249,6 +252,16 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  */
 - (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply __deprecated;
 
+/**
+ Sets the merge policy that is set by default to any context returned from <contextForCurrentThread>.
+ 
+ If apply is YES, sets the merge policy of mainThreadContext and its private parent context to mergePolicy.
+ 
+ @param mergePolicy The default merge policy to use going forward.
+ @param apply Whether or not to set mergePolicy as the merge policy for the existing mainThreadContext and its private parent context.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
 - (void)setDefaultCoreDataMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply;
 
 ///-------------------------------
@@ -318,7 +331,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  @param objectID The NSManagedObjectID of the object.
  
- YES if the object is dirty, otherwise NO.
+ @return YES if the object is dirty, otherwise NO.
  
  @since Available in iOS SDK 2.0.0 and later.
  */
