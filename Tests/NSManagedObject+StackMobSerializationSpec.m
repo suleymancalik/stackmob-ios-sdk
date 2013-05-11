@@ -262,7 +262,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             describe(@"properties", ^{
                 __block NSDictionary *dictionary = nil;
                 beforeEach(^{
-                    dictionary = [[iMadeYouACookie SMDictionarySerialization:NO] objectForKey:@"SerializedDict"];
+                    dictionary = [[iMadeYouACookie SMDictionarySerialization:NO sendLocalTimestamps:NO] objectForKey:@"SerializedDict"];
                 });
                 /*
                 it(@"includes nil properties", ^{
@@ -279,7 +279,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             describe(@"relationships", ^{
                 __block NSDictionary *dictionary = nil;
                 beforeEach(^{
-                    dictionary = [[iMadeYouACookie SMDictionarySerialization:NO] objectForKey:@"SerializedDict"];
+                    dictionary = [[iMadeYouACookie SMDictionarySerialization:NO sendLocalTimestamps:NO] objectForKey:@"SerializedDict"];
                 });
                 /*
                 it(@"includes nil relationships", ^{
@@ -289,7 +289,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
                 describe(@"circular relationships", ^{
                     it(@"survives circular references", ^{
                         [[[[[[hooman valueForKey:@"lolcats"] anyObject] valueForKey:@"photo"] valueForKey:@"photographer"] should] equal:hooman];
-                        [[hooman SMDictionarySerialization:NO] shouldNotBeNil];
+                        [[hooman SMDictionarySerialization:NO sendLocalTimestamps:NO] shouldNotBeNil];
                     });
                 });
             });

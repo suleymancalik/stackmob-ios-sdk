@@ -123,6 +123,15 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
 @property (nonatomic) BOOL syncInProgress;
 
 /**
+ Boolean indicating whether to send the `createddate` and `lastmoddate` keys and values in the request payload.
+ 
+ By default, the `createddate` and `lastmoddate` fields are set by the server. If you want these values to reflect the last local save, regardless of network connection, set this property to YES and the client will send them in request payloads.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic) BOOL sendLocalTimestamps;
+
+/**
  During sync, the global merge policy used to fix conflicts.
  
  @since Available in iOS SDK 2.0.0 and later.

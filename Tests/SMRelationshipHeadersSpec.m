@@ -54,13 +54,13 @@ describe(@"SMRelationshipHeaders", ^{
         });
         
         it(@"Should contain no relationship headers", ^{
-            NSDictionary *dict = [aPerson SMDictionarySerialization:NO];
+            NSDictionary *dict = [aPerson SMDictionarySerialization:NO sendLocalTimestamps:NO];
             NSLog(@"serialized dict is %@", dict);
             NSLog(@"%@: %@", StackMobRelationsHeader, [dict objectForKey:StackMobRelationsHeader]);
             [[theValue([dict count]) should] equal:theValue(1)];
         });
         it(@"Should not include relationships in the serialized dictionary", ^{
-            NSDictionary *dict = [aPerson SMDictionarySerialization:NO];
+            NSDictionary *dict = [aPerson SMDictionarySerialization:NO sendLocalTimestamps:NO];
             NSLog(@"serialized dict is %@", dict);
             [[[dict objectForKey:@"SerializedDict"] objectForKey:@"superpower"] shouldBeNil];
             [[[dict objectForKey:@"SerializedDict"] objectForKey:@"interests"] shouldBeNil];

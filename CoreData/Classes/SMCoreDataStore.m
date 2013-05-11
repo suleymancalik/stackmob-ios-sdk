@@ -100,6 +100,7 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
 @synthesize syncCallbackQueue = _syncCallbackQueue;
 @synthesize syncInProgress = _syncInProgress;
 @synthesize currentDirtyQueue = _currentDirtyQueue;
+@synthesize sendLocalTimestamps = _sendLocalTimestamps;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
@@ -127,7 +128,7 @@ SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObje
         self.syncCompletionCallback = nil;
         
         self.syncInProgress = NO;
-        
+        self.sendLocalTimestamps = NO;
         self.currentDirtyQueue = nil;
         
         /// Init global request options

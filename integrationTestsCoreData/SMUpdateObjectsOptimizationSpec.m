@@ -40,7 +40,7 @@ describe(@"updating an object only persists changed fields", ^{
         [person setValue:@"bob" forKey:@"first_name"];
         [person setValue:@"jean" forKey:@"first_name"];
         [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
-        NSDictionary *personDict = [person SMDictionarySerialization:NO];
+        NSDictionary *personDict = [person SMDictionarySerialization:NO sendLocalTimestamps:NO];
         [[theValue([[[personDict objectForKey:@"SerializedDict"] allKeys] count]) should] equal:theValue(2)];
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -57,7 +57,7 @@ describe(@"updating an object only persists changed fields", ^{
     it(@"should only persist the updated fields", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [person setValue:@"joe" forKey:@"first_name"];
-        NSDictionary *personDict = [person SMDictionarySerialization:NO];
+        NSDictionary *personDict = [person SMDictionarySerialization:NO sendLocalTimestamps:NO];
         [[[personDict objectForKey:@"SerializedDict"] objectForKey:@"first_name"] shouldNotBeNil];
         [[[personDict objectForKey:@"SerializedDict"] objectForKey:@"person_id"] shouldNotBeNil];
         [[theValue([[[personDict objectForKey:@"SerializedDict"] allKeys] count]) should] equal:theValue(2)];

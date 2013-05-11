@@ -154,7 +154,6 @@
 		DE2EA1A316CC7304001FA904 /* Common.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DEEDC32616C984B4008B1CC2 /* Common.h */; };
 		DE3AE12A16810FAC000B2E80 /* AFHTTPClient+StackMob.h in Headers */ = {isa = PBXBuildFile; fileRef = DE3AE12816810FAC000B2E80 /* AFHTTPClient+StackMob.h */; };
 		DE3AE12B16810FAC000B2E80 /* AFHTTPClient+StackMob.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3AE12916810FAC000B2E80 /* AFHTTPClient+StackMob.m */; };
-		DE4A2DAD173B280100C96CA8 /* SMMergePolicyInsertsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9BCC0F17309916007CBA7F /* SMMergePolicyInsertsSpec.m */; };
 		DE64D6011623777900237570 /* SMUserManagedObject.h in Headers */ = {isa = PBXBuildFile; fileRef = DE64D5FF1623777900237570 /* SMUserManagedObject.h */; };
 		DE64D6021623777900237570 /* SMUserManagedObject.m in Sources */ = {isa = PBXBuildFile; fileRef = DE64D6001623777900237570 /* SMUserManagedObject.m */; };
 		DE64D61C1623BAE800237570 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE64D61B1623BAE800237570 /* Security.framework */; };
@@ -180,6 +179,9 @@
 		DE9227F0161E41C600DA0D00 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */; };
 		DE9227F5161E439900DA0D00 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */; };
 		DE9227F6161E439F00DA0D00 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE9227EC161E37EA00DA0D00 /* SystemConfiguration.framework */; };
+		DE9613AC173DC992004F9C32 /* FileManagement.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE1F26671733375F00DA734F /* FileManagement.h */; };
+		DE9613AD173DC992004F9C32 /* SMSyncedObject.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE9BCBFE172F661B007CBA7F /* SMSyncedObject.h */; };
+		DE9613AE173DD0A9004F9C32 /* SMMergePolicyMiscSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9BCC1517309974007CBA7F /* SMMergePolicyMiscSpec.m */; };
 		DE9784A6163B5880001119D1 /* NSEntityDescription+StackMobSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = DE9784A2163B5880001119D1 /* NSEntityDescription+StackMobSerialization.h */; };
 		DE9784A7163B5880001119D1 /* NSEntityDescription+StackMobSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9784A3163B5880001119D1 /* NSEntityDescription+StackMobSerialization.m */; };
 		DE9784A8163B5880001119D1 /* NSManagedObject+StackMobSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = DE9784A4163B5880001119D1 /* NSManagedObject+StackMobSerialization.h */; };
@@ -280,6 +282,8 @@
 			dstPath = "~/Desktop/Headers";
 			dstSubfolderSpec = 0;
 			files = (
+				DE9613AC173DC992004F9C32 /* FileManagement.h in Copy Headers */,
+				DE9613AD173DC992004F9C32 /* SMSyncedObject.h in Copy Headers */,
 				DE2EA1A116CC7304001FA904 /* SMGeoPoint.h in Copy Headers */,
 				DE2EA1A216CC7304001FA904 /* SMLocationManager.h in Copy Headers */,
 				DE2EA1A316CC7304001FA904 /* Common.h in Copy Headers */,
@@ -1387,7 +1391,7 @@
 				DE01F13C16F78CE800453088 /* User3.m in Sources */,
 				DE01F16316F7FE0000453088 /* Person.m in Sources */,
 				DE1D1F3E172F44EF00B60EB0 /* SMTestProperties.m in Sources */,
-				DE4A2DAD173B280100C96CA8 /* SMMergePolicyInsertsSpec.m in Sources */,
+				DE9613AE173DD0A9004F9C32 /* SMMergePolicyMiscSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -72,10 +72,10 @@
     return [[self entity] SMFieldNameForProperty:[[[self entity] propertiesByName] objectForKey:[self primaryKeyField]]];
 }
 
-- (NSDictionary *)SMDictionarySerialization:(BOOL)serializeFullObjects
+- (NSDictionary *)SMDictionarySerialization:(BOOL)serializeFullObjects sendLocalTimestamps:(BOOL)sendLocalTimestamps
 {
     NSMutableArray *arrayOfRelationshipHeaders = [NSMutableArray array];
-    NSMutableDictionary *contentsOfSerializedObject = [NSMutableDictionary dictionaryWithObject:[self SMDictionarySerializationByTraversingRelationshipsExcludingObjects:nil entities:nil relationshipHeaderValues:&arrayOfRelationshipHeaders relationshipKeyPath:nil serializeFullObjects:serializeFullObjects] forKey:@"SerializedDict"];
+    NSMutableDictionary *contentsOfSerializedObject = [NSMutableDictionary dictionaryWithObject:[self SMDictionarySerializationByTraversingRelationshipsExcludingObjects:nil entities:nil relationshipHeaderValues:&arrayOfRelationshipHeaders relationshipKeyPath:nil serializeFullObjects:serializeFullObjects sendLocalTimestamps:sendLocalTimestamps] forKey:@"SerializedDict"];
     
     if ([arrayOfRelationshipHeaders count] > 0) {
         
@@ -87,7 +87,7 @@
     
 }
 
-- (NSDictionary *)SMDictionarySerializationByTraversingRelationshipsExcludingObjects:(NSMutableSet *)processedObjects entities:(NSMutableSet *)processedEntities relationshipHeaderValues:(NSMutableArray *__autoreleasing *)values relationshipKeyPath:(NSString *)keyPath serializeFullObjects:(BOOL)serializeFullObjects
+- (NSDictionary *)SMDictionarySerializationByTraversingRelationshipsExcludingObjects:(NSMutableSet *)processedObjects entities:(NSMutableSet *)processedEntities relationshipHeaderValues:(NSMutableArray *__autoreleasing *)values relationshipKeyPath:(NSString *)keyPath serializeFullObjects:(BOOL)serializeFullObjects sendLocalTimestamps:(BOOL)sendLocalTimestamps
 {
     if (processedObjects == nil) {
         processedObjects = [NSMutableSet set];
@@ -153,13 +153,7 @@
                     NSString *entityName = [[child entity] name];
                     NSArray *components = [[[childManagedObjectID URIRepresentation] absoluteString] componentsSeparatedByString:[NSString stringWithFormat:@"%@/p", entityName]];
                     NSString *childObjectID = [components objectAtIndex:1];
-                    /*
-                    NSString *childObjectId = [child SMObjectId];
-                    if (childObjectId == nil) {
-                        *stopRelEnum = YES;
-                        [NSException raise:SMExceptionIncompatibleObject format:@"Trying to serialize an object with a to-many relationship whose value references an object with a nil value for it's primary key field.  Please make sure you assign object ids with assignObjectId before attaching to relationships.  The object in question is %@", [child description]];
-                    }
-                     */
+                    
                     [relatedObjectDictionaries addObject:childObjectID];
                 }];
                 
@@ -200,7 +194,7 @@
                     
                     [*values addObject:[NSString stringWithFormat:@"%@=%@", relationshipKeyPath, [[relationship destinationEntity] SMSchema]]];
                     
-                    [objectDictionary setObject:[propertyValue SMDictionarySerializationByTraversingRelationshipsExcludingObjects:processedObjects entities:processedEntities relationshipHeaderValues:values relationshipKeyPath:relationshipKeyPath serializeFullObjects:serializeFullObjects] forKey:[selfEntity SMFieldNameForProperty:property]];
+                    [objectDictionary setObject:[propertyValue SMDictionarySerializationByTraversingRelationshipsExcludingObjects:processedObjects entities:processedEntities relationshipHeaderValues:values relationshipKeyPath:relationshipKeyPath serializeFullObjects:serializeFullObjects sendLocalTimestamps:sendLocalTimestamps] forKey:[selfEntity SMFieldNameForProperty:property]];
                 }
             }
         }
@@ -212,9 +206,11 @@
         [self attachObjectIdToDictionary:&objectDictionary];
     }
     
-    // Remove any instances of createddate or lastmoddate
-    [objectDictionary removeObjectForKey:@"createddate"];
-    [objectDictionary removeObjectForKey:@"lastmoddate"];
+    if (!sendLocalTimestamps) {
+        // Remove any instances of createddate or lastmoddate
+        [objectDictionary removeObjectForKey:@"createddate"];
+        [objectDictionary removeObjectForKey:@"lastmoddate"];
+    }
     
     if ([[objectDictionary allKeys] indexOfObject:@"sm_owner"] != NSNotFound && [objectDictionary objectForKey:@"sm_owner"] == [NSNull null]) {
         [objectDictionary removeObjectForKey:@"sm_owner"];
