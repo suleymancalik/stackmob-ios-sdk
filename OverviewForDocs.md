@@ -1,6 +1,6 @@
 # Welcome to the docs for the StackMob iOS SDK!
 
-### Current Version: 1.4.0
+### Current Version: 1.4.0 , 2.0.0 (Beta)
 
 ### Jump To:
 <a href="#overview">Overview</a>
@@ -16,6 +16,8 @@
 <a href="#tutorials">Tutorials</a>
 
 <a href="#core_data_references">Core Data References</a>
+
+<a href="#deprecations">Deprecations</a>
 
 <a href="#class_index">Index of Classes</a>
 
@@ -274,9 +276,31 @@ You can find all the iOS SDK tutorials at our <a href="https://developer.stackmo
 * [Introduction To Core Data](https://developer.apple.com/library/ios/\#documentation/Cocoa/Conceptual/CoreData/cdProgrammingGuide.html\#//apple\_ref/doc/uid/TP40001075) - Apple's Core Data Programming Guide
 * [Introduction To Predicates](https://developer.apple.com/library/ios/\#documentation/Cocoa/Conceptual/Predicates/predicates.html\#//apple\_ref/doc/uid/TP40001789) - Apple's Predicates Programming Guide
 
+<a name="deprecations">&nbsp;</a>
+## Deprecations
+
+**v1.2.0**
+
+* <b>(SMCoreDataStore)</b> <i>managedObjectContext</i> property
+	* Use <i>contextForCurrentThread</i>
+* <b>(SMCoreDataStore)</b> <i>setDefaultMergePolicy:applyToMainThreadContextAndParent:</i>
+	* Use <i>setDefault<b>CoreData</b>MergePolicy:applyToMainThreadContextAndParent:</i>
+* <b>(SMNetworkReachability)</b> <i>SMNetworkStatus</i> options
+	* Use <b>SMNetworkStatusUnknown</b>, <b>SMNetworkStatusNotReachable</b>, <b>SMNetworkStatusReachable</b>
+
+**v1.4.0**
+
+* <b>(SMClient)</b> <i>loginWithFacebookToken:options:onSuccess:onFailure:</i>
+	* Use <i>loginWithFacebookToken:<b>createUserIfNeeded:</b>options:<b>successCallbackQueue:failureCallbackQueue:</b>onSuccess:onFailure:</i>
+* <b>(SMClient)</b> <i>loginWithTwitterToken:twitterSecret:options:onSuccess:onFailure:</i> 
+	* Use <i>loginWithTwitterToken:twitterSecret:<b>createUserIfNeeded:</b>options:<b>successCallbackQueue:failureCallbackQueue:</b>onSuccess:onFailure:</i>
+* <b>(SMClient)</b> <i>loginWithGigyaUID:uidSignature:signatureTimestamp:options:onSuccess:onFailure:</i>
+	* Use <i>loginWithGigyaUID:uidSignature:signatureTimestamp:options:<b>successCallbackQueue:failureCallbackQueue:</b>onSuccess:onFailure:</i>
+
+
 
 <a name="class_index">&nbsp;</a>
-## Index
+## Index of Classes
 
 
 

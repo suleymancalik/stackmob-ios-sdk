@@ -969,7 +969,7 @@
  @param successBlock <i>typedef void (^SMResultSuccessBlock)(NSDictionary *result)</i>. A block object to execute upon successful login with the user object for the logged in user.
  @param failureBlock <i>typedef void (^SMFailureBlock)(NSError *error)</i>. A block object to execute upon failure.
  @since Available in iOS SDK 1.0.0 and later.
- @note Deprecated in version 1.4.0. Use <loginWithTwitterToken:twitterSecret:createUserIfNeeded:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:>.
+ @note Deprecated in version 1.4.0. Use <loginWithTwitterToken:twitterSecret:createUserIfNeeded:usernameForCreate:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:>.
  */
 - (void)loginWithTwitterToken:(NSString *)twitterToken
                 twitterSecret:(NSString *)twitterSecret

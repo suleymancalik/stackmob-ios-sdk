@@ -56,7 +56,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  The default Core Datamerge policy set for all contexts created by this class is `NSMergeByPropertyObjectTrumpMergePolicy`.  Use <setDefaultMergePolicy:applyToMainThreadContextAndParent:> to change the default.
  
- ## Using Offline Sync ##
+ ## Using the Cache and Offline Sync ##
  
  All the settings for turing on/off the cache, managing policies and sync callbacks, and initializing the sync process can be found in the <a href="https://developer.stackmob.com/ios-sdk/offline-sync-guide" target="_blank">Offline Sync Guide</a>.
  
