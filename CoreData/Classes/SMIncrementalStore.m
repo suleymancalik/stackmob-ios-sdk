@@ -185,6 +185,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 @synthesize serverTimeDiff = _serverTimeDiff;
 @synthesize notificationQueue = _notificationQueue;
 
+////////////////////////////
+#pragma mark - Setup and Takedown
+////////////////////////////
+
 - (id)initWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)root configurationName:(NSString *)name URL:(NSURL *)url options:(NSDictionary *)options {
     if (SM_CORE_DATA_DEBUG) {DLog()}
     
@@ -249,24 +253,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:SMMarkArrayOfObjectsAsSyncedNotification object:self.coreDataStore];
 }
 
-- (void)SM_handleWillSave:(NSNotification *)notification
-{
-    if (SM_CORE_DATA_DEBUG) {DLog()}
-    if ([[notification object] persistentStoreCoordinator] == [self.coreDataStore persistentStoreCoordinator]) {
-        if (SM_CORE_DATA_DEBUG) {DLog(@"Updating isSaving to YES")}
-        self.isSaving = YES;
-    }
-}
-
-- (void)SM_handleDidSave:(NSNotification *)notification
-{
-    if (SM_CORE_DATA_DEBUG) {DLog()}
-    if ([[notification object] persistentStoreCoordinator] == [self.coreDataStore persistentStoreCoordinator]) {
-        if (SM_CORE_DATA_DEBUG) {DLog(@"Updating isSaving to NO")}
-        self.isSaving = NO;
-    }
-}
-
 /*
  Once a store has been created, the persistent store coordinator invokes loadMetadata: on it. In your implementation, if all goes well you should typically load the store metadata, call setMetadata: to store the metadata, and return YES. If an error occurs, however (if the store is invalid for some reason—for example, if the store URL is invalid, or the user doesn’t have read permission for the store URL), create an NSError object that describes the problem, assign it to the error parameter passed into the method, and return NO.
  
@@ -289,6 +275,10 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
                        nil]];
     return YES;
 }
+
+////////////////////////////
+#pragma mark - Execute Request
+////////////////////////////
 
 /*
  Return Value
@@ -339,64 +329,8 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 }
 
 ////////////////////////////
-#pragma mark - Save Requests
+#pragma mark - Network Availability
 ////////////////////////////
-
-/*
- If the request is a save request, you record the changes provided in the request’s insertedObjects, updatedObjects, and deletedObjects collections. Note there is also a lockedObjects collection; this collection contains objects which were marked as being tracked for optimistic locking (through the detectConflictsForObject:: method); you may choose to respect this or not.
- In the case of a save request containing objects which are to be inserted, executeRequest:withContext:error: is preceded by a call to obtainPermanentIDsForObjects:error:; Core Data will assign the results of this call as the objectIDs for the objects which are to be inserted. Once these IDs have been assigned, they cannot change.
- 
- Note that if an empty save request is received by the store, this must be treated as an explicit request to save the metadata, but that store metadata should always be saved if it has been changed since the store was loaded.
- 
- If the request is a save request, the method should return an empty array.
- If the save request contains nil values for the inserted/updated/deleted/locked collections; you should treat it as a request to save the store metadata.
- 
- @note: We are *IGNORING* locked objects. We are also not handling the metadata save requests, because AFAIK we don't need to generate any.
- */
-- (id)SM_handleSaveRequest:(NSPersistentStoreRequest *)request
-               withContext:(NSManagedObjectContext *)context
-                     error:(NSError *__autoreleasing *)error {
-    if (SM_CORE_DATA_DEBUG) { DLog() }
-    
-    NSMutableDictionary *threadDictionary = [[NSThread currentThread] threadDictionary];
-    SMRequestOptions *options = [threadDictionary objectForKey:SMRequestSpecificOptions];
-    if (!options) {
-        options = self.coreDataStore.globalRequestOptions;
-    }
-    
-    NSSaveChangesRequest *saveRequest = [[NSSaveChangesRequest alloc] initWithInsertedObjects:[context insertedObjects] updatedObjects:[context updatedObjects] deletedObjects:[context deletedObjects] lockedObjects:nil];
-    
-    BOOL networkAvailable;
-    if (SM_CACHE_ENABLED) {
-        networkAvailable = [self SM_checkNetworkAvailability];
-    } else {
-        networkAvailable = YES;
-    }
-    
-    NSSet *insertedObjects = [saveRequest insertedObjects];
-    if ([insertedObjects count] > 0) {
-        BOOL insertSuccess = [self SM_handleInsertedObjects:insertedObjects inContext:context options:options error:error networkAvailable:networkAvailable];
-        if (!insertSuccess) {
-            return nil;
-        }
-    }
-    NSSet *updatedObjects = [saveRequest updatedObjects];
-    if ([updatedObjects count] > 0) {
-        BOOL updateSuccess = [self SM_handleUpdatedObjects:updatedObjects inContext:context options:options error:error networkAvailable:networkAvailable];
-        if (!updateSuccess) {
-            return nil;
-        }
-    }
-    NSSet *deletedObjects = [saveRequest deletedObjects];
-    if ([deletedObjects count] > 0) {
-        BOOL deleteSuccess = [self SM_handleDeletedObjects:deletedObjects inContext:context options:options error:error networkAvailable:networkAvailable];
-        if (!deleteSuccess) {
-            return nil;
-        }
-    }
-    
-    return [NSArray array];
-}
 
 + (dispatch_queue_t)networkAvailabilityQueue
 {
@@ -473,7 +407,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     [self.coreDataStore queueRequest:request options:options successCallbackQueue:queue failureCallbackQueue:queue onSuccess:urlSuccessBlock onFailure:urlFailureBlock];
     
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-  
+    
     return networkAvailable;
     
 }
@@ -522,6 +456,83 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
     }
 }
 
+////////////////////////////
+#pragma mark - Save Requests
+////////////////////////////
+
+- (void)SM_handleWillSave:(NSNotification *)notification
+{
+    if (SM_CORE_DATA_DEBUG) {DLog()}
+    if ([[notification object] persistentStoreCoordinator] == [self.coreDataStore persistentStoreCoordinator]) {
+        if (SM_CORE_DATA_DEBUG) {DLog(@"Updating isSaving to YES")}
+        self.isSaving = YES;
+    }
+}
+
+- (void)SM_handleDidSave:(NSNotification *)notification
+{
+    if (SM_CORE_DATA_DEBUG) {DLog()}
+    if ([[notification object] persistentStoreCoordinator] == [self.coreDataStore persistentStoreCoordinator]) {
+        if (SM_CORE_DATA_DEBUG) {DLog(@"Updating isSaving to NO")}
+        self.isSaving = NO;
+    }
+}
+
+/*
+ If the request is a save request, you record the changes provided in the request’s insertedObjects, updatedObjects, and deletedObjects collections. Note there is also a lockedObjects collection; this collection contains objects which were marked as being tracked for optimistic locking (through the detectConflictsForObject:: method); you may choose to respect this or not.
+ In the case of a save request containing objects which are to be inserted, executeRequest:withContext:error: is preceded by a call to obtainPermanentIDsForObjects:error:; Core Data will assign the results of this call as the objectIDs for the objects which are to be inserted. Once these IDs have been assigned, they cannot change.
+ 
+ Note that if an empty save request is received by the store, this must be treated as an explicit request to save the metadata, but that store metadata should always be saved if it has been changed since the store was loaded.
+ 
+ If the request is a save request, the method should return an empty array.
+ If the save request contains nil values for the inserted/updated/deleted/locked collections; you should treat it as a request to save the store metadata.
+ 
+ @note: We are *IGNORING* locked objects. We are also not handling the metadata save requests, because AFAIK we don't need to generate any.
+ */
+- (id)SM_handleSaveRequest:(NSPersistentStoreRequest *)request
+               withContext:(NSManagedObjectContext *)context
+                     error:(NSError *__autoreleasing *)error {
+    if (SM_CORE_DATA_DEBUG) { DLog() }
+    
+    NSMutableDictionary *threadDictionary = [[NSThread currentThread] threadDictionary];
+    SMRequestOptions *options = [threadDictionary objectForKey:SMRequestSpecificOptions];
+    if (!options) {
+        options = self.coreDataStore.globalRequestOptions;
+    }
+    
+    NSSaveChangesRequest *saveRequest = [[NSSaveChangesRequest alloc] initWithInsertedObjects:[context insertedObjects] updatedObjects:[context updatedObjects] deletedObjects:[context deletedObjects] lockedObjects:nil];
+    
+    BOOL networkAvailable;
+    if (SM_CACHE_ENABLED) {
+        networkAvailable = [self SM_checkNetworkAvailability];
+    } else {
+        networkAvailable = YES;
+    }
+    
+    NSSet *insertedObjects = [saveRequest insertedObjects];
+    if ([insertedObjects count] > 0) {
+        BOOL insertSuccess = [self SM_handleInsertedObjects:insertedObjects inContext:context options:options error:error networkAvailable:networkAvailable];
+        if (!insertSuccess) {
+            return nil;
+        }
+    }
+    NSSet *updatedObjects = [saveRequest updatedObjects];
+    if ([updatedObjects count] > 0) {
+        BOOL updateSuccess = [self SM_handleUpdatedObjects:updatedObjects inContext:context options:options error:error networkAvailable:networkAvailable];
+        if (!updateSuccess) {
+            return nil;
+        }
+    }
+    NSSet *deletedObjects = [saveRequest deletedObjects];
+    if ([deletedObjects count] > 0) {
+        BOOL deleteSuccess = [self SM_handleDeletedObjects:deletedObjects inContext:context options:options error:error networkAvailable:networkAvailable];
+        if (!deleteSuccess) {
+            return nil;
+        }
+    }
+    
+    return [NSArray array];
+}
 
 - (BOOL)SM_handleInsertedObjects:(NSSet *)insertedObjects inContext:(NSManagedObjectContext *)context options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error networkAvailable:(BOOL)networkAvailable
 {
