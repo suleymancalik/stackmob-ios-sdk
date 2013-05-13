@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
-		<title>SMPushToken Class Reference</title>
+		<title>SMSyncedObject Class Reference</title>
 		<meta id="xcode-display" name="xcode-display" content="render"/>
 		<meta name="viewport" content="width=550" />
 		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
@@ -17,7 +17,7 @@
 			</div>
 			
 			<div id="title" role="banner">
-				<h1 class="hideInXcode">SMPushToken Class Reference</h1>
+				<h1 class="hideInXcode">SMSyncedObject Class Reference</h1>
 			</div>
 			<ul id="headerButtons" role="toolbar">
 				<li id="toc_button">
@@ -38,15 +38,20 @@
 	
 	
 	
+	<option value="properties">Properties</option>
+	
+	<option value="//api/name/actionTaken">&nbsp;&nbsp;&nbsp;&nbsp;actionTaken</option>
+	
+	<option value="//api/name/objectID">&nbsp;&nbsp;&nbsp;&nbsp;objectID</option>
+	
+	
 	
 	
 	
 	
 	<option value="instance_methods">Instance Methods</option>
 	
-	<option value="//api/name/initWithString:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithString:</option>
-	
-	<option value="//api/name/initWithString:type:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithString:type:</option>
+	<option value="//api/name/initWithObjectID:actionTaken:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithObjectID:actionTaken:</option>
 	
 	
 	
@@ -70,15 +75,21 @@
 
 
 
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#properties">Properties</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/actionTaken">actionTaken</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/objectID">objectID</a></span></li>
+	
+</ul></li>
+
 
 
 
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithString:">initWithString:</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithString:type:">initWithString:type:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithObjectID:actionTaken:">initWithObjectID:actionTaken:</a></span></li>
 	
 </ul></li>
 
@@ -87,7 +98,7 @@
 		</nav>
 		<article>
 			<div id="contents" class="isShowingTOC" role="main">
-				<a title="SMPushToken Class Reference" name="top"></a>
+				<a title="SMSyncedObject Class Reference" name="top"></a>
 				<div class="main-navigation navigation-top">
 					<ul>
 	<li><a href="../index.html">Index</a></li>
@@ -96,7 +107,7 @@
 				</div>
 				<div id="header">
 					<div class="section-header">
-						<h1 class="title title-header">SMPushToken Class Reference</h1>
+						<h1 class="title title-header">SMSyncedObject Class Reference</h1>
 					</div>		
 				</div>
 				<div id="container">	
@@ -107,7 +118,7 @@
 	<td class="specification-value">NSObject</td>
 </tr><tr>
 	<td class="specification-title">Declared in</td>
-	<td class="specification-value">SMPushToken.h<br />SMPushToken.m</td>
+	<td class="specification-value">SMSyncedObject.h<br />SMSyncedObject.m</td>
 </tr>
 						</tbody></table></div>
 					
@@ -117,9 +128,9 @@
 					<div class="section section-overview">
 						<a title="Overview" name="overview"></a>
 						<h2 class="subtitle subtitle-overview">Overview</h2>
-						<p>Represents the info needed to register a device for push with StackMob</p>
+						<p>When a sync with the server completes, the <code>SMCoreDataStore</code> <code>syncCompletionCallback</code> block is executed, and passed an array of successfully synced objects.  All objects will be instances of <code>SMSyncedObject</code>.</p>
 
-<p>This corresponds to what&rsquo;s sored about each token on server: token string paired with a platform and some supplemental information.</p><div class="note"><p><strong>Note:</strong> In most cases you&rsquo;ll want to just use the device token string you get from apple directly rather than using one of these.</p></div>
+<p>An <code>SMSyncedObject</code> instance contains the object ID, as well as information about how the object was merged. See the <a href="#//api/name/actionTaken">actionTaken</a> property for more information.</p>
 					</div>
 					
 					
@@ -137,15 +148,22 @@
 						<ul class="task-list">
 							<li>
 	<span class="tooltip">
-		<code><a href="#//api/name/initWithString:">&ndash;&nbsp;initWithString:</a></code>
-		<span class="tooltip"><p>Initialize with a device token string. Assumes the type is ios</p></span>
+		<code><a href="#//api/name/objectID">&nbsp;&nbsp;objectID</a></code>
+		<span class="tooltip"><p>The object ID of the synced object.  If the object was inserted or updated, this will be an instance of <code>NSManagedObjectID</code>.  If it was deleted, this will be an instance of <code>NSString</code>.</p></span>
 	</span>
-	
+	<span class="task-item-suffix">property</span>
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/initWithString:type:">&ndash;&nbsp;initWithString:type:</a></code>
-		<span class="tooltip"><p>Initialize with a device token string and a type.</p></span>
+		<code><a href="#//api/name/actionTaken">&nbsp;&nbsp;actionTaken</a></code>
+		<span class="tooltip"><p>The action taken when synced.  Property is of type <code>SMSyncAction</code>, defined as:</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/initWithObjectID:actionTaken:">&ndash;&nbsp;initWithObjectID:actionTaken:</a></code>
+		<span class="tooltip"><p>Initialize a new instance of <code>SMSyncedObject</code>.</p></span>
 	</span>
 	
 	
@@ -158,6 +176,105 @@
 					
 					
 					
+					<div class="section section-methods">
+						<a title="Properties" name="properties"></a>
+						<h2 class="subtitle subtitle-methods">Properties</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/actionTaken" title="actionTaken"></a>
+	<h3 class="subsubtitle method-title">actionTaken</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The action taken when synced.  Property is of type <code>SMSyncAction</code>, defined as:</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) SMSyncAction actionTaken</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<pre><code>typedef enum {
+    SMSyncActionInsertedOnServer = 0,
+    SMSyncActionUpdatedOnServer = 1,
+    SMSyncActionDeletedFromServer = 2,
+    SMSyncActionUpdatedCache = 3,
+} SMSyncAction;
+</code></pre>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMSyncedObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/objectID" title="objectID"></a>
+	<h3 class="subsubtitle method-title">objectID</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The object ID of the synced object.  If the object was inserted or updated, this will be an instance of <code>NSManagedObjectID</code>.  If it was deleted, this will be an instance of <code>NSString</code>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) id objectID</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMSyncedObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
 					
 					
 					
@@ -167,18 +284,18 @@
 						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
 						
 						<div class="section-method">
-	<a name="//api/name/initWithString:" title="initWithString:"></a>
-	<h3 class="subsubtitle method-title">initWithString:</h3>
+	<a name="//api/name/initWithObjectID:actionTaken:" title="initWithObjectID:actionTaken:"></a>
+	<h3 class="subsubtitle method-title">initWithObjectID:actionTaken:</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Initialize with a device token string. Assumes the type is ios</p>
+		<p>Initialize a new instance of <code>SMSyncedObject</code>.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (id)initWithString:(NSString *)<em>tokenString</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (id)initWithObjectID:(id)<em>objectID</em> actionTaken:(SMSyncAction)<em>actionTaken</em></code></div>
 
     
 	
@@ -186,17 +303,37 @@
 		<h4 class="method-subtitle parameter-title">Parameters</h4>
 		
 		<dl class="argument-def parameter-def">
-			<dt><em>tokenString</em></dt>
-			<dd><p>The device token string.</p></dd>
+			<dt><em>objectID</em></dt>
+			<dd><p>The object ID.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>actionTaken</em></dt>
+			<dd><p>The action taken for this object during the sync.</p></dd>
 		</dl>
 		
 	</div>
 	
 	
 	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An instance of <code>SMSyncedObject</code>.</p>
+	</div>
 	
 	
 	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>You should not need to instantiate an instance of this class, as it is used internally during the sync with server process.</p>
+	</div>
 	
 	
 	
@@ -206,58 +343,7 @@
 	
 	<div class="method-subsection declared-in-section">
 		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">SMPushToken.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/initWithString:type:" title="initWithString:type:"></a>
-	<h3 class="subsubtitle method-title">initWithString:type:</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Initialize with a device token string and a type.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>- (id)initWithString:(NSString *)<em>tokenString</em> type:(NSString *)<em>type</em></code></div>
-
-    
-	
-	<div class="method-subsection arguments-section parameters">
-		<h4 class="method-subtitle parameter-title">Parameters</h4>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>tokenString</em></dt>
-			<dd><p>The device token string.</p></dd>
-		</dl>
-		
-		<dl class="argument-def parameter-def">
-			<dt><em>type</em></dt>
-			<dd><p>The platform the token is for. Should be one of ios, android, or androidgcm</p></dd>
-		</dl>
-		
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">SMPushToken.h</code><br />
+		<code class="declared-in-ref">SMSyncedObject.h</code><br />
 	</div>				
 	
 	

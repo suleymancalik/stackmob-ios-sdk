@@ -42,13 +42,35 @@
 	
 	<option value="//api/name/cachePolicy">&nbsp;&nbsp;&nbsp;&nbsp;cachePolicy</option>
 	
+	<option value="//api/name/defaultSMMergePolicy">&nbsp;&nbsp;&nbsp;&nbsp;defaultSMMergePolicy</option>
+	
+	<option value="//api/name/deletesSMMergePolicy">&nbsp;&nbsp;&nbsp;&nbsp;deletesSMMergePolicy</option>
+	
 	<option value="//api/name/globalRequestOptions">&nbsp;&nbsp;&nbsp;&nbsp;globalRequestOptions</option>
+	
+	<option value="//api/name/insertsSMMergePolicy">&nbsp;&nbsp;&nbsp;&nbsp;insertsSMMergePolicy</option>
 	
 	<option value="//api/name/mainThreadContext">&nbsp;&nbsp;&nbsp;&nbsp;mainThreadContext</option>
 	
 	<option value="//api/name/managedObjectContext">&nbsp;&nbsp;&nbsp;&nbsp;managedObjectContext</option>
 	
 	<option value="//api/name/persistentStoreCoordinator">&nbsp;&nbsp;&nbsp;&nbsp;persistentStoreCoordinator</option>
+	
+	<option value="//api/name/sendLocalTimestamps">&nbsp;&nbsp;&nbsp;&nbsp;sendLocalTimestamps</option>
+	
+	<option value="//api/name/syncCallbackForFailedDeletes">&nbsp;&nbsp;&nbsp;&nbsp;syncCallbackForFailedDeletes</option>
+	
+	<option value="//api/name/syncCallbackForFailedInserts">&nbsp;&nbsp;&nbsp;&nbsp;syncCallbackForFailedInserts</option>
+	
+	<option value="//api/name/syncCallbackForFailedUpdates">&nbsp;&nbsp;&nbsp;&nbsp;syncCallbackForFailedUpdates</option>
+	
+	<option value="//api/name/syncCallbackQueue">&nbsp;&nbsp;&nbsp;&nbsp;syncCallbackQueue</option>
+	
+	<option value="//api/name/syncCompletionCallback">&nbsp;&nbsp;&nbsp;&nbsp;syncCompletionCallback</option>
+	
+	<option value="//api/name/syncInProgress">&nbsp;&nbsp;&nbsp;&nbsp;syncInProgress</option>
+	
+	<option value="//api/name/updatesSMMergePolicy">&nbsp;&nbsp;&nbsp;&nbsp;updatesSMMergePolicy</option>
 	
 	
 	
@@ -61,17 +83,35 @@
 	
 	<option value="//api/name/initWithAPIVersion:session:managedObjectModel:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAPIVersion:session:managedObjectModel:</option>
 	
+	<option value="//api/name/isDirtyObject:">&nbsp;&nbsp;&nbsp;&nbsp;- isDirtyObject:</option>
+	
+	<option value="//api/name/markArrayOfFailedObjectsAsSynced:purgeFromCache:">&nbsp;&nbsp;&nbsp;&nbsp;- markArrayOfFailedObjectsAsSynced:purgeFromCache:</option>
+	
+	<option value="//api/name/markFailedObjectAsSynced:purgeFromCache:">&nbsp;&nbsp;&nbsp;&nbsp;- markFailedObjectAsSynced:purgeFromCache:</option>
+	
+	<option value="//api/name/purgeCacheOfManagedObjectID:">&nbsp;&nbsp;&nbsp;&nbsp;- purgeCacheOfManagedObjectID:</option>
+	
+	<option value="//api/name/purgeCacheOfManagedObjects:">&nbsp;&nbsp;&nbsp;&nbsp;- purgeCacheOfManagedObjects:</option>
+	
 	<option value="//api/name/purgeCacheOfManagedObjectsIDs:">&nbsp;&nbsp;&nbsp;&nbsp;- purgeCacheOfManagedObjectsIDs:</option>
-	
-	<option value="//api/name/purgeCacheOfMangedObjectID:">&nbsp;&nbsp;&nbsp;&nbsp;- purgeCacheOfMangedObjectID:</option>
-	
-	<option value="//api/name/purgeCacheOfMangedObjects:">&nbsp;&nbsp;&nbsp;&nbsp;- purgeCacheOfMangedObjects:</option>
 	
 	<option value="//api/name/purgeCacheOfObjectsWithEntityName:">&nbsp;&nbsp;&nbsp;&nbsp;- purgeCacheOfObjectsWithEntityName:</option>
 	
 	<option value="//api/name/resetCache">&nbsp;&nbsp;&nbsp;&nbsp;- resetCache</option>
 	
+	<option value="//api/name/setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:">&nbsp;&nbsp;&nbsp;&nbsp;- setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:</option>
+	
 	<option value="//api/name/setDefaultMergePolicy:applyToMainThreadContextAndParent:">&nbsp;&nbsp;&nbsp;&nbsp;- setDefaultMergePolicy:applyToMainThreadContextAndParent:</option>
+	
+	<option value="//api/name/setSyncCallbackForFailedDeletes:">&nbsp;&nbsp;&nbsp;&nbsp;- setSyncCallbackForFailedDeletes:</option>
+	
+	<option value="//api/name/setSyncCallbackForFailedInserts:">&nbsp;&nbsp;&nbsp;&nbsp;- setSyncCallbackForFailedInserts:</option>
+	
+	<option value="//api/name/setSyncCallbackForFailedUpdates:">&nbsp;&nbsp;&nbsp;&nbsp;- setSyncCallbackForFailedUpdates:</option>
+	
+	<option value="//api/name/setSyncCompletionCallback:">&nbsp;&nbsp;&nbsp;&nbsp;- setSyncCompletionCallback:</option>
+	
+	<option value="//api/name/syncWithServer">&nbsp;&nbsp;&nbsp;&nbsp;- syncWithServer</option>
 	
 	
 	
@@ -97,6 +137,8 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Manually Purging the Cache">Manually Purging the Cache</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#task_Sync">Sync</a></span></li>
+	
 </ul></li>
 
 
@@ -107,13 +149,35 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/cachePolicy">cachePolicy</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/defaultSMMergePolicy">defaultSMMergePolicy</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/deletesSMMergePolicy">deletesSMMergePolicy</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globalRequestOptions">globalRequestOptions</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/insertsSMMergePolicy">insertsSMMergePolicy</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/mainThreadContext">mainThreadContext</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/managedObjectContext">managedObjectContext</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/persistentStoreCoordinator">persistentStoreCoordinator</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/sendLocalTimestamps">sendLocalTimestamps</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/syncCallbackForFailedDeletes">syncCallbackForFailedDeletes</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/syncCallbackForFailedInserts">syncCallbackForFailedInserts</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/syncCallbackForFailedUpdates">syncCallbackForFailedUpdates</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/syncCallbackQueue">syncCallbackQueue</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/syncCompletionCallback">syncCompletionCallback</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/syncInProgress">syncInProgress</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/updatesSMMergePolicy">updatesSMMergePolicy</a></span></li>
 	
 </ul></li>
 
@@ -127,17 +191,35 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithAPIVersion:session:managedObjectModel:">initWithAPIVersion:session:managedObjectModel:</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/isDirtyObject:">isDirtyObject:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/markArrayOfFailedObjectsAsSynced:purgeFromCache:">markArrayOfFailedObjectsAsSynced:purgeFromCache:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/markFailedObjectAsSynced:purgeFromCache:">markFailedObjectAsSynced:purgeFromCache:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/purgeCacheOfManagedObjectID:">purgeCacheOfManagedObjectID:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/purgeCacheOfManagedObjects:">purgeCacheOfManagedObjects:</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/purgeCacheOfManagedObjectsIDs:">purgeCacheOfManagedObjectsIDs:</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/purgeCacheOfMangedObjectID:">purgeCacheOfMangedObjectID:</a></span></li>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/purgeCacheOfMangedObjects:">purgeCacheOfMangedObjects:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/purgeCacheOfObjectsWithEntityName:">purgeCacheOfObjectsWithEntityName:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/resetCache">resetCache</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:">setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setDefaultMergePolicy:applyToMainThreadContextAndParent:">setDefaultMergePolicy:applyToMainThreadContextAndParent:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setSyncCallbackForFailedDeletes:">setSyncCallbackForFailedDeletes:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setSyncCallbackForFailedInserts:">setSyncCallbackForFailedInserts:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setSyncCallbackForFailedUpdates:">setSyncCallbackForFailedUpdates:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setSyncCompletionCallback:">setSyncCompletionCallback:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/syncWithServer">syncWithServer</a></span></li>
 	
 </ul></li>
 
@@ -182,75 +264,15 @@
 
 <p>With your <code>SMCoreDataStore</code> object you can retrieve a managed object context configured with a <code>SMIncrementalStore</code> as it&rsquo;s persistent store to allow communication to StackMob from Core Data.  Obtain a managed object context for your thread using <a href="#//api/name/contextForCurrentThread">contextForCurrentThread</a>.  You can obtain the managed object context for the main thread at any time with <a href="#//api/name/mainThreadContext">mainThreadContext</a>.</p>
 
-<p>When saving or fetching from the context, use methods from the &lt;NSManagedObjectContext+Concurrency> category to ensure proper asynchronous saving and fetching off of the main thread.</p>
+<p>When saving or fetching from the context, use methods from the <a href="http://stackmob.github.io/stackmob-ios-sdk/Categories/NSManagedObjectContext+Concurrency.html" target="_blank">NSManagedObjectContext+Concurrency category</a> to ensure proper asynchronous saving and fetching off of the main thread.</p>
 
 <p>If you want to do your own context creation, use the <a href="#//api/name/persistentStoreCoordinator">persistentStoreCoordinator</a> property to ensure your objects are being saved to the StackMob server.</p>
 
-<p>The default merge policy set for all contexts created by this class is NSMergeByPropertyObjectTrumpMergePolicy.  Use <a href="#//api/name/setDefaultMergePolicy:applyToMainThreadContextAndParent:">setDefaultMergePolicy:applyToMainThreadContextAndParent:</a> to change the default.</p>
+<p>The default Core Data merge policy set for all contexts created by this class is <code>NSMergeByPropertyObjectTrumpMergePolicy</code>.  Use <a href="#//api/name/setDefaultMergePolicy:applyToMainThreadContextAndParent:">setDefaultMergePolicy:applyToMainThreadContextAndParent:</a> to change the default.</p>
 
-<h2>Using the Cache</h2>
+<h2>Using the Cache and Offline Sync</h2>
 
-<p>The Core Data integration in version 1.2.0 includes a caching system to allow for local fetching of objects which have previously been fetched from the server.  It is also used to fill faulted objects which have been previously fetched.</p>
-
-<p>The caching system is off by default.  To turn it on, simply set the SM_CACHE_ENABLED flag to YES in your App Delegate file, before you initialize a Core Data store.</p>
-
-<h3>How It Works</h3>
-
-<p>The cache itself is a Core Data stack, equipped with its own private managed object context and persistent store coordinator.  It uses SQLite as the persistent store, which is what most standard applications using Core Data use as the local persistent store.  By implementing the cache as a Core Data stack, results from fetches performed on the network can be cached independently of their original request. You can then perform subsequent local fetches that are able to return subsets of the originally cached data.  For example, suppose you are building a To-Do application which has the option to filter tasks by date, subject, etc.  These filters would translate to conditional fetches on the same list of tasks.  Rather than needing to execute a fetch on the network every time your query conditions change, you can instead grab all the tasks with one network call at the beginning and perform the conditional fetches on that data locally, without needing to fetch from the network again.</p>
-
-<p>After successfully performing a fetch from the StackMob database, an equivalent fetch is performed locally on the cache and those results are replaced with the up-to-date objects from the server.  The results are returned as faulted managed objects and accessing an object&rsquo;s values will cause Core Data to fill the fault using the cache.</p>
-
-<p><strong>Important:</strong> Regardless of the cache policy, results from fetches on the network are cached and used internally to fill faults.  This prevents a network call from happening everytime an object&rsquo;s values are brought into memory by Core Data.</p>
-
-<p><strong>Also Important:</strong> There are a few scenarios where filling faults require network calls.  The first is when an object is faulted but does not have an entry in the cache.  This happens when a managed object context obtains a managed object ID reference to a faulted object that is not in the cache.  The second is when trying to access values of related objects which themselves have not been cached.  If either of these situations arise and there is no network connection Core Data may throw the &ldquo;Core Data could not fulfill a fault&rdquo; exception.</p>
-
-<h3>Caching Policies</h3>
-
-<p>There are 4 policies</p>
-
-<ul>
-<li>SMCachePolicyTryNetworkOnly &ndash; This is the default policy, the equivalent of not fetching from the cache at all.</li>
-<li>SMCachePolicyTryCacheOnly &ndash; This policy directs all fetches to the cache, never trying the network.</li>
-<li>SMCachePolicyTryNetworkElseCache &ndash; This policy will try to fetch from the network, and if an error occurs because there is no network connection the fetch is performed on the cache.</li>
-<li>SMCachePolicyTryCacheElseNetwork &ndash; This policy will start by performing the fetch on the cache and returning if there are results.  If there are no results, the fetch is performed on the network and those up-to-date results from the server will be cached and returned.  If there is an error because there is no network connection the original empty array is returned.</li>
-</ul>
-
-
-<h3>How To Change the Caching Policy</h3>
-
-<p>You can change the caching policy for your SMCoreDataStore instance at any time by setting its cachePolicy property.</p>
-
-<p>If you know you want one cache policy when you are online and one when you are offline, you can use the SMNetworkReachability method setNetworkStatusChangeBlockWithCachePolicyReturn: and return which cache policy to set based on the network status.  An SMNetworkReachability instance is initialized in the user session, under the networkMonitor property.  For example, to set a network status change block after you initialize your client, do the following:</p>
-
-<pre><code>    SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXX"];
-    SMCoreDataStore *coreDataStore = [client coreDataStoreWithManagedObjectModel:myModel];
-    [client.session.networkMonitor setNetworkStatusChangeBlockWithCachePolicyReturn:^SMCachePolicy(SMNetworkStatus status) {
-            if (status == Reachable) {
-                return SMCachePolicyTryNetworkElseCache;
-            } else {
-                return SMCachePolicyTryCacheOnly;
-            }
-    }];
-</code></pre>
-
-<h3>Manually Purging the Cache</h3>
-
-<p>At any time you can purge the cache manually of:</p>
-
-<ul>
-<li>An object by providing it&rsquo;s managed object ID.</li>
-<li>A group of objects by providing an array of managed object IDs.</li>
-<li>A group of objects by providing an array of managed objects, which are converted to IDs before processed on a background thread.</li>
-<li>A group of objects by providing the name of their entity.</li>
-<li>The entire cache (Reset the thing).</li>
-</ul>
-
-
-<p>Check out the Manually Purging the Cache section for all the methods.</p>
-
-<h3>Turning Off the Cache Completely</h3>
-
-<p>To turn off all caching functionality, including internal caching used for fault filling, set the <strong>SM_CACHE_ENABLED</strong> flag to NO in your App Delegate file, before you initialize a instance of SMCoreDataStore.</p><div class="note"><p><strong>Note:</strong> You should not have to initialize an instance of this class directly.  Instead, initialize an instance of <a href="../Classes/SMClient.html">SMClient</a> and use the method &lt;coreDataStoreWithManagedObjectModel:> to retrieve an instance completely configured and ready to communicate to StackMob.</p></div>
+<p>All the settings for turing on/off the cache, managing policies and sync callbacks, and initializing the sync process can be found in the <a href="https://developer.stackmob.com/ios-sdk/offline-sync-guide" target="_blank">Offline Sync Guide</a>.</p><div class="note"><p><strong>Note:</strong> You should not have to initialize an instance of this class directly.  Instead, initialize an instance of <a href="../Classes/SMClient.html">SMClient</a> and use the method <code>coreDataStoreWithManagedObjectModel:</code> to retrieve an instance completely configured and ready to communicate to StackMob.</p></div>
 					</div>
 					
 					
@@ -291,6 +313,83 @@
 	<span class="tooltip">
 		<code><a href="#//api/name/cachePolicy">&nbsp;&nbsp;cachePolicy</a></code>
 		<span class="tooltip"><p>The cache policy to adhere by during fetch requests.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/syncCallbackQueue">&nbsp;&nbsp;syncCallbackQueue</a></code>
+		<span class="tooltip"><p>The queue used to execute sync callbacks (success and failure).</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/syncInProgress">&nbsp;&nbsp;syncInProgress</a></code>
+		<span class="tooltip"><p>Boolean indicating whether a sync with the server is in progress.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/sendLocalTimestamps">&nbsp;&nbsp;sendLocalTimestamps</a></code>
+		<span class="tooltip"><p>Boolean indicating whether to send the <code>createddate</code> and <code>lastmoddate</code> keys and values in a request payload (during sync only).</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/defaultSMMergePolicy">&nbsp;&nbsp;defaultSMMergePolicy</a></code>
+		<span class="tooltip"><p>During sync, the global merge policy used to fix conflicts.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/insertsSMMergePolicy">&nbsp;&nbsp;insertsSMMergePolicy</a></code>
+		<span class="tooltip"><p>When syncing dirty inserted objects, the merge policy used to fix conflicts.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/updatesSMMergePolicy">&nbsp;&nbsp;updatesSMMergePolicy</a></code>
+		<span class="tooltip"><p>When syncing dirty updated objects, the merge policy used to fix conflicts.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/deletesSMMergePolicy">&nbsp;&nbsp;deletesSMMergePolicy</a></code>
+		<span class="tooltip"><p>When syncing dirty deletes objects, the merge policy used to fix conflicts.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/syncCallbackForFailedInserts">&nbsp;&nbsp;syncCallbackForFailedInserts</a></code>
+		<span class="tooltip"><p>Property which holds a callback executed when inserts on the server fail during a sync.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/syncCallbackForFailedUpdates">&nbsp;&nbsp;syncCallbackForFailedUpdates</a></code>
+		<span class="tooltip"><p>Property which holds a callback executed when updates on the server fail during a sync.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/syncCallbackForFailedDeletes">&nbsp;&nbsp;syncCallbackForFailedDeletes</a></code>
+		<span class="tooltip"><p>Property which holds a callback executed when deletes on the server fail during a sync.</p></span>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/syncCompletionCallback">&nbsp;&nbsp;syncCompletionCallback</a></code>
+		<span class="tooltip"><p>Property which holds the callback executed when sync completes.</p></span>
 	</span>
 	<span class="task-item-suffix">property</span>
 	
@@ -338,6 +437,13 @@
 	</span>
 	
 	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:">&ndash;&nbsp;setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:</a></code>
+		<span class="tooltip"><p>Sets the merge policy that is set by default to any context returned from <a href="#//api/name/contextForCurrentThread">contextForCurrentThread</a>.</p></span>
+	</span>
+	
+	
 </li>
 						</ul>
 						
@@ -348,14 +454,14 @@
 						<ul class="task-list">
 							<li>
 	<span class="tooltip">
-		<code><a href="#//api/name/purgeCacheOfMangedObjectID:">&ndash;&nbsp;purgeCacheOfMangedObjectID:</a></code>
+		<code><a href="#//api/name/purgeCacheOfManagedObjectID:">&ndash;&nbsp;purgeCacheOfManagedObjectID:</a></code>
 		<span class="tooltip"><p>Removes the cache entry for the provided NSManagedObjectID.</p></span>
 	</span>
 	
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/purgeCacheOfMangedObjects:">&ndash;&nbsp;purgeCacheOfMangedObjects:</a></code>
+		<code><a href="#//api/name/purgeCacheOfManagedObjects:">&ndash;&nbsp;purgeCacheOfManagedObjects:</a></code>
 		<span class="tooltip"><p>Removes the cache entries for the provided array of NSManagedObject instances.</p></span>
 	</span>
 	
@@ -378,6 +484,70 @@
 	<span class="tooltip">
 		<code><a href="#//api/name/resetCache">&ndash;&nbsp;resetCache</a></code>
 		<span class="tooltip"><p>Clears the cache of all entries.</p></span>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+						
+						<a title="Sync" name="task_Sync"></a>
+						<h3 class="subsubtitle task-title">Sync</h3>
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/syncWithServer">&ndash;&nbsp;syncWithServer</a></code>
+		<span class="tooltip"><p>Initiates the sync process in the background.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/isDirtyObject:">&ndash;&nbsp;isDirtyObject:</a></code>
+		<span class="tooltip"><p>Returns a Boolean indicating whether an object is potentially out of sync with its server representation.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/markFailedObjectAsSynced:purgeFromCache:">&ndash;&nbsp;markFailedObjectAsSynced:purgeFromCache:</a></code>
+		<span class="tooltip"><p>Removes the &ldquo;dirty&rdquo; tag from an object. Optionally purges the object from the cache as well.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/markArrayOfFailedObjectsAsSynced:purgeFromCache:">&ndash;&nbsp;markArrayOfFailedObjectsAsSynced:purgeFromCache:</a></code>
+		<span class="tooltip"><p>Removes the &ldquo;dirty&rdquo; tag from all objects in an array. Optionally purges the objects from the cache as well.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setSyncCallbackForFailedInserts:">&ndash;&nbsp;setSyncCallbackForFailedInserts:</a></code>
+		<span class="tooltip"><p>Use to set a callback executed when inserts on the server fail during a sync.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setSyncCallbackForFailedUpdates:">&ndash;&nbsp;setSyncCallbackForFailedUpdates:</a></code>
+		<span class="tooltip"><p>Use to set a callback executed when updates on the server fail during a sync.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setSyncCallbackForFailedDeletes:">&ndash;&nbsp;setSyncCallbackForFailedDeletes:</a></code>
+		<span class="tooltip"><p>Use to set a callback executed when deletes on the server fail during a sync.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setSyncCompletionCallback:">&ndash;&nbsp;setSyncCompletionCallback:</a></code>
+		<span class="tooltip"><p>Use to set a callback executed when a sync completes.</p></span>
 	</span>
 	
 	
@@ -436,6 +606,93 @@
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/defaultSMMergePolicy" title="defaultSMMergePolicy"></a>
+	<h3 class="subsubtitle method-title">defaultSMMergePolicy</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>During sync, the global merge policy used to fix conflicts.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong) SMMergePolicy defaultSMMergePolicy</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/deletesSMMergePolicy" title="deletesSMMergePolicy"></a>
+	<h3 class="subsubtitle method-title">deletesSMMergePolicy</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>When syncing dirty deletes objects, the merge policy used to fix conflicts.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong) SMMergePolicy deletesSMMergePolicy</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Set this property only if you want a different merge policy other than the default to use for delete conflicts.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/globalRequestOptions" title="globalRequestOptions"></a>
 	<h3 class="subsubtitle method-title">globalRequestOptions</h3>
 	
@@ -474,6 +731,52 @@
 
 
 <p>Customizing other options can result in unexpected requests, which can lead to save/fetch failures.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/insertsSMMergePolicy" title="insertsSMMergePolicy"></a>
+	<h3 class="subsubtitle method-title">insertsSMMergePolicy</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>When syncing dirty inserted objects, the merge policy used to fix conflicts.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong) SMMergePolicy insertsSMMergePolicy</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Set this property only if you want a different merge policy other than the default to use for insert conflicts.</p>
 	</div>
 	
 	
@@ -628,6 +931,374 @@
 	
 </div>
 						
+						<div class="section-method">
+	<a name="//api/name/sendLocalTimestamps" title="sendLocalTimestamps"></a>
+	<h3 class="subsubtitle method-title">sendLocalTimestamps</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Boolean indicating whether to send the <code>createddate</code> and <code>lastmoddate</code> keys and values in a request payload (during sync only).</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) BOOL sendLocalTimestamps</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>By default, the <code>createddate</code> and <code>lastmoddate</code> fields are set by the server. If you want these values to reflect the last local save, regardless of network connection, set this property to YES and the client will send them in request payloads during sync requests.</p><div class="note"><p><strong>Note:</strong> This flag is only taken under consideration during a sync, where objects modified offline may have been assigned timestamps.  Saves when online go directly to the server, so the server sets the fields.</p></div>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/syncCallbackForFailedDeletes" title="syncCallbackForFailedDeletes"></a>
+	<h3 class="subsubtitle method-title">syncCallbackForFailedDeletes</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Property which holds a callback executed when deletes on the server fail during a sync.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong, setter=setSyncCallbackForFailedDeletes, :) SMSyncCallback syncCallbackForFailedDeletes</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Set using <a href="#//api/name/setSyncCallbackForFailedDeletes:">setSyncCallbackForFailedDeletes:</a>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/syncCallbackForFailedInserts" title="syncCallbackForFailedInserts"></a>
+	<h3 class="subsubtitle method-title">syncCallbackForFailedInserts</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Property which holds a callback executed when inserts on the server fail during a sync.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong, setter=setSyncCallbackForFailedInserts, :) SMSyncCallback syncCallbackForFailedInserts</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Set using <a href="#//api/name/setSyncCallbackForFailedInserts:">setSyncCallbackForFailedInserts:</a>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/syncCallbackForFailedUpdates" title="syncCallbackForFailedUpdates"></a>
+	<h3 class="subsubtitle method-title">syncCallbackForFailedUpdates</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Property which holds a callback executed when updates on the server fail during a sync.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong, setter=setSyncCallbackForFailedUpdates, :) SMSyncCallback syncCallbackForFailedUpdates</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Set using <a href="#//api/name/setSyncCallbackForFailedUpdates:">setSyncCallbackForFailedUpdates:</a>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/syncCallbackQueue" title="syncCallbackQueue"></a>
+	<h3 class="subsubtitle method-title">syncCallbackQueue</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The queue used to execute sync callbacks (success and failure).</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) dispatch_queue_t syncCallbackQueue</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Default is main thread.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/syncCompletionCallback" title="syncCompletionCallback"></a>
+	<h3 class="subsubtitle method-title">syncCompletionCallback</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Property which holds the callback executed when sync completes.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong, setter=setSyncCompletionCallback, :) SMSyncCallback syncCompletionCallback</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Set using <a href="#//api/name/setSyncCompletionCallback:">setSyncCompletionCallback:</a>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/syncInProgress" title="syncInProgress"></a>
+	<h3 class="subsubtitle method-title">syncInProgress</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Boolean indicating whether a sync with the server is in progress.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) BOOL syncInProgress</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>YES if a sync is in progress, otherwise NO.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/updatesSMMergePolicy" title="updatesSMMergePolicy"></a>
+	<h3 class="subsubtitle method-title">updatesSMMergePolicy</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>When syncing dirty updated objects, the merge policy used to fix conflicts.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong) SMMergePolicy updatesSMMergePolicy</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Set this property only if you want a different merge policy other than the default to use for update conflicts.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
 					</div>
 					
 					
@@ -748,18 +1419,18 @@
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/purgeCacheOfManagedObjectsIDs:" title="purgeCacheOfManagedObjectsIDs:"></a>
-	<h3 class="subsubtitle method-title">purgeCacheOfManagedObjectsIDs:</h3>
+	<a name="//api/name/isDirtyObject:" title="isDirtyObject:"></a>
+	<h3 class="subsubtitle method-title">isDirtyObject:</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Removes the cache entries for the provided array of NSManagedObjectID instances.</p>
+		<p>Returns a Boolean indicating whether an object is potentially out of sync with its server representation.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (void)purgeCacheOfManagedObjectsIDs:(NSArray *)<em>managedObjectIDs</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (BOOL)isDirtyObject:(NSManagedObjectID *)<em>objectID</em></code></div>
 
     
 	
@@ -767,22 +1438,32 @@
 		<h4 class="method-subtitle parameter-title">Parameters</h4>
 		
 		<dl class="argument-def parameter-def">
-			<dt><em>managedObjectIDs</em></dt>
-			<dd><p>An array of managed object IDs whose objects should be removed from the cache, if entries exist.</p></dd>
+			<dt><em>objectID</em></dt>
+			<dd><p>The NSManagedObjectID of the object.</p></dd>
 		</dl>
 		
 	</div>
 	
 	
 	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>YES if the object is dirty, otherwise NO.</p>
+	</div>
+	
 	
 	
 	<div class="method-subsection availability">
 		<h4 class="method-subtitle parameter-title">Availability</h4>
-		<p>Available in iOS SDK 1.2.0 and later.</p>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
 	</div>
 	
 	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>An object is marked dirty when it is modified and saved while the device is offline.</p>
+	</div>
 	
 	
 	
@@ -799,8 +1480,130 @@
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/purgeCacheOfMangedObjectID:" title="purgeCacheOfMangedObjectID:"></a>
-	<h3 class="subsubtitle method-title">purgeCacheOfMangedObjectID:</h3>
+	<a name="//api/name/markArrayOfFailedObjectsAsSynced:purgeFromCache:" title="markArrayOfFailedObjectsAsSynced:purgeFromCache:"></a>
+	<h3 class="subsubtitle method-title">markArrayOfFailedObjectsAsSynced:purgeFromCache:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Removes the &ldquo;dirty&rdquo; tag from all objects in an array. Optionally purges the objects from the cache as well.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)markArrayOfFailedObjectsAsSynced:(NSArray *)<em>objects</em> purgeFromCache:(BOOL)<em>purge</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>objects</em></dt>
+			<dd><p>The objects to mark as synced.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>purge</em></dt>
+			<dd><p>A boolean value representing whether the objects should be purged from the cache.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Takes an array of entries from the array passed to a sync error callback.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/markFailedObjectAsSynced:purgeFromCache:" title="markFailedObjectAsSynced:purgeFromCache:"></a>
+	<h3 class="subsubtitle method-title">markFailedObjectAsSynced:purgeFromCache:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Removes the &ldquo;dirty&rdquo; tag from an object. Optionally purges the object from the cache as well.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)markFailedObjectAsSynced:(NSDictionary *)<em>object</em> purgeFromCache:(BOOL)<em>purge</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>object</em></dt>
+			<dd><p>The object to mark as synced.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>purge</em></dt>
+			<dd><p>A boolean value representing whether the object should be purged from the cache.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Takes an entry from the array passed to a sync error callback.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/purgeCacheOfManagedObjectID:" title="purgeCacheOfManagedObjectID:"></a>
+	<h3 class="subsubtitle method-title">purgeCacheOfManagedObjectID:</h3>
 	
 	
 	
@@ -810,7 +1613,7 @@
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)<em>objectID</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)purgeCacheOfManagedObjectID:(NSManagedObjectID *)<em>objectID</em></code></div>
 
     
 	
@@ -850,8 +1653,8 @@
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/purgeCacheOfMangedObjects:" title="purgeCacheOfMangedObjects:"></a>
-	<h3 class="subsubtitle method-title">purgeCacheOfMangedObjects:</h3>
+	<a name="//api/name/purgeCacheOfManagedObjects:" title="purgeCacheOfManagedObjects:"></a>
+	<h3 class="subsubtitle method-title">purgeCacheOfManagedObjects:</h3>
 	
 	
 	
@@ -861,7 +1664,7 @@
 	
     
 
-	<div class="method-subsection method-declaration"><code>- (void)purgeCacheOfMangedObjects:(NSArray *)<em>managedObjects</em></code></div>
+	<div class="method-subsection method-declaration"><code>- (void)purgeCacheOfManagedObjects:(NSArray *)<em>managedObjects</em></code></div>
 
     
 	
@@ -871,6 +1674,57 @@
 		<dl class="argument-def parameter-def">
 			<dt><em>managedObjects</em></dt>
 			<dd><p>An array of managed objects to remove from the cache, if entries exist.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 1.2.0 and later.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/purgeCacheOfManagedObjectsIDs:" title="purgeCacheOfManagedObjectsIDs:"></a>
+	<h3 class="subsubtitle method-title">purgeCacheOfManagedObjectsIDs:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Removes the cache entries for the provided array of NSManagedObjectID instances.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)purgeCacheOfManagedObjectsIDs:(NSArray *)<em>managedObjectIDs</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>managedObjectIDs</em></dt>
+			<dd><p>An array of managed object IDs whose objects should be removed from the cache, if entries exist.</p></dd>
 		</dl>
 		
 	</div>
@@ -993,6 +1847,67 @@
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:" title="setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:"></a>
+	<h3 class="subsubtitle method-title">setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Sets the merge policy that is set by default to any context returned from <a href="#//api/name/contextForCurrentThread">contextForCurrentThread</a>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)setDefaultCoreDataMergePolicy:(id)<em>mergePolicy</em> applyToMainThreadContextAndParent:(BOOL)<em>apply</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>mergePolicy</em></dt>
+			<dd><p>The default merge policy to use going forward.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>apply</em></dt>
+			<dd><p>Whether or not to set mergePolicy as the merge policy for the existing mainThreadContext and its private parent context.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If apply is YES, sets the merge policy of mainThreadContext and its private parent context to mergePolicy.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/setDefaultMergePolicy:applyToMainThreadContextAndParent:" title="setDefaultMergePolicy:applyToMainThreadContextAndParent:"></a>
 	<h3 class="subsubtitle method-title">setDefaultMergePolicy:applyToMainThreadContextAndParent:</h3>
 	
@@ -1036,7 +1951,257 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>If apply is YES, sets the merge policy of mainThreadContext and its private parent context to mergePolicy.</p>
+		<p>If apply is YES, sets the merge policy of mainThreadContext and its private parent context to mergePolicy.</p><div class="note"><p><strong>Note:</strong> Deprecated in version 2.0.0. Use <a href="#//api/name/setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:">setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:</a>.</p></div>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setSyncCallbackForFailedDeletes:" title="setSyncCallbackForFailedDeletes:"></a>
+	<h3 class="subsubtitle method-title">setSyncCallbackForFailedDeletes:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Use to set a callback executed when deletes on the server fail during a sync.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)setSyncCallbackForFailedDeletes:(void ( ^ ) ( NSArray *objects ))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>The block to execute when there are failed deletes.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setSyncCallbackForFailedInserts:" title="setSyncCallbackForFailedInserts:"></a>
+	<h3 class="subsubtitle method-title">setSyncCallbackForFailedInserts:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Use to set a callback executed when inserts on the server fail during a sync.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)setSyncCallbackForFailedInserts:(void ( ^ ) ( NSArray *objects ))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>The block to execute when there are failed inserts.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setSyncCallbackForFailedUpdates:" title="setSyncCallbackForFailedUpdates:"></a>
+	<h3 class="subsubtitle method-title">setSyncCallbackForFailedUpdates:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Use to set a callback executed when updates on the server fail during a sync.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)setSyncCallbackForFailedUpdates:(void ( ^ ) ( NSArray *objects ))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>The block to execute when there are failed updates.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setSyncCompletionCallback:" title="setSyncCompletionCallback:"></a>
+	<h3 class="subsubtitle method-title">setSyncCompletionCallback:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Use to set a callback executed when a sync completes.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)setSyncCompletionCallback:(void ( ^ ) ( NSArray *objects ))<em>block</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>block</em></dt>
+			<dd><p>The block to execute when a sync with the server completes.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMCoreDataStore.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/syncWithServer" title="syncWithServer"></a>
+	<h3 class="subsubtitle method-title">syncWithServer</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Initiates the sync process in the background.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)syncWithServer</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If a sync is already in progress, this method does nothing.</p>
 	</div>
 	
 	
@@ -1066,7 +2231,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-03-27)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-05-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

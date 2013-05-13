@@ -42,6 +42,10 @@
 	
 	<option value="class_methods">Class Methods</option>
 	
+	<option value="//api/name/dataForString:">&nbsp;&nbsp;&nbsp;&nbsp;+ dataForString:</option>
+	
+	<option value="//api/name/stringContainsURL:">&nbsp;&nbsp;&nbsp;&nbsp;+ stringContainsURL:</option>
+	
 	<option value="//api/name/stringForBinaryData:name:contentType:">&nbsp;&nbsp;&nbsp;&nbsp;+ stringForBinaryData:name:contentType:</option>
 	
 	
@@ -71,6 +75,10 @@
 
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#class_methods">Class Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/dataForString:">dataForString:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/stringContainsURL:">stringContainsURL:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/stringForBinaryData:name:contentType:">stringForBinaryData:name:contentType:</a></span></li>
 	
@@ -140,7 +148,24 @@ abort();
 }
 </code></pre>
 
-<p><code>[newManagedObject valueForKey:@"pic"]</code> now returns the s3 url for the data.</p><div class="note"><p><strong>Note:</strong> Binary Data fields are not inferred. You must edit the schema on the StackMob website and add a new field of type Binary Data that has the same name as the string attribute in your Xcode data model.  This must be done before you persist any data to avoid inferring a field with type string.</p></div>
+<p><code>[newManagedObject valueForKey:@"pic"]</code> now returns the s3 url for the data.</p>
+
+<h2>Saving Binary Data Offline</h2>
+
+<p>When you save an object with binary data while the device is offline, the value of the attribute will contain a data representation, ready to be saved to StackMob. In order to properly read it at that point, the data must be extracted from the string and decoded.</p>
+
+<p>In order to check if the attribute value is a url or not, use the <a href="#//api/name/stringContainsURL:">stringContainsURL:</a> method.  To convert the string value back to data, use the <a href="#//api/name/dataForString:">dataForString:</a> method.</p>
+
+<pre><code>NSString *picString = [newManagedObject valueForKey:@"pic"];
+if ([SMBinaryDataConversion stringContainsURL:picString]) {
+    NSURL *urlForPic = [NSURL URLForString:picString];
+    // Set image from url
+
+} else {
+    UIImage *image = [UIImage imageWithData:[SMBinaryDataConversion dataForString:picString]];
+    // Set image directly
+}
+</code></pre><div class="note"><p><strong>Note:</strong> Binary Data fields are not inferred. You must edit the schema on the StackMob website and add a new field of type Binary Data that has the same name as the string attribute in your Xcode data model.  This must be done before you persist any data to avoid inferring a field with type string.</p></div>
 					</div>
 					
 					
@@ -163,6 +188,20 @@ abort();
 	</span>
 	
 	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/dataForString:">+&nbsp;dataForString:</a></code>
+		<span class="tooltip"><p>Returns the data representation of a string created with <a href="#//api/name/stringForBinaryData:name:contentType:">stringForBinaryData:name:contentType:</a>.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/stringContainsURL:">+&nbsp;stringContainsURL:</a></code>
+		<span class="tooltip"><p>Given a string attribute which maps to a Binary field on StackMob, returns whether the string contains an s3 URL.</p></span>
+	</span>
+	
+	
 </li>
 						</ul>
 						
@@ -177,6 +216,128 @@ abort();
 					<div class="section section-methods">
 						<a title="Class Methods" name="class_methods"></a>
 						<h2 class="subtitle subtitle-methods">Class Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/dataForString:" title="dataForString:"></a>
+	<h3 class="subsubtitle method-title">dataForString:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns the data representation of a string created with <a href="#//api/name/stringForBinaryData:name:contentType:">stringForBinaryData:name:contentType:</a>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (NSData *)dataForString:(NSString *)<em>string</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>string</em></dt>
+			<dd><p>The string to convert to data.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>The data representation of the string.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Use this method when pulling the attribute value when the object has not yet been synced with the server, i.e. does not yet contain a proper s3 url.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMBinaryDataConversion.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/stringContainsURL:" title="stringContainsURL:"></a>
+	<h3 class="subsubtitle method-title">stringContainsURL:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Given a string attribute which maps to a Binary field on StackMob, returns whether the string contains an s3 URL.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (BOOL)stringContainsURL:(NSString *)<em>value</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>value</em></dt>
+			<dd><p>The string to evaluate.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>YES if the string contains an s3 url, otherwise NO.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If the object has already been saved and persisted to StackMob, the string will contain the s3 url which maps to the data.  Otherwise the object will contain a data representation, ready to be saved to StackMob. In order to properly read it the data must be extracted from the string and decoded using the <a href="#//api/name/dataForString:">dataForString:</a> method.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMBinaryDataConversion.h</code><br />
+	</div>				
+	
+	
+</div>
 						
 						<div class="section-method">
 	<a name="//api/name/stringForBinaryData:name:contentType:" title="stringForBinaryData:name:contentType:"></a>
@@ -259,7 +420,7 @@ abort();
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-03-27)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-05-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

@@ -36,7 +36,7 @@
 						
 						<h1>Welcome to the docs for the StackMob iOS SDK!</h1>
 
-<h3>Current Version: 1.4.0</h3>
+<h3>Current Version: 1.4.0 , 2.0.0 (Beta)</h3>
 
 <h3>Jump To:</h3>
 
@@ -53,6 +53,8 @@
 <p><a href="#tutorials">Tutorials</a></p>
 
 <p><a href="#core_data_references">Core Data References</a></p>
+
+<p><a href="#deprecations">Deprecations</a></p>
 
 <p><a href="#class_index">Index of Classes</a></p>
 
@@ -205,9 +207,9 @@ self.managedObjectContext = [coreDataStore contextForCurrentThread];
 <br/>
 
 
-<h3>Caching System</h3>
+<h3>Offline Sync System</h3>
 
-<p>Included with version 1.4.0+ of the SDK is a caching system built in to the Core Data Integration to allow for local fetching of objects which have previously been fetched from the server.  See the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html">SMCoreDataStore class reference</a> for details on how to turn on the cache, set the cache policy, manually purge the cache, etc.</p>
+<p>Included with version 2.0.0+ of the SDK is a sync system built in to the Core Data Integration to allow for local saving and fetching of objects when a device is offline.  When back online, modified data will be synced with the server.  Many settings are available to the developer around cache and merge policies, conflict resolution, etc.  See the <a href="https://developer.stackmob.com/ios-sdk/offline-sync-guide">Offline Sync Guide</a> for all information.</p>
 
 <br/>
 
@@ -238,7 +240,7 @@ self.managedObjectContext = [coreDataStore contextForCurrentThread];
 
 <h3>Checking Network Reachability</h3>
 
-<p>While the SDK has built in support for returning errors when there is no network connection, SMNetworkReachability provides an interface for developers to manually check if the device is connected to the network and can in turn reach StackMob.  All the details, including how to subscribe to notifications and set blocks to be executed when the network status changes, can be found in the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMNetworkReachability.html">SMNetworkReachability class reference</a>.</p>
+<p>While the SDK has built in support for returning errors when there is no network connection, SMNetworkReachability provides an interface for developers to manually check if the device is connected to the network and can in turn reach StackMob.  All the details, including how to subscribe to notifications and set blocks to be executed when the network status changes, can be found in the <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMNetworkReachability.html">SMNetworkReachability Class Reference</a>.</p>
 
 <br/>
 
@@ -379,9 +381,61 @@ self.managedObjectContext = [coreDataStore contextForCurrentThread];
 </ul>
 
 
+<p><a name="deprecations">&nbsp;</a></p>
+
+<h2>Deprecations</h2>
+
+<p><strong>v1.2.0</strong></p>
+
+<ul>
+<li><b>(SMCoreDataStore)</b> <i>managedObjectContext</i> property
+
+<ul>
+<li>Use <i>contextForCurrentThread</i></li>
+</ul>
+</li>
+<li><b>(SMCoreDataStore)</b> <i>setDefaultMergePolicy:applyToMainThreadContextAndParent:</i>
+
+<ul>
+<li>Use <i>setDefault<b>CoreData</b>MergePolicy:applyToMainThreadContextAndParent:</i></li>
+</ul>
+</li>
+<li><b>(SMNetworkReachability)</b> <i>SMNetworkStatus</i> options
+
+<ul>
+<li>Use <b>SMNetworkStatusUnknown</b>, <b>SMNetworkStatusNotReachable</b>, <b>SMNetworkStatusReachable</b></li>
+</ul>
+</li>
+</ul>
+
+
+<p><strong>v1.4.0</strong></p>
+
+<ul>
+<li><b>(SMClient)</b> <i>loginWithFacebookToken:options:onSuccess:onFailure:</i>
+
+<ul>
+<li>Use <i>loginWithFacebookToken:<b>createUserIfNeeded:</b>options:<b>successCallbackQueue:failureCallbackQueue:</b>onSuccess:onFailure:</i></li>
+</ul>
+</li>
+<li><b>(SMClient)</b> <i>loginWithTwitterToken:twitterSecret:options:onSuccess:onFailure:</i>
+
+<ul>
+<li>Use <i>loginWithTwitterToken:twitterSecret:<b>createUserIfNeeded:</b>options:<b>successCallbackQueue:failureCallbackQueue:</b>onSuccess:onFailure:</i></li>
+</ul>
+</li>
+<li><b>(SMClient)</b> <i>loginWithGigyaUID:uidSignature:signatureTimestamp:options:onSuccess:onFailure:</i>
+
+<ul>
+<li>Use <i>loginWithGigyaUID:uidSignature:signatureTimestamp:options:<b>successCallbackQueue:failureCallbackQueue:</b>onSuccess:onFailure:</i></li>
+</ul>
+</li>
+</ul>
+
+
 <p><a name="class_index">&nbsp;</a></p>
 
-<h2>Index</h2>
+<h2>Index of Classes</h2>
 						
 						
 					</div>
@@ -423,6 +477,8 @@ self.managedObjectContext = [coreDataStore contextForCurrentThread];
 							<li><a href="Classes/SMQuery.html">SMQuery</a></li>
 							
 							<li><a href="Classes/SMRequestOptions.html">SMRequestOptions</a></li>
+							
+							<li><a href="Classes/SMSyncedObject.html">SMSyncedObject</a></li>
 							
 							<li><a href="Classes/SMUserManagedObject.html">SMUserManagedObject</a></li>
 							
@@ -470,7 +526,7 @@ self.managedObjectContext = [coreDataStore contextForCurrentThread];
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-03-27)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-05-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						

@@ -70,6 +70,8 @@
 	
 	<option value="//api/name/changeLoggedInUserPasswordFrom:to:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- changeLoggedInUserPasswordFrom:to:onSuccess:onFailure:</option>
 	
+	<option value="//api/name/coreDataStore">&nbsp;&nbsp;&nbsp;&nbsp;- coreDataStore</option>
+	
 	<option value="//api/name/coreDataStoreWithManagedObjectModel:">&nbsp;&nbsp;&nbsp;&nbsp;- coreDataStoreWithManagedObjectModel:</option>
 	
 	<option value="//api/name/createUserWithFacebookToken:onSuccess:onFailure:">&nbsp;&nbsp;&nbsp;&nbsp;- createUserWithFacebookToken:onSuccess:onFailure:</option>
@@ -267,6 +269,8 @@
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/changeLoggedInUserPasswordFrom:to:onSuccess:onFailure:">changeLoggedInUserPasswordFrom:to:onSuccess:onFailure:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/coreDataStore">coreDataStore</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/coreDataStoreWithManagedObjectModel:">coreDataStoreWithManagedObjectModel:</a></span></li>
 	
@@ -630,6 +634,13 @@ via <a href="#//api/name/setDefaultClient:">setDefaultClient:</a>.</p></span>
 	<span class="tooltip">
 		<code><a href="#//api/name/dataStore">&ndash;&nbsp;dataStore</a></code>
 		<span class="tooltip"><p>A <code>dataStore</code> instance should be used to make direct REST calls to StackMob.  See <a href="../Classes/SMDataStore.html">SMDataStore</a> for basic CRUD methods.</p></span>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/coreDataStore">&ndash;&nbsp;coreDataStore</a></code>
+		<span class="tooltip"><p>An <code>SMCoreDataStore</code> instance, available only after initializing a core data store.</p></span>
 	</span>
 	
 	
@@ -1586,6 +1597,52 @@ via <a href="#//api/name/setDefaultClient:">setDefaultClient:</a>.</p>
 		<h4 class="method-subtitle">Discussion</h4>
 		<p>This would be hooked up to a password reset form. Changing a password via the regular Datastore API
 will result in an error. This API requires the user to be logged in as well as to supply their old password.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">SMClient.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/coreDataStore" title="coreDataStore"></a>
+	<h3 class="subsubtitle method-title">coreDataStore</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>An <code>SMCoreDataStore</code> instance, available only after initializing a core data store.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (SMCoreDataStore *)coreDataStore</code></div>
+
+    
+	
+	
+	
+	
+	
+	<div class="method-subsection availability">
+		<h4 class="method-subtitle parameter-title">Availability</h4>
+		<p>Available in iOS SDK 2.0.0 and later.</p>
+	</div>
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>To initialize, use <a href="#//api/name/coreDataStoreWithManagedObjectModel:">coreDataStoreWithManagedObjectModel:</a>.</p>
 	</div>
 	
 	
@@ -4289,7 +4346,7 @@ will result in an error. This API requires the user to be logged in as well as t
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
 		<p>The credentials should match a existing user object that has a linked Twitter account, via either
-<a href="#//api/name/createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:">createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:</a>, or <a href="#//api/name/linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:">linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:</a>.</p><div class="note"><p><strong>Note:</strong> Deprecated in version 1.4.0. Use &lt;loginWithTwitterToken:twitterSecret:createUserIfNeeded:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:>.</p></div>
+<a href="#//api/name/createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:">createUserWithTwitterToken:twitterSecret:onSuccess:onFailure:</a>, or <a href="#//api/name/linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:">linkLoggedInUserWithTwitterToken:twitterSecret:onSuccess:onFailure:</a>.</p><div class="note"><p><strong>Note:</strong> Deprecated in version 1.4.0. Use <a href="#//api/name/loginWithTwitterToken:twitterSecret:createUserIfNeeded:usernameForCreate:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:">loginWithTwitterToken:twitterSecret:createUserIfNeeded:usernameForCreate:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:</a>.</p></div>
 	</div>
 	
 	
@@ -5846,7 +5903,7 @@ password. They can then use that temporary password to login with <a href="#//ap
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-03-27)</span><br />
+						<p><span class="copyright">&copy; 2013 StackMob. All rights reserved. (Last updated: 2013-05-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.0.5 (build 789)</a>.</span></p>
 						
