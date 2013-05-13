@@ -54,7 +54,7 @@ extern SMMergePolicy const SMMergePolicyServerModifiedWins;
  
  If you want to do your own context creation, use the <persistentStoreCoordinator> property to ensure your objects are being saved to the StackMob server.
  
- The default Core Datamerge policy set for all contexts created by this class is `NSMergeByPropertyObjectTrumpMergePolicy`.  Use <setDefaultMergePolicy:applyToMainThreadContextAndParent:> to change the default.
+ The default Core Data merge policy set for all contexts created by this class is `NSMergeByPropertyObjectTrumpMergePolicy`.  Use <setDefaultMergePolicy:applyToMainThreadContextAndParent:> to change the default.
  
  ## Using the Cache and Offline Sync ##
  

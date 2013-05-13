@@ -35,7 +35,7 @@
  
  The <executeFetchRequest:onSuccess:onFailure:> method is a callback-based method which will perform the fetch asynchronously, off of the main thread.  Callbacks will be performed on the main thread.
  
- Fetch methods work by copying the fetch over to a background context, which operates on a differnt queue and returns `NSManagedObjectID` isntances to the calling context.  Those IDs are then translated into faulted instances of `NSManagedObject` by the calling context, unless otherwise specified.  
+ Fetch methods work by copying the fetch over to a background context, which operates on a different queue and returns `NSManagedObjectID` instances to the calling context.  Those IDs are then translated into faulted instances of `NSManagedObject` by the calling context, unless otherwise specified.
  
  To specify whether to return instances of `NSManagedObject` or `NSManagedObjectID`, use <executeFetchRequest:returnManagedObjectIDs:onSuccess:onFailure:>.
  
@@ -53,7 +53,7 @@
  <a name="pr_options"></a>
  ## Per Request Options ##
  
- Each type of method (asynchronous/synchronous save/fetch) has an overloadeded method declaration with a parameter that takes an instance of <SMRequestOptions>.  The parameter name in all methods is called <i>options</i>.  This allows you to provide a custom SMRequestOptions instance that will be applied to all calls in that request. For example, provide a SMRequestOptions instance with the <i>isSecure</i> property set to YES if you wanted a specific save request to run over SSL i.e. all inserts/updates/deletes for that request will be sent over SSL.
+ Each type of method (asynchronous/synchronous save/fetch) has an overloaded method declaration with a parameter that takes an instance of <SMRequestOptions>.  The parameter name in all methods is called <i>options</i>.  This allows you to provide a custom SMRequestOptions instance that will be applied to all calls in that request. For example, provide a SMRequestOptions instance with the <i>isSecure</i> property set to YES if you wanted a specific save request to run over SSL i.e. all inserts/updates/deletes for that request will be sent over SSL.
  
  **Note:** Not all options provided by the SMRequestOptions class are taken into account during save/fetch requests.  The following options are currently safe to customize and will override the default for the duration of the request:
  

@@ -135,7 +135,7 @@ If you want to make direct REST-based calls to the Datastore, check out the [SMD
 
 ### Caching System
 
-Included with version 1.4.0+ of the SDK is a caching system built in to the Core Data Integration to allow for local fetching of objects which have previously been fetched from the server.  See the [SMCoreDataStore class reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) for details on how to turn on the cache, set the cache policy, manually purge the cache, etc.
+Included with version 1.4.0+ of the SDK is a caching system built in to the Core Data Integration to allow for local fetching of objects which have previously been fetched from the server.  See the [SMCoreDataStore Class Reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) for details on how to turn on the cache, set the cache policy, manually purge the cache, etc.
 
 <br/>
 
@@ -163,7 +163,7 @@ All the details on how to set up your application for push can be found in the [
 
 ### Checking Network Reachability
 
-While the SDK has built in support for returning errors when there is no network connection, SMNetworkReachability provides an interface for developers to manually check if the device is connected to the network and can in turn reach StackMob.  All the details, including how to subscribe to notifications and set blocks to be executed when the network status changes, can be found in the [SMNetworkReachability class reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMNetworkReachability.html).
+While the SDK has built in support for returning errors when there is no network connection, SMNetworkReachability provides an interface for developers to manually check if the device is connected to the network and can in turn reach StackMob.  All the details, including how to subscribe to notifications and set blocks to be executed when the network status changes, can be found in the [SMNetworkReachability Class Reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMNetworkReachability.html).
 
 <br/>
 ### Error Codes

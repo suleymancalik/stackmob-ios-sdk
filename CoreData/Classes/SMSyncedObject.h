@@ -63,7 +63,7 @@ typedef enum {
 /**
  Initialize a new instance of `SMSyncedObject`.  
  
- You should not need to intantiate an instance of this class, as it is used internally during the sync with server process.
+ You should not need to instantiate an instance of this class, as it is used internally during the sync with server process.
  
  @param objectID The object ID.
  @param actionTaken The action taken for this object during the sync.
