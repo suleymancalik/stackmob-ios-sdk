@@ -1692,7 +1692,7 @@
 				DEPLOYMENT_POSTPROCESSING = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDK_VERSION = 1.4.0;
+				SDK_VERSION = 2.0.0beta.1;
 				STRIP_INSTALLED_PRODUCT = YES;
 			};
 			name = Debug;
@@ -1703,7 +1703,7 @@
 				DEPLOYMENT_POSTPROCESSING = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDK_VERSION = 1.4.0;
+				SDK_VERSION = 2.0.0beta.1;
 				STRIP_INSTALLED_PRODUCT = YES;
 			};
 			name = Release;

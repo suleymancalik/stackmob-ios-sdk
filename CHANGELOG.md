@@ -1,16 +1,35 @@
 <h2>StackMob iOS SDK Change Log</h2>
 
+<h3>v2.0.0beta.1 - May 13, 2013</h3>
+
+**Features**
+
+* Offline Sync - Save and read data when a device is offline. When network connection is restored, data will be synced with the server. Includes fully customizable conflict resolution behavior. Visit the <a href="https://developer.stackmob.com/ios-sdk/offline-sync-guide" Offline Sync Guide</a> for all the details and available settings.
+* Add <i>initWithEntityName:insertIntoManagedObjectContext:</i> method to <code>SMUserManagedObject</code> class, which takes an entity name in string form versus an instance of <code>NSEntityDescription</code>
+* Support "ordered" property on one-to-many relationships. (issue #39)
+* CocoaPods file has been updated to include OSX support for 10.7+. Include <code>platform :osx, '10.7'</code> in your Podfile.
+
+**Fixes**
+
+* Boolean predicates fix.  Add boolean predicates to fetch requests in the form <code>[NSPredicate predicateWithFormat:@"field == %@", [NSNumber numberWithBool:YES]]</code>. (issue #31)
+* Fix where predicates arguments containing instances of <code>NSManagedObject</code> or <code>NSManagedObjectID</code> were not properly translated for cache fetches. The cache currently only accepts Comparison Predicates of this form.  
+* Forgot password API always sends "username" key. (issue #37)
+
+**Upgrade Notes**
+
+This is a major upgrade. If you are currently using the cache functionality, you should either call the <code>SMCoreDataStore</code> <code><i>resetCache</i></code> method once or remove the application from the device, as v2.0.0+ includes a new and improved cache structure.   
+
 <h3>v1.4.0 - March 27, 2013</h3>
 
 **Features**
 
-* OR query support, allowing, for example, the ability to query "todo where A AND (B OR (C AND D) OR E)".  See <a href="http://developer.stackmob.com/tutorials/ios/Advanced-Queries" target="_blank">Advanced Query Tutorial</a> for all details.
+* OR query support, allowing, for example, the ability to query "todo where A AND (B OR (C AND D) OR E)". See <a href="http://developer.stackmob.com/tutorials/ios/Advanced-Queries" target="_blank">Advanced Query Tutorial</a> for all details.
 * Support for querying where field equals / does not equal the empty string. Using core data, use [NSPredicate predicateWithFormat:@"field == ''"]. Using lower level datastore API, use [query where:field isEqualTo:@""].
 * New method loginWithFacebookToken:createUserIfNeeded:usernameForCreate:onSuccess:onFailure:. Allows login to StackMob using Facebook credentials and optionally create a StackMob user if one doesn't already exist that is linked to the credentials used.
 * New method loginWithTwitterToken:twitterSecret:createUserIfNeeded:usernameForCreate:onSuccess:onFailure:. Allows login to StackMob using Twitter credentials and optionally create a StackMob user if one doesn't already exist that is linked to the credentials used.
 * Token unlinking for Facebook and Twitter - See <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMClient.html" target="_blank">SMClient class reference</a> for method definitions.
 * New SMClient / SMUserSession method setTokenRefreshFailureBlock:.  See <a href="http://stackmob.github.com/stackmob-ios-sdk/Classes/SMUserSession.html#//api/name/setTokenRefreshFailureBlock:" target="_blank">SMUserSession class reference</a> for method definition and examples.
-* Every SMClient method now has an additional method definition which has parameter options for success and failure callback queues.  This is used a lot internally so callbacks are not run on the main thread, but is exposed so you can do the same.
+* Every SMClient method now has an additional method definition which has parameter options for success and failure callback queues. This is used a lot internally so callbacks are not run on the main thread, but is exposed so you can do the same.
 * Availability section to all methods in API reference.
 
 **Update Notes**
@@ -23,7 +42,7 @@
 
 **Features**
 
-* Support for saving and querying geo points through the Core Data integration.  Be sure to include the `CoreLocation` framework in your project.
+* Support for saving and querying geo points through the Core Data integration. Be sure to include the `CoreLocation` framework in your project.
 * `SMGeoPoint` class for easily working with geo points through StackMob.
 * `SMLocationManager` class for abstracting out `CLLocationManager` boiler plate code when working with geo data.
 * Save and Fetch methods with `SMRequestOptions` parameter (options) to allow for custom options per Core Data request - See `NSManagedObjectContext+Concurrency.h` for method details.
@@ -43,11 +62,11 @@ All the details on the features of this release can be found in <a href="https:/
 
 **Features**
 
-* Caching system to allow for local fetching of objects which have previously been fetched from the server.  See SMCoreDataStore class reference for how to.
-* Introduce additional methods for interacting with Core Data.  See new methods in SMCoreDataStore and NSManagedObjectContext+Concurrency class references.
+* Caching system to allow for local fetching of objects which have previously been fetched from the server. See SMCoreDataStore class reference for how to.
+* Introduce additional methods for interacting with Core Data. See new methods in SMCoreDataStore and NSManagedObjectContext+Concurrency class references.
 * Update to internal network request algorithms for improved performance of Core Data saves and fetches.
-* All NSDate attributes are saved on StackMob as integers in ms, rather than seconds.  This allows there not be a mismatch in translation when you also have attributes for createddate and lastmoddate.
-* Every Datastore API method (SMDataStore class reference) now has an additional method definition which has parameter options for success and failure callback queues.  This is used a lot internally so callbacks are not run on the main thread, but is exposed so you can do the same.
+* All NSDate attributes are saved on StackMob as integers in ms, rather than seconds. This allows there not be a mismatch in translation when you also have attributes for createddate and lastmoddate.
+* Every Datastore API method (SMDataStore class reference) now has an additional method definition which has parameter options for success and failure callback queues. This is used a lot internally so callbacks are not run on the main thread, but is exposed so you can do the same.
 
 **Fixes**
   
@@ -59,7 +78,7 @@ All the details on the features of this release can be found in <a href="https:/
 
 **Features**
 
-* Integrate Push Notifications into core SDK.  Separate Push SDK still exists for those using StackMob only for push notifications.
+* Integrate Push Notifications into core SDK. Separate Push SDK still exists for those using StackMob only for push notifications.
 * Expose [SMNetworkReachability](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMNetworkReachability.html) interface for developers to manually monitor network status changes.
 * Requests will return SMError with code -105 (SMNetworkNotReachable) when device has no network connection.
 * Now dependent on SystemConfiguration and MobileCoreServices frameworks, make sure to add them to the "Link Binary With Libraries" section of your target's Build Phases as well as import them somewhere in your project (such as your .pch file).
@@ -75,28 +94,28 @@ All the details on the features of this release can be found in <a href="https:/
 
 **Features**
 
-* Updated SMQuery Geopoint method to take distance in kilometers instead of meters.  New method is _where:isWithin:kilometersOf:_.
+* Updated SMQuery Geopoint method to take distance in kilometers instead of meters. New method is _where:isWithin:kilometersOf:_.
 * Add _optionsWithExpandDepth:_ and _optionsWithReturnedFieldsRestrictedTo:_ methods to SMRequestOptions class. 
-* Provide error message when creating an object with null values for fields.  If you receive an error which states that a field was sent with a value of null and the type cannot be inferred, simply go online to the Manage Schemas section of your StackMob Dashboard and manually add the field with correct data type.  This happens occasionally when working with number types in Core Data.
+* Provide error message when creating an object with null values for fields. If you receive an error which states that a field was sent with a value of null and the type cannot be inferred, simply go online to the Manage Schemas section of your StackMob Dashboard and manually add the field with correct data type. This happens occasionally when working with number types in Core Data.
 
 **Fixes**
 
 * Allow setting of Core Data relationships to nil.
 * Add proper SMRequestOptions headers dictionary initialization.   
-* Change default merge policy of SMCoreDataStore _managedObjectContext_ property to NSMergeByPropertyObjectTrumpMergePolicy.  This translates to "client wins" when there are conflicts for particular objects.  Feel free to change the merge policy at any time by calling the _setMergePolicy:_ method on the managed object context of your SMCoreDataStore instance.
+* Change default merge policy of SMCoreDataStore _managedObjectContext_ property to NSMergeByPropertyObjectTrumpMergePolicy. This translates to "client wins" when there are conflicts for particular objects. Feel free to change the merge policy at any time by calling the _setMergePolicy:_ method on the managed object context of your SMCoreDataStore instance.
 
 <h3>v1.1.1 - Oct 24, 2012</h3>
 
 **Features**
 
-* Full support for Core Data Boolean Data Types.  A Core Data Boolean attribute will map to a Boolean field on StackMob.
-* Removal of 'sm_' prefix for NSManagedObject category helper methods.  Use [managedObject assignObjectId] and [managedObject primaryKeyField].
+* Full support for Core Data Boolean Data Types. A Core Data Boolean attribute will map to a Boolean field on StackMob.
+* Removal of 'sm_' prefix for NSManagedObject category helper methods. Use [managedObject assignObjectId] and [managedObject primaryKeyField].
 * Update SMClient user schema field property names. **userPrimaryKeyField** and **userPasswordField** describe the primary key and password field names for the user schema, respectively.
 
 **Fixes**
 
 * Update fetch request algorithm to support SMUserManagedObject change.
-* Update Core Data object serialization algorithm.  Serialized dictionary sent in request now includes only fields which have been updated since insert or the last call to save.
+* Update Core Data object serialization algorithm. Serialized dictionary sent in request now includes only fields which have been updated since insert or the last call to save.
 * Update SMRequestOptions for proper headers dictionary initialization.
 
 <h3>v1.1.0 - Oct 17, 2012</h3>
@@ -104,7 +123,7 @@ All the details on the features of this release can be found in <a href="https:/
 **Features**
 
 * Removal of SMModel Protocol.  
-* Addition of SMUserManagedObject. Your managed object subclass corresponding to user objects should inherit from this class.  SMUserManagedObject provides methods to securely set passwords for user objects without storing them in Core Data attributes. For all the information on how to update your current code [see this blogpost](http://blog.stackmob.com/?p=3547).
+* Addition of SMUserManagedObject. Your managed object subclass corresponding to user objects should inherit from this class. SMUserManagedObject provides methods to securely set passwords for user objects without storing them in Core Data attributes. For all the information on how to update your current code [see this blogpost](http://blog.stackmob.com/?p=3547).
 * Built for armv7 and armv7s architectures.
 
 <h3>v1.0.1 - Oct 1, 2012</h3>
@@ -152,4 +171,4 @@ All the details on the features of this release can be found in <a href="https:/
 
 **Features**
 
-* Initial release of new and improved iOS SDK.  Core Data integration serves as the biggest change to the way developers interact with the SDK. See [iOS SDK v1.0 beta](https://www.stackmob.com/devcenter/docs/iOS-SDK-v1.0-beta) for more information.
+* Initial release of new and improved iOS SDK. Core Data integration serves as the biggest change to the way developers interact with the SDK. See [iOS SDK v1.0 beta](https://www.stackmob.com/devcenter/docs/iOS-SDK-v1.0-beta) for more information.
