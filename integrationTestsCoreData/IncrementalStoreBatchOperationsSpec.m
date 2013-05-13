@@ -471,13 +471,11 @@ describe(@"Calling refresh block", ^{
                 [[[error userInfo] objectForKey:SMFailedRefreshBlock] shouldBeNil];
                 [[theValue([error code]) should] equal:theValue(SMErrorRefreshTokenFailed)];
                 refreshFailed = YES;
-                NSLog(@"got to token refresh block");
                 syncReturn(semaphore);
             }];
             [moc saveOnSuccess:^(NSArray *results) {
                 syncReturn(semaphore);
             } onFailure:^(NSError *error) {
-                NSLog(@"got here");
             }];
         });
         
