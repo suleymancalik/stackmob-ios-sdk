@@ -93,7 +93,6 @@ There are two ways to persist data to StackMob:
 
 #### Core Data
 
-
 StackMob recommends using Core Data… it provides a powerful and robust object graph management system that otherwise would be a nightmare to implement.  Although it may have a reputation for being pretty complex, the basics are easy to grasp and understand.  If you want to learn the basics, check out <a href="#core_data_references">Core Data References</a> below.
 
 The three main pieces of Core Data are instances of:
@@ -133,9 +132,9 @@ If you want to make direct REST-based calls to the Datastore, check out the [SMD
 
 <br/>
 
-### Caching System
+### Offline Sync System
 
-Included with version 1.4.0+ of the SDK is a caching system built in to the Core Data Integration to allow for local fetching of objects which have previously been fetched from the server.  See the [SMCoreDataStore Class Reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMCoreDataStore.html) for details on how to turn on the cache, set the cache policy, manually purge the cache, etc.
+Included with version 2.0.0+ of the SDK is a sync system built in to the Core Data Integration to allow for local saving and fetching of objects when a device is offline.  When back online, modified data will be synced with the server.  Many settings are available to the developer around cache and merge policies, conflict resolution, etc.  See the [Offline Sync Guide](https://developer.stackmob.com/ios-sdk/offline-sync-guide) for all information.
 
 <br/>
 

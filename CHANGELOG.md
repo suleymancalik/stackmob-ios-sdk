@@ -4,10 +4,10 @@
 
 **Features**
 
-* Offline Sync - Save and read data when a device is offline. When network connection is restored, data will be synced with the server. Includes fully customizable conflict resolution behavior. Visit the <a href="https://developer.stackmob.com/ios-sdk/offline-sync-guide" Offline Sync Guide</a> for all the details and available settings.
-* Add <i>initWithEntityName:insertIntoManagedObjectContext:</i> method to <code>SMUserManagedObject</code> class, which takes an entity name in string form versus an instance of <code>NSEntityDescription</code>
+* Offline Sync - Save and read data when a device is offline. When network connection is restored, data will be synced with the server. Includes fully customizable conflict resolution behavior. Visit the <a href="https://developer.stackmob.com/ios-sdk/offline-sync-guide" target="blank">Offline Sync Guide</a> for all the details and available settings.
+* Add <code<<i>initWithEntityName:insertIntoManagedObjectContext:</i></code> method to <code>SMUserManagedObject</code> class, which takes an entity name in string form versus an instance of <code>NSEntityDescription</code>
 * Support "ordered" property on one-to-many relationships. (issue #39)
-* CocoaPods file has been updated to include OSX support for 10.7+. Include <code>platform :osx, '10.7'</code> in your Podfile.
+* CocoaPods file has been updated to include OSX support for 10.7+. Include <code>platform :osx, '10.7'</code> in your Podfile. Be sure to add <code>#import <SystemConfiguration/SystemConfiguration.h></code> to your <code>.pch</code> file.
 
 **Fixes**
 
