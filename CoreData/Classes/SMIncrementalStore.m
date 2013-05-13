@@ -435,7 +435,7 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         
         NSTimeInterval newDiff;
         
-        if (clientServerDiff > totalRequestTime) {
+        if (clientServerDiff - totalRequestTime > 0.1) {
             
             newDiff = serverTime - clientTime > 0 ? serverTime - clientTime - totalRequestTime : serverTime - clientTime + totalRequestTime;
         } else {

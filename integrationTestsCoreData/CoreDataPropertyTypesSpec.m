@@ -139,7 +139,7 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
      
      
 });
-/*
+
 describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
     __block NSManagedObjectContext *moc = nil;
     __block Random *booleanObject = nil;
@@ -375,7 +375,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to false", ^{
     });
      
 });
-*/
+
 
 describe(@"Testing CRUD on an Entity with a GeoPoint attribute", ^{
     __block NSManagedObjectContext *moc = nil;
