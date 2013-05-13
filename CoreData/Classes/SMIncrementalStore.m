@@ -219,16 +219,6 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 {
     [self SM_unregisterForNotifications];
     
-    
-#if !OS_OBJECT_USE_OBJC
-    dispatch_queue_t syncQueue = [SMIncrementalStore syncQueue];
-    dispatch_queue_t networkAvailableQueue = [SMIncrementalStore networkAvailabilityQueue];
-    dispatch_group_t networkAvailableGroup = [SMIncrementalStore networkAvailabilityGroup];
-    dispatch_release(syncQueue);
-    dispatch_release(networkAvailableQueue);
-    dispatch_release(networkAvailableGroup);
-#endif
-    
 }
 
 - (void)SM_registerForNotifications

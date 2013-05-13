@@ -206,7 +206,7 @@
         [self attachObjectIdToDictionary:&objectDictionary];
     }
     
-    if (!sendLocalTimestamps) {
+    if (serializeFullObjects && !sendLocalTimestamps) {
         // Remove any instances of createddate or lastmoddate
         [objectDictionary removeObjectForKey:@"createddate"];
         [objectDictionary removeObjectForKey:@"lastmoddate"];
