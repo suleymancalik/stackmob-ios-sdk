@@ -179,10 +179,16 @@
     }
     
     id rhs = comparisonPredicate.rightExpression.constantValue;
-    
+    NSAttributeDescription *attributeDesc = [[[*query entity] attributesByName] objectForKey:comparisonPredicate.leftExpression.keyPath];
     switch (comparisonPredicate.predicateOperatorType) {
         case NSEqualToPredicateOperatorType:
-            if ([rhs isKindOfClass:[NSManagedObject class]]) {
+            if (attributeDesc != nil && [attributeDesc attributeType] == NSBooleanAttributeType) {
+                if (rhs == [NSNumber numberWithBool:YES]) {
+                    rhs = @"true";
+                } else if (rhs == [NSNumber numberWithBool:NO]) {
+                    rhs = @"false";
+                }
+            } else if ([rhs isKindOfClass:[NSManagedObject class]]) {
                 rhs = (NSString *)[self referenceObjectForObjectID:[rhs objectID]];;
             } else if ([rhs isKindOfClass:[NSManagedObjectID class]]) {
                 rhs = (NSString *)[self referenceObjectForObjectID:rhs];
@@ -190,7 +196,13 @@
             [*query where:lhs isEqualTo:rhs];
             break;
         case NSNotEqualToPredicateOperatorType:
-            if ([rhs isKindOfClass:[NSManagedObject class]]) {
+            if (attributeDesc != nil && [attributeDesc attributeType] == NSBooleanAttributeType) {
+                if (rhs == [NSNumber numberWithBool:YES]) {
+                    rhs = @"true";
+                } else if (rhs == [NSNumber numberWithBool:NO]) {
+                    rhs = @"false";
+                }
+            } else if ([rhs isKindOfClass:[NSManagedObject class]]) {
                 rhs = (NSString *)[self referenceObjectForObjectID:[rhs objectID]];;
             } else if ([rhs isKindOfClass:[NSManagedObjectID class]]) {
                 rhs = (NSString *)[self referenceObjectForObjectID:rhs];
