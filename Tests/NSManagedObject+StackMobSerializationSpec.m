@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -262,7 +262,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             describe(@"properties", ^{
                 __block NSDictionary *dictionary = nil;
                 beforeEach(^{
-                    dictionary = [[iMadeYouACookie SMDictionarySerialization] objectForKey:@"SerializedDict"];
+                    dictionary = [[iMadeYouACookie SMDictionarySerialization:NO sendLocalTimestamps:NO] objectForKey:@"SerializedDict"];
                 });
                 /*
                 it(@"includes nil properties", ^{
@@ -279,7 +279,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
             describe(@"relationships", ^{
                 __block NSDictionary *dictionary = nil;
                 beforeEach(^{
-                    dictionary = [[iMadeYouACookie SMDictionarySerialization] objectForKey:@"SerializedDict"];
+                    dictionary = [[iMadeYouACookie SMDictionarySerialization:NO sendLocalTimestamps:NO] objectForKey:@"SerializedDict"];
                 });
                 /*
                 it(@"includes nil relationships", ^{
@@ -289,7 +289,7 @@ describe(@"NSManagedObject_StackMobSerialization", ^{
                 describe(@"circular relationships", ^{
                     it(@"survives circular references", ^{
                         [[[[[[hooman valueForKey:@"lolcats"] anyObject] valueForKey:@"photo"] valueForKey:@"photographer"] should] equal:hooman];
-                        [[hooman SMDictionarySerialization] shouldNotBeNil];
+                        [[hooman SMDictionarySerialization:NO sendLocalTimestamps:NO] shouldNotBeNil];
                     });
                 });
             });
@@ -379,6 +379,73 @@ describe(@"-userPrimaryKeyField", ^{
         });
     });
     
+});
+
+describe(@"sendLocalTimestamps", ^{
+    __block SMClient *client = nil;
+    __block SMCoreDataStore *cds = nil;
+    __block NSManagedObjectContext *moc = nil;
+    beforeEach(^{
+        client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"];
+        [SMClient setDefaultClient:client];
+        
+        // CDS
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        
+        // MOC
+        moc = [cds contextForCurrentThread];
+    });
+    afterEach(^{
+        
+    });
+    it(@"Does not include TS for full objects, no timestamps", ^{
+        NSManagedObject *todo = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
+        [todo setValue:@"title" forKey:@"title"];
+        [todo setValue:@"1234" forKey:[todo primaryKeyField]];
+        [todo setValue:[NSDate date] forKey:@"createddate"];
+        [todo setValue:[NSDate date] forKey:@"lastmoddate"];
+        
+        NSDictionary *serializedDict = [todo SMDictionarySerialization:YES sendLocalTimestamps:NO];
+        [[theValue([[[serializedDict objectForKey:@"SerializedDict"] allKeys] indexOfObject:@"createddate"]) should] equal:theValue(NSNotFound)];
+        [[theValue([[[serializedDict objectForKey:@"SerializedDict"] allKeys] indexOfObject:@"lastmoddate"]) should] equal:theValue(NSNotFound)];
+    });
+    it(@"Does include TS for full objects, yes timestamps", ^{
+        NSManagedObject *todo = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
+        [todo setValue:@"title" forKey:@"title"];
+        [todo setValue:@"1234" forKey:[todo primaryKeyField]];
+        [todo setValue:[NSDate date] forKey:@"createddate"];
+        [todo setValue:[NSDate date] forKey:@"lastmoddate"];
+        
+        NSDictionary *serializedDict = [todo SMDictionarySerialization:YES sendLocalTimestamps:YES];
+        [[theValue([[[serializedDict objectForKey:@"SerializedDict"] allKeys] indexOfObject:@"createddate"]) shouldNot] equal:theValue(NSNotFound)];
+        [[theValue([[[serializedDict objectForKey:@"SerializedDict"] allKeys] indexOfObject:@"lastmoddate"]) shouldNot] equal:theValue(NSNotFound)];
+    });
+    it(@"Does include TS for no full objects, no timestamps", ^{
+        // This scenario for online (no serialize full objects)
+        NSManagedObject *todo = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
+        [todo setValue:@"title" forKey:@"title"];
+        [todo setValue:@"1234" forKey:[todo primaryKeyField]];
+        [todo setValue:[NSDate date] forKey:@"createddate"];
+        [todo setValue:[NSDate date] forKey:@"lastmoddate"];
+        
+        NSDictionary *serializedDict = [todo SMDictionarySerialization:NO sendLocalTimestamps:NO];
+        [[theValue([[[serializedDict objectForKey:@"SerializedDict"] allKeys] indexOfObject:@"createddate"]) shouldNot] equal:theValue(NSNotFound)];
+        [[theValue([[[serializedDict objectForKey:@"SerializedDict"] allKeys] indexOfObject:@"lastmoddate"]) shouldNot] equal:theValue(NSNotFound)];
+    });
+    it(@"Does not include TS for no full objects, yes timestamps", ^{
+        NSManagedObject *todo = [NSEntityDescription insertNewObjectForEntityForName:@"Todo" inManagedObjectContext:moc];
+        [todo setValue:@"title" forKey:@"title"];
+        [todo setValue:@"1234" forKey:[todo primaryKeyField]];
+        [todo setValue:[NSDate date] forKey:@"createddate"];
+        [todo setValue:[NSDate date] forKey:@"lastmoddate"];
+        
+        NSDictionary *serializedDict = [todo SMDictionarySerialization:NO sendLocalTimestamps:YES];
+        [[theValue([[[serializedDict objectForKey:@"SerializedDict"] allKeys] indexOfObject:@"createddate"]) shouldNot] equal:theValue(NSNotFound)];
+        [[theValue([[[serializedDict objectForKey:@"SerializedDict"] allKeys] indexOfObject:@"lastmoddate"]) shouldNot] equal:theValue(NSNotFound)];
+    });
 });
 
 

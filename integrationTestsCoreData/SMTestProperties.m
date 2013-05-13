@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,46 +14,37 @@
  * limitations under the License.
  */
 
-#import "SMNetworkReachabilityHelper.h"
-#import "SMIntegrationTestHelpers.h"
+#import "SMTestProperties.h"
 
-@implementation SMNetworkReachabilityHelper
-
+@implementation SMTestProperties
 @synthesize client = _client;
+@synthesize cds = _cds;
+@synthesize moc = _moc;
 
 - (id)init
 {
     self = [super init];
     if (self) {
+        // Client
         NSURL *credentialsURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"StackMobCredentials" withExtension:@"plist"];
         NSDictionary *credentials = [NSDictionary dictionaryWithContentsOfURL:credentialsURL];
         NSString *publicKey = [credentials objectForKey:@"PublicKey"];
-        self.client =  [[SMClient alloc] initWithAPIVersion:@"0" publicKey:publicKey];
+        self.client = [[SMClient alloc] initWithAPIVersion:SM_TEST_API_VERSION publicKey:publicKey];
         [NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:@"api.stackmob.com"];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkDidChange:) name:SMNetworkStatusDidChangeNotification object:nil];
+        [SMClient setDefaultClient:self.client];
+        
+        // CDS
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:self.client.publicKey];
+        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
+        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
+        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        self.cds = [self.client coreDataStoreWithManagedObjectModel:aModel];
+        
+        // MOC
+        self.moc = [self.cds contextForCurrentThread];
     }
-    
     return self;
 }
 
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:SMNetworkStatusDidChangeNotification object:nil];
-}
-
-- (void)networkDidChange:(NSNotification *)notification
-{
-    NSLog(@"user info is %@", [notification userInfo]);
-    if ([[[notification userInfo] objectForKey:SMCurrentNetworkStatusKey] intValue] == SMNetworkStatusReachable) {
-        NSLog(@"Reachable");
-    }
-    switch ([[[notification userInfo] objectForKey:SMCurrentNetworkStatusKey] intValue]) {
-        case  SMNetworkStatusReachable:
-            NSLog(@"Reachable via switch statement");
-            break;
-        default:
-            break;
-    }
-}
-
 @end
+

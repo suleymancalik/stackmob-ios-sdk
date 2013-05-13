@@ -19,3 +19,5 @@
 #define OS_OBJECT_USE_OBJC 0 
 
 #endif
+
+#define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);

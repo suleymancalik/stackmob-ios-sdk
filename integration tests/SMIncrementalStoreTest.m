@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <Kiwi/Kiwi.h>
+#import <Kiwi/Kiwi.h> 
 
 #import "StackMob.h"
 #import "SMIntegrationTestHelpers.h"
@@ -509,7 +509,7 @@ describe(@"with fixtures", ^{
             });
             
             it(@"deletes objects with relationships", ^{
-                SM_CORE_DATA_DEBUG = YES;
+                //SM_CORE_DATA_DEBUG = YES;
                 [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
                 __block Person *firstPerson;
                 __block NSString *firstPersonName;
@@ -671,7 +671,7 @@ describe(@"Testing CRUD on an entity with camelCase property names", ^{
     __block SMCoreDataStore *cds = nil;
     __block NSManagedObject *camelCaseObject = nil;
     beforeEach(^{
-        SM_CORE_DATA_DEBUG = YES;
+        //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];

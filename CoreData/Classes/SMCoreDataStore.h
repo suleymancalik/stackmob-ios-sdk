@@ -15,8 +15,11 @@
  */
 
 #import "SMDataStore.h"
+#import "SMSyncedObject.h"
 
 extern NSString *const SMSetCachePolicyNotification;
+extern NSString *const SMDirtyQueueNotification;
+
 extern BOOL SM_CACHE_ENABLED;
 
 typedef enum {
@@ -25,6 +28,18 @@ typedef enum {
     SMCachePolicyTryNetworkElseCache = 2,
     SMCachePolicyTryCacheElseNetwork = 3,
 } SMCachePolicy;
+
+typedef enum {
+    SMClientObject = 0,
+    SMServerObject = 1,
+} SMMergeObjectKey;
+
+typedef int (^SMMergePolicy)(NSDictionary *clientObject, NSDictionary *serverObject, NSDate *serverBaseLastModDate);
+typedef void (^SMSyncCallback)(NSArray *objects);
+
+extern SMMergePolicy const SMMergePolicyClientWins;
+extern SMMergePolicy const SMMergePolicyLastModifiedWins;
+extern SMMergePolicy const SMMergePolicyServerModifiedWins;
 
 @class SMIncrementalStore;
 
@@ -35,71 +50,17 @@ typedef enum {
  
  With your `SMCoreDataStore` object you can retrieve a managed object context configured with a `SMIncrementalStore` as it's persistent store to allow communication to StackMob from Core Data.  Obtain a managed object context for your thread using <contextForCurrentThread>.  You can obtain the managed object context for the main thread at any time with <mainThreadContext>.
  
- When saving or fetching from the context, use methods from the <NSManagedObjectContext+Concurrency> category to ensure proper asynchronous saving and fetching off of the main thread.
+ When saving or fetching from the context, use methods from the <a href="http://stackmob.github.io/stackmob-ios-sdk/Categories/NSManagedObjectContext+Concurrency.html" target="_blank">NSManagedObjectContext+Concurrency category</a> to ensure proper asynchronous saving and fetching off of the main thread.
  
  If you want to do your own context creation, use the <persistentStoreCoordinator> property to ensure your objects are being saved to the StackMob server.
  
- The default merge policy set for all contexts created by this class is NSMergeByPropertyObjectTrumpMergePolicy.  Use <setDefaultMergePolicy:applyToMainThreadContextAndParent:> to change the default.
+ The default Core Data merge policy set for all contexts created by this class is `NSMergeByPropertyObjectTrumpMergePolicy`.  Use <setDefaultMergePolicy:applyToMainThreadContextAndParent:> to change the default.
  
- ## Using the Cache ##
+ ## Using the Cache and Offline Sync ##
  
- The Core Data integration in version 1.2.0 includes a caching system to allow for local fetching of objects which have previously been fetched from the server.  It is also used to fill faulted objects which have been previously fetched.
+ All the settings for turing on/off the cache, managing policies and sync callbacks, and initializing the sync process can be found in the <a href="https://developer.stackmob.com/ios-sdk/offline-sync-guide" target="_blank">Offline Sync Guide</a>.
  
- The caching system is off by default.  To turn it on, simply set the SM_CACHE_ENABLED flag to YES in your App Delegate file, before you initialize a Core Data store.
- 
- ### How It Works ###
- 
- The cache itself is a Core Data stack, equipped with its own private managed object context and persistent store coordinator.  It uses SQLite as the persistent store, which is what most standard applications using Core Data use as the local persistent store.  By implementing the cache as a Core Data stack, results from fetches performed on the network can be cached independently of their original request. You can then perform subsequent local fetches that are able to return subsets of the originally cached data.  For example, suppose you are building a To-Do application which has the option to filter tasks by date, subject, etc.  These filters would translate to conditional fetches on the same list of tasks.  Rather than needing to execute a fetch on the network every time your query conditions change, you can instead grab all the tasks with one network call at the beginning and perform the conditional fetches on that data locally, without needing to fetch from the network again. 
- 
- After successfully performing a fetch from the StackMob database, an equivalent fetch is performed locally on the cache and those results are replaced with the up-to-date objects from the server.  The results are returned as faulted managed objects and accessing an object's values will cause Core Data to fill the fault using the cache.
- 
- **Important:** Regardless of the cache policy, results from fetches on the network are cached and used internally to fill faults.  This prevents a network call from happening everytime an object's values are brought into memory by Core Data.
- 
- **Also Important:** There are a few scenarios where filling faults require network calls.  The first is when an object is faulted but does not have an entry in the cache.  This happens when a managed object context obtains a managed object ID reference to a faulted object that is not in the cache.  The second is when trying to access values of related objects which themselves have not been cached.  If either of these situations arise and there is no network connection Core Data may throw the "Core Data could not fulfill a fault" exception.  
- 
- ### Caching Policies ###
- 
- There are 4 policies
- 
- * SMCachePolicyTryNetworkOnly - This is the default policy, the equivalent of not fetching from the cache at all.
- * SMCachePolicyTryCacheOnly - This policy directs all fetches to the cache, never trying the network.
- * SMCachePolicyTryNetworkElseCache - This policy will try to fetch from the network, and if an error occurs because there is no network connection the fetch is performed on the cache.
- * SMCachePolicyTryCacheElseNetwork - This policy will start by performing the fetch on the cache and returning if there are results.  If there are no results, the fetch is performed on the network and those up-to-date results from the server will be cached and returned.  If there is an error because there is no network connection the original empty array is returned.
- 
- ### How To Change the Caching Policy ###
- 
- You can change the caching policy for your SMCoreDataStore instance at any time by setting its cachePolicy property.
- 
- If you know you want one cache policy when you are online and one when you are offline, you can use the SMNetworkReachability method setNetworkStatusChangeBlockWithCachePolicyReturn: and return which cache policy to set based on the network status.  An SMNetworkReachability instance is initialized in the user session, under the networkMonitor property.  For example, to set a network status change block after you initialize your client, do the following:
- 
-        SMClient *client = [[SMClient alloc] initWithAPIVersion:@"0" publicKey:@"XXXX"];
-        SMCoreDataStore *coreDataStore = [client coreDataStoreWithManagedObjectModel:myModel];
-        [client.session.networkMonitor setNetworkStatusChangeBlockWithCachePolicyReturn:^SMCachePolicy(SMNetworkStatus status) {
-                if (status == Reachable) {
-                    return SMCachePolicyTryNetworkElseCache;
-                } else {
-                    return SMCachePolicyTryCacheOnly;
-                }
-        }];
- 
- ### Manually Purging the Cache ###
- 
- At any time you can purge the cache manually of:
- 
- * An object by providing it's managed object ID.
- * A group of objects by providing an array of managed object IDs.
- * A group of objects by providing an array of managed objects, which are converted to IDs before processed on a background thread.
- * A group of objects by providing the name of their entity.
- * The entire cache (Reset the thing).
- 
- Check out the Manually Purging the Cache section for all the methods.
- 
- ### Turning Off the Cache Completely ###
- 
- To turn off all caching functionality, including internal caching used for fault filling, set the **SM_CACHE_ENABLED** flag to NO in your App Delegate file, before you initialize a instance of SMCoreDataStore.
- 
- 
- @note You should not have to initialize an instance of this class directly.  Instead, initialize an instance of <SMClient> and use the method <coreDataStoreWithManagedObjectModel:> to retrieve an instance completely configured and ready to communicate to StackMob.
+ @note You should not have to initialize an instance of this class directly.  Instead, initialize an instance of <SMClient> and use the method `coreDataStoreWithManagedObjectModel:` to retrieve an instance completely configured and ready to communicate to StackMob.
  */
 @interface SMCoreDataStore : SMDataStore
 
@@ -131,6 +92,7 @@ typedef enum {
  This property is deprecated. Use <contextForCurrentThread> to obtain a properly initialized managed object context.
  
  @since Available in iOS SDK 1.0.0 and later.
+ 
  @note Deprecated in version 1.2.0. Use <contextForCurrentThread>.
  */
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext __attribute__((deprecated));
@@ -141,6 +103,105 @@ typedef enum {
  @since Available in iOS SDK 1.2.0 and later.
  */
 @property (nonatomic) SMCachePolicy cachePolicy;
+
+/**
+ The queue used to execute sync callbacks (success and failure).
+ 
+ Default is main thread.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic) dispatch_queue_t syncCallbackQueue;
+
+/**
+ Boolean indicating whether a sync with the server is in progress.
+ 
+ YES if a sync is in progress, otherwise NO.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic) BOOL syncInProgress;
+
+/**
+ Boolean indicating whether to send the `createddate` and `lastmoddate` keys and values in a request payload (during sync only).
+ 
+ By default, the `createddate` and `lastmoddate` fields are set by the server. If you want these values to reflect the last local save, regardless of network connection, set this property to YES and the client will send them in request payloads during sync requests.
+ 
+ @note This flag is only taken under consideration during a sync, where objects modified offline may have been assigned timestamps.  Saves when online go directly to the server, so the server sets the fields.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic) BOOL sendLocalTimestamps;
+
+/**
+ During sync, the global merge policy used to fix conflicts.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic, strong) SMMergePolicy defaultSMMergePolicy;
+
+/**
+ When syncing dirty inserted objects, the merge policy used to fix conflicts.
+ 
+ Set this property only if you want a different merge policy other than the default to use for insert conflicts.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic, strong) SMMergePolicy insertsSMMergePolicy;
+
+/**
+ When syncing dirty updated objects, the merge policy used to fix conflicts.
+ 
+ Set this property only if you want a different merge policy other than the default to use for update conflicts.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic, strong) SMMergePolicy updatesSMMergePolicy;
+
+/**
+ When syncing dirty deletes objects, the merge policy used to fix conflicts.
+ 
+ Set this property only if you want a different merge policy other than the default to use for delete conflicts.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic, strong) SMMergePolicy deletesSMMergePolicy;
+
+/**
+ Property which holds a callback executed when inserts on the server fail during a sync.
+ 
+ Set using <setSyncCallbackForFailedInserts:>.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic, strong, setter = setSyncCallbackForFailedInserts:) SMSyncCallback syncCallbackForFailedInserts;
+
+/**
+ Property which holds a callback executed when updates on the server fail during a sync.
+ 
+ Set using <setSyncCallbackForFailedUpdates:>.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic, strong, setter = setSyncCallbackForFailedUpdates:) SMSyncCallback syncCallbackForFailedUpdates;
+
+/**
+ Property which holds a callback executed when deletes on the server fail during a sync.
+ 
+ Set using <setSyncCallbackForFailedDeletes:>.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic, strong, setter = setSyncCallbackForFailedDeletes:) SMSyncCallback syncCallbackForFailedDeletes;
+
+/**
+ Property which holds the callback executed when sync completes.
+ 
+ Set using <setSyncCompletionCallback:>.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+@property (nonatomic, strong, setter = setSyncCompletionCallback:) SMSyncCallback syncCompletionCallback;
 
 /**
  An instance of SMRequestOptions that will be used as the default for all save and fetch calls.
@@ -197,8 +258,22 @@ typedef enum {
  @param apply Whether or not to set mergePolicy as the merge policy for the existing mainThreadContext and its private parent context.
  
  @since Available in iOS SDK 1.2.0 and later.
+ 
+ @note Deprecated in version 2.0.0. Use <setDefaultCoreDataMergePolicy:applyToMainThreadContextAndParent:>.
  */
-- (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply;
+- (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply __deprecated;
+
+/**
+ Sets the merge policy that is set by default to any context returned from <contextForCurrentThread>.
+ 
+ If apply is YES, sets the merge policy of mainThreadContext and its private parent context to mergePolicy.
+ 
+ @param mergePolicy The default merge policy to use going forward.
+ @param apply Whether or not to set mergePolicy as the merge policy for the existing mainThreadContext and its private parent context.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+- (void)setDefaultCoreDataMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply;
 
 ///-------------------------------
 /// @name Manually Purging the Cache
@@ -211,7 +286,7 @@ typedef enum {
  
  @since Available in iOS SDK 1.2.0 and later.
  */
-- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID;
+- (void)purgeCacheOfManagedObjectID:(NSManagedObjectID *)objectID;
 
 /**
  Removes the cache entries for the provided array of NSManagedObject instances.
@@ -220,7 +295,7 @@ typedef enum {
  
  @since Available in iOS SDK 1.2.0 and later.
  */
-- (void)purgeCacheOfMangedObjects:(NSArray *)managedObjects;
+- (void)purgeCacheOfManagedObjects:(NSArray *)managedObjects;
 
 /**
  Removes the cache entries for the provided array of NSManagedObjectID instances.
@@ -247,6 +322,90 @@ typedef enum {
  */
 - (void)resetCache;
 
+///-------------------------------
+/// @name Sync
+///-------------------------------
 
+/**
+ Initiates the sync process in the background.
+ 
+ If a sync is already in progress, this method does nothing.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+- (void)syncWithServer;
+
+/**
+ Returns a Boolean indicating whether an object is potentially out of sync with its server representation.
+ 
+ An object is marked dirty when it is modified and saved while the device is offline.
+ 
+ @param objectID The NSManagedObjectID of the object.
+ 
+ @return YES if the object is dirty, otherwise NO.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+- (BOOL)isDirtyObject:(NSManagedObjectID *)objectID;
+
+/**
+ Removes the "dirty" tag from an object. Optionally purges the object from the cache as well.
+ 
+ Takes an entry from the array passed to a sync error callback.
+ 
+ @param object The object to mark as synced.
+ @param purge A boolean value representing whether the object should be purged from the cache.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+- (void)markFailedObjectAsSynced:(NSDictionary *)object purgeFromCache:(BOOL)purge;
+
+/**
+ Removes the "dirty" tag from all objects in an array. Optionally purges the objects from the cache as well.
+ 
+ Takes an array of entries from the array passed to a sync error callback.
+ 
+ @param objects The objects to mark as synced.
+ @param purge A boolean value representing whether the objects should be purged from the cache.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+- (void)markArrayOfFailedObjectsAsSynced:(NSArray *)objects purgeFromCache:(BOOL)purge;
+
+/**
+ Use to set a callback executed when inserts on the server fail during a sync.
+ 
+ @param block The block to execute when there are failed inserts.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+- (void)setSyncCallbackForFailedInserts:(void (^)(NSArray *objects))block;
+
+/**
+ Use to set a callback executed when updates on the server fail during a sync.
+ 
+ @param block The block to execute when there are failed updates.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+- (void)setSyncCallbackForFailedUpdates:(void (^)(NSArray *objects))block;
+
+/**
+ Use to set a callback executed when deletes on the server fail during a sync.
+ 
+ @param block The block to execute when there are failed deletes.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+- (void)setSyncCallbackForFailedDeletes:(void (^)(NSArray *objects))block;
+
+/**
+ Use to set a callback executed when a sync completes.
+ 
+ @param block The block to execute when a sync with the server completes.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+- (void)setSyncCompletionCallback:(void (^)(NSArray *objects))block;
 
 @end

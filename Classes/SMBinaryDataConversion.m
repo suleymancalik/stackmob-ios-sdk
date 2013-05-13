@@ -17,6 +17,7 @@
 #import "SMBinaryDataConversion.h"
 #import <CommonCrypto/CommonHMAC.h>
 #import "Base64EncodedStringFromData.h"
+#import "SMError.h"
 
 @implementation SMBinaryDataConversion
 
@@ -31,6 +32,26 @@
             name,
             @"base64",
             Base64EncodedStringFromData(data)];
+}
+
++ (NSData *)dataForString:(NSString *)string
+{
+    NSArray *components = [string componentsSeparatedByString:@"base64"];
+    if ([components count] != 2) {
+        [NSException raise:SMExceptionIncompatibleObject format:@"String to be converted to data is not in the correct form.  Make sure this method is only called on attributes which map to binary fields on StackMob and have not yet been saved."];
+    }
+    
+    NSString *stringToDecode = components[1];
+    NSData *dataToReturn = Base64DecodedDataFromString(stringToDecode);
+    
+    return dataToReturn;
+    
+}
+
++ (BOOL)stringContainsURL:(NSString *)value
+{
+    NSRange range = [value rangeOfString:@"Content-Type"];
+    return range.location == NSNotFound;
 }
 
 @end
