@@ -73,6 +73,6 @@
                                       path:(NSString *)path
                                 parameters:(NSDictionary *)parameters;
 
--(void)recordServerTimeDiffFromHeader:(NSString*)header;
+- (void)recordServerTimeDiffFromHeader:(NSString*)header;
 
 @end

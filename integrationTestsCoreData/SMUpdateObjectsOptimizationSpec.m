@@ -33,13 +33,14 @@ describe(@"updating an object only persists changed fields", ^{
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
-        cds = [client coreDataStoreWithManagedObjectModel:aModel];        moc = [cds contextForCurrentThread];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        moc = [cds contextForCurrentThread];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         person = [NSEntityDescription insertNewObjectForEntityForName:@"Person" inManagedObjectContext:moc];
         [person setValue:@"bob" forKey:@"first_name"];
         [person setValue:@"jean" forKey:@"first_name"];
         [person setValue:[person assignObjectId] forKey:[person primaryKeyField]];
-        NSDictionary *personDict = [person SMDictionarySerialization];
+        NSDictionary *personDict = [person SMDictionarySerialization:NO sendLocalTimestamps:NO];
         [[theValue([[[personDict objectForKey:@"SerializedDict"] allKeys] count]) should] equal:theValue(2)];
         
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
@@ -56,7 +57,7 @@ describe(@"updating an object only persists changed fields", ^{
     it(@"should only persist the updated fields", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         [person setValue:@"joe" forKey:@"first_name"];
-        NSDictionary *personDict = [person SMDictionarySerialization];
+        NSDictionary *personDict = [person SMDictionarySerialization:NO sendLocalTimestamps:NO];
         [[[personDict objectForKey:@"SerializedDict"] objectForKey:@"first_name"] shouldNotBeNil];
         [[[personDict objectForKey:@"SerializedDict"] objectForKey:@"person_id"] shouldNotBeNil];
         [[theValue([[[personDict objectForKey:@"SerializedDict"] allKeys] count]) should] equal:theValue(2)];

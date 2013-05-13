@@ -102,19 +102,19 @@ typedef SMCachePolicy (^SMCachePolicyReturnBlock)(SMNetworkStatus status);
 {
     switch (status) {
         case AFNetworkReachabilityStatusReachableViaWiFi:
-            return Reachable;
+            return SMNetworkStatusReachable;
             break;
         case AFNetworkReachabilityStatusNotReachable:
-            return NotReachable;
+            return SMNetworkStatusNotReachable;
             break;
         case AFNetworkReachabilityStatusUnknown:
-            return Unknown;
+            return SMNetworkStatusUnknown;
             break;
         case AFNetworkReachabilityStatusReachableViaWWAN:
-            return Reachable;
+            return SMNetworkStatusReachable;
             break;
         default:
-            return Unknown;
+            return SMNetworkStatusUnknown;
             break;
     }
 }

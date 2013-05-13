@@ -30,6 +30,7 @@
 
 static SMClient *defaultClient = nil;
 
+
 @interface SMClient ()
 
 @property(nonatomic, readwrite, copy) NSString *publicKey;
@@ -49,6 +50,11 @@ static SMClient *defaultClient = nil;
 
 @synthesize session = _SM_session;
 @synthesize coreDataStore = _SM_coreDataStore;
+
+- (SMNetworkReachability *)networkMonitor
+{
+    return self.session.networkMonitor;
+}
 
 + (void)setDefaultClient:(SMClient *)client
 {
@@ -114,6 +120,11 @@ static SMClient *defaultClient = nil;
 - (SMDataStore *)dataStore
 {
     return [[SMDataStore alloc] initWithAPIVersion:self.appAPIVersion session:self.session];
+}
+
+- (SMCoreDataStore *)coreDataStore
+{
+    return _SM_coreDataStore;
 }
 
 - (SMCoreDataStore *)coreDataStoreWithManagedObjectModel:(NSManagedObjectModel *)managedObjectModel

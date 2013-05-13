@@ -29,6 +29,12 @@
 
 @synthesize client = _client;
 
+- (id)initWithEntityName:(NSString *)entityName insertIntoManagedObjectContext:(NSManagedObjectContext *)context
+{
+    NSEntityDescription *entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:context];
+    return [self initWithEntity:entity client:[SMClient defaultClient] insertIntoManagedObjectContext:context];
+}
+
 - (id)initWithEntity:(NSEntityDescription *)entity insertIntoManagedObjectContext:(NSManagedObjectContext *)context
 {
     return [self initWithEntity:entity client:[SMClient defaultClient] insertIntoManagedObjectContext:context];

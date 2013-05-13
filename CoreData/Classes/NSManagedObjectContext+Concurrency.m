@@ -311,16 +311,25 @@
                 } else {
                     dispatch_async(successCallbackQueue, ^{
                         
-                        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-                        [context setPersistentStoreCoordinator:[backgroundContext persistentStoreCoordinator]];
-                        [context performBlock:^{
-                            __block NSArray *managedObjectsToReturn = [resultsOfFetch map:^id(id item) {
-                                NSManagedObject *objectFromCurrentContext = [context objectWithID:item];
-                                [context refreshObject:objectFromCurrentContext mergeChanges:YES];
-                                return objectFromCurrentContext;
-                            }];
-                            successBlock(managedObjectsToReturn);
+                        NSManagedObjectContext *context = nil;
+                        
+                        if ([NSThread isMainThread]) {
+                            context = mainContext;
+                            
+                        } else {
+                            context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+                            [context setPersistentStoreCoordinator:[backgroundContext persistentStoreCoordinator]];
+                            
+                        }
+                        
+                        __block NSArray *managedObjectsToReturn = [resultsOfFetch map:^id(id item) {
+                            NSManagedObject *objectFromCurrentContext = [context objectWithID:item];
+                            [context refreshObject:objectFromCurrentContext mergeChanges:YES];
+                            return objectFromCurrentContext;
                         }];
+                        
+                        successBlock(managedObjectsToReturn);
+                        
                     });
                 }
             }

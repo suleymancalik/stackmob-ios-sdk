@@ -14,6 +14,25 @@
  * limitations under the License.
  */
 
-NSString * Base64EncodedStringFromData(NSData *data);
+#import "SMSyncedObject.h"
 
-NSData * Base64DecodedDataFromString(NSString *strBase64);
+@implementation SMSyncedObject
+@synthesize objectID = _objectID;
+@synthesize actionTaken = _actionTaken;
+
+- (id)initWithObjectID:(id)objectID actionTaken:(SMSyncAction)actionTaken
+{
+    self = [super init];
+    if (self) {
+        if ([objectID isKindOfClass:[NSManagedObjectID class]]) {
+            self.objectID = (NSManagedObjectID *)objectID;
+        } else {
+            self.objectID = (NSString *)objectID;
+        }
+        self.actionTaken = actionTaken;
+    }
+    
+    return self;
+}
+
+@end

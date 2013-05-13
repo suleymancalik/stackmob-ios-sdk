@@ -20,6 +20,7 @@
 #import "SMIntegrationTestHelpers.h"
 #import "SMCoreDataIntegrationTestHelpers.h"
 #import "User3.h"
+#import "SMTestProperties.h"
 
 SPEC_BEGIN(SMIncrementalStoreFetchTest)
 
@@ -498,49 +499,43 @@ describe(@"with fixtures", ^{
     });
 });
 
+
+
 describe(@"OR query from network should return same as cache", ^{
-    __block NSManagedObjectContext *moc = nil;
-    __block SMClient *client = nil;
-    __block SMCoreDataStore *cds = nil;
     __block User3 *user1 = nil;
     __block User3 *user2 = nil;
     __block User3 *user3 = nil;
     __block NSString *user1ID = nil;
     __block NSString *user2ID = nil;
     __block NSString *user3ID = nil;
+    __block SMTestProperties *testProperties = nil;
     beforeEach(^{
         // create a bunch of users
         SM_CACHE_ENABLED = YES;
-        client = [SMIntegrationTestHelpers defaultClient];
-        [SMClient setDefaultClient:client];
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
-        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
-        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
-        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
-        cds = [client coreDataStoreWithManagedObjectModel:aModel];
-        moc = [cds contextForCurrentThread];
-        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        [cds setCachePolicy:SMCachePolicyTryCacheElseNetwork];
+        testProperties = [[SMTestProperties alloc] init];
+        [testProperties.client setUserSchema:@"User3"];
+        //[[testProperties.client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [testProperties.cds setCachePolicy:SMCachePolicyTryCacheElseNetwork];
         
-        user1 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] insertIntoManagedObjectContext:moc];
+        user1 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:testProperties.moc] insertIntoManagedObjectContext:testProperties.moc];
         user1ID = [NSString stringWithFormat:@"matt%d", arc4random() / 10000];
         [user1 setUsername:user1ID];
         [user1 setEmail:@"matt@matt.com"];
         [user1 setPassword:@"1234"];
         
-        user2 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] insertIntoManagedObjectContext:moc];
+        user2 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:testProperties.moc] insertIntoManagedObjectContext:testProperties.moc];
         user2ID = [NSString stringWithFormat:@"matt%d", arc4random() / 10000];
         [user2 setUsername:user2ID];
         [user2 setEmail:@"bob@bob.com"];
         [user2 setPassword:@"1234"];
         
-        user3 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc] insertIntoManagedObjectContext:moc];
+        user3 = [[User3 alloc] initWithEntity:[NSEntityDescription entityForName:@"User3" inManagedObjectContext:testProperties.moc] insertIntoManagedObjectContext:testProperties.moc];
         user3ID = [NSString stringWithFormat:@"matt%d", arc4random() / 10000];
         [user3 setUsername:user3ID];
         [user3 setEmail:@"kat@kat.com"];
         [user3 setPassword:@"1234"];
         
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:testProperties.moc withBlock:^(NSError *error) {
             if (error != nil) {
                 DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
@@ -548,11 +543,15 @@ describe(@"OR query from network should return same as cache", ^{
         }];
     });
     afterEach(^{
-        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        [moc deleteObject:user1];
-        [moc deleteObject:user2];
-        [moc deleteObject:user3];
-        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
+        //[[testProperties.client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [testProperties.cds setCachePolicy:SMCachePolicyTryCacheElseNetwork];
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"User3"];
+        NSError *fetchError = nil;
+        NSArray *results = [testProperties.moc executeFetchRequestAndWait:fetch error:&fetchError];
+        [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [testProperties.moc deleteObject:obj];
+        }];
+        [SMCoreDataIntegrationTestHelpers executeSynchronousSave:testProperties.moc withBlock:^(NSError *error) {
             if (error != nil) {
                 DLog(@"Error userInfo is %@", [error userInfo]);
                 [error shouldBeNil];
@@ -560,35 +559,36 @@ describe(@"OR query from network should return same as cache", ^{
         }];
         SM_CACHE_ENABLED = NO;
     });
-    it(@"network vs. cache test1", ^{
-        
+    it(@"simple query", ^{
+        [testProperties.client.coreDataStore setCachePolicy:SMCachePolicyTryNetworkOnly];
         // Should only call the network once
-        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        [[[testProperties.client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
         
-        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [[testProperties.client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"User3" inManagedObjectContext:moc];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"User3" inManagedObjectContext:testProperties.moc];
         [fetchRequest setEntity:entity];
         
         NSPredicate *predicate = [NSCompoundPredicate orPredicateWithSubpredicates:[NSArray arrayWithObjects:[NSPredicate predicateWithFormat:@"username == %@", user1ID], [NSPredicate predicateWithFormat:@"email == %@", @"bob@bob.com"], nil]];
         [fetchRequest setPredicate:predicate];
         NSError *anError = nil;
-        NSArray *theResults = [moc executeFetchRequestAndWait:fetchRequest error:&anError];
+        NSArray *theResults = [testProperties.moc executeFetchRequestAndWait:fetchRequest error:&anError];
         [anError shouldBeNil];
-        [[theValue([theResults count]) should] equal:theValue(2)];
+        [[theResults should] haveCountOf:2];
         if ([theResults count] == 2) {
             NSArray *array = [NSArray arrayWithObjects:[[theResults objectAtIndex:0] valueForKey:@"username"], [[theResults objectAtIndex:1] valueForKey:@"username"], nil];
             [[array should] contain:user1ID];
             [[array should] contain:user2ID];
         }
         
-        
+        [testProperties.client.coreDataStore setCachePolicy:SMCachePolicyTryCacheOnly];
         // Second fetch from cache should yeild same results
         NSFetchRequest *secondFetch = [[NSFetchRequest alloc] initWithEntityName:@"User3"];
+        [secondFetch setPredicate:predicate];
         anError = nil;
-        theResults = [moc executeFetchRequestAndWait:secondFetch error:&anError];
+        theResults = [testProperties.moc executeFetchRequestAndWait:secondFetch error:&anError];
         [anError shouldBeNil];
-        [[theValue([theResults count]) should] equal:theValue(2)];
+        [[theResults should] haveCountOf:2];
         if ([theResults count] == 2) {
             NSArray *array = [NSArray arrayWithObjects:[[theResults objectAtIndex:0] valueForKey:@"username"], [[theResults objectAtIndex:1] valueForKey:@"username"], nil];
             [[array should] contain:user1ID];
@@ -600,25 +600,16 @@ describe(@"Advanced OR from network should yeild same results as cache", ^{
     __block NSArray *fixturesToLoad;
     __block NSDictionary *fixtures;
     
-    __block NSManagedObjectContext *moc;
-    __block SMClient *client = nil;
-    __block SMCoreDataStore *cds = nil;
+    __block SMTestProperties *testProperties = nil;
     //[SMCoreDataIntegrationTestHelpers registerForMOCNotificationsWithContext:[SMCoreDataIntegrationTestHelpers moc]];
     
     beforeEach(^{
         SM_CACHE_ENABLED = YES;
+        testProperties = [[SMTestProperties alloc] init];
         fixturesToLoad = [NSArray arrayWithObjects:@"person", nil];
         fixtures = [SMIntegrationTestHelpers loadFixturesNamed:fixturesToLoad];
-        client = [SMIntegrationTestHelpers defaultClient];
-        [SMClient setDefaultClient:client];
-        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
-        NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
-        NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
-        NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
-        cds = [client coreDataStoreWithManagedObjectModel:aModel];
-        moc = [cds contextForCurrentThread];
-        [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        [cds setCachePolicy:SMCachePolicyTryCacheElseNetwork];
+        [[testProperties.client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
+        [testProperties.cds setCachePolicy:SMCachePolicyTryCacheElseNetwork];
     });
     
     afterEach(^{
@@ -626,7 +617,7 @@ describe(@"Advanced OR from network should yeild same results as cache", ^{
         SM_CACHE_ENABLED = NO;
     });
     it(@"single or", ^{
-        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        [[[testProperties.client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
         // Person where:
         // armor_class = 17 || first_name == "Jonah"
         // Should return Matt and Jonah
@@ -635,7 +626,7 @@ describe(@"Advanced OR from network should yeild same results as cache", ^{
         NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
         [request setPredicate:allOrs];
         NSError *error = nil;
-        NSArray *results = [moc executeFetchRequestAndWait:request error:&error];
+        NSArray *results = [testProperties.moc executeFetchRequestAndWait:request error:&error];
         [error shouldBeNil];
         [[results should] haveCountOf:2];
         if ([results count] == 2) {
@@ -648,7 +639,7 @@ describe(@"Advanced OR from network should yeild same results as cache", ^{
         NSFetchRequest *request2 = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
         [request2 setPredicate:allOrs];
         error = nil;
-        results = [moc executeFetchRequestAndWait:request error:&error];
+        results = [testProperties.moc executeFetchRequestAndWait:request error:&error];
         [error shouldBeNil];
         [[results should] haveCountOf:2];
         if ([results count] == 2) {
@@ -658,7 +649,7 @@ describe(@"Advanced OR from network should yeild same results as cache", ^{
         }
     });
     it(@"multiple ors", ^{
-        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        [[[testProperties.client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
         // Person where:
         // armor_class < 17 && ((first_name == "Jonah" && last_name == "Williams) || first_name == "Jon" || company == "Carbon Five")
         // Should return Jon and Jonah
@@ -680,7 +671,7 @@ describe(@"Advanced OR from network should yeild same results as cache", ^{
         NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
         [request setPredicate:predicateForFetch];
         NSError *error = nil;
-        NSArray *results = [moc executeFetchRequestAndWait:request error:&error];
+        NSArray *results = [testProperties.moc executeFetchRequestAndWait:request error:&error];
         [error shouldBeNil];
         [[results should] haveCountOf:2];
         if ([results count] == 2) {
@@ -693,7 +684,7 @@ describe(@"Advanced OR from network should yeild same results as cache", ^{
         NSFetchRequest *request2 = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
         [request2 setPredicate:predicateForFetch];
         error = nil;
-        results = [moc executeFetchRequestAndWait:request error:&error];
+        results = [testProperties.moc executeFetchRequestAndWait:request error:&error];
         [error shouldBeNil];
         [[results should] haveCountOf:2];
         if ([results count] == 2) {
@@ -704,7 +695,7 @@ describe(@"Advanced OR from network should yeild same results as cache", ^{
         
     });
     it(@"multiple ands in or", ^{
-        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        [[[testProperties.client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
         // Person where:
         // armor_class < 17 && ((first_name == "Jonah" && last_name == "Williams) || (first_name == "Jon" && last_name == "Cooper") || company == "Carbon Five")
         // Should return Jon and Jonah
@@ -729,7 +720,7 @@ describe(@"Advanced OR from network should yeild same results as cache", ^{
         NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
         [request setPredicate:predicateForFetch];
         NSError *error = nil;
-        NSArray *results = [moc executeFetchRequestAndWait:request error:&error];
+        NSArray *results = [testProperties.moc executeFetchRequestAndWait:request error:&error];
         [error shouldBeNil];
         [[results should] haveCountOf:2];
         if ([results count] == 2) {
@@ -742,7 +733,7 @@ describe(@"Advanced OR from network should yeild same results as cache", ^{
         NSFetchRequest *request2 = [[NSFetchRequest alloc] initWithEntityName:@"Person"];
         [request2 setPredicate:predicateForFetch];
         error = nil;
-        results = [moc executeFetchRequestAndWait:request error:&error];
+        results = [testProperties.moc executeFetchRequestAndWait:request error:&error];
         [error shouldBeNil];
         [[results should] haveCountOf:2];
         if ([results count] == 2) {
@@ -767,6 +758,8 @@ describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^
         // create a bunch of users
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [client setUserSchema:@"User3"];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
@@ -801,9 +794,12 @@ describe(@"Fetch request on User which inherits from the SMUserManagedObject", ^
     });
     afterEach(^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        [moc deleteObject:user1];
-        [moc deleteObject:user2];
-        [moc deleteObject:user3];
+        NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"User3"];
+        NSError *fetchError = nil;
+        NSArray *results = [moc executeFetchRequestAndWait:fetch error:&fetchError];
+        [results enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [moc deleteObject:obj];
+        }];
         [SMCoreDataIntegrationTestHelpers executeSynchronousSave:moc withBlock:^(NSError *error) {
             if (error != nil) {
                 DLog(@"Error userInfo is %@", [error userInfo]);
@@ -852,6 +848,8 @@ describe(@"fetch requests for managed objects", ^{
         // create a bunch of users
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [client setUserSchema:@"User3"];
+        [SMCoreDataIntegrationTestHelpers removeSQLiteDatabaseAndMapsWithPublicKey:client.publicKey];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
@@ -953,7 +951,9 @@ describe(@"empty string", ^{
         
         [error shouldBeNil];
         [[results should] haveCountOf:1];
-        [[[[results objectAtIndex:0] valueForKey:@"todoId"] should] equal:@"1234"];
+        if ([results count] == 1) {
+            [[[[results objectAtIndex:0] valueForKey:@"todoId"] should] equal:@"1234"];
+        }
         
     });
     it(@"equal to empty string", ^{

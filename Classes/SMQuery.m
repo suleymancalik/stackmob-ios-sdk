@@ -262,10 +262,10 @@
 - (id)marshalValue:(id)value {
     
     if ([value isKindOfClass:[NSDate class]]) {
+    
+        long double convertedValue = (long double)[value timeIntervalSince1970] * 1000.0000;
         
-        unsigned long long convertedValue = (unsigned long long)[value timeIntervalSince1970] * 1000;
-        
-        return [NSNumber numberWithUnsignedLongLong:convertedValue];
+        return [NSNumber numberWithUnsignedLongLong:floorl(convertedValue)];
     }
     
     return value;

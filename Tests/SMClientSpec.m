@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -500,8 +500,8 @@ describe(@"forgot password", ^{
         beforeEach(^{
             client = [[SMClient alloc] initWithAPIVersion:@"0" apiHost:DEFAULT_API_HOST publicKey:@"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" userSchema:@"dog" userPrimaryKeyField:@"doggyname" userPasswordField:@"doggysecret"];
         });
-        it(@"should pick up the user schema", ^{
-            NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"matt", @"doggyname", nil];
+        it(@"should keep username but replace user schema", ^{
+            NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:@"matt", @"username", nil];
             [[[client.session.regularOAuthClient should] receive] requestWithMethod:@"POST" path:@"dog/forgotPassword" parameters:dict];
             [client sendForgotPaswordEmailForUser:@"matt" onSuccess:nil onFailure:nil];
         }); 

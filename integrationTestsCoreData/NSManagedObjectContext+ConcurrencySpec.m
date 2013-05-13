@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -77,8 +77,8 @@ describe(@"fetching runs in the background", ^{
     });
     it(@"fetches, async method", ^{
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
-        dispatch_group_t group = dispatch_group_create();
-        dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
+        __block dispatch_group_t group = dispatch_group_create();
+        __block dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
         NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
         dispatch_group_enter(group);
         [moc executeFetchRequest:fetch returnManagedObjectIDs:NO successCallbackQueue:queue failureCallbackQueue:queue onSuccess:^(NSArray *results) {
@@ -219,6 +219,7 @@ describe(@"sending options with requests, saves", ^{
         //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [client setUserSchema:@"User3"];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
@@ -251,6 +252,23 @@ describe(@"sending options with requests, saves", ^{
     
     it(@"saveAndWait:options:, sending HTTPS", ^{
         
+        /*
+         First save (not secure):
+         Create person
+         
+         1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         
+         
+         Second save (secure):
+         Get person - called twice
+         Create user
+         Upate person
+         
+         2 x secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         2 x secure enqueueHTTPRequestOperation
+         */
+        
+        //SM_CORE_DATA_DEBUG = YES;
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
@@ -266,8 +284,8 @@ describe(@"sending options with requests, saves", ^{
         
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
+        if (!success) {
+            NSLog(@"no success");
         }
         
         User3 *user = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
@@ -280,12 +298,28 @@ describe(@"sending options with requests, saves", ^{
         options.isSecure = YES;
         error = nil;
         success = [moc saveAndWait:&error options:options];
-        if (success) {
-            NSLog(@"success");
+        if (!success) {
+            NSLog(@"no success");
         }
+        
+        //SM_CORE_DATA_DEBUG = NO;
     });
     it(@"saveAndWait:options:, not sending HTTPS", ^{
         
+        /*
+         First save (not secure):
+         Create person
+         
+         1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock         
+         
+         Second save (not secure):
+         Get person - called twice
+         Create user (secure)
+         Upate person
+         
+         1 x secure + 1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         2 x non-secure enqueueHTTPRequestOperation
+         */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
@@ -301,8 +335,8 @@ describe(@"sending options with requests, saves", ^{
         
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
+        if (!success) {
+            [error shouldBeNil];
         }
         
         User3 *user = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
@@ -315,13 +349,26 @@ describe(@"sending options with requests, saves", ^{
         
         error = nil;
         success = [moc saveAndWait:&error options:options];
-        if (success) {
-            NSLog(@"success");
+        if (!success) {
+            [error shouldBeNil];
         }
     });
     
     it(@"saveOnSuccess, sending HTTPS", ^{
-        
+        /*
+         First save (not secure):
+         Create person
+         
+         1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock         
+         
+         Second save (secure):
+         Get person - called twice
+         Create user
+         Upate person
+         
+         2 x secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         2 x secure enqueueHTTPRequestOperation
+         */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
@@ -336,10 +383,9 @@ describe(@"sending options with requests, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveOnSuccess:^{
-                NSLog(@"success");
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -355,17 +401,29 @@ describe(@"sending options with requests, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveWithSuccessCallbackQueue:dispatch_get_current_queue() failureCallbackQueue:dispatch_get_current_queue() options:options onSuccess:^{
-                NSLog(@"success");
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
         
     });
     it(@"saveOnSuccess, not sending HTTPS", ^{
-        
+        /*
+         First save (not secure):
+         Create person
+         
+         1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock         
+         
+         Second save (not secure):
+         Get person - called twice
+         Create user (secure)
+         Upate person
+         
+         1 x secure + 1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         2 x non-secure enqueueHTTPRequestOperation
+         */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
@@ -380,10 +438,10 @@ describe(@"sending options with requests, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveOnSuccess:^{
-                NSLog(@"success");
+                
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -398,10 +456,10 @@ describe(@"sending options with requests, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveWithSuccessCallbackQueue:dispatch_get_current_queue() failureCallbackQueue:dispatch_get_current_queue() options:options onSuccess:^{
-                NSLog(@"success");
+                
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -419,6 +477,7 @@ describe(@"creating global request options, saves", ^{
         //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [client setUserSchema:@"User3"];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
@@ -450,7 +509,22 @@ describe(@"creating global request options, saves", ^{
     });
     
     it(@"saveAndWait:options:, global request options have HTTPS", ^{
-        
+        /*
+         First save (global secure):
+         Create person
+         
+         0 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         
+         
+         Second save (secure):
+         Get person - called twice
+         Create user
+         Upate person
+         Network available
+         
+         3 x secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         2 x secure enqueueHTTPRequestOperation
+         */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:3];
@@ -466,9 +540,7 @@ describe(@"creating global request options, saves", ^{
         
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
-        }
+        [error shouldBeNil];
         
         User3 *user = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
         [user setUsername:[user assignObjectId]];
@@ -478,12 +550,24 @@ describe(@"creating global request options, saves", ^{
         
         error = nil;
         success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
-        }
+        [error shouldBeNil];
     });
     it(@"saveAndWait:options:, global request options regular", ^{
-        
+        /*
+         First save (not secure):
+         Create person
+         
+         1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         
+         
+         Second save (not secure):
+         Get person - called twice
+         Create user (secure)
+         Upate person
+         
+         1 x secure + 1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         2 x non-secure enqueueHTTPRequestOperation
+         */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
@@ -499,9 +583,7 @@ describe(@"creating global request options, saves", ^{
         
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
-        }
+        [error shouldBeNil];
         
         User3 *user = [NSEntityDescription insertNewObjectForEntityForName:@"User3" inManagedObjectContext:moc];
         [user setUsername:[user assignObjectId]];
@@ -511,13 +593,25 @@ describe(@"creating global request options, saves", ^{
         
         error = nil;
         success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
-        }
+        [error shouldBeNil];
     });
     
     it(@"saveOnSuccess:options:, global request options have HTTPS", ^{
-        
+        /*
+         First save (not secure):
+         Create person
+         
+         0 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         
+         
+         Second save (secure):
+         Get person - called twice
+         Create user
+         Upate person
+         
+         3 x secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         2 x secure enqueueHTTPRequestOperation
+         */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:3];
@@ -533,10 +627,10 @@ describe(@"creating global request options, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveOnSuccess:^{
-                NSLog(@"success");
+            
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -549,16 +643,30 @@ describe(@"creating global request options, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveOnSuccess:^{
-                NSLog(@"success");
+                
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
     });
     it(@"saveOnSuccess:options:, global request options regular", ^{
-        
+        /*
+         First save (not secure):
+         Create person
+         
+         1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         
+         
+         Second save (not secure):
+         Get person - called twice
+         Create user (secure)
+         Upate person
+         
+         1 x secure + 1 x non-secure enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock
+         2 x non-secure enqueueHTTPRequestOperation
+         */
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
@@ -574,10 +682,9 @@ describe(@"creating global request options, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveOnSuccess:^{
-                NSLog(@"success");
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -590,10 +697,9 @@ describe(@"creating global request options, saves", ^{
         
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [moc saveOnSuccess:^{
-                NSLog(@"success");
                 syncReturn(semaphore);
             } onFailure:^(NSError *asyncError) {
-                NSLog(@"failure: %@", asyncError);
+                [asyncError shouldBeNil];
                 syncReturn(semaphore);
             }];
         });
@@ -609,6 +715,7 @@ describe(@"sending options with requests, fetches", ^{
         //SM_CORE_DATA_DEBUG = YES;
         client = [SMIntegrationTestHelpers defaultClient];
         [SMClient setDefaultClient:client];
+        [client setUserSchema:@"User3"];
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
@@ -650,7 +757,6 @@ describe(@"sending options with requests, fetches", ^{
         [error shouldBeNil];
         
     });
-    
     it(@"executeFetchRequestAndWait:error:, sending HTTPS", ^{
         
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
@@ -710,25 +816,29 @@ describe(@"sending options with requests, fetches", ^{
         SMRequestOptions *options = [SMRequestOptions optionsWithHeaders:[NSDictionary dictionaryWithObjectsAndKeys:@"random", @"header", nil]];
         options.isSecure = YES;
         
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [moc executeFetchRequest:fetchRequest returnManagedObjectIDs:NO successCallbackQueue:dispatch_get_current_queue() failureCallbackQueue:dispatch_get_current_queue() options:options onSuccess:^(NSArray *results) {
-                [[theValue([results count]) should] equal:theValue(1)];
-                syncReturn(semaphore);
-            } onFailure:^(NSError *error) {
-                [error shouldBeNil];
-                syncReturn(semaphore);
-            }];
-        });
+        dispatch_group_t group = dispatch_group_create();
+        dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
+        
+        dispatch_group_enter(group);
+        [moc executeFetchRequest:fetchRequest returnManagedObjectIDs:NO successCallbackQueue:queue failureCallbackQueue:queue options:options onSuccess:^(NSArray *results) {
+            [[theValue([results count]) should] equal:theValue(1)];
+            dispatch_group_leave(group);
+        } onFailure:^(NSError *error) {
+            [error shouldBeNil];
+            dispatch_group_leave(group);
+        }];
+        
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
     });
-    
     it(@"executeFetchRequest:onSuccess, not sending HTTPS", ^{
         
         [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:0];
         
-        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        // Used to be 1, 3 because we added code to pull values on different threads
+        [[[client.session oauthClientWithHTTPS:NO] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:3];
         
         [[[client.session oauthClientWithHTTPS:YES] should] receive:@selector(enqueueHTTPRequestOperation:) withCount:0];
         
@@ -736,15 +846,29 @@ describe(@"sending options with requests, fetches", ^{
         
         SMRequestOptions *options = [SMRequestOptions optionsWithHeaders:[NSDictionary dictionaryWithObjectsAndKeys:@"random", @"header", nil]];
         
-        syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
-            [moc executeFetchRequest:fetchRequest returnManagedObjectIDs:NO successCallbackQueue:dispatch_get_current_queue() failureCallbackQueue:dispatch_get_current_queue() options:options onSuccess:^(NSArray *results) {
-                [[theValue([results count]) should] equal:theValue(1)];
-                syncReturn(semaphore);
-            } onFailure:^(NSError *error) {
-                [error shouldBeNil];
-                syncReturn(semaphore);
-            }];
-        });
+        dispatch_group_t group = dispatch_group_create();
+        dispatch_queue_t queue = dispatch_queue_create("queue", NULL);
+        
+        __block NSManagedObjectID *objectID = nil;
+        dispatch_group_enter(group);
+        [moc executeFetchRequest:fetchRequest returnManagedObjectIDs:NO successCallbackQueue:queue failureCallbackQueue:queue options:options onSuccess:^(NSArray *results) {
+            [[theValue([results count]) should] equal:theValue(1)];
+            // Add code here to test threading
+            
+            NSManagedObject *object = [results objectAtIndex:0];
+            NSString *first_name = [object valueForKey:@"first_name"];
+            NSLog(@"first_name is %@", first_name);
+            
+            objectID = [object objectID];
+            dispatch_group_leave(group);
+        } onFailure:^(NSError *error) {
+            [error shouldBeNil];
+            dispatch_group_leave(group);
+        }];
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+        NSManagedObject *bob = [moc objectWithID:objectID];
+        NSString *first_name = [bob valueForKey:@"first_name"];
+        NSLog(@"outside of block, first_name is %@", first_name);
     });
 });
 
@@ -790,9 +914,7 @@ describe(@"testing getting 500s", ^{
         
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
-        if (success) {
-            NSLog(@"success");
-        }
+        [error shouldBeNil];
         
     });
 });

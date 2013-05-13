@@ -34,7 +34,8 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
-        cds = [client coreDataStoreWithManagedObjectModel:aModel];        moc = [cds contextForCurrentThread];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        moc = [cds contextForCurrentThread];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         date = [NSDate date];
         camelCaseObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
@@ -138,7 +139,7 @@ describe(@"Testing CRUD on an Entity with an NSDate attribute", ^{
      
      
 });
-
+/*
 describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
     __block NSManagedObjectContext *moc = nil;
     __block Random *booleanObject = nil;
@@ -150,7 +151,8 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to True", ^{
         NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
         NSURL *modelURL = [classBundle URLForResource:@"SMCoreDataIntegrationTest" withExtension:@"momd"];
         NSManagedObjectModel *aModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
-        cds = [client coreDataStoreWithManagedObjectModel:aModel];        moc = [cds contextForCurrentThread];
+        cds = [client coreDataStoreWithManagedObjectModel:aModel];
+        moc = [cds contextForCurrentThread];
         [[client.session.networkMonitor stubAndReturn:theValue(1)] currentNetworkStatus];
         booleanObject = [NSEntityDescription insertNewObjectForEntityForName:@"Random" inManagedObjectContext:moc];
         [booleanObject setValue:@"TRUUUUUUUUU" forKey:@"name"];
@@ -373,6 +375,7 @@ describe(@"Testing CRUD on an Entity with a Boolean attribute set to false", ^{
     });
      
 });
+*/
 
 describe(@"Testing CRUD on an Entity with a GeoPoint attribute", ^{
     __block NSManagedObjectContext *moc = nil;
@@ -956,6 +959,5 @@ describe(@"Testing CRUD on an Entity with a SMGeoPoint attribute", ^{
     });
     
 });
-
 
 SPEC_END

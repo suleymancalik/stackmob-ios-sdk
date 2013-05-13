@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
-NSString * Base64EncodedStringFromData(NSData *data);
+#import "StackMob.h"
+#import "SMCoreDataIntegrationTestHelpers.h"
+#import "SMIntegrationTestHelpers.h"
+#import <CoreData/CoreData.h>
+#import <Foundation/Foundation.h>
 
-NSData * Base64DecodedDataFromString(NSString *strBase64);
+@interface SMTestProperties : NSObject
+
+@property (nonatomic, strong) SMClient *client;
+@property (nonatomic, strong) SMCoreDataStore *cds;
+@property (nonatomic, strong) NSManagedObjectContext *moc;
+
+@end

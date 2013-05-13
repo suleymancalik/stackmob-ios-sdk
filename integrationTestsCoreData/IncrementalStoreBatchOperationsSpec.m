@@ -20,7 +20,8 @@
 #import "SMCoreDataIntegrationTestHelpers.h"
 
 SPEC_BEGIN(IncrementalStoreBatchOperationsSpec)
-/*
+
+
 describe(@"Inserting/Updating/Deleting many objects works fine", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -281,11 +282,11 @@ describe(@"401s requiring logins", ^{
         
         [[client.dataStore.session stubAndReturn:theValue(YES)] accessTokenHasExpired];
         [[client.dataStore.session stubAndReturn:theValue(NO)] refreshing];
-        [[client.dataStore.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
+        //[[client.dataStore.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
         
-        [[client.dataStore.session should] receive:@selector(doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:)  withCount:2 arguments:@"refreshToken", any(), any(), any(), any(), any(), any()];
+        [[client.dataStore.session should] receive:@selector(doTokenRequestWithEndpoint:credentials:options:successCallbackQueue:failureCallbackQueue:onSuccess:onFailure:) withCount:1 arguments:@"refreshToken", any(), any(), any(), any(), any(), any()];
         
-        [[client.dataStore.session.regularOAuthClient should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:2];
+        [[client.dataStore.session.regularOAuthClient should] receive:@selector(enqueueBatchOfHTTPRequestOperations:completionBlockQueue:progressBlock:completionBlock:) withCount:1];
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
         
@@ -299,7 +300,6 @@ describe(@"401s requiring logins", ^{
     });
 
 });
-
 
 
 describe(@"timeouts with refreshing", ^{
@@ -338,7 +338,6 @@ describe(@"timeouts with refreshing", ^{
     });
     
 });
-
 
 describe(@"With 401s and other errors", ^{
     __block SMClient *client = nil;
@@ -408,7 +407,7 @@ describe(@"With 401s and other errors", ^{
         // Set up scenario
         [[client.dataStore.session stubAndReturn:theValue(YES)] accessTokenHasExpired];
         [[client.dataStore.session stubAndReturn:theValue(NO)] refreshing];
-        [[client.dataStore.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
+        //[[client.dataStore.session stubAndReturn:theValue(YES)] eligibleForTokenRefresh:any()];
         
         // Add objects for 401 and 409
         NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:@"Oauth2test" inManagedObjectContext:moc];
@@ -419,8 +418,9 @@ describe(@"With 401s and other errors", ^{
         [todo setValue:@"bob" forKey:@"title"];
         [todo setValue:@"primarykey" forKey:[todo primaryKeyField]];
         
-        // Should create total of 3 operations, one for the 409 and 2 for the 401 (first time and retry)
-        [[client.dataStore.session.regularOAuthClient should] receive:@selector(enqueueHTTPRequestOperation:) withCount:3];
+        // Should create total of 2 operations, one for the 409 and 1 for the 401 (first time, retry happens from token client)
+        [[client.dataStore.session.tokenClient should] receive:@selector(enqueueHTTPRequestOperation:) withCount:1];
+        [[client.dataStore.session.regularOAuthClient should] receive:@selector(enqueueHTTPRequestOperation:) withCount:2];
         
         NSError *error = nil;
         BOOL success = [moc saveAndWait:&error];
@@ -441,7 +441,7 @@ describe(@"With 401s and other errors", ^{
     });
     
 });
-*/
+
 describe(@"Calling refresh block", ^{
     __block SMClient *client = nil;
     __block SMCoreDataStore *cds = nil;
@@ -465,18 +465,19 @@ describe(@"Calling refresh block", ^{
         [todo setValue:@"primarykey" forKey:[todo primaryKeyField]];
         
         __block BOOL refreshFailed = NO;
+        
         syncWithSemaphore(^(dispatch_semaphore_t semaphore) {
             [client.session setTokenRefreshFailureBlock:^(NSError *error, SMFailureBlock originalFailureBlock) {
                 [[[error userInfo] objectForKey:SMFailedRefreshBlock] shouldBeNil];
                 [[theValue([error code]) should] equal:theValue(SMErrorRefreshTokenFailed)];
                 refreshFailed = YES;
-                originalFailureBlock(error);
+                NSLog(@"got to token refresh block");
                 syncReturn(semaphore);
             }];
-            [moc saveOnSuccess:^{
+            [moc saveOnSuccess:^(NSArray *results) {
                 syncReturn(semaphore);
             } onFailure:^(NSError *error) {
-                NSLog(@"error is %@", error);
+                NSLog(@"got here");
             }];
         });
         
@@ -491,12 +492,14 @@ describe(@"Calling refresh block", ^{
                 [[[error userInfo] objectForKey:SMFailedRefreshBlock] shouldBeNil];
                 [[theValue([error code]) should] equal:theValue(SMErrorRefreshTokenFailed)];
                 refreshFailed = YES;
+                //NSLog(@"got to token refresh block");
                 syncReturn(semaphore);
             }];
             __block NSFetchRequest *fetch = [[NSFetchRequest alloc] initWithEntityName:@"Todo"];
             [moc executeFetchRequest:fetch onSuccess:^(NSArray *results) {
                 syncReturn(semaphore);
             } onFailure:^(NSError *error) {
+                //NSLog(@"got here");
             }];
         });
         

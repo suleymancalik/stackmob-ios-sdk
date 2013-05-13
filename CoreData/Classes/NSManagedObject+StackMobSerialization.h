@@ -70,9 +70,12 @@
 /**
  Converts an `NSManagedObject` into an equivalent dictionary form for StackMob to process.
  
+ @param serializeFullObjects Whether to serialize the managed object's recently changed values or the entire object.
+ @param sendLocalTimestamps Whether to include the createddate and lastmoddate keys in the serialized dictionary.
+ 
  @since Available in iOS SDK 1.0.0 and later.
  */
-- (NSDictionary *)SMDictionarySerialization;
+- (NSDictionary *)SMDictionarySerialization:(BOOL)serializeFullObjects sendLocalTimestamps:(BOOL)sendLocalTimestamps;
 
 /**
  Use to retrieve the value of a relationship.  

@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
-NSString * Base64EncodedStringFromData(NSData *data);
+@class SMCoreDataStore;
 
-NSData * Base64DecodedDataFromString(NSString *strBase64);
+@interface FileManagement : NSObject
+
++ (NSURL *)SM_getStoreURLForFileComponent:(NSString *)fileComponent coreDataStore:(SMCoreDataStore *)coreDataStore;
++ (void)SM_createStoreURLPathIfNeeded:(NSURL *)storeURL;
++ (void)SM_removeStoreURLPath:(NSURL *)storeURL;
+
+@end

@@ -42,3 +42,4 @@
 #import "SMIncrementalStore+Query.h"
 #import "SMPredicate.h"
 #import "SMGeoPoint.h"
+#import "SMSyncedObject.h"

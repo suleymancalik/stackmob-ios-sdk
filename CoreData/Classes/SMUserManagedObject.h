@@ -34,6 +34,18 @@
 /**
  Initializes a new managed object with a reference to `[SMClient defaultClient]`.
  
+ @param entityName The name of the entity.
+ @param context The managed object context to insert the object into.
+ 
+ @return An newly instantiated managed object to define a user.
+ 
+ @since Available in iOS SDK 1.1.0 and later.
+ */
+- (id)initWithEntityName:(NSString *)entityName insertIntoManagedObjectContext:(NSManagedObjectContext *)context;
+
+/**
+ Initializes a new managed object with a reference to `[SMClient defaultClient]`.
+ 
  @param entity The description of this managed object's entity.
  @param context The managed object context to insert the object into.
  

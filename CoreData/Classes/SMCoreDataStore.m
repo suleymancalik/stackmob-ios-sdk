@@ -18,19 +18,63 @@
 #import "SMIncrementalStore.h"
 #import "SMError.h"
 #import "NSManagedObjectContext+Concurrency.h"
-
-#define DLog(fmt, ...) NSLog((@"Performing %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
+#import "FileManagement.h"
+#import "Common.h"
 
 static NSString *const SM_ManagedObjectContextKey = @"SM_ManagedObjectContextKey";
 NSString *const SMSetCachePolicyNotification = @"SMSetCachePolicyNotification";
+NSString *const SMDirtyQueueNotification = @"SMDirtyQueueNotification";
+
 BOOL SM_CACHE_ENABLED = NO;
+
+SMMergePolicy const SMMergePolicyClientWins = ^(NSDictionary *clientObject, NSDictionary *serverObject, NSDate *serverBaseLastModDate){
+    
+    return SMClientObject;
+    
+};
+
+SMMergePolicy const SMMergePolicyLastModifiedWins = ^(NSDictionary *clientObject, NSDictionary *serverObject, NSDate *serverBaseLastModDate){
+    
+    NSDate *clientLastModDate = [clientObject objectForKey:SMLastModDateKey];
+    NSDate *serverLastModDate = [serverObject objectForKey:SMLastModDateKey];
+    if (SM_CORE_DATA_DEBUG) { DLog(@"client lmd is %f and server lmd is %f", [clientLastModDate timeIntervalSince1970], [serverLastModDate timeIntervalSince1970]) }
+    
+    NSComparisonResult result = [serverLastModDate compare:clientLastModDate];
+    
+    if (result == NSOrderedAscending) {
+        // client is last modified
+        return SMClientObject;
+    } else if (result == NSOrderedDescending) {
+        // server is last modified
+        return SMServerObject;
+    } else {
+        if (!serverLastModDate) {
+            return SMClientObject;
+        } else {
+            // Dates are actually the same, default to server
+            return SMServerObject;
+        }
+    }
+    
+};
+
+SMMergePolicy const SMMergePolicyServerModifiedWins = ^(NSDictionary *clientObject, NSDictionary *serverObject, NSDate *serverBaseLastModDate){
+    
+    NSDate *serverLastModDate = [serverObject objectForKey:SMLastModDateKey];
+    if (![serverBaseLastModDate isEqualToDate:serverLastModDate]) {
+        return SMServerObject;
+    } else {
+        return SMClientObject;
+    }
+};
 
 @interface SMCoreDataStore ()
 
 @property(nonatomic, readwrite, strong)NSManagedObjectModel *managedObjectModel;
 @property (nonatomic, strong) NSManagedObjectContext *privateContext;
-@property (nonatomic, strong) id defaultMergePolicy;
+@property (nonatomic, strong) id defaultCoreDataMergePolicy;
 @property (nonatomic) dispatch_queue_t cachePurgeQueue;
+@property (nonatomic, strong) NSArray *currentDirtyQueue;
 
 - (NSManagedObjectContext *)SM_newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent;
 - (void)SM_didReceiveSetCachePolicyNotification:(NSNotification *)notification;
@@ -44,23 +88,58 @@ BOOL SM_CACHE_ENABLED = NO;
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize mainThreadContext = _mainThreadContext;
 @synthesize privateContext = _privateContext;
-@synthesize defaultMergePolicy = _defaultMergePolicy;
+@synthesize defaultCoreDataMergePolicy = _defaultCoreDataMergePolicy;
+@synthesize defaultSMMergePolicy = _defaultSMMergePolicy;
 @synthesize cachePurgeQueue = _cachePurgeQueue;
 @synthesize cachePolicy = _cachePolicy;
 @synthesize globalRequestOptions = _globalRequestOptions;
+@synthesize insertsSMMergePolicy = _insertsSMMergePolicy;
+@synthesize updatesSMMergePolicy = _updatesSMMergePolicy;
+@synthesize deletesSMMergePolicy = _deletesSMMergePolicy;
+@synthesize syncCompletionCallback = _syncCompletionCallback;
+@synthesize syncCallbackQueue = _syncCallbackQueue;
+@synthesize syncInProgress = _syncInProgress;
+@synthesize currentDirtyQueue = _currentDirtyQueue;
+@synthesize sendLocalTimestamps = _sendLocalTimestamps;
 
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session managedObjectModel:(NSManagedObjectModel *)managedObjectModel
 {
     self = [super initWithAPIVersion:apiVersion session:session];
     if (self) {
         _managedObjectModel = managedObjectModel;
-        _defaultMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
-        self.cachePurgeQueue = dispatch_queue_create("Purge Cache Of Object Queue", NULL);
-        [self setCachePolicy:SMCachePolicyTryNetworkOnly];
         
+        
+        /// Init callback queues
+        self.syncCallbackQueue = dispatch_get_main_queue();
+        self.cachePurgeQueue = dispatch_queue_create("com.stackmob.cachePurgeQueue", NULL);
+        
+        /// Set default cache and merge policies
+        [self setCachePolicy:SMCachePolicyTryNetworkOnly];
+        _defaultCoreDataMergePolicy = NSMergeByPropertyObjectTrumpMergePolicy;
+        self.defaultSMMergePolicy = SMMergePolicyServerModifiedWins;
+        self.insertsSMMergePolicy = nil;
+        self.updatesSMMergePolicy = nil;
+        self.deletesSMMergePolicy = nil;
+        
+        /// Init callbacks
+        self.syncCallbackForFailedInserts = nil;
+        self.syncCallbackForFailedUpdates = nil;
+        self.syncCallbackForFailedDeletes = nil;
+        self.syncCompletionCallback = nil;
+        
+        self.syncInProgress = NO;
+        self.sendLocalTimestamps = NO;
+        self.currentDirtyQueue = nil;
+        
+        /// Init global request options
         self.globalRequestOptions = [SMRequestOptions options];
         
+        /// Add observer for set cache policy
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveSetCachePolicyNotification:) name:SMSetCachePolicyNotification object:self.session.networkMonitor];
+        
+        // Add observer for dirty queue
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(SM_didReceiveDirtyQueueNotification:) name:SMDirtyQueueNotification object:nil];
+        
     }
     
     return self;
@@ -96,7 +175,7 @@ BOOL SM_CACHE_ENABLED = NO;
 {
     if (_privateContext == nil) {
         _privateContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        [_privateContext setMergePolicy:self.defaultMergePolicy];
+        [_privateContext setMergePolicy:self.defaultCoreDataMergePolicy];
         [_privateContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
     }
     return _privateContext;
@@ -116,7 +195,7 @@ BOOL SM_CACHE_ENABLED = NO;
 {
     if (_mainThreadContext == nil) {
         _mainThreadContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-        [_mainThreadContext setMergePolicy:self.defaultMergePolicy];
+        [_mainThreadContext setMergePolicy:self.defaultCoreDataMergePolicy];
         [_mainThreadContext setParentContext:self.privateContext];
         [_mainThreadContext setContextShouldObtainPermanentIDsBeforeSaving:YES];
     }
@@ -126,7 +205,7 @@ BOOL SM_CACHE_ENABLED = NO;
 - (NSManagedObjectContext *)SM_newPrivateQueueContextWithParent:(NSManagedObjectContext *)parent
 {
     NSManagedObjectContext *context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    [context setMergePolicy:self.defaultMergePolicy];
+    [context setMergePolicy:self.defaultCoreDataMergePolicy];
     [context setParentContext:parent];
     [context setContextShouldObtainPermanentIDsBeforeSaving:YES];
     
@@ -154,9 +233,14 @@ BOOL SM_CACHE_ENABLED = NO;
 
 - (void)setDefaultMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply
 {
-    if (mergePolicy != self.defaultMergePolicy) {
+    [self setDefaultCoreDataMergePolicy:mergePolicy applyToMainThreadContextAndParent:apply];
+}
+
+- (void)setDefaultCoreDataMergePolicy:(id)mergePolicy applyToMainThreadContextAndParent:(BOOL)apply
+{
+    if (mergePolicy != self.defaultCoreDataMergePolicy) {
         
-        self.defaultMergePolicy = mergePolicy;
+        self.defaultCoreDataMergePolicy = mergePolicy;
         
         if (apply) {
             [self.mainThreadContext setMergePolicy:mergePolicy];
@@ -165,7 +249,7 @@ BOOL SM_CACHE_ENABLED = NO;
     }
 }
 
-- (void)purgeCacheOfMangedObjectID:(NSManagedObjectID *)objectID
+- (void)purgeCacheOfManagedObjectID:(NSManagedObjectID *)objectID
 {
     dispatch_async(self.cachePurgeQueue, ^{
         NSDictionary *notificationUserInfo = [NSDictionary dictionaryWithObjectsAndKeys:objectID, SMCachePurgeManagedObjectID, nil];
@@ -174,7 +258,7 @@ BOOL SM_CACHE_ENABLED = NO;
     });
 }
 
-- (void)purgeCacheOfMangedObjects:(NSArray *)managedObjects
+- (void)purgeCacheOfManagedObjects:(NSArray *)managedObjects
 {
     NSMutableArray *arrayOfObjectIDs = [NSMutableArray arrayWithCapacity:[managedObjects count]];
     [managedObjects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -212,6 +296,86 @@ BOOL SM_CACHE_ENABLED = NO;
 {
     SMCachePolicy newCachePolicy = [[[notification userInfo] objectForKey:@"NewCachePolicy"] intValue];
     [self setCachePolicy:newCachePolicy];
+}
+
+- (void)SM_didReceiveDirtyQueueNotification:(NSNotification *)notification
+{
+    NSDictionary *dirtyQueue = [[notification userInfo] objectForKey:@"SMDirtyQueue"];
+    if (dirtyQueue) {
+        NSMutableArray *arrayOfDirtyObjects = [NSMutableArray array];
+        [arrayOfDirtyObjects addObjectsFromArray:[dirtyQueue objectForKey:SMDirtyInsertedObjectKeys]];
+        [arrayOfDirtyObjects addObjectsFromArray:[dirtyQueue objectForKey:SMDirtyUpdatedObjectKeys]];
+        [arrayOfDirtyObjects addObjectsFromArray:[dirtyQueue objectForKey:SMDirtyDeletedObjectKeys]];
+        self.currentDirtyQueue = [NSArray arrayWithArray:arrayOfDirtyObjects];
+    }
+}
+
+- (void)syncWithServer
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:SMSyncWithServerNotification object:self userInfo:nil];
+}
+
+- (BOOL)isDirtyObject:(NSManagedObjectID *)objectID
+{
+    if (self.currentDirtyQueue) {
+        
+        if ([self.currentDirtyQueue count] == 0) {
+            return NO;
+        }
+        
+        NSString *entityName = [[objectID entity] name];
+        NSString *stringRepOfID = [[objectID URIRepresentation] absoluteString];
+        NSArray *components = [stringRepOfID componentsSeparatedByString:[NSString stringWithFormat:@"%@/p", entityName]];
+        if ([components count] != 2) {
+            // Handle error
+            [NSException raise:SMExceptionIncompatibleObject format:@"ObjectID in incorrect format."];
+        }
+        
+        NSString *primaryKey = [components lastObject];
+        
+        NSArray *entry = [NSArray arrayWithObjects:primaryKey, entityName, nil];
+        
+        if ([self.currentDirtyQueue containsObject:entry]) {
+            return YES;
+        }
+    }
+    
+    return NO;
+}
+
+- (void)markFailedObjectAsSynced:(NSDictionary *)object purgeFromCache:(BOOL)purge
+{
+    NSManagedObjectID *objectID = [object objectForKey:SMFailedManagedObjectID];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SMMarkObjectAsSyncedNotification object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:objectID, @"ObjectID", [NSNumber numberWithBool:purge], @"Purge", nil]];
+}
+
+- (void)markArrayOfFailedObjectsAsSynced:(NSArray *)objects purgeFromCache:(BOOL)purge
+{
+    NSMutableArray *managedObjectIDs = [NSMutableArray arrayWithCapacity:[objects count]];
+    [objects enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [managedObjectIDs addObject:[obj objectForKey:SMFailedManagedObjectID]];
+    }];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SMMarkArrayOfObjectsAsSyncedNotification object:self userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithArray:managedObjectIDs], @"ObjectIDs", [NSNumber numberWithBool:purge], @"Purge", nil]];
+}
+
+- (void)setSyncCallbackForFailedInserts:(void (^)(NSArray *objects))block
+{
+    _syncCallbackForFailedInserts = block;
+}
+
+- (void)setSyncCallbackForFailedUpdates:(void (^)(NSArray *objects))block
+{
+    _syncCallbackForFailedUpdates = block;
+}
+
+- (void)setSyncCallbackForFailedDeletes:(void (^)(NSArray *objects))block
+{
+    _syncCallbackForFailedDeletes = block;
+}
+
+- (void)setSyncCompletionCallback:(void (^)(NSArray *objects))block
+{
+    _syncCompletionCallback = block;
 }
 
 @end

@@ -24,7 +24,23 @@
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="oauth2test_id" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
-    <entity name="Person" representedClassName="Person" syncable="YES">
+    <entity name="Offlinepermsdelete" parentEntity="StackMob" syncable="YES">
+        <attribute name="offlinepermsdeleteId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="Offlinepermsget" parentEntity="StackMob" syncable="YES">
+        <attribute name="offlinepermsgetId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="Offlinepermspost" parentEntity="StackMob" syncable="YES">
+        <attribute name="offlinepermspostId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="Offlinepermsput" parentEntity="StackMob" syncable="YES">
+        <attribute name="offlinepermsputId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="Person" representedClassName="Person" parentEntity="StackMob" syncable="YES">
         <attribute name="armor_class" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="company" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="first_name" optional="YES" attributeType="String" syncable="YES"/>
@@ -44,6 +60,10 @@
         <attribute name="time" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="yearBorn" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
     </entity>
+    <entity name="StackMob" isAbstract="YES" syncable="YES">
+        <attribute name="createddate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="lastmoddate" optional="YES" attributeType="Date" syncable="YES"/>
+    </entity>
     <entity name="Superpower" representedClassName="Superpower" syncable="YES">
         <attribute name="level" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
@@ -51,13 +71,13 @@
         <attribute name="superpower_id" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="person" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Person" inverseName="superpower" inverseEntity="Person" syncable="YES"/>
     </entity>
-    <entity name="Todo" syncable="YES">
+    <entity name="Todo" parentEntity="StackMob" syncable="YES">
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="todoId" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="category" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="todo" inverseEntity="Category" syncable="YES"/>
         <relationship name="user3" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="User3" inverseName="todos" inverseEntity="User3" syncable="YES"/>
     </entity>
-    <entity name="User3" representedClassName="User3" syncable="YES">
+    <entity name="User3" representedClassName="User3" parentEntity="StackMob" syncable="YES">
         <attribute name="email" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="username" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="todos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Todo" inverseName="user3" inverseEntity="Todo" syncable="YES"/>
@@ -72,8 +92,13 @@
         <element name="Getpermission" positionX="160" positionY="192" width="128" height="75"/>
         <element name="Interest" positionX="18" positionY="135" width="128" height="105"/>
         <element name="Oauth2test" positionX="-135" positionY="-27" width="128" height="75"/>
+        <element name="Offlinepermsdelete" positionX="160" positionY="192" width="128" height="75"/>
+        <element name="Offlinepermsget" positionX="160" positionY="192" width="128" height="75"/>
+        <element name="Offlinepermspost" positionX="160" positionY="192" width="128" height="75"/>
+        <element name="Offlinepermsput" positionX="160" positionY="192" width="128" height="75"/>
         <element name="Person" positionX="-468" positionY="-129" width="128" height="165"/>
         <element name="Random" positionX="187" positionY="-108" width="128" height="165"/>
+        <element name="StackMob" positionX="160" positionY="192" width="128" height="75"/>
         <element name="Superpower" positionX="-171" positionY="123" width="128" height="120"/>
         <element name="Todo" positionX="-218" positionY="396" width="128" height="105"/>
         <element name="User3" positionX="-477" positionY="135" width="128" height="90"/>
