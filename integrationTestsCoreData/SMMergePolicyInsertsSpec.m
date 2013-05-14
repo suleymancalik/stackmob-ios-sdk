@@ -455,7 +455,7 @@ describe(@"While offline, Insert 1 Online at T1, Insert 1 Offline at T2", ^{
         dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         // Insert 1 offline
-        //sleep(3);
+        [NSThread sleepForTimeInterval:0.5];
         NSArray *persistentStores = [testProperties.cds.persistentStoreCoordinator persistentStores];
         SMIncrementalStore *store = [persistentStores lastObject];
         [store stub:@selector(SM_checkNetworkAvailability) andReturn:theValue(NO)];
