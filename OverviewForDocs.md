@@ -7,6 +7,20 @@
 
 <a href="#getting_started">Getting Started</a>
 
+<a href="#start_persisting_data">Start Persisting Data</a>
+
+<a href="#offline_sync">Offline Sync System</a>
+
+<a href="#user_schema_and_auth">User Schema and Authentication</a>
+
+<a href="#push_notifications">Push Notifications</a>
+
+<a href="#network_reachability">Checking Network Reachability</a>
+
+<a href="#error_codes">Error Codes</a>
+
+<a href="#debugging">Debugging</a>
+
 <a href="#coding_practices">StackMob <--> Core Data Coding Practices</a>
 
 [StackMob <--> Core Data Support Specifications](http://stackmob.github.com/stackmob-ios-sdk/CoreDataSupportSpecs.html)
@@ -81,8 +95,9 @@ For YOUR_API_VERSION, pass @"0" for Development, @"1" or higher for the correspo
 If you haven't found your public key yet, check out **Manage App Info** under the **App Settings** sidebar on the [Dashboard page](https://dashboard.stackmob.com).
 
 <br/>
-	
-### Start persisting data
+
+<a name="start_persisting_data">&nbsp;</a>
+## Start Persisting Data
 
 There are two ways to persist data to StackMob:
 
@@ -91,7 +106,7 @@ There are two ways to persist data to StackMob:
 
 <br/>
 
-#### Core Data
+### Core Data
 
 StackMob recommends using Core Data… it provides a powerful and robust object graph management system that otherwise would be a nightmare to implement.  Although it may have a reputation for being pretty complex, the basics are easy to grasp and understand.  If you want to learn the basics, check out <a href="#core_data_references">Core Data References</a> below.
 
@@ -126,19 +141,21 @@ When you want to fetch objects, the [NSManagedObjectContext+Concurrency](http://
 
 <br/>
 
-#### Lower Level Datastore API
+### Lower Level Datastore API
 
 If you want to make direct REST-based calls to the Datastore, check out the [SMDataStore](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMDataStore.html) class.
 
 <br/>
 
-### Offline Sync System
+<a name="offline_sync">&nbsp;</a>
+## Offline Sync System
 
 Included with version 2.0.0+ of the SDK is a sync system built in to the Core Data Integration to allow for local saving and fetching of objects when a device is offline.  When back online, modified data will be synced with the server.  Many settings are available to the developer around cache and merge policies, conflict resolution, etc.  See the [Offline Sync Guide](https://developer.stackmob.com/ios-sdk/offline-sync-guide) for all information.
 
 <br/>
 
-### User Schema and Authentication
+<a name="user_schema_and_auth">&nbsp;</a>
+## User Schema and Authentication
 
 SMClient provides all the necessary methods for user authentication.
 
@@ -150,7 +167,8 @@ For more information see **The User Schema** and **User Authentication** section
 
 <br/>
 
-### Push Notifications
+<a name="push_notifications">&nbsp;</a>
+## Push Notifications
 
 Push Notification support comes built into the iOS SDK, which can be downloaded from the [SDK Downloads Page](https://developer.stackmob.com/sdk). 
  
@@ -160,17 +178,22 @@ All the details on how to set up your application for push can be found in the [
 
 <br/>
 
-### Checking Network Reachability
+<a name="network_reachability">&nbsp;</a>
+## Checking Network Reachability
 
 While the SDK has built in support for returning errors when there is no network connection, SMNetworkReachability provides an interface for developers to manually check if the device is connected to the network and can in turn reach StackMob.  All the details, including how to subscribe to notifications and set blocks to be executed when the network status changes, can be found in the [SMNetworkReachability Class Reference](http://stackmob.github.com/stackmob-ios-sdk/Classes/SMNetworkReachability.html).
 
 <br/>
-### Error Codes
+
+<a name="error_codes">&nbsp;</a>
+## Error Codes
 
 The `SMError` class translates numeric error codes into readable errors, so you know what went wrong.  SDK specific error codes have also been defined for even more specific errors.  Check out the [Error Code Translations](http://stackmob.github.com/stackmob-ios-sdk/ErrorCodeTranslations.html) page for all the details.
 
 <br/>
-### Debugging
+
+<a name="debugging">&nbsp;</a>
+## Debugging
 
 The iOS SDK gives developers access to two global variables that will enable additional logging statements when using the Core Data integration:
 
