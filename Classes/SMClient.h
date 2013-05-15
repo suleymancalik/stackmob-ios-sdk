@@ -171,6 +171,13 @@
  */
 @property(nonatomic, readonly, strong) SMUserSession * session;
 
+/**
+ Points to the `networkMonitor` instance of this client's `SMUserSession` instance.
+ 
+ Allows the network monitor interface to be accessed by `[[SMClient defaultClient] networkMonitor];`
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
 @property (nonatomic, readonly, strong) SMNetworkReachability *networkMonitor;
 
 
@@ -406,6 +413,8 @@
  @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)setTokenRefreshFailureBlock:(void (^)(NSError *error, SMFailureBlock originalFailureBlock))block;
+
+- (void)addAcceptableContentTypes:(NSSet *)contentTypes;
 
 #pragma mark Retrieve User
 ///-------------------------------

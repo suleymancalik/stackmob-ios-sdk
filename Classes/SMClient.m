@@ -370,6 +370,11 @@ static SMClient *defaultClient = nil;
     return ![self isLoggedIn];
 }
 
+- (void)addAcceptableContentTypes:(NSSet *)contentTypes
+{
+    
+}
+
 # pragma mark Facebook
 
 - (void)createUserWithFacebookToken:(NSString *)fbToken

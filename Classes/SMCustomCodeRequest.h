@@ -55,6 +55,20 @@
  */
 @property (nonatomic, strong) NSString *httpVerb;
 
+/**
+ Set this property to specify the expected content type for the response of this custom code request.
+ 
+ Use when your custom code methods return responses with content types other than:
+ 
+ * text/json
+ * text/javascript
+ * application/json
+ * application/vnd.stackmob+json (Used for StackMob)
+ 
+ @since Available in iOS SDK 1.4.0 and later.
+ */
+@property (nonatomic, strong) NSString *responseContentType;
+
 ///-------------------------------
 /// @name Initialize
 ///-------------------------------
@@ -121,5 +135,7 @@
  @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)addQueryStringParameterWhere:(NSString *)key equals:(NSString *)value;
+
+- (void)addAcceptableContentTypes:(NSSet *)contentTypes;
 
 @end

@@ -328,6 +328,93 @@
     
 }
 
+- (void)queueCustomCodeRequest:(NSURLRequest *)request responseContentType:(NSString *)responseContentType options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
+{
+    if (options.headers && [options.headers count] > 0) {
+        // Enumerate through options and add them to the request header.
+        NSMutableURLRequest *tempRequest = [request mutableCopy];
+        [options.headers enumerateKeysAndObjectsUsingBlock:^(id headerField, id headerValue, BOOL *stop) {
+            
+            // Error checks for functionality not supported
+            if ([headerField isEqualToString:@"X-StackMob-Expand"]) {
+                if ([[request HTTPMethod] isEqualToString:@"POST"] || [[request HTTPMethod] isEqualToString:@"PUT"]) {
+                    [NSException raise:SMExceptionIncompatibleObject format:@"Expand depth is not supported for creates or updates.  Please check your requests and edit accordingly."];
+                }
+            }
+            
+            [tempRequest setValue:headerValue forHTTPHeaderField:headerField];
+        }];
+        request = tempRequest;
+        
+        // Set the headers dictionary to empty, to prevent unnecessary enumeration during recursion.
+        options.headers = [NSDictionary dictionary];
+    }
+    
+    
+    
+    if ([self.session eligibleForTokenRefresh:options]) {
+        //[self refreshAndRetry:request originalError:nil requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
+    }
+    else {
+        SMFullResponseFailureBlock retryBlock = ^(NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
+            if ([response statusCode] == SMErrorUnauthorized && options.tryRefreshToken && self.session.refreshToken != nil) {
+                [self refreshAndRetry:originalRequest originalError:[self errorFromResponse:response JSON:JSON] requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
+            } else if ([response statusCode] == SMErrorServiceUnavailable && options.numberOfRetries > 0) {
+                NSString *retryAfter = [[response allHeaderFields] valueForKey:@"Retry-After"];
+                if (retryAfter) {
+                    [options setNumberOfRetries:(options.numberOfRetries - 1)];
+                    double delayInSeconds = [retryAfter doubleValue];
+                    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+                    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                        if (options.retryBlock) {
+                            options.retryBlock(originalRequest, response, error, JSON, options, onSuccess, onFailure);
+                        } else {
+                            [self queueCustomCodeRequest:[self.session signRequest:originalRequest] responseContentType:responseContentType options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
+                        }
+                    });
+                } else {
+                    if (onFailure) {
+                        onFailure(originalRequest, response, error, JSON);
+                    }
+                }
+            } else if ([error domain] == NSURLErrorDomain && [error code] == -1009) {
+                if (onFailure) {
+                    NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
+                    onFailure(originalRequest, response, networkNotReachableError, JSON);
+                }
+            } else {
+                if (onFailure) {
+                    onFailure(originalRequest, response, error, JSON);
+                }
+            }
+        };
+        
+    }
+    
+    AFHTTPRequestOperation *op = [[self.session oauthClientWithHTTPS:options.isSecure] HTTPRequestOperationWithRequest:request success:^(AFHTTPRequestOperation *operation, id responseObject){
+        
+        NSLog(@"Here we are");
+        NSString *response = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+        NSLog(@"response is %@", response);
+    }failure:^(AFHTTPRequestOperation *operation, id responseObject){
+        
+        NSLog(@"We failed");
+    }];
+    
+    if (![[AFHTTPRequestOperation acceptableContentTypes] containsObject:responseContentType]) {
+        [AFHTTPRequestOperation addAcceptableContentTypes:[NSSet setWithObject:responseContentType]];
+    }
+    
+    if (successCallbackQueue) {
+        [op setSuccessCallbackQueue:successCallbackQueue];
+    }
+    if (failureCallbackQueue) {
+        [op setFailureCallbackQueue:failureCallbackQueue];
+    }
+    [[self.session oauthClientWithHTTPS:options.isSecure] enqueueHTTPRequestOperation:op];
+    
+}
+
 - (NSString *)URLEncodedStringFromValue:(NSString *)value
 {
     static NSString * const kAFCharactersToBeEscaped = @":/.?&=;+!@#$()~[]";

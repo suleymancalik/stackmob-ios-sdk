@@ -69,6 +69,8 @@
     
     [request setHTTPMethod:aRequest.httpVerb];
     
+    // Set accept headers here
+    
     NSString *acceptHeader = [NSString stringWithFormat:@"application/vnd.stackmob+json; version=%@", self.version];
     [request setValue:acceptHeader forHTTPHeaderField:@"Accept"];
     [request setValue:self.publicKey forHTTPHeaderField:@"X-StackMob-API-Key"];
@@ -82,6 +84,8 @@
     if (aRequest.requestBody) {
         [request setHTTPBody:[aRequest.requestBody dataUsingEncoding:NSUTF8StringEncoding]];
     }
+    
+    
     
     [self signRequest:request path:[[request URL] path]];
     return request;
