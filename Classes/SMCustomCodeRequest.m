@@ -34,6 +34,7 @@
         self.requestBody = body ? body : nil;
         self.queryStringParameters = [NSMutableArray arrayWithCapacity:1];
         self.responseContentType = nil;
+        self.autoConvertResponseBody = YES;
     }
     
     return self;
@@ -53,6 +54,7 @@
 @synthesize requestBody = _requestBody;
 @synthesize httpVerb = _httpVerb;
 @synthesize responseContentType = _responseContentType;
+@synthesize autoConvertResponseBody = _autoConvertResponseBody;
 
 - (id)initPostRequestWithMethod:(NSString *)method body:(NSString *)body
 {
@@ -80,8 +82,4 @@
     [self.queryStringParameters addObject:[NSString stringWithFormat:@"%@=%@", key, encodedValue]];
 }
 
-- (void)addAcceptableContentTypes:(NSSet *)contentTypes
-{
-    [AFJSONRequestOperation addAcceptableContentTypes:contentTypes];
-}
 @end

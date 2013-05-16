@@ -16,6 +16,7 @@
 
 @class SMRequestOptions;
 @class SMGeoPoint;
+@class AFHTTPRequestOperation;
 
 /**
  A success block that returns nothing.
@@ -53,18 +54,22 @@ typedef void (^SMFailureBlock)(NSError *error);
 typedef void (^SMGeoPointSuccessBlock)(SMGeoPoint *geoPoint);
 
 /**
- The block parameters expected for a success response that needs the raw request, response, and JSON result.
+ The block parameters expected for a success response that needs the raw request, response, and response body.
+ 
+ @note Parameter 'id JSON' was changed to 'id responseBody' in v2.0.0.
  
  @since Available in iOS SDK 1.0.0 and later.
  */
-typedef void (^SMFullResponseSuccessBlock)(NSURLRequest *request, NSHTTPURLResponse *response, id JSON);
+typedef void (^SMFullResponseSuccessBlock)(NSURLRequest *request, NSHTTPURLResponse *response, id responseBody);
 
 /**
- The block parameters expected for a failure response that needs the raw request, response, and JSON result.
+ The block parameters expected for a failure response that needs the raw request, response, and response body.
+ 
+ @note Parameter 'id JSON' was changed to 'id responseBody' in v2.0.0.
  
  @since Available in iOS SDK 1.0.0 and later.
  */
-typedef void (^SMFullResponseFailureBlock)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON);
+typedef void (^SMFullResponseFailureBlock)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id responseBody);
 
 /**
  The block parameters expected for a success response from a call to the Datastore which returns the full object and schema. 
@@ -144,4 +149,11 @@ typedef void (^SMFailureRetryBlock)(NSURLRequest *request, NSHTTPURLResponse *re
  @since Available in iOS SDK 1.2.0 and later.
  */
 typedef void (^SMCoreDataSaveFailureBlock)(NSURLRequest *theRequest, NSError *theError, NSDictionary *theObject, SMRequestOptions *theOptions, SMResultSuccessBlock originalSuccessBlock);
+
+/**
+ Used interally for custom code requests.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+typedef void (^AFHTTPOperationResponseBlock)(AFHTTPRequestOperation *operation, id responseObject);
 

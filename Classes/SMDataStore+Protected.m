@@ -19,6 +19,7 @@
 #import "SMJSONRequestOperation.h"
 #import "SMRequestOptions.h"
 #import "SMNetworkReachability.h"
+#import "SMCustomCodeRequest.h"
 
 @implementation SMDataStore (SpecialCondition)
 
@@ -328,7 +329,7 @@
     
 }
 
-- (void)queueCustomCodeRequest:(NSURLRequest *)request responseContentType:(NSString *)responseContentType options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
+- (void)queueCustomCodeRequest:(NSURLRequest *)request customCodeRequestInstance:(SMCustomCodeRequest *)customCodeRequest options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
 {
     if (options.headers && [options.headers count] > 0) {
         // Enumerate through options and add them to the request header.
@@ -351,12 +352,33 @@
     }
     
     
-    
+    // TODO add type to refreshAndRetry
     if ([self.session eligibleForTokenRefresh:options]) {
         //[self refreshAndRetry:request originalError:nil requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
     }
     else {
-        SMFullResponseFailureBlock retryBlock = ^(NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
+        AFHTTPOperationResponseBlock successBlock = ^(AFHTTPRequestOperation *operation, id responseObject){
+            
+            if (!customCodeRequest.autoConvertResponseBody) {
+                onSuccess(operation.request, operation.response, responseObject);
+            } else {
+                id returnValue = nil;
+                if ([customCodeRequest.responseContentType rangeOfString:@"json"].location != NSNotFound) {
+                    NSError *error = nil;
+                    returnValue = [NSJSONSerialization JSONObjectWithData:responseObject options:nil error:&error];
+                } else if ([customCodeRequest.responseContentType rangeOfString:@"image"].location != NSNotFound) {
+                    returnValue = [UIImage imageWithData:responseObject];
+                } else if ([customCodeRequest.responseContentType rangeOfString:@"text"].location != NSNotFound) {
+                    returnValue = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+                } else {
+                    returnValue = responseObject;
+                }
+                onSuccess(operation.request, operation.response, returnValue);
+            }
+        }
+        AFHTTPOperationResponseBlock retryBlock = ^(AFHTTPRequestOperation *operation, id responseObject){
+        }
+        SMFullResponseBlock retryBlock = ^(NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
             if ([response statusCode] == SMErrorUnauthorized && options.tryRefreshToken && self.session.refreshToken != nil) {
                 [self refreshAndRetry:originalRequest originalError:[self errorFromResponse:response JSON:JSON] requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
             } else if ([response statusCode] == SMErrorServiceUnavailable && options.numberOfRetries > 0) {
@@ -369,7 +391,7 @@
                         if (options.retryBlock) {
                             options.retryBlock(originalRequest, response, error, JSON, options, onSuccess, onFailure);
                         } else {
-                            [self queueCustomCodeRequest:[self.session signRequest:originalRequest] responseContentType:responseContentType options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
+                            [self queueCustomCodeRequest:[self.session signRequest:originalRequest] customCodeRequestInstance:customCodeRequest options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
                         }
                     });
                 } else {
@@ -391,18 +413,14 @@
         
     }
     
-    AFHTTPRequestOperation *op = [[self.session oauthClientWithHTTPS:options.isSecure] HTTPRequestOperationWithRequest:request success:^(AFHTTPRequestOperation *operation, id responseObject){
-        
-        NSLog(@"Here we are");
-        NSString *response = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
-        NSLog(@"response is %@", response);
+    AFHTTPRequestOperation *op = [[self.session oauthClientWithHTTPS:options.isSecure] HTTPRequestOperationWithRequest:request success:
     }failure:^(AFHTTPRequestOperation *operation, id responseObject){
         
         NSLog(@"We failed");
     }];
     
-    if (![[AFHTTPRequestOperation acceptableContentTypes] containsObject:responseContentType]) {
-        [AFHTTPRequestOperation addAcceptableContentTypes:[NSSet setWithObject:responseContentType]];
+    if (customCodeRequest.responseContentType && ![[AFHTTPRequestOperation acceptableContentTypes] containsObject:customCodeRequest.responseContentType]) {
+        [AFHTTPRequestOperation addAcceptableContentTypes:[NSSet setWithObject:customCodeRequest.responseContentType]];
     }
     
     if (successCallbackQueue) {

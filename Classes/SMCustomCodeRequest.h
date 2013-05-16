@@ -69,6 +69,13 @@
  */
 @property (nonatomic, strong) NSString *responseContentType;
 
+/**
+ A Boolean indicating whether to attempt to convert the response from `NSData` to a specific class based on the response content type.
+ 
+ The default is YES. Set to NO if response should be returned as `NSData`.
+ */
+@property (nonatomic) BOOL *autoConvertResponseBody;
+
 ///-------------------------------
 /// @name Initialize
 ///-------------------------------
@@ -135,7 +142,5 @@
  @since Available in iOS SDK 1.0.0 and later.
  */
 - (void)addQueryStringParameterWhere:(NSString *)key equals:(NSString *)value;
-
-- (void)addAcceptableContentTypes:(NSSet *)contentTypes;
 
 @end
