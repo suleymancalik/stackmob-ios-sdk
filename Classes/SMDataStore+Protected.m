@@ -20,6 +20,7 @@
 #import "SMRequestOptions.h"
 #import "SMNetworkReachability.h"
 #import "SMCustomCodeRequest.h"
+#import "AFHTTPRequestOperation.h"
 
 @implementation SMDataStore (SpecialCondition)
 
@@ -357,27 +358,79 @@
         //[self refreshAndRetry:request originalError:nil requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
     }
     else {
-        AFHTTPOperationResponseBlock successBlock = ^(AFHTTPRequestOperation *operation, id responseObject){
+        AFHTTPOperationSuccessBlock successBlock = ^(AFHTTPRequestOperation *operation, id responseObject){
             
             if (!customCodeRequest.autoConvertResponseBody) {
                 onSuccess(operation.request, operation.response, responseObject);
             } else {
+                NSString *contentType = [[[operation response] allHeaderFields] objectForKey:@"Content-Type"];
                 id returnValue = nil;
-                if ([customCodeRequest.responseContentType rangeOfString:@"json"].location != NSNotFound) {
+                if ([contentType rangeOfString:@"json"].location != NSNotFound) {
                     NSError *error = nil;
                     returnValue = [NSJSONSerialization JSONObjectWithData:responseObject options:nil error:&error];
-                } else if ([customCodeRequest.responseContentType rangeOfString:@"image"].location != NSNotFound) {
+                } else if ([contentType rangeOfString:@"image"].location != NSNotFound) {
                     returnValue = [UIImage imageWithData:responseObject];
-                } else if ([customCodeRequest.responseContentType rangeOfString:@"text"].location != NSNotFound) {
+                } else if ([contentType rangeOfString:@"text"].location != NSNotFound) {
                     returnValue = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
                 } else {
                     returnValue = responseObject;
                 }
                 onSuccess(operation.request, operation.response, returnValue);
             }
+        };
+        
+        AFHTTPOperationFailureBlock retryBlock = ^(AFHTTPRequestOperation *operation, NSError *error){
+            
+            
+            if ([[operation response] statusCode] == SMErrorUnauthorized && options.tryRefreshToken && self.session.refreshToken != nil) {
+                /*
+                [self refreshAndRetry:[operation request] originalError:[self errorFromResponse:[operation response] JSON:JSON] requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
+                 */
+            } else if ([[operation response] statusCode] == SMErrorServiceUnavailable && options.numberOfRetries > 0) {
+                NSString *retryAfter = [[[operation response] allHeaderFields] valueForKey:@"Retry-After"];
+                if (retryAfter) {
+                    [options setNumberOfRetries:(options.numberOfRetries - 1)];
+                    double delayInSeconds = [retryAfter doubleValue];
+                    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+                    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                        if (options.retryBlock) {
+                            options.retryBlock([operation request], [operation response], error, nil, options, onSuccess, onFailure);
+                        } else {
+                            [self queueCustomCodeRequest:[self.session signRequest:[operation request]] customCodeRequestInstance:customCodeRequest options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
+                        }
+                    });
+                } else {
+                    if (onFailure) {
+                        onFailure([operation request], [operation response], error, nil);
+                    }
+                }
+            } else if ([error domain] == NSURLErrorDomain && [error code] == -1009) {
+                if (onFailure) {
+                    NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
+                    onFailure([operation request], [operation response], networkNotReachableError, nil);
+                }
+            } else {
+                if (onFailure) {
+                    onFailure([operation request], [operation response], error, nil);
+                }
+            }
+        };
+        
+        AFHTTPRequestOperation *op = [[self.session oauthClientWithHTTPS:options.isSecure] HTTPRequestOperationWithRequest:request success:successBlock failure:retryBlock];
+        
+        if (customCodeRequest.responseContentType && ![[AFHTTPRequestOperation acceptableContentTypes] containsObject:customCodeRequest.responseContentType]) {
+            [AFHTTPRequestOperation addAcceptableContentTypes:[NSSet setWithObject:customCodeRequest.responseContentType]];
         }
-        AFHTTPOperationResponseBlock retryBlock = ^(AFHTTPRequestOperation *operation, id responseObject){
+        
+        if (successCallbackQueue) {
+            [op setSuccessCallbackQueue:successCallbackQueue];
         }
+        if (failureCallbackQueue) {
+            [op setFailureCallbackQueue:failureCallbackQueue];
+        }
+        [[self.session oauthClientWithHTTPS:options.isSecure] enqueueHTTPRequestOperation:op];
+        
+        /*
         SMFullResponseBlock retryBlock = ^(NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
             if ([response statusCode] == SMErrorUnauthorized && options.tryRefreshToken && self.session.refreshToken != nil) {
                 [self refreshAndRetry:originalRequest originalError:[self errorFromResponse:response JSON:JSON] requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
@@ -410,26 +463,8 @@
                 }
             }
         };
-        
+        */
     }
-    
-    AFHTTPRequestOperation *op = [[self.session oauthClientWithHTTPS:options.isSecure] HTTPRequestOperationWithRequest:request success:
-    }failure:^(AFHTTPRequestOperation *operation, id responseObject){
-        
-        NSLog(@"We failed");
-    }];
-    
-    if (customCodeRequest.responseContentType && ![[AFHTTPRequestOperation acceptableContentTypes] containsObject:customCodeRequest.responseContentType]) {
-        [AFHTTPRequestOperation addAcceptableContentTypes:[NSSet setWithObject:customCodeRequest.responseContentType]];
-    }
-    
-    if (successCallbackQueue) {
-        [op setSuccessCallbackQueue:successCallbackQueue];
-    }
-    if (failureCallbackQueue) {
-        [op setFailureCallbackQueue:failureCallbackQueue];
-    }
-    [[self.session oauthClientWithHTTPS:options.isSecure] enqueueHTTPRequestOperation:op];
     
 }
 

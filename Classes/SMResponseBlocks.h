@@ -155,5 +155,12 @@ typedef void (^SMCoreDataSaveFailureBlock)(NSURLRequest *theRequest, NSError *th
  
  @since Available in iOS SDK 2.0.0 and later.
  */
-typedef void (^AFHTTPOperationResponseBlock)(AFHTTPRequestOperation *operation, id responseObject);
+typedef void (^AFHTTPOperationSuccessBlock)(AFHTTPRequestOperation *operation, id responseObject);
+
+/**
+ Used interally for custom code requests.
+ 
+ @since Available in iOS SDK 2.0.0 and later.
+ */
+typedef void (^AFHTTPOperationFailureBlock)(AFHTTPRequestOperation *operation, NSError *error);
 
