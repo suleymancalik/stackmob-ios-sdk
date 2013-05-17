@@ -48,6 +48,7 @@ extern NSString *const SMDirtyUpdatedObjectKeys;
 extern NSString *const SMDirtyDeletedObjectKeys;
 
 extern BOOL SM_CORE_DATA_DEBUG;
+extern BOOL SM_ALLOW_CACHE_RESET;
 extern unsigned int SM_MAX_LOG_LENGTH;
 
 /**
