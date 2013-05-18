@@ -50,8 +50,7 @@
         <relationship name="interests" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Interest" inverseName="person" inverseEntity="Interest" syncable="YES"/>
         <relationship name="superpower" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Superpower" inverseName="person" inverseEntity="Superpower" syncable="YES"/>
     </entity>
-    <entity name="Random" representedClassName="Random" syncable="YES">
-        <attribute name="createddate" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+    <entity name="Random" representedClassName="Random" parentEntity="StackMob" syncable="YES">
         <attribute name="done" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="geopoint" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
@@ -72,7 +71,7 @@
         <relationship name="person" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Person" inverseName="superpower" inverseEntity="Person" syncable="YES"/>
     </entity>
     <entity name="Todo" parentEntity="StackMob" syncable="YES">
-        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" defaultValueString="What!" syncable="YES"/>
         <attribute name="todoId" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="category" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="todo" inverseEntity="Category" syncable="YES"/>
         <relationship name="user3" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="User3" inverseName="todos" inverseEntity="User3" syncable="YES"/>
@@ -97,7 +96,7 @@
         <element name="Offlinepermspost" positionX="160" positionY="192" width="128" height="75"/>
         <element name="Offlinepermsput" positionX="160" positionY="192" width="128" height="75"/>
         <element name="Person" positionX="-468" positionY="-129" width="128" height="165"/>
-        <element name="Random" positionX="187" positionY="-108" width="128" height="165"/>
+        <element name="Random" positionX="187" positionY="-108" width="128" height="150"/>
         <element name="StackMob" positionX="160" positionY="192" width="128" height="75"/>
         <element name="Superpower" positionX="-171" positionY="123" width="128" height="120"/>
         <element name="Todo" positionX="-218" positionY="396" width="128" height="105"/>
