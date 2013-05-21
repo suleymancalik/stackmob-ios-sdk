@@ -26,9 +26,6 @@ void syncWithSemaphore(void (^block)(dispatch_semaphore_t semaphore));
 
 void syncReturn(dispatch_semaphore_t semaphore);
 
-/**
- The `Synchronization` class provides helper methods for making synchronous calls to StackMob.  This is done because Core Data makes all calls to it's persistent store synchronously, therefore we must do the same with StackMob.
- */
 @interface Synchronization : NSObject
 
 @end

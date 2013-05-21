@@ -456,6 +456,10 @@
                          onSuccess:(SMResultSuccessBlock)successBlock
                          onFailure:(SMFailureBlock)failureBlock;
 
+#pragma mark Check Logged In Status
+///-------------------------------
+/// @name Check Status
+///-------------------------------
 
 /**
  Check whether the current user is logged in.
@@ -557,7 +561,7 @@
 
 #pragma mark Facebook
 ///-------------------------------
-/// @name Facebook Authentication
+/// @name Create a User with Facebook
 ///-------------------------------
 
 /**
@@ -606,6 +610,10 @@
                failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                           onSuccess:(SMResultSuccessBlock)successBlock
                           onFailure:(SMFailureBlock)failureBlock;
+
+///-------------------------------
+/// @name Link/Unlink a User From Facebook
+///-------------------------------
 
 /**
  Link the logged in user with a Facebook account.
@@ -662,6 +670,10 @@
                              failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                                         onSuccess:(SMSuccessBlock)successBlock
                                         onFailure:(SMFailureBlock)failureBlock;
+
+///-------------------------------
+/// @name Login with Facebook
+///-------------------------------
 
 /**
  Login a user to your app with a Facebook token.
@@ -733,6 +745,10 @@
                      onSuccess:(SMResultSuccessBlock)successBlock
                      onFailure:(SMFailureBlock)failureBlock;
 
+///-------------------------------
+/// @name Update Facebook Status
+///-------------------------------
+
 /**
  Update the logged in users's Facebook status.
  
@@ -769,6 +785,10 @@
                               onSuccess:(SMResultSuccessBlock)successBlock
                               onFailure:(SMFailureBlock)failureBlock;
 
+///-------------------------------
+/// @name Get Facebook User Info
+///-------------------------------
+
 /**
  Get Facebook info for the logged in users.
  
@@ -804,7 +824,7 @@
 
 #pragma mark twitter
 ///-------------------------------
-/// @name Twitter Authentication
+/// @name Create a User With Twitter
 ///-------------------------------
 
 /**
@@ -860,6 +880,10 @@
               failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                          onSuccess:(SMResultSuccessBlock)successBlock
                          onFailure:(SMFailureBlock)failureBlock;
+
+///-------------------------------
+/// @name Link/Unlink a User From Twitter
+///-------------------------------
 
 /**
  Link the logged in user with a Twitter account.
@@ -920,6 +944,10 @@
                             failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                                        onSuccess:(SMSuccessBlock)successBlock
                                        onFailure:(SMFailureBlock)failureBlock;
+
+///-------------------------------
+/// @name Login With Twitter
+///-------------------------------
 
 /**
  Login a user to your app with twitter credentials.
@@ -1004,6 +1032,10 @@
                     onSuccess:(SMResultSuccessBlock)successBlock
                     onFailure:(SMFailureBlock)failureBlock;
 
+///-------------------------------
+/// @name Update Twitter Status
+///-------------------------------
+
 /**
  Update the logged in users's Twitter status.
  
@@ -1040,6 +1072,10 @@
                              onSuccess:(SMResultSuccessBlock)successBlock
                              onFailure:(SMFailureBlock)failureBlock;
 
+///-------------------------------
+/// @name Get Twitter User Info
+///-------------------------------
+
 /**
  Get Twitter info for the logged in users.
  
@@ -1075,7 +1111,7 @@
 
 #pragma mark - Gigya
 ///-------------------------------
-/// @name Gigya Authentication
+/// @name Link/Unlink User From Gigya
 ///-------------------------------
 
 /**
@@ -1138,6 +1174,10 @@
  @since Available in iOS SDK 1.4.0 and later.
  */
 - (void)unlinkLoggedInUserFromGigyaWithOptions:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
+
+///-------------------------------
+/// @name Login With Gigya
+///-------------------------------
 
 /**
  Login with Gigya, providing the m_pDict property of the GSObject user parameter provided by the gsLoginUIDidLogin:user:context: delegate method.
