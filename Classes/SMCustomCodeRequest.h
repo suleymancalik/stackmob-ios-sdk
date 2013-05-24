@@ -58,23 +58,11 @@
 /**
  Set this property to specify the expected content type for the response of this custom code request.
  
- Use when your custom code methods return responses with content types other than:
+ Use when your custom code methods return responses with content types other than the StackMob default application/vnd.stackmob+json.
  
- * text/json
- * text/javascript
- * application/json
- * application/vnd.stackmob+json (Used for StackMob)
- 
- @since Available in iOS SDK 1.4.0 and later.
+ @since Available in iOS SDK 2.0.0 and later.
  */
 @property (nonatomic, strong) NSString *responseContentType;
-
-/**
- A Boolean indicating whether to attempt to convert the response from `NSData` to a specific class based on the response content type.
- 
- The default is YES. Set to NO if response should be returned as `NSData`.
- */
-@property (nonatomic) BOOL *autoConvertResponseBody;
 
 ///-------------------------------
 /// @name Initialize

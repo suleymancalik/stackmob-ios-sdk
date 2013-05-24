@@ -231,6 +231,8 @@
 		DEBBBCBE15CC441900650D75 /* NSArray+Enumerable.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBA15CC441900650D75 /* NSArray+Enumerable.m */; };
 		DEBBBCBF15CC441900650D75 /* Synchronization.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBBBCBB15CC441900650D75 /* Synchronization.h */; };
 		DEBBBCC015CC441900650D75 /* Synchronization.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBBBCBC15CC441900650D75 /* Synchronization.m */; };
+		DEC253491750303F0023BEDA /* AFHTTPRequestOperation+RemoveContentType.h in Headers */ = {isa = PBXBuildFile; fileRef = DEC253471750303F0023BEDA /* AFHTTPRequestOperation+RemoveContentType.h */; };
+		DEC2534A1750303F0023BEDA /* AFHTTPRequestOperation+RemoveContentType.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC253481750303F0023BEDA /* AFHTTPRequestOperation+RemoveContentType.m */; };
 		DEC5F9FA169B979B00A44722 /* SMIncrementalStoreNode.h in Headers */ = {isa = PBXBuildFile; fileRef = DEC5F9F8169B979B00A44722 /* SMIncrementalStoreNode.h */; };
 		DEC5F9FB169B979B00A44722 /* SMIncrementalStoreNode.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC5F9F9169B979B00A44722 /* SMIncrementalStoreNode.m */; };
 		DED7D2A81655749900FBAF06 /* SMNetworkReachability.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = DE079B9A16499B0900C8AAA0 /* SMNetworkReachability.h */; };
@@ -511,6 +513,8 @@
 		DEBBBCBA15CC441900650D75 /* NSArray+Enumerable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Enumerable.m"; sourceTree = "<group>"; };
 		DEBBBCBB15CC441900650D75 /* Synchronization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Synchronization.h; sourceTree = "<group>"; };
 		DEBBBCBC15CC441900650D75 /* Synchronization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Synchronization.m; sourceTree = "<group>"; };
+		DEC253471750303F0023BEDA /* AFHTTPRequestOperation+RemoveContentType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AFHTTPRequestOperation+RemoveContentType.h"; sourceTree = "<group>"; };
+		DEC253481750303F0023BEDA /* AFHTTPRequestOperation+RemoveContentType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AFHTTPRequestOperation+RemoveContentType.m"; sourceTree = "<group>"; };
 		DEC570FA15D065FC00D9E44E /* SMCoreDataStoreTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMCoreDataStoreTest.m; sourceTree = "<group>"; };
 		DEC5F9F8169B979B00A44722 /* SMIncrementalStoreNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMIncrementalStoreNode.h; sourceTree = "<group>"; };
 		DEC5F9F9169B979B00A44722 /* SMIncrementalStoreNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMIncrementalStoreNode.m; sourceTree = "<group>"; };
@@ -759,6 +763,8 @@
 				DE05E15415E2C02200224E4E /* SMError.m */,
 				DE05E15515E2C02200224E4E /* SMJSONRequestOperation.h */,
 				DE05E15615E2C02200224E4E /* SMJSONRequestOperation.m */,
+				DEC253471750303F0023BEDA /* AFHTTPRequestOperation+RemoveContentType.h */,
+				DEC253481750303F0023BEDA /* AFHTTPRequestOperation+RemoveContentType.m */,
 				DE05E15815E2C02200224E4E /* SMOAuth2Client.h */,
 				DE05E15915E2C02200224E4E /* SMOAuth2Client.m */,
 				DE05E15A15E2C02200224E4E /* SMQuery.h */,
@@ -973,6 +979,7 @@
 				DEEDC32816C984B4008B1CC2 /* Common.h in Headers */,
 				DE9BCC00172F661B007CBA7F /* SMSyncedObject.h in Headers */,
 				DE1F26691733375F00DA734F /* FileManagement.h in Headers */,
+				DEC253491750303F0023BEDA /* AFHTTPRequestOperation+RemoveContentType.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1365,6 +1372,7 @@
 				1D8352AA16C8512900814C71 /* SMLocationManager.m in Sources */,
 				DE9BCC01172F661B007CBA7F /* SMSyncedObject.m in Sources */,
 				DE1F266A1733375F00DA734F /* FileManagement.m in Sources */,
+				DEC2534A1750303F0023BEDA /* AFHTTPRequestOperation+RemoveContentType.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

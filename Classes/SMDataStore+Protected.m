@@ -21,6 +21,9 @@
 #import "SMNetworkReachability.h"
 #import "SMCustomCodeRequest.h"
 #import "AFHTTPRequestOperation.h"
+#import "AFHTTPRequestOperation+RemoveContentType.h"
+
+#define SM_VENDOR_SPECIFIC_JSON @"application/vnd.stackmob+json"
 
 @implementation SMDataStore (SpecialCondition)
 
@@ -178,6 +181,45 @@
         __block dispatch_queue_t newQueueForRefresh = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
         [self.session refreshTokenWithSuccessCallbackQueue:newQueueForRefresh failureCallbackQueue:newQueueForRefresh onSuccess:^(NSDictionary *userObject) {
             [self queueRequest:[self.session signRequest:request] options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
+         
+        } onFailure:^(NSError *theError) {
+            NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:theError, SMRefreshErrorObjectKey, @"Attempt to refresh access token failed.", NSLocalizedDescriptionKey, nil];
+            if (originalError) {
+                [userInfo setObject:originalError forKey:SMOriginalErrorCausingRefreshKey];
+            }
+            __block NSError *refreshError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenFailed userInfo:userInfo];
+            if (self.session.tokenRefreshFailureBlock) {
+                dispatch_async(failureCallbackQueue, ^{
+                    SMFailureBlock newFailureBlock = ^(NSError *error){
+                        failureBlock(nil, nil, error, nil);
+                    };
+                    self.session.tokenRefreshFailureBlock(refreshError, newFailureBlock);
+                });
+            } else if (failureBlock) {
+                dispatch_async(failureCallbackQueue, ^{
+                    failureBlock(request, nil, refreshError, nil);
+                });
+            }
+        }];
+    }
+}
+
+- (void)refreshAndRetryCustomCode:(NSURLRequest *)request customCodeRequestInstance:(SMCustomCodeRequest *)customCodeRequest originalError:(NSError *)originalError requestSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue requestFailureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock
+{
+    if (self.session.refreshing) {
+        if (failureBlock) {
+            dispatch_async(failureCallbackQueue, ^{
+                NSError *error = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorRefreshTokenInProgress userInfo:nil];
+                failureBlock(request, nil, error, nil);
+            });
+        }
+    } else {
+        //__block SMRequestOptions *options = [SMRequestOptions options];
+        [options setTryRefreshToken:NO];
+        __block dispatch_queue_t newQueueForRefresh = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+        [self.session refreshTokenWithSuccessCallbackQueue:newQueueForRefresh failureCallbackQueue:newQueueForRefresh onSuccess:^(NSDictionary *userObject) {
+            [self queueCustomCodeRequest:[self.session signRequest:request] customCodeRequestInstance:customCodeRequest options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:successBlock onFailure:failureBlock];
+            
         } onFailure:^(NSError *theError) {
             NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:theError, SMRefreshErrorObjectKey, @"Attempt to refresh access token failed.", NSLocalizedDescriptionKey, nil];
             if (originalError) {
@@ -352,40 +394,44 @@
         options.headers = [NSDictionary dictionary];
     }
     
-    
-    // TODO add type to refreshAndRetry
     if ([self.session eligibleForTokenRefresh:options]) {
-        //[self refreshAndRetry:request originalError:nil requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
+        [self refreshAndRetryCustomCode:request customCodeRequestInstance:customCodeRequest originalError:nil requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
     }
     else {
         AFHTTPOperationSuccessBlock successBlock = ^(AFHTTPRequestOperation *operation, id responseObject){
             
-            if (!customCodeRequest.autoConvertResponseBody) {
-                onSuccess(operation.request, operation.response, responseObject);
-            } else {
-                NSString *contentType = [[[operation response] allHeaderFields] objectForKey:@"Content-Type"];
+            // Remove any custom content types
+            if (customCodeRequest.responseContentType) {
+                [AFHTTPRequestOperation removeAcceptableContentType:customCodeRequest.responseContentType];
+            }
+            
+            NSString *contentType = [[[operation response] allHeaderFields] objectForKey:@"Content-Type"];
+            if ([contentType rangeOfString:SM_VENDOR_SPECIFIC_JSON].location != NSNotFound) {
                 id returnValue = nil;
-                if ([contentType rangeOfString:@"json"].location != NSNotFound) {
-                    NSError *error = nil;
-                    returnValue = [NSJSONSerialization JSONObjectWithData:responseObject options:nil error:&error];
-                } else if ([contentType rangeOfString:@"image"].location != NSNotFound) {
-                    returnValue = [UIImage imageWithData:responseObject];
-                } else if ([contentType rangeOfString:@"text"].location != NSNotFound) {
-                    returnValue = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
-                } else {
-                    returnValue = responseObject;
+                NSError *error = nil;
+                returnValue = [NSJSONSerialization JSONObjectWithData:responseObject options:kNilOptions error:&error];
+                if (error) {
+                    if (onFailure) {
+                        onFailure([operation request], [operation response], error, nil);
+                    }
+                } else if (onSuccess) {
+                    onSuccess(operation.request, operation.response, returnValue);
                 }
-                onSuccess(operation.request, operation.response, returnValue);
+                
+            } else if (onSuccess) {
+                onSuccess(operation.request, operation.response, responseObject);
             }
         };
         
         AFHTTPOperationFailureBlock retryBlock = ^(AFHTTPRequestOperation *operation, NSError *error){
             
+            // Remove any custom content types
+            if (customCodeRequest.responseContentType) {
+                [AFHTTPRequestOperation removeAcceptableContentType:customCodeRequest.responseContentType];
+            }
             
             if ([[operation response] statusCode] == SMErrorUnauthorized && options.tryRefreshToken && self.session.refreshToken != nil) {
-                /*
-                [self refreshAndRetry:[operation request] originalError:[self errorFromResponse:[operation response] JSON:JSON] requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
-                 */
+                [self refreshAndRetryCustomCode:[operation request] customCodeRequestInstance:customCodeRequest originalError:error requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
             } else if ([[operation response] statusCode] == SMErrorServiceUnavailable && options.numberOfRetries > 0) {
                 NSString *retryAfter = [[[operation response] allHeaderFields] valueForKey:@"Retry-After"];
                 if (retryAfter) {
@@ -418,8 +464,10 @@
         
         AFHTTPRequestOperation *op = [[self.session oauthClientWithHTTPS:options.isSecure] HTTPRequestOperationWithRequest:request success:successBlock failure:retryBlock];
         
-        if (customCodeRequest.responseContentType && ![[AFHTTPRequestOperation acceptableContentTypes] containsObject:customCodeRequest.responseContentType]) {
-            [AFHTTPRequestOperation addAcceptableContentTypes:[NSSet setWithObject:customCodeRequest.responseContentType]];
+        if (customCodeRequest.responseContentType) {
+            [AFHTTPRequestOperation addAcceptableContentTypes:[NSSet setWithObjects:SM_VENDOR_SPECIFIC_JSON,customCodeRequest.responseContentType, nil]];
+        } else {
+            [AFHTTPRequestOperation addAcceptableContentTypes:[NSSet setWithObject:SM_VENDOR_SPECIFIC_JSON]];
         }
         
         if (successCallbackQueue) {
@@ -430,40 +478,6 @@
         }
         [[self.session oauthClientWithHTTPS:options.isSecure] enqueueHTTPRequestOperation:op];
         
-        /*
-        SMFullResponseBlock retryBlock = ^(NSURLRequest *originalRequest, NSHTTPURLResponse *response, NSError *error, id JSON) {
-            if ([response statusCode] == SMErrorUnauthorized && options.tryRefreshToken && self.session.refreshToken != nil) {
-                [self refreshAndRetry:originalRequest originalError:[self errorFromResponse:response JSON:JSON] requestSuccessCallbackQueue:successCallbackQueue requestFailureCallbackQueue:failureCallbackQueue options:options onSuccess:onSuccess onFailure:onFailure];
-            } else if ([response statusCode] == SMErrorServiceUnavailable && options.numberOfRetries > 0) {
-                NSString *retryAfter = [[response allHeaderFields] valueForKey:@"Retry-After"];
-                if (retryAfter) {
-                    [options setNumberOfRetries:(options.numberOfRetries - 1)];
-                    double delayInSeconds = [retryAfter doubleValue];
-                    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-                    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-                        if (options.retryBlock) {
-                            options.retryBlock(originalRequest, response, error, JSON, options, onSuccess, onFailure);
-                        } else {
-                            [self queueCustomCodeRequest:[self.session signRequest:originalRequest] customCodeRequestInstance:customCodeRequest options:options successCallbackQueue:successCallbackQueue failureCallbackQueue:failureCallbackQueue onSuccess:onSuccess onFailure:onFailure];
-                        }
-                    });
-                } else {
-                    if (onFailure) {
-                        onFailure(originalRequest, response, error, JSON);
-                    }
-                }
-            } else if ([error domain] == NSURLErrorDomain && [error code] == -1009) {
-                if (onFailure) {
-                    NSError *networkNotReachableError = [[NSError alloc] initWithDomain:SMErrorDomain code:SMErrorNetworkNotReachable userInfo:[error userInfo]];
-                    onFailure(originalRequest, response, networkNotReachableError, JSON);
-                }
-            } else {
-                if (onFailure) {
-                    onFailure(originalRequest, response, error, JSON);
-                }
-            }
-        };
-        */
     }
     
 }
