@@ -92,6 +92,7 @@ NSString *const SMCreatedDateKey = @"createddate";
 NSString *const SMServerTimeDiff = @"SMServerTimeDiff";
 
 BOOL SM_CORE_DATA_DEBUG = NO;
+BOOL SM_ALLOW_CACHE_RESET = NO;
 unsigned int SM_MAX_LOG_LENGTH = 10000;
 
 NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
@@ -2079,7 +2080,23 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
         [_localPersistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error];
         
         if (error != nil) {
-            [NSException raise:SMExceptionAddPersistentStore format:@"Error creating sqlite persistent store: %@", error];
+            
+            if (SM_ALLOW_CACHE_RESET && [[[error userInfo] objectForKey:@"reason"] isEqualToString:@"Can't find model for source store"]) {
+                
+                [self SM_readCacheMap];
+                [self SM_readDirtyQueue];
+                [self SM_resetCacheFiles];
+                
+                error = nil;
+                [_localPersistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error];
+                
+                if (error != nil) {
+                    [NSException raise:SMExceptionAddPersistentStore format:@"Error creating sqlite persistent store: %@", error];
+                }
+                
+            } else {
+                [NSException raise:SMExceptionAddPersistentStore format:@"Error creating sqlite persistent store: %@", error];
+            }
         }
         
     }
@@ -3470,16 +3487,27 @@ NSString* truncateOutputIfExceedsMaxLogLength(id objectToCheck) {
 - (void)SM_didRecieveCacheResetNotification:(NSNotification *)notification
 {
     if (SM_CORE_DATA_DEBUG) { DLog() }
+    [self SM_resetCacheFiles];
+    
+    _localManagedObjectContext = nil;
+    _localPersistentStoreCoordinator = nil;
+    _localManagedObjectModel = nil;
+    _localManagedObjectContext = self.localManagedObjectContext;
+}
+
+- (void)SM_resetCacheFiles
+{
     NSURL *storeURL = [FileManagement SM_getStoreURLForFileComponent:SQL_DB coreDataStore:self.coreDataStore];
     [FileManagement SM_removeStoreURLPath:storeURL];
     
     [self.cacheMappingTable removeAllObjects];
     [self SM_saveCacheMap];
     
-    _localManagedObjectContext = nil;
-    _localPersistentStoreCoordinator = nil;
-    _localManagedObjectModel = nil;
-    _localManagedObjectContext = self.localManagedObjectContext;
+    self.dirtyQueue = [NSMutableDictionary dictionary];
+    [self.dirtyQueue setObject:[NSArray array] forKey:SMDirtyInsertedObjectKeys];
+    [self.dirtyQueue setObject:[NSArray array] forKey:SMDirtyUpdatedObjectKeys];
+    [self.dirtyQueue setObject:[NSArray array] forKey:SMDirtyDeletedObjectKeys];
+    [self SM_saveDirtyQueue];
 }
 
 - (BOOL)SM_purgeCacheManagedObjectsFromCache:(NSArray *)arrayOfManagedObjects
