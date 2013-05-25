@@ -21,6 +21,43 @@
  */
 @interface NSManagedObject (StackMobSerialization)
 
+///-------------------------------
+/// @name Getting the Primary Key Field
+///-------------------------------
+
+/**
+ Returns the primary key field name for this entity.
+ 
+ lowercaseEntityNameId or lowercaseEntityName_id is returned, if found as an attribute.
+ 
+ @note If lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity's attributes, a `SMExceptionIncompatibleObject` exception is thrown.
+ 
+ @since Available in iOS SDK 1.1.1 and later.
+ */
+- (NSString *)primaryKeyField;
+
+///-------------------------------
+/// @name Assigning an Object ID
+///-------------------------------
+
+/**
+ Assigns a unique ID to the `NSManagedObject` instance.
+ 
+ The id is placed in the object's primary key attribute, retrieved from <primaryKeyField>. It is used as the reference when assigning a permanent ID to the Core Data `NSManagedObject` so that Core Data and StackMob are referencing the same key.
+ 
+ @note When creating an `NSManagedObject`, you must call this method and set it's return string as the value for the primary key field.  A call to `save:` on the managed object context will fail if any newly inserted object has a nil value for its primary key field.  To avoid this, when you are done setting other values simply add the line (assuming your new object is called newManagedObject):
+ 
+ [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]];
+ 
+ @since Available in iOS SDK 1.1.1 and later.
+ 
+ */
+- (NSString *)assignObjectId;
+
+///-------------------------------
+/// @name Internal
+///-------------------------------
+
 /**
  Returns the StackMob equivalent schema for the entity name.
  
@@ -36,36 +73,11 @@
 - (NSString *)SMObjectId;
 
 /**
- Assigns a unique ID to the `NSManagedObject` instance.
- 
- The id is placed in the object's primary key attribute, retrieved from <primaryKeyField>. It is used as the reference when assigning a permanent ID to the Core Data `NSManagedObject` so that Core Data and StackMob are referencing the same key.
- 
- @note When creating an `NSManagedObject`, you must call this method and set it's return string as the value for the primary key field.  A call to `save:` on the managed object context will fail if any newly inserted object has a nil value for its primary key field.  To avoid this, when you are done setting other values simply add the line (assuming your new object is called newManagedObject):
- 
-    [newManagedObject setValue:[newManagedObject assignObjectId] forKey:[newManagedObject primaryKeyField]];
- 
- @since Available in iOS SDK 1.1.1 and later.
- 
- */
-- (NSString *)assignObjectId;
-
-/**
  Converts the value returned from <primaryKeyField> to its StackMob equivalent field.
  
  @since Available in iOS SDK 1.0.0 and later.
  */
 - (NSString *)SMPrimaryKeyField;
-
-/**
- Returns the primary key field name for this entity.
- 
- lowercaseEntityNameId or lowercaseEntityName_id is returned, if found as an attribute.
- 
- @note If lowercaseEntityNameId or lowercaseEntityName_id (i.e. personId or person_id for entity Person) is not one of the entity's attributes, a `SMExceptionIncompatibleObject` exception is thrown.
- 
- @since Available in iOS SDK 1.1.1 and later.
- */
-- (NSString *)primaryKeyField;
 
 /**
  Converts an `NSManagedObject` into an equivalent dictionary form for StackMob to process.

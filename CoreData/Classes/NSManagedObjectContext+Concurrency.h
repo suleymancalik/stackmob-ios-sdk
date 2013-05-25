@@ -64,6 +64,10 @@
  */
 @interface NSManagedObjectContext (Concurrency)
 
+///-------------------------------
+/// @name Asynchronous Save
+///-------------------------------
+
 /**
  Asynchronous save method.
  
@@ -107,6 +111,10 @@
  */
 - (void)saveWithSuccessCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
+///-------------------------------
+/// @name Synchronous Save
+///-------------------------------
+
 /**
  Synchronous save method.
  
@@ -135,6 +143,10 @@
  @since Available in iOS SDK 1.2.0 and later.
  */
 - (BOOL)saveAndWait:(NSError *__autoreleasing *)error options:(SMRequestOptions *)options;
+
+///-------------------------------
+/// @name Asynchronous Fetch
+///-------------------------------
 
 /**
  Asynchronous fetch method.
@@ -202,6 +214,10 @@
  */
 - (void)executeFetchRequest:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue options:(SMRequestOptions *)options onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
 
+///-------------------------------
+/// @name Synchronous Fetch
+///-------------------------------
+
 /**
  Synchronous fetch method.
  
@@ -248,6 +264,10 @@
  @since Available in iOS SDK 1.2.0 and later.
  */
 - (NSArray *)executeFetchRequestAndWait:(NSFetchRequest *)request returnManagedObjectIDs:(BOOL)returnIDs options:(SMRequestOptions *)options error:(NSError *__autoreleasing *)error;
+
+///-------------------------------
+/// @name Observing Contexts
+///-------------------------------
 
 /**
  Allows context to be notified when contextToObserve posts the NSManagedObjectContextDidSaveNotification notification.

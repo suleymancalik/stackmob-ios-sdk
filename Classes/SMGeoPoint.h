@@ -86,7 +86,7 @@
  
         NSData *data = [object objectForKey:@"location"];
         
-        SMGeoPoint *geoPoint = [NSKeyedUnarchiver unarchiveObjectWithData:data]
+        SMGeoPoint *geoPoint = [NSKeyedUnarchiver unarchiveObjectWithData:data];
  
     } onFailure:^(NSError *error) {
  

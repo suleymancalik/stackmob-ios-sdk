@@ -88,9 +88,9 @@
 - (id)initWithAPIVersion:(NSString *)apiVersion session:(SMUserSession *)session;
 
 
-#pragma mark - CRUD operations
+#pragma mark - Create an Object
 ///-------------------------------
-/// @name CRUD Operations
+/// @name Create an Object
 ///-------------------------------
 
 
@@ -147,6 +147,11 @@ failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
            onSuccess:(SMDataStoreSuccessBlock)successBlock
            onFailure:(SMDataStoreFailureBlock)failureBlock;
 
+#pragma mark - Read an Object
+///-------------------------------
+/// @name Read an Object
+///-------------------------------
+
 /** 
  Read an existing object from your StackMob Datastore.
  
@@ -199,6 +204,11 @@ failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
     failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                onSuccess:(SMDataStoreSuccessBlock)successBlock
                onFailure:(SMDataStoreObjectIdFailureBlock)failureBlock;
+
+#pragma mark - Update an Object
+///-------------------------------
+/// @name Update an Object
+///-------------------------------
 
 /** 
  Update an existing object in your StackMob Datastore.
@@ -324,6 +334,11 @@ failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
                         onSuccess:(SMDataStoreSuccessBlock)successBlock
                         onFailure:(SMDataStoreFailureBlock)failureBlock;
 
+#pragma mark - Delete an Object
+///-------------------------------
+/// @name Delete an Object
+///-------------------------------
+
 /** 
  Delete an existing object from your StackMob Datastore.
  
@@ -421,6 +436,11 @@ failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue
  */
 - (void)performQuery:(SMQuery *)query options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue
 failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMResultsSuccessBlock)successBlock onFailure:(SMFailureBlock)failureBlock;
+
+#pragma mark - Performing Count Queries
+///-------------------------------
+/// @name Performing Count Queries
+///-------------------------------
 
 /** 
  Count the results that would be returned by a query against your StackMob Datastore.
