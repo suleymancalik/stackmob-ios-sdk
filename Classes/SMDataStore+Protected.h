@@ -72,7 +72,7 @@
                onSuccess:(SMDataStoreSuccessBlock)successBlock 
                onFailure:(SMDataStoreObjectIdFailureBlock)failureBlock;
 
-- (void)queueRequest:(NSURLRequest *)request options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure;
+- (AFJSONRequestOperation *)queueRequest:(NSURLRequest *)request options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure;
 
 - (NSString *)URLEncodedStringFromValue:(NSString *)value;
 

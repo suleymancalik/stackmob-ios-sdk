@@ -255,8 +255,10 @@
     
 }
 
-- (void)queueRequest:(NSURLRequest *)request options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
+- (AFJSONRequestOperation *)queueRequest:(NSURLRequest *)request options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)onSuccess onFailure:(SMFullResponseFailureBlock)onFailure
 {
+    AFJSONRequestOperation *op;
+
     if (options.headers && [options.headers count] > 0) {
         // Enumerate through options and add them to the request header.
         NSMutableURLRequest *tempRequest = [request mutableCopy];
@@ -316,7 +318,7 @@
             }
         };
         
-        AFJSONRequestOperation *op = [SMJSONRequestOperation JSONRequestOperationWithRequest:request success:onSuccess failure:retryBlock];
+        op = [SMJSONRequestOperation JSONRequestOperationWithRequest:request success:onSuccess failure:retryBlock];
         if (successCallbackQueue) {
             [op setSuccessCallbackQueue:successCallbackQueue];
         }
@@ -326,6 +328,7 @@
         [[self.session oauthClientWithHTTPS:options.isSecure] enqueueHTTPRequestOperation:op];
     }
     
+    return op;
 }
 
 - (NSString *)URLEncodedStringFromValue:(NSString *)value

@@ -18,6 +18,7 @@
 #import "SMClient.h"
 #import "SMQuery.h"
 #import "SMResponseBlocks.h"
+#import "AFJSONRequestOperation.h"
 
 #define POST @"POST"
 #define GET @"GET"
@@ -494,7 +495,7 @@ failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMCountSu
  
  @since Available in iOS SDK 1.0.0 and later.
  */
-- (void)performCustomCodeRequest:(SMCustomCodeRequest *)customCodeRequest onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock;
+- (AFJSONRequestOperation *)performCustomCodeRequest:(SMCustomCodeRequest *)customCodeRequest onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock;
 /**
  Execute a custom code method on StackMob.
  
@@ -507,7 +508,7 @@ failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMCountSu
  
  @since Available in iOS SDK 1.0.0 and later.
  */
-- (void)performCustomCodeRequest:(SMCustomCodeRequest *)customCodeRequest options:(SMRequestOptions *)options onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock;
+- (AFJSONRequestOperation *)performCustomCodeRequest:(SMCustomCodeRequest *)customCodeRequest options:(SMRequestOptions *)options onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock;
 
 /**
  Execute a custom code method on StackMob.
@@ -523,7 +524,7 @@ failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMCountSu
  
  @since Available in iOS SDK 1.2.0 and later.
  */
-- (void)performCustomCodeRequest:(SMCustomCodeRequest *)customCodeRequest options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock;
+- (AFJSONRequestOperation *)performCustomCodeRequest:(SMCustomCodeRequest *)customCodeRequest options:(SMRequestOptions *)options successCallbackQueue:(dispatch_queue_t)successCallbackQueue failureCallbackQueue:(dispatch_queue_t)failureCallbackQueue onSuccess:(SMFullResponseSuccessBlock)successBlock onFailure:(SMFullResponseFailureBlock)failureBlock;
 
 /**
  Retry executing a custom code method on StackMob.
